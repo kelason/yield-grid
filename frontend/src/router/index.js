@@ -24,9 +24,13 @@ const router = createRouter({
     },
     {
       path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('../pages/dashboard/DashboardPage.vue'),
-      meta: { requiresAuth: true }
+      component: () => import('../components/templates/DashboardLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', name: 'dashboard', component: () => import('../pages/dashboard/FarmerDashboard.vue') },
+        { path: 'farms', name: 'farm-manager', component: () => import('../pages/dashboard/FarmManager.vue') },
+        { path: 'farms/:farmId/plots', name: 'plot-planner', component: () => import('../pages/dashboard/PlotPlanner.vue') }
+      ]
     }
   ]
 })

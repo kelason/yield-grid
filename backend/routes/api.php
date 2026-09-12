@@ -23,6 +23,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
             ->middleware(['throttle:6,1'])
             ->name('verification.send');
+            
+        // Farming (Farmers only)
+        Route::middleware(\App\Shared\Middleware\EnsureUserHasRole::class . ':farmer')->group(function () {
+            Route::get('/farms', [\App\Farming\Controllers\FarmController::class, 'index']);
+            Route::post('/farms', [\App\Farming\Controllers\FarmController::class, 'store']);
+            Route::get('/farms/{farm}/plots', [\App\Farming\Controllers\PlotController::class, 'index']);
+            Route::post('/farms/{farm}/plots', [\App\Farming\Controllers\PlotController::class, 'store']);
+        });
     });
 });
 
