@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\ContactController;
+use App\Auth\Controllers\RegisterController;
+use App\Auth\Controllers\LoginController;
+use App\Auth\Controllers\EmailVerificationController;
+use App\Contact\Controllers\ContactController;
 
 Route::prefix('v1')->group(function () {
     // Public Auth
