@@ -53,4 +53,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'role' => UserRole::class,
         ];
     }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\UserFactory::new();
+    }
 }
