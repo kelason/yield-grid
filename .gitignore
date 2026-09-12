@@ -1,0 +1,9 @@
+# Ignore everything in the root
+/*
+
+# Except the following directories and files
+!/backend/
+!/frontend/
+!/docker-compose.yml
+!/README.md
+!/.gitignore
