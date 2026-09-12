@@ -6,26 +6,26 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      component: () => import('../layouts/PublicLayout.vue'),
+      component: () => import('../components/templates/PublicLayout.vue'),
       children: [
-        { path: '', name: 'home', component: () => import('../views/HomePage.vue') },
-        { path: 'about', name: 'about', component: () => import('../views/AboutPage.vue') },
-        { path: 'contact', name: 'contact', component: () => import('../views/ContactPage.vue') }
+        { path: '', name: 'home', component: () => import('../pages/public/HomePage.vue') },
+        { path: 'about', name: 'about', component: () => import('../pages/public/AboutPage.vue') },
+        { path: 'contact', name: 'contact', component: () => import('../pages/public/ContactPage.vue') }
       ]
     },
     {
       path: '/auth',
-      component: () => import('../layouts/AuthLayout.vue'),
+      component: () => import('../components/templates/AuthLayout.vue'),
       meta: { requiresGuest: true },
       children: [
-        { path: 'login', name: 'login', component: () => import('../views/LoginPage.vue') },
-        { path: 'register', name: 'register', component: () => import('../views/RegisterPage.vue') }
+        { path: 'login', name: 'login', component: () => import('../pages/auth/LoginPage.vue') },
+        { path: 'register', name: 'register', component: () => import('../pages/auth/RegisterPage.vue') }
       ]
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('../views/DashboardPage.vue'),
+      component: () => import('../pages/dashboard/DashboardPage.vue'),
       meta: { requiresAuth: true }
     }
   ]
@@ -33,7 +33,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Try to fetch user if token exists but user isn't loaded
   if (authStore.token && !authStore.user) {
     await authStore.fetchUser()
@@ -42,7 +42,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' })
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next({ name: 'dashboard' }) // Redirect authenticated users away from auth pages
+    next({ name: 'dashboard' })
   } else {
     next()
   }

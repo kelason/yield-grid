@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
-use App\Enums\UserRole;
+use Domain\Users\Models\User;
+use Domain\Users\Enums\UserRole;
 
 test('user can register as a farmer', function () {
     $response = $this->postJson('/api/v1/register', [
