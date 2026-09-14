@@ -4,7 +4,6 @@ namespace App\Farming\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\DB;
 
 class PlotResource extends JsonResource
 {
@@ -18,7 +17,7 @@ class PlotResource extends JsonResource
         if ($this->polygon) {
             // Note: Since polygon is binary natively, we often need to fetch it via ST_AsGeoJSON in the query.
             // For this resource, if it's already a string/binary, we might just return the area.
-            // In a real app we'd use a macro or subquery for the GeoJSON. 
+            // In a real app we'd use a macro or subquery for the GeoJSON.
             // For now, we return basic fields.
         }
 

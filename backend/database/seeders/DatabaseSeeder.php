@@ -2,9 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use Domain\Farming\Models\Farm;
+use Domain\Farming\Models\Plot;
+use Domain\Users\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +19,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $user = User::firstOrCreate(
+            ['email' => 'farmer@example.com'],
+            [
+                'name' => 'Demo Farmer',
+                'password' => Hash::make('password'),
+                'role' => 'farmer',
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $farm = Farm::firstOrCreate(
+            ['user_id' => $user->id, 'name' => 'Green Valley Farm'],
+            [
+                'address' => 'Central Valley',
+            ]
+        );
+
+        $wkt = 'POLYGON((-120.5 36.5, -120.48 36.5, -120.48 36.52, -120.5 36.52, -120.5 36.5))';
+
+        Plot::firstOrCreate(
+            ['farm_id' => $farm->id, 'name' => 'North Field'],
+            [
+                'polygon' => DB::raw("ST_GeomFromText('{$wkt}', 4326)"),
+                'soil_type' => 'loamy',
+                'calculated_area' => 12.5,
+            ]
+        );
     }
 }
