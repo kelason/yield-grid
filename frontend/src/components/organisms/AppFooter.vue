@@ -1,6 +1,5 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import AppLogo from '../atoms/AppLogo.vue'
 </script>
 
 <template>

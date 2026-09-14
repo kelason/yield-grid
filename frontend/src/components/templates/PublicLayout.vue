@@ -1,15 +1,15 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import Navbar from '../organisms/Navbar.vue'
-import Footer from '../organisms/Footer.vue'
+import AppNavbar from '../organisms/AppNavbar.vue'
+import AppFooter from '../organisms/AppFooter.vue'
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col font-sans">
-    <Navbar />
+    <AppNavbar />
     <main class="flex-grow">
       <RouterView />
     </main>
-    <Footer />
+    <AppFooter />
   </div>
 </template>

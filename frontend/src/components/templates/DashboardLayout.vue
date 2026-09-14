@@ -1,6 +1,6 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import Sidebar from '../organisms/Sidebar.vue'
+import AppSidebar from '../organisms/AppSidebar.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import AppButton from '../atoms/AppButton.vue'
@@ -16,7 +16,7 @@ async function handleLogout() {
 
 <template>
   <div class="h-screen flex overflow-hidden bg-gray-50 font-sans">
-    <Sidebar />
+    <AppSidebar />
 
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
       <div class="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 flex justify-between bg-white border-b border-gray-200">
