@@ -1,0 +1,143 @@
+name: YieldGrid CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ──────────────────────────────────
+  # BACKEND (Laravel)
+  # ──────────────────────────────────
+  backend-lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: yieldgrid_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, redis, pcntl
+          
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist
+        
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+        
+      - name: Generate Key
+        run: php artisan key:generate
+        
+      - name: Run Migrations
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: yieldgrid_test
+          DB_USERNAME: test
+          DB_PASSWORD: test
+        run: php artisan migrate --force
+        
+      - name: Execute Tests (Pest)
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: yieldgrid_test
+          DB_USERNAME: test
+          DB_PASSWORD: test
+          REDIS_HOST: 127.0.0.1
+        run: ./vendor/bin/pest
+
+  # ──────────────────────────────────
+  # FRONTEND (Vue)
+  # ──────────────────────────────────
+  frontend-lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+          
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+        
+      - name: Lint (ESLint)
+        run: npm run lint
+        
+      - name: Format Check (Prettier)
+        run: npx prettier --check "src/**/*.{vue,js,ts}"
+        
+      - name: Run Tests (Vitest)
+        run: npx vitest run
+
+  # ──────────────────────────────────
+  # DEPLOY (Auto-deploy on main push)
+  # ──────────────────────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [backend-lint-and-test, frontend-lint-and-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+          
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /var/www/yieldgrid
+            git pull origin main
+            
+            # Backend updates
+            cd backend
+            composer install --no-dev --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan queue:restart
+            
+            # Restart horizon/reverb (if using supervisor/systemd)
+            # sudo supervisorctl restart horizon
+            
+            # Frontend updates (assuming a script moves dist files to a public web folder)
+            # cp -R ../frontend/dist/* /var/www/yieldgrid/public_html/

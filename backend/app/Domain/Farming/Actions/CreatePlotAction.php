@@ -19,21 +19,18 @@ class CreatePlotAction
         }
 
         $points = array_map(function ($point) {
-            return $point[0] . ' ' . $point[1];
+            // Strict float casting ensures no malicious SQL characters can be injected via the WKT string
+            return (float) $point[0] . ' ' . (float) $point[1];
         }, $coords);
         
         $wkt = "POLYGON((" . implode(', ', $points) . "))";
 
-        // Insert using DB statement to utilize PostGIS functions for Geometry and Area
-        // ST_GeomFromText creates the geometry.
-        // ST_Area calculates the area in square meters (if cast to geography).
-        
+        // We can safely use DB::raw here because $wkt is guaranteed to only contain floats and safe WKT formatting
         $plotId = DB::table('plots')->insertGetId([
             'farm_id' => $dto->farmId,
             'name' => $dto->name,
             'soil_type' => $dto->soilType,
             'polygon' => DB::raw("ST_GeomFromText('{$wkt}', 4326)"),
-            // Calculate area in hectares (1 hectare = 10,000 square meters)
             'calculated_area' => DB::raw("(ST_Area(ST_GeomFromText('{$wkt}', 4326)::geography) / 10000)"),
             'created_at' => now(),
             'updated_at' => now(),
