@@ -6,8 +6,8 @@ describe('AppButton', () => {
   it('renders correctly with default props', () => {
     const wrapper = mount(AppButton, {
       slots: {
-        default: 'Click Me'
-      }
+        default: 'Click Me',
+      },
     })
     expect(wrapper.text()).toContain('Click Me')
     expect(wrapper.classes()).toContain('bg-gradient-to-r')
@@ -16,8 +16,8 @@ describe('AppButton', () => {
   it('renders a loading spinner and is disabled when loading is true', () => {
     const wrapper = mount(AppButton, {
       props: {
-        loading: true
-      }
+        loading: true,
+      },
     })
     expect(wrapper.find('svg.animate-spin').exists()).toBe(true)
     expect(wrapper.attributes()).toHaveProperty('disabled')
@@ -26,8 +26,8 @@ describe('AppButton', () => {
   it('applies the correct classes for a secondary variant', () => {
     const wrapper = mount(AppButton, {
       props: {
-        variant: 'secondary'
-      }
+        variant: 'secondary',
+      },
     })
     expect(wrapper.classes()).toContain('bg-farm-100')
   })
