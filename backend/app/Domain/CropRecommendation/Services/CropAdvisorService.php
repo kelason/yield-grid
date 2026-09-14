@@ -112,7 +112,7 @@ CRITICAL STRICT REQUIREMENTS:
 3. YIELD CALCULATION: In "projected_yield", calculate the realistic total production for this entire {$area} hectare plot, as well as the per-hectare rate (e.g. "X tons total (Y tons/ha on {$area} ha)").
 4. SOIL COMPATIBILITY: Reflect why the crop excels in {$soil} soil.
 
-Output strictly as a JSON array of 3 objects. Do not include markdown formatting, code fences, or backticks.
+Output strictly as a JSON array of 10 objects. Do not include markdown formatting, code fences, or backticks.
 Each object must have the following keys:
 - "crop_name": string
 - "confidence_score": integer between 0 and 100
@@ -342,6 +342,94 @@ PROMPT;
                 'soil_reason' => 'Deep-reaching root system anchors effortlessly in :soil terrain, sustaining multi-decade nut yields.',
                 'loc_reason' => 'Proximity to copra processing facilities and coconut oil extraction plants across :loc.',
             ],
+            [
+                'name' => 'Mungbean (Munggo / Balatong)',
+                'ideal_soils' => ['sandy', 'loamy', 'silt'],
+                'unsuitable_soils' => ['clay'],
+                'regions' => ['tarlac', 'pangasinan', 'central luzon', 'ilocos'],
+                'min_area' => 0.1, 'max_area' => 10.0,
+                'yield_ha' => 1.4, 'unit' => 'tons',
+                'confidence' => 90,
+                'soil_reason' => 'Short-duration legume that enriches :soil soil with fixed atmospheric nitrogen between primary rotations.',
+                'loc_reason' => 'High staple consumer demand and active wholesale consolidation hubs across :loc.',
+            ],
+            [
+                'name' => 'String Beans (Sitaw)',
+                'ideal_soils' => ['loamy', 'silt', 'clay'],
+                'unsuitable_soils' => [],
+                'regions' => ['central luzon', 'tarlac', 'nueva ecija', 'pampanga'],
+                'min_area' => 0.05, 'max_area' => 3.0,
+                'yield_ha' => 12.5, 'unit' => 'tons',
+                'confidence' => 89,
+                'soil_reason' => 'Rapid vine development in fertile :soil ground with high continuous pod yields on trellises.',
+                'loc_reason' => 'Consistent daily turnover through regional trading posts and public markets in :loc.',
+            ],
+            [
+                'name' => 'Okra (Lady\'s Finger)',
+                'ideal_soils' => ['loamy', 'clay', 'sandy'],
+                'unsuitable_soils' => [],
+                'regions' => ['central luzon', 'tarlac', 'pampanga', 'nueva ecija'],
+                'min_area' => 0.05, 'max_area' => 4.0,
+                'yield_ha' => 10.0, 'unit' => 'tons',
+                'confidence' => 88,
+                'soil_reason' => 'Hardy taproot tolerates both wet and dry cycles in :soil ground while continuously bearing tender pods.',
+                'loc_reason' => 'Growing export and domestic fresh processing linkages operating in :loc.',
+            ],
+            [
+                'name' => 'Squash (Kalabasa)',
+                'ideal_soils' => ['loamy', 'silt', 'clay'],
+                'unsuitable_soils' => [],
+                'regions' => ['central luzon', 'nueva ecija', 'tarlac', 'pangasinan'],
+                'min_area' => 0.1, 'max_area' => 5.0,
+                'yield_ha' => 20.0, 'unit' => 'tons',
+                'confidence' => 87,
+                'soil_reason' => 'Wide trailing canopy shades :soil soil, suppressing weed growth and conserving root-zone moisture.',
+                'loc_reason' => 'Long post-harvest shelf life providing price stability during transport across :loc.',
+            ],
+            [
+                'name' => 'Native Ginger (Luya)',
+                'ideal_soils' => ['loamy', 'sandy', 'peat'],
+                'unsuitable_soils' => ['clay'],
+                'regions' => ['central luzon', 'batangas', 'quezon', 'bicol'],
+                'min_area' => 0.02, 'max_area' => 2.0,
+                'yield_ha' => 18.0, 'unit' => 'tons',
+                'confidence' => 86,
+                'soil_reason' => 'Friable, organic-rich :soil soil prevents rhizome rot and enables massive underground cluster expansion.',
+                'loc_reason' => 'Lucrative cash-density per square meter in local culinary and herbal markets across :loc.',
+            ],
+            [
+                'name' => 'Garlic (Bawang)',
+                'ideal_soils' => ['sandy', 'silt', 'loamy'],
+                'unsuitable_soils' => ['clay'],
+                'regions' => ['ilocos', 'pangasinan', 'central luzon', 'tarlac'],
+                'min_area' => 0.05, 'max_area' => 3.0,
+                'yield_ha' => 5.5, 'unit' => 'tons',
+                'confidence' => 85,
+                'soil_reason' => 'Well-draining, non-crusting :soil soil facilitates uniform bulb cloves without fungal damping.',
+                'loc_reason' => 'High-value commodity enjoying premium local market pricing across :loc.',
+            ],
+            [
+                'name' => 'Cucumber (Pipino)',
+                'ideal_soils' => ['loamy', 'silt', 'sandy'],
+                'unsuitable_soils' => ['clay'],
+                'regions' => ['central luzon', 'nueva ecija', 'pampanga', 'tarlac'],
+                'min_area' => 0.05, 'max_area' => 3.0,
+                'yield_ha' => 25.0, 'unit' => 'tons',
+                'confidence' => 87,
+                'soil_reason' => 'Fast-rooting crop that extracts balanced moisture from aerated :soil beds without root stagnation.',
+                'loc_reason' => 'Short 45-day turnaround delivering quick seasonal cash flow to farmers in :loc.',
+            ],
+            [
+                'name' => 'Commercial Malunggay (Moringa)',
+                'ideal_soils' => ['sandy', 'loamy', 'chalky'],
+                'unsuitable_soils' => ['clay', 'peat'],
+                'regions' => ['central luzon', 'pangasinan', 'ilocos', 'tarlac'],
+                'min_area' => 0.1, 'max_area' => 10.0,
+                'yield_ha' => 12.0, 'unit' => 'tons',
+                'confidence' => 86,
+                'soil_reason' => 'Extremely drought-tolerant deep taproot thrives even in poor, well-draining :soil soils.',
+                'loc_reason' => 'Surging nutraceutical powder and food-grade processor demand across :loc.',
+            ],
         ];
 
         // Score each crop dynamically based on Soil Compatibility + Regional Fit + Plot Area Suitability
@@ -387,11 +475,11 @@ PROMPT;
         // Sort descending by highest score
         usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
 
-        // Select top 3 distinct crops
-        $top3 = array_slice($scored, 0, 3);
+        // Select top 10 distinct crops
+        $top10 = array_slice($scored, 0, 10);
 
         $recommendations = [];
-        foreach ($top3 as $item) {
+        foreach ($top10 as $item) {
             $crop = $item['crop'];
             $calculatedYield = round($area * $crop['yield_ha'], 2);
             $unit = $crop['unit'];
