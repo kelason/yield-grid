@@ -57,6 +57,6 @@ export const useFarmingStore = defineStore('farming', () => {
     createFarm,
     fetchPlots,
     createPlot,
-    setActiveFarm
+    setActiveFarm,
   }
 })

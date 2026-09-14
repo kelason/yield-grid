@@ -14,7 +14,9 @@ function onLoginSuccess() {
     <LoginForm @success="onLoginSuccess" />
     <div class="mt-6 text-center text-sm">
       <span class="text-gray-600">Don't have an account? </span>
-      <RouterLink to="/auth/register" class="font-medium text-farm-600 hover:text-farm-500">Register here</RouterLink>
+      <RouterLink to="/auth/register" class="font-medium text-farm-600 hover:text-farm-500"
+        >Register here</RouterLink
+      >
     </div>
   </div>
 </template>

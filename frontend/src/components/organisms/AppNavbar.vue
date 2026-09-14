@@ -22,8 +22,18 @@ const authStore = useAuthStore()
         </div>
         <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
           <template v-if="!authStore.isAuthenticated">
-            <RouterLink to="/auth/login" class="text-farm-600 hover:text-farm-700 font-medium transition-colors">Log in</RouterLink>
-            <AppButton variant="primary" size="sm" rounded="full" @click="$router.push('/auth/register')">Sign up</AppButton>
+            <RouterLink
+              to="/auth/login"
+              class="text-farm-600 hover:text-farm-700 font-medium transition-colors"
+              >Log in</RouterLink
+            >
+            <AppButton
+              variant="primary"
+              size="sm"
+              rounded="full"
+              @click="$router.push('/auth/register')"
+              >Sign up</AppButton
+            >
           </template>
           <template v-else>
             <RouterLink to="/dashboard" class="text-farm-600 font-medium">Dashboard</RouterLink>

@@ -9,8 +9,9 @@
       </div>
       <div class="relative z-10 text-base max-w-prose mx-auto lg:max-w-5xl lg:mx-0 lg:pr-72">
         <p class="text-lg text-gray-500">
-          YieldGrid was founded with a single mission: to bring cutting-edge AI and market analytics to farmers of all sizes.
-          By bridging the gap between local growers and high-demand buyers, we help create sustainable, profitable agricultural ecosystems.
+          YieldGrid was founded with a single mission: to bring cutting-edge AI and market analytics
+          to farmers of all sizes. By bridging the gap between local growers and high-demand buyers,
+          we help create sustainable, profitable agricultural ecosystems.
         </p>
       </div>
     </div>

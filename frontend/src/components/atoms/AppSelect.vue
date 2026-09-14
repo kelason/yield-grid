@@ -7,7 +7,7 @@ defineProps({
   label: { type: String, required: true },
   options: { type: Array, required: true },
   required: { type: Boolean, default: false },
-  error: { type: String, default: '' }
+  error: { type: String, default: '' },
 })
 
 defineEmits(['update:modelValue'])
@@ -23,7 +23,11 @@ defineEmits(['update:modelValue'])
         @change="$emit('update:modelValue', $event.target.value)"
         :required="required"
         class="appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-farm-500 focus:border-farm-500 sm:text-sm"
-        :class="error ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 text-gray-900'"
+        :class="
+          error
+            ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500'
+            : 'border-gray-300 text-gray-900'
+        "
       >
         <option value="" disabled selected>Select an option</option>
         <option v-for="option in options" :key="option.value" :value="option.value">

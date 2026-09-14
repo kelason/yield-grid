@@ -19,7 +19,9 @@ async function handleLogout() {
     <AppSidebar />
 
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
-      <div class="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 flex justify-between bg-white border-b border-gray-200">
+      <div
+        class="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 flex justify-between bg-white border-b border-gray-200"
+      >
         <!-- Mobile header -->
         <span class="text-lg font-bold text-farm-600 p-2">YieldGrid</span>
         <AppButton variant="ghost" size="sm" @click="handleLogout" class="m-2">Logout</AppButton>

@@ -14,7 +14,9 @@ function onRegisterSuccess() {
     <RegisterForm @success="onRegisterSuccess" />
     <div class="mt-6 text-center text-sm">
       <span class="text-gray-600">Already have an account? </span>
-      <RouterLink to="/auth/login" class="font-medium text-farm-600 hover:text-farm-500">Sign in here</RouterLink>
+      <RouterLink to="/auth/login" class="font-medium text-farm-600 hover:text-farm-500"
+        >Sign in here</RouterLink
+      >
     </div>
   </div>
 </template>

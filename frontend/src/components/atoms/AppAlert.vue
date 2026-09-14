@@ -1,7 +1,11 @@
 <script setup>
 defineProps({
-  type: { type: String, default: 'info', validator: v => ['success', 'error', 'warning', 'info'].includes(v) },
-  dismissible: { type: Boolean, default: false }
+  type: {
+    type: String,
+    default: 'info',
+    validator: (v) => ['success', 'error', 'warning', 'info'].includes(v),
+  },
+  dismissible: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['dismiss'])
@@ -21,7 +25,11 @@ const emit = defineEmits(['dismiss'])
       <div class="flex-1 text-sm font-medium">
         <slot />
       </div>
-      <button v-if="dismissible" @click="emit('dismiss')" class="ml-3 -mr-1 -mt-1 opacity-50 hover:opacity-100 transition-opacity">
+      <button
+        v-if="dismissible"
+        @click="emit('dismiss')"
+        class="ml-3 -mr-1 -mt-1 opacity-50 hover:opacity-100 transition-opacity"
+      >
         ✕
       </button>
     </div>

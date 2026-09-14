@@ -1,7 +1,7 @@
 <script setup>
 const props = defineProps({
   for: { type: String, required: true },
-  required: { type: Boolean, default: false }
+  required: { type: Boolean, default: false },
 })
 </script>
 

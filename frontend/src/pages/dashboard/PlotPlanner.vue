@@ -29,7 +29,7 @@ const soilTypeOptions = [
 const form = ref({
   name: '',
   soil_type: '',
-  coordinates: []
+  coordinates: [],
 })
 
 const activeLayer = ref(null)
@@ -37,7 +37,7 @@ const activeLayer = ref(null)
 onMounted(async () => {
   if (!farmingStore.activeFarm || farmingStore.activeFarm.id !== farmId) {
     await farmingStore.fetchFarms()
-    const farm = farmingStore.farms.find(f => f.id === farmId)
+    const farm = farmingStore.farms.find((f) => f.id === farmId)
     if (farm) {
       farmingStore.setActiveFarm(farm)
     } else {
@@ -45,7 +45,7 @@ onMounted(async () => {
       return
     }
   }
-  
+
   farmingStore.fetchPlots(farmId)
 })
 
@@ -86,10 +86,7 @@ async function savePlot() {
   <div class="h-[calc(100vh-10rem)] flex flex-col md:flex-row gap-6">
     <!-- Map Area -->
     <div class="flex-1 relative rounded-lg overflow-hidden border border-gray-200">
-      <PlotDrawer 
-        :existing-plots="farmingStore.plots" 
-        @plot-drawn="handlePlotDrawn"
-      />
+      <PlotDrawer :existing-plots="farmingStore.plots" @plot-drawn="handlePlotDrawn" />
     </div>
 
     <!-- Side Panel -->
@@ -105,11 +102,16 @@ async function savePlot() {
       <AppCard padding="p-4" v-if="activeLayer">
         <h4 class="font-medium text-gray-900 mb-4">Save New Plot</h4>
         <AppAlert v-if="error" type="error" class="mb-4">{{ error }}</AppAlert>
-        
+
         <form @submit.prevent="savePlot" class="space-y-4">
           <FormField id="plot-name" label="Plot Name" v-model="form.name" required />
-          <AppSelect id="plot-soil" label="Soil Type" v-model="form.soil_type" :options="soilTypeOptions" />
-          
+          <AppSelect
+            id="plot-soil"
+            label="Soil Type"
+            v-model="form.soil_type"
+            :options="soilTypeOptions"
+          />
+
           <div class="flex flex-col gap-2 pt-2">
             <AppButton type="submit" variant="primary" :loading="isSaving" class="w-full">
               Save Plot
@@ -130,15 +132,29 @@ async function savePlot() {
           <div v-if="farmingStore.loading" class="flex justify-center p-4">
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-farm-600"></div>
           </div>
-          <div v-else-if="!farmingStore.plots?.features?.length" class="text-sm text-gray-500 text-center p-4">
+          <div
+            v-else-if="!farmingStore.plots?.features?.length"
+            class="text-sm text-gray-500 text-center p-4"
+          >
             No plots have been drawn on this farm yet.
           </div>
           <ul v-else class="space-y-2">
-            <li v-for="feature in farmingStore.plots.features" :key="feature.properties.id" class="p-3 bg-white border border-gray-100 rounded-md shadow-sm">
+            <li
+              v-for="feature in farmingStore.plots.features"
+              :key="feature.properties.id"
+              class="p-3 bg-white border border-gray-100 rounded-md shadow-sm"
+            >
               <div class="font-medium text-gray-900 text-sm">{{ feature.properties.name }}</div>
               <div class="flex justify-between mt-1 text-xs text-gray-500">
                 <span class="capitalize">{{ feature.properties.soil_type || 'Unknown soil' }}</span>
-                <span class="font-medium text-farm-600">{{ feature.properties.calculated_area ? Number(feature.properties.calculated_area).toFixed(2) : 0 }} ha</span>
+                <span class="font-medium text-farm-600"
+                  >{{
+                    feature.properties.calculated_area
+                      ? Number(feature.properties.calculated_area).toFixed(2)
+                      : 0
+                  }}
+                  ha</span
+                >
               </div>
             </li>
           </ul>

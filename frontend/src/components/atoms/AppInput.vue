@@ -6,7 +6,7 @@ defineProps({
   placeholder: { type: String, default: '' },
   required: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
-  error: { type: String, default: '' }
+  error: { type: String, default: '' },
 })
 
 defineEmits(['update:modelValue'])
@@ -25,7 +25,7 @@ defineEmits(['update:modelValue'])
       'block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 transition-colors duration-200 sm:text-sm',
       'focus:outline-none focus:ring-farm-500 focus:border-farm-500',
       error ? 'border-red-300 text-red-900' : 'border-gray-300 text-gray-900',
-      { 'bg-gray-100 cursor-not-allowed': disabled }
+      { 'bg-gray-100 cursor-not-allowed': disabled },
     ]"
   />
 </template>

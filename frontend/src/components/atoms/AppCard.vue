@@ -2,8 +2,8 @@
 defineProps({
   padding: {
     type: String,
-    default: 'p-6'
-  }
+    default: 'p-6',
+  },
 })
 </script>
 

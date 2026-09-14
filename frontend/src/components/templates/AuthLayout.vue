@@ -4,7 +4,9 @@ import AppLogo from '../atoms/AppLogo.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-earth-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+  <div
+    class="min-h-screen bg-earth-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans"
+  >
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="text-center">
         <AppLogo />
