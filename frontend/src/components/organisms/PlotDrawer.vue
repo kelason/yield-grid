@@ -214,20 +214,35 @@ function loadExistingPlots() {
         fillOpacity: 0.2,
       },
       onEachFeature: (feature, layer) => {
-        const area = feature.properties.calculated_area
+        const area = feature.properties?.calculated_area
           ? `${Number(feature.properties.calculated_area).toFixed(2)} ha`
           : 'Unknown area'
-        layer.bindPopup(`
-          <div class="text-center">
-            <b>${feature.properties.name}</b><br/>
-            <span class="text-gray-600">Area: ${area}</span><br/>
-            <a href="/dashboard/plots/${feature.properties.id}/recommendations?analyze=true" 
-               class="inline-block mt-3 px-4 py-1.5 bg-green-600 !text-white rounded-md text-sm font-semibold hover:bg-green-700 transition-colors"
-               style="text-decoration: none; color: white !important;">
-              🌱 Analyze This Plot
-            </a>
-          </div>
-        `)
+
+        // Safely construct popup content using DOM elements to prevent XSS (CWE-79)
+        const container = document.createElement('div')
+        container.className = 'text-center'
+
+        const nameEl = document.createElement('b')
+        nameEl.textContent = String(feature.properties?.name || 'Plot')
+        container.appendChild(nameEl)
+        container.appendChild(document.createElement('br'))
+
+        const areaEl = document.createElement('span')
+        areaEl.className = 'text-gray-600'
+        areaEl.textContent = `Area: ${area}`
+        container.appendChild(areaEl)
+        container.appendChild(document.createElement('br'))
+
+        const plotId = encodeURIComponent(String(feature.properties?.id ?? ''))
+        const link = document.createElement('a')
+        link.href = `/dashboard/plots/${plotId}/recommendations?analyze=true`
+        link.className =
+          'inline-block mt-3 px-4 py-1.5 bg-green-600 !text-white rounded-md text-sm font-semibold hover:bg-green-700 transition-colors'
+        link.style.cssText = 'text-decoration: none; color: white !important;'
+        link.textContent = '🌱 Analyze This Plot'
+        container.appendChild(link)
+
+        layer.bindPopup(container)
         drawnItems.addLayer(layer)
       },
     })

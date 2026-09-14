@@ -14,11 +14,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 
 class CropRecommendationController extends Controller
 {
     public function analyze(Request $request, Plot $plot): JsonResponse
     {
+        Gate::authorize('analyze', $plot);
+
         $lockKey = "analyzing_plot_{$plot->id}";
 
         // Prevent spamming analysis jobs concurrently on the same plot within 15 seconds
@@ -37,6 +40,8 @@ class CropRecommendationController extends Controller
 
     public function index(Plot $plot): JsonResponse
     {
+        Gate::authorize('view', $plot);
+
         $recommendations = CropRecommendation::where('plot_id', $plot->id)
             ->latest()
             ->take(10)
@@ -59,6 +64,8 @@ class CropRecommendationController extends Controller
 
     public function updateStatus(Request $request, CropRecommendation $recommendation): JsonResponse
     {
+        Gate::authorize('update', $recommendation);
+
         $validated = $request->validate([
             'status' => 'required|in:accepted,rejected',
         ]);
