@@ -15,6 +15,7 @@ const form = ref({
   address: '',
   city: '',
   state: '',
+  country: '',
   zip: '',
   total_area: '',
 })
@@ -34,6 +35,7 @@ function handleSubmit() {
       <FormField id="farm-address" label="Address" v-model="form.address" />
       <FormField id="farm-city" label="City" v-model="form.city" />
       <FormField id="farm-state" label="State/Province" v-model="form.state" />
+      <FormField id="farm-country" label="Country" v-model="form.country" placeholder="e.g. Philippines, United States" />
       <FormField id="farm-zip" label="Zip/Postal Code" v-model="form.zip" />
     </div>
 

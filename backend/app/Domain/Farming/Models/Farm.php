@@ -18,6 +18,7 @@ class Farm extends Model
         'address',
         'city',
         'state',
+        'country',
         'zip',
         'total_area',
     ];

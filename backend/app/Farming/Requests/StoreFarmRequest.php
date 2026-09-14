@@ -23,6 +23,7 @@ class StoreFarmRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'state' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
             'zip' => ['nullable', 'string', 'max:50'],
             'total_area' => ['nullable', 'numeric', 'min:0'],
         ];

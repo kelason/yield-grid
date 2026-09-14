@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use App\Auth\Controllers\RegisterController;
 use App\Auth\Controllers\LoginController;
@@ -16,6 +17,11 @@ Route::prefix('v1')->group(function () {
 
     // Protected Auth routes
     Route::middleware('auth:sanctum')->group(function () {
+        // WebSocket auth - manual endpoint to avoid 'login' route redirect (API-only app)
+        Route::post('/broadcasting/auth', function (\Illuminate\Http\Request $request) {
+            return Broadcast::auth($request);
+        });
+
         Route::post('/logout', [LoginController::class, 'logout']);
         Route::get('/user', [LoginController::class, 'user']);
 
@@ -30,6 +36,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/farms', [\App\Farming\Controllers\FarmController::class, 'store']);
             Route::get('/farms/{farm}/plots', [\App\Farming\Controllers\PlotController::class, 'index']);
             Route::post('/farms/{farm}/plots', [\App\Farming\Controllers\PlotController::class, 'store']);
+            
+            // Crop Recommendations
+            Route::post('/plots/{plot}/analyze', [\App\Http\Controllers\Api\V1\CropRecommendationController::class, 'analyze'])->middleware('throttle:5,60');
+            Route::get('/plots/{plot}/recommendations', [\App\Http\Controllers\Api\V1\CropRecommendationController::class, 'index']);
+            Route::patch('/recommendations/{recommendation}/status', [\App\Http\Controllers\Api\V1\CropRecommendationController::class, 'updateStatus']);
         });
     });
 });

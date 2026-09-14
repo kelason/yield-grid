@@ -10,6 +10,7 @@ readonly class CreateFarmDTO
         public ?string $address,
         public ?string $city,
         public ?string $state,
+        public ?string $country,
         public ?string $zip,
         public ?float $totalArea,
     ) {}
@@ -22,6 +23,7 @@ readonly class CreateFarmDTO
             address: $validated['address'] ?? null,
             city: $validated['city'] ?? null,
             state: $validated['state'] ?? null,
+            country: $validated['country'] ?? null,
             zip: $validated['zip'] ?? null,
             totalArea: isset($validated['total_area']) ? (float)$validated['total_area'] : null,
         );

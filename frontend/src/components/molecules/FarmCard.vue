@@ -22,8 +22,8 @@ defineEmits(['view-plots'])
       </span>
     </div>
     <div class="text-sm text-gray-500 space-y-1 mb-6">
-      <p v-if="farm.city || farm.state">
-        {{ farm.city }}<span v-if="farm.city && farm.state">, </span>{{ farm.state }}
+      <p v-if="farm.city || farm.state || farm.country">
+        {{ [farm.city, farm.state, farm.country].filter(Boolean).join(', ') }}
       </p>
       <p v-if="farm.total_area">
         Total Area: <span class="font-medium text-gray-900">{{ farm.total_area }} ha</span>

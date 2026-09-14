@@ -15,6 +15,7 @@ class CreateFarmAction
             'address' => $dto->address,
             'city' => $dto->city,
             'state' => $dto->state,
+            'country' => $dto->country,
             'zip' => $dto->zip,
             'total_area' => $dto->totalArea,
         ]);

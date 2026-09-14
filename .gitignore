@@ -9,3 +9,8 @@
 !/.gitignore
 !/.pr_agent.toml
 !/.github/
+
+# Environment files
+.env
+.env.*
+!.env.example

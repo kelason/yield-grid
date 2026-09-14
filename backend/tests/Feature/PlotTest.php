@@ -49,4 +49,40 @@ class PlotTest extends TestCase
                       ->assertJsonPath('type', 'FeatureCollection')
                       ->assertJsonPath('features.0.properties.name', 'North Field');
     }
+
+    public function test_cannot_create_plot_outside_farm_registered_city(): void
+    {
+        $farmer = User::factory()->create(['role' => UserRole::FARMER]);
+        $farm = Farm::create([
+            'user_id' => $farmer->id,
+            'name' => 'Cabanatuan Farm',
+            'city' => 'Cabanatuan City',
+            'state' => 'Nueva Ecija',
+            'country' => 'Philippines',
+        ]);
+
+        // Mock cache for Tarlac coordinates
+        \Illuminate\Support\Facades\Cache::put('geo_coord_15.48_120.598', [
+            'city' => 'Tarlac City',
+            'state' => 'Tarlac',
+            'country' => 'Philippines',
+        ], 3600);
+
+        $coordinatesInTarlac = [
+            [120.597, 15.480],
+            [120.599, 15.480],
+            [120.599, 15.481],
+            [120.597, 15.481],
+            [120.597, 15.480],
+        ];
+
+        $response = $this->actingAs($farmer)->postJson("/api/v1/farms/{$farm->id}/plots", [
+            'name' => 'Mismatched Plot',
+            'soil_type' => 'loamy',
+            'coordinates' => $coordinatesInTarlac,
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors(['coordinates']);
+    }
 }

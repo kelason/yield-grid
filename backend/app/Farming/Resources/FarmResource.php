@@ -19,6 +19,7 @@ class FarmResource extends JsonResource
             'address' => $this->address,
             'city' => $this->city,
             'state' => $this->state,
+            'country' => $this->country,
             'zip' => $this->zip,
             'total_area' => $this->total_area,
             'plots_count' => $this->whenCounted('plots'),
