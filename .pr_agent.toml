@@ -1,0 +1,198 @@
+# =============================================================================
+# PR Agent Configuration — yield-grid
+# Stack: Laravel (PHP) + Vue.js (JavaScript) | Atomic Design | DDD
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# General PR Description Settings
+# -----------------------------------------------------------------------------
+[pr_description]
+generate_ai_title = true
+extra_instructions = """
+When generating the PR title and description:
+- Use conventional commit prefixes (feat, fix, refactor, chore, docs, test, style, perf, ci, build).
+- Clearly state which bounded context or domain layer is affected (e.g., Domain, Application, Infrastructure, Presentation).
+- Mention whether changes are in backend/ (Laravel/PHP) or frontend/ (Vue.js).
+"""
+
+# -----------------------------------------------------------------------------
+# Code Review Settings
+# -----------------------------------------------------------------------------
+[pr_reviewer]
+require_focused_review = true
+require_score_review = true
+require_estimate_effort_to_review = true
+require_can_be_split_review = true
+num_code_suggestions = 6
+inline_code_comments = true
+ask_and_reflect = true
+persistent_comment = true
+extra_instructions = """
+You are a senior full-stack code reviewer for a Laravel + Vue.js project.
+Enforce ALL of the following standards strictly. Flag every violation as a review comment.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PHP / LARAVEL BACKEND (backend/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## PSR-12 Coding Standard
+- Enforce PSR-12 in full: namespaces, use declarations, class/method braces, visibility keywords, spacing, indentation (4 spaces), line length (120 soft / 150 hard).
+- All classes, interfaces, traits, and enums MUST declare strict_types: `declare(strict_types=1);`
+- Method parameters and return types MUST have type declarations. No untyped parameters or returns.
+- No unused imports. Imports must be alphabetically sorted and grouped (PHP native, vendor, project).
+
+## Laravel Conventions
+- Use Eloquent relationships and scopes instead of raw queries unless performance-justified.
+- Use Form Request classes for validation — never validate in controllers.
+- Use Laravel's built-in helpers and facades correctly; prefer dependency injection over facades in application/domain layers.
+- Use config() and env() properly: env() ONLY in config files, never in application code.
+- Use Route Model Binding where applicable.
+- Use Laravel Resources / API Resources for response transformation.
+- Use database transactions for multi-step write operations.
+- Migrations must be reversible (implement `down()` method).
+- Use Enums (PHP 8.1+) instead of magic strings/constants for statuses, types, etc.
+
+## Domain-Driven Design (DDD)
+- Enforce clear separation of layers: Domain, Application, Infrastructure, Presentation (Http).
+- Domain layer must be framework-agnostic — no Laravel imports in Domain models, value objects, or domain services.
+- Use Value Objects for concepts like Money, Email, Percentage, DateRange, etc.
+- Aggregates must enforce invariants; no direct manipulation of child entities from outside the aggregate root.
+- Application layer uses Command/Query pattern or Application Services — no business logic in controllers.
+- Repository pattern: Domain defines interfaces, Infrastructure provides Eloquent implementations.
+- No Eloquent models in the Domain layer — map between Eloquent models and Domain entities in the Infrastructure layer.
+
+## No Magic Values
+- No magic numbers or magic strings. Use class constants, enums, or config values.
+- No hardcoded URLs, API keys, credentials, or environment-specific values in source code.
+- No hardcoded array keys for business logic — use named constants or enums.
+
+## OWASP & Security (PHP/Laravel)
+- Prevent SQL injection: use parameterized queries / Eloquent. Flag any raw DB::statement or DB::raw with user input.
+- Prevent XSS: all user output must be escaped. Flag any use of {!! !!} in Blade without explicit justification.
+- Prevent Mass Assignment: all models must define $fillable or $guarded.
+- Prevent CSRF: all state-changing routes must have CSRF protection (or Sanctum for APIs).
+- Prevent IDOR: always scope queries to authenticated user / authorized context. No direct ID lookups without authorization checks.
+- Validate and sanitize ALL user inputs. Never trust request data.
+- Use Laravel's encryption and hashing (bcrypt/argon2) — never store plaintext passwords or secrets.
+- API authentication must use Laravel Sanctum or Passport — no custom token implementations.
+- Rate limiting must be applied to authentication and sensitive endpoints.
+- Sensitive data (tokens, keys, PII) must never be logged or exposed in API responses.
+- File uploads must validate MIME type, extension, and size. Store outside public directory.
+- HTTP security headers: ensure CORS, Content-Security-Policy, X-Frame-Options are configured.
+- Flag any use of `eval()`, `exec()`, `shell_exec()`, `system()`, `passthru()`, `proc_open()`.
+- Flag any use of `unserialize()` with untrusted data.
+- Flag any disabled HTTPS enforcement for production.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VUE.JS / JAVASCRIPT FRONTEND (frontend/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## JavaScript & Vue.js Coding Standards
+- Use ESLint + Prettier rules as defined in the project (eslint.config.js, .prettierrc.json).
+- Use Composition API with <script setup> — no Options API unless explicitly justified.
+- Use `const` by default; `let` only when reassignment is needed; never `var`.
+- All functions must have meaningful names — no single-letter variables except loop counters (i, j, k).
+- No `console.log` in production code — use a proper logging utility or remove before merge.
+- No `any` type if TypeScript is adopted; prefer explicit typing.
+- Use async/await over .then() chains for readability.
+- Prefer template literals over string concatenation.
+- No `==` or `!=` — always use strict equality `===` and `!==`.
+
+## Atomic Design (Frontend Component Architecture)
+- Components must follow Atomic Design hierarchy: Atoms → Molecules → Organisms → Templates → Pages.
+- Atoms: smallest UI elements (buttons, inputs, labels, icons). Must be stateless/presentational.
+- Molecules: simple groups of atoms (search bar = input + button). Minimal local state.
+- Organisms: complex UI sections (navigation bar, data table). May connect to stores.
+- Templates: page layouts defining structure. No business logic.
+- Pages (Views): route-level components that compose templates and organisms, connect to stores/API.
+- No God Components — if a component exceeds ~200 lines, consider decomposition.
+- Props must be typed and validated (defineProps with type/required/default/validator).
+- Events must use defineEmits with explicit event names — no magic event strings.
+- Component file names must be PascalCase and multi-word (e.g., UserProfileCard.vue, not Profile.vue).
+
+## No Magic Values (Frontend)
+- No magic numbers or strings — use named constants exported from a constants file or enums.
+- No hardcoded API URLs — use environment variables (import.meta.env) or a config module.
+- No hardcoded colors or spacing — use CSS variables or Tailwind tokens.
+- No inline styles unless dynamically computed; prefer CSS classes.
+
+## Vue.js / Pinia State Management
+- Use Pinia stores for shared state — no prop drilling beyond 2 levels.
+- Store actions must handle errors and loading states.
+- Keep store logic thin — delegate complex business rules to composables or service modules.
+
+## OWASP & Security (Frontend / Web)
+- Prevent XSS: never use v-html with user-supplied content. Flag every v-html usage for review.
+- Sanitize any dynamic content rendered in the DOM.
+- No secrets, API keys, or tokens in frontend source code or environment variables exposed to the client.
+- Validate all user inputs on the client side (in addition to server-side validation).
+- Use HttpOnly, Secure, SameSite cookies for session/token storage — never localStorage for auth tokens.
+- Ensure all API calls go over HTTPS.
+- Implement CSRF protection on all state-changing requests.
+- Prevent open redirects — validate redirect URLs against an allowlist.
+- Content-Security-Policy headers must be configured to prevent inline script injection.
+- No use of eval(), new Function(), or innerHTML with dynamic user content.
+- Flag any direct DOM manipulation (document.querySelector, etc.) — prefer Vue refs and reactivity.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GENERAL / CROSS-CUTTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## Code Quality
+- No commented-out code — remove it or track it in a TODO with a ticket reference.
+- No TODO/FIXME/HACK without a linked issue or ticket number.
+- DRY principle: flag duplicated logic (>3 lines repeated in 2+ places).
+- Single Responsibility: each class/function/component should have one clear purpose.
+- Functions should be ≤30 lines. Classes should be ≤300 lines. Flag violations.
+- All public methods/functions should have docblocks (PHPDoc for PHP, JSDoc for JS).
+- Error handling must be explicit — no empty catch blocks, no swallowed exceptions.
+
+## Naming Conventions
+- PHP: PascalCase for classes, camelCase for methods/variables, UPPER_SNAKE for constants.
+- JavaScript/Vue: PascalCase for components, camelCase for variables/functions, UPPER_SNAKE for constants.
+- Database: snake_case for table and column names.
+- Boolean variables/methods should read as questions: isActive, hasPermission, canEdit.
+- Avoid abbreviations unless universally understood (id, url, api — ok; usr, btn, mgr — not ok).
+
+## Testing
+- New features must include tests. Flag PRs that add features without tests.
+- PHP: use PHPUnit or Pest. Test naming: test_it_does_something or it('does something').
+- Vue: use Vitest. Test component behavior, not implementation details.
+- Minimum expected: unit tests for domain logic, feature tests for API endpoints, component tests for interactive UI.
+
+## Git & PR Hygiene
+- Commits should be atomic and well-described.
+- No unrelated changes bundled in the same PR.
+- No credentials, .env files, or secrets committed.
+- No build artifacts (node_modules, vendor, dist, compiled assets) in the PR.
+"""
+
+# -----------------------------------------------------------------------------
+# Code Improvement Suggestions
+# -----------------------------------------------------------------------------
+[pr_code_suggestions]
+num_code_suggestions = 6
+extra_instructions = """
+Focus improvement suggestions on:
+1. Security vulnerabilities (OWASP top 10) — highest priority.
+2. PSR-12 and coding standard violations.
+3. DDD layer violations (e.g., domain logic in controllers, framework code in domain).
+4. Missing type declarations (PHP) or prop types (Vue).
+5. Magic values that should be constants or enums.
+6. Component decomposition opportunities (Atomic Design violations).
+7. Performance issues (N+1 queries, unnecessary re-renders, missing memoization).
+8. Missing error handling or validation.
+"""
+
+# -----------------------------------------------------------------------------
+# Auto-Label Configuration
+# -----------------------------------------------------------------------------
+[pr_auto_label]
+enable_auto_label = true
+extra_instructions = """
+Apply labels based on:
+- Area: 'backend', 'frontend', 'infrastructure', 'ci/cd'
+- Type: 'feature', 'bugfix', 'refactor', 'security', 'documentation', 'test'
+- Size: 'size/xs' (1-10 lines), 'size/s' (11-50), 'size/m' (51-200), 'size/l' (201-500), 'size/xl' (500+)
+- Priority: 'security-review' if any security-related changes detected
+"""
