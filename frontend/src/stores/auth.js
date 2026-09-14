@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await api.get('/user')
       user.value = response.data
-    } catch (error) {
+    } catch {
       user.value = null
       token.value = null
       localStorage.removeItem('auth_token')

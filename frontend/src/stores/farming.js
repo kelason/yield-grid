@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useApi } from '../composables/useApi'
 
 export const useFarmingStore = defineStore('farming', () => {

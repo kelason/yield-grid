@@ -27,7 +27,7 @@ jobs:
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
       redis:
         image: redis:7
         ports: ['6379:6379']
@@ -42,13 +42,32 @@ jobs:
           extensions: pdo_pgsql, redis, pcntl
           
       - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist
-        
+        run: |
+          composer install --no-interaction --prefer-dist --no-cache
+          composer dump-autoload
+          
+      - name: Verify Pest Installation
+        run: |
+          if [ ! -f ./vendor/bin/pest ]; then
+            echo "Pest not found, reinstalling dependencies..."
+            composer install --no-interaction --prefer-dist --no-cache
+          fi
+          if [ ! -f ./vendor/bin/pest ]; then
+            echo "Failed to install pest!"
+            exit 1
+          fi
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
         
       - name: Generate Key
         run: php artisan key:generate
+        
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h 127.0.0.1 -p 5432 -U test; do
+            echo "Waiting for PostgreSQL..."
+            sleep 1
+          done
         
       - name: Run Migrations
         env:
@@ -69,7 +88,7 @@ jobs:
           DB_USERNAME: test
           DB_PASSWORD: test
           REDIS_HOST: 127.0.0.1
-        run: ./vendor/bin/pest
+        run: php ./vendor/bin/pest
 
   # ──────────────────────────────────
   # FRONTEND (Vue)
