@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\RateLimiter;
 class AgroMonitoringService
 {
     private string $apiKey;
+
     private string $baseUrl = 'https://api.agromonitoring.com/agro/1.0';
+
     private int $cacheTtlSeconds = 3600; // Cache weather and soil for 1 hour
+
     private int $rateLimitRpm = 30;      // Maximum 30 requests per minute
 
     public function __construct()
@@ -28,13 +31,15 @@ class AgroMonitoringService
         // 1. Check in-memory / redis cache first (1-hour cache per plot)
         $cacheKey = "agromonitoring_plot_data_{$plot->id}";
         $cachedData = Cache::get($cacheKey);
-        if (is_array($cachedData) && !empty($cachedData['weather']) && !empty($cachedData['soil'])) {
+        if (is_array($cachedData) && ! empty($cachedData['weather']) && ! empty($cachedData['soil'])) {
             Log::info("AgroMonitoring: Serving cached weather & soil data for plot {$plot->id}.");
+
             return $cachedData;
         }
 
         if (empty($this->apiKey)) {
             Log::warning('AgroMonitoring API key is missing. Using mock data.');
+
             return $this->getFallbackOrMockData($plot);
         }
 
@@ -43,12 +48,13 @@ class AgroMonitoringService
         if (RateLimiter::tooManyAttempts($rateKey, $this->rateLimitRpm)) {
             $seconds = RateLimiter::availableIn($rateKey);
             Log::warning("AgroMonitoring API rate limit reached. Backing off for {$seconds}s. Serving fallback.");
+
             return $this->getFallbackOrMockData($plot);
         }
 
         $polyId = $plot->agromonitoring_polyid;
 
-        if (!$polyId) {
+        if (! $polyId) {
             RateLimiter::hit($rateKey, 60);
             $polyId = $this->registerPolygon($plot);
             if ($polyId) {
@@ -63,7 +69,7 @@ class AgroMonitoringService
         $weather = $this->getCurrentWeather($polyId);
         $soil = $this->getSoilData($polyId);
 
-        if (!$weather || !$soil) {
+        if (! $weather || ! $soil) {
             return $this->getFallbackOrMockData($plot);
         }
 
@@ -86,7 +92,7 @@ class AgroMonitoringService
         // Try database WeatherCache table first
         try {
             $centroid = $plot->getCentroid();
-            if ($centroid && !empty($centroid['lat']) && !empty($centroid['lon'])) {
+            if ($centroid && ! empty($centroid['lat']) && ! empty($centroid['lon'])) {
                 $cached = WeatherCache::where('latitude', round((float) $centroid['lat'], 4))
                     ->where('longitude', round((float) $centroid['lon'], 4))
                     ->where('expires_at', '>', now())
@@ -95,11 +101,12 @@ class AgroMonitoringService
 
                 if ($cached && is_array($cached->weather_data)) {
                     Log::info("AgroMonitoring: Using database WeatherCache fallback for plot {$plot->id}.");
+
                     return $cached->weather_data;
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning('Failed reading WeatherCache fallback: ' . $e->getMessage());
+            Log::warning('Failed reading WeatherCache fallback: '.$e->getMessage());
         }
 
         return $this->getMockData();
@@ -109,7 +116,7 @@ class AgroMonitoringService
     {
         try {
             $centroid = $plot->getCentroid();
-            if ($centroid && !empty($centroid['lat']) && !empty($centroid['lon'])) {
+            if ($centroid && ! empty($centroid['lat']) && ! empty($centroid['lon'])) {
                 WeatherCache::updateOrCreate(
                     [
                         'latitude' => round((float) $centroid['lat'], 4),
@@ -122,7 +129,7 @@ class AgroMonitoringService
                 );
             }
         } catch (\Throwable $e) {
-            Log::warning('Failed writing to WeatherCache: ' . $e->getMessage());
+            Log::warning('Failed writing to WeatherCache: '.$e->getMessage());
         }
     }
 
@@ -134,8 +141,8 @@ class AgroMonitoringService
                 'geo_json' => [
                     'type' => 'Feature',
                     'properties' => [],
-                    'geometry' => json_decode($plot->polygon, true)
-                ]
+                    'geometry' => json_decode($plot->polygon, true),
+                ],
             ]);
 
             if ($response->successful()) {
@@ -163,6 +170,7 @@ class AgroMonitoringService
         } catch (\Exception $e) {
             Log::error('AgroMonitoring weather failed', ['message' => $e->getMessage()]);
         }
+
         return null;
     }
 
@@ -180,6 +188,7 @@ class AgroMonitoringService
         } catch (\Exception $e) {
             Log::error('AgroMonitoring soil failed', ['message' => $e->getMessage()]);
         }
+
         return null;
     }
 
@@ -192,14 +201,14 @@ class AgroMonitoringService
                     'humidity' => 60,
                 ],
                 'weather' => [
-                    ['description' => 'clear sky', 'main' => 'Clear']
+                    ['description' => 'clear sky', 'main' => 'Clear'],
                 ],
             ],
             'soil' => [
                 'moisture' => 0.28, // m3/m3
                 't0' => 296.15, // Surface temp Kelvin
-                't10' => 294.15 // 10cm temp Kelvin
-            ]
+                't10' => 294.15, // 10cm temp Kelvin
+            ],
         ];
     }
 }

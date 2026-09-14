@@ -17,6 +17,7 @@ class FarmController extends Controller
     public function index(Request $request, GetFarmsAction $action): AnonymousResourceCollection
     {
         $farms = $action($request->user()->id);
+
         return FarmResource::collection($farms);
     }
 

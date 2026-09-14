@@ -3,8 +3,10 @@
 namespace App\Farming\Requests;
 
 use Domain\Farming\Enums\SoilType;
+use Domain\Farming\Models\Plot;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StorePlotRequest extends FormRequest
 {
@@ -27,7 +29,7 @@ class StorePlotRequest extends FormRequest
         ];
     }
 
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             $farm = $this->route('farm');
@@ -45,19 +47,19 @@ class StorePlotRequest extends FormRequest
                 $lat = $latSum / $count;
                 $lon = $lonSum / $count;
 
-                $geo = \Domain\Farming\Models\Plot::reverseGeocodeCoordinates($lat, $lon);
-                if ($geo && (!empty($geo['city']) || !empty($geo['state']))) {
+                $geo = Plot::reverseGeocodeCoordinates($lat, $lon);
+                if ($geo && (! empty($geo['city']) || ! empty($geo['state']))) {
                     $farmCityClean = strtolower(trim(str_replace(['city', 'municipality', 'town'], '', $farm->city)));
                     $resolvedCityClean = strtolower(trim(str_replace(['city', 'municipality', 'town'], '', $geo['city'] ?? '')));
-                    
+
                     $matched = false;
-                    if (!empty($farmCityClean) && !empty($resolvedCityClean)) {
+                    if (! empty($farmCityClean) && ! empty($resolvedCityClean)) {
                         if (str_contains($farmCityClean, $resolvedCityClean) || str_contains($resolvedCityClean, $farmCityClean)) {
                             $matched = true;
                         }
                     }
 
-                    if (!$matched && !empty($farm->state) && !empty($geo['state'])) {
+                    if (! $matched && ! empty($farm->state) && ! empty($geo['state'])) {
                         $farmStateClean = strtolower(trim($farm->state));
                         $resolvedStateClean = strtolower(trim($geo['state']));
                         if (str_contains($farmStateClean, $resolvedStateClean) || str_contains($resolvedStateClean, $farmStateClean)) {
@@ -65,7 +67,7 @@ class StorePlotRequest extends FormRequest
                         }
                     }
 
-                    if (!$matched) {
+                    if (! $matched) {
                         $detected = array_filter([$geo['city'] ?? null, $geo['state'] ?? null]);
                         $detectedStr = implode(', ', $detected);
                         $validator->errors()->add('coordinates', "This plot is located in {$detectedStr}. Plots for this farm must be located within {$farm->city}.");

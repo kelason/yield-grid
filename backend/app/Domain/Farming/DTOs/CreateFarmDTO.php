@@ -25,7 +25,7 @@ readonly class CreateFarmDTO
             state: $validated['state'] ?? null,
             country: $validated['country'] ?? null,
             zip: $validated['zip'] ?? null,
-            totalArea: isset($validated['total_area']) ? (float)$validated['total_area'] : null,
+            totalArea: isset($validated['total_area']) ? (float) $validated['total_area'] : null,
         );
     }
 }

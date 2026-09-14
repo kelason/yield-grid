@@ -18,7 +18,7 @@ return new class extends Migration
             $table->jsonb('weather_data');
             $table->timestamp('expires_at');
             $table->timestamps();
-            
+
             $table->index(['latitude', 'longitude']);
         });
     }

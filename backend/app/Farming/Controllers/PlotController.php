@@ -34,7 +34,7 @@ class PlotController extends Controller
                     'name' => $plot->name,
                     'soil_type' => $plot->soil_type?->value,
                     'calculated_area' => $plot->calculated_area,
-                ]
+                ],
             ];
         });
 

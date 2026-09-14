@@ -2,9 +2,7 @@
 
 namespace App\Farming\Requests;
 
-use Domain\Farming\Enums\SoilType;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreFarmRequest extends FormRequest
 {

@@ -2,10 +2,15 @@
 
 namespace Domain\Farming\Models;
 
+use App\Domain\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Enums\SoilType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Plot extends Model
 {
@@ -37,14 +42,14 @@ class Plot extends Model
 
     public function recommendations()
     {
-        return $this->hasMany(\App\Domain\CropRecommendation\Models\CropRecommendation::class);
+        return $this->hasMany(CropRecommendation::class);
     }
 
     public function getCentroid(): ?array
     {
         try {
-            $result = \Illuminate\Support\Facades\DB::selectOne(
-                "SELECT ST_Y(ST_Centroid(polygon::geometry)) as lat, ST_X(ST_Centroid(polygon::geometry)) as lon FROM plots WHERE id = ?",
+            $result = DB::selectOne(
+                'SELECT ST_Y(ST_Centroid(polygon::geometry)) as lat, ST_X(ST_Centroid(polygon::geometry)) as lon FROM plots WHERE id = ?',
                 [$this->id]
             );
             if ($result && isset($result->lat) && isset($result->lon)) {
@@ -66,8 +71,8 @@ class Plot extends Model
         $rLon = round($lon, 3);
         $cacheKey = "geo_coord_{$rLat}_{$rLon}";
 
-        $geo = \Illuminate\Support\Facades\Cache::get($cacheKey);
-        if (is_array($geo) && (!empty($geo['city']) || !empty($geo['country']))) {
+        $geo = Cache::get($cacheKey);
+        if (is_array($geo) && (! empty($geo['city']) || ! empty($geo['country']))) {
             return $geo;
         }
 
@@ -75,7 +80,7 @@ class Plot extends Model
 
         // Provider A: Photon (OpenStreetMap mirror, fast and structured)
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(4)
+            $response = Http::timeout(4)
                 ->get('https://photon.komoot.io/reverse', [
                     'lat' => $lat,
                     'lon' => $lon,
@@ -83,7 +88,7 @@ class Plot extends Model
 
             if ($response->successful()) {
                 $props = $response->json('features.0.properties') ?? [];
-                if (!empty($props)) {
+                if (! empty($props)) {
                     $geo = [
                         'city' => $props['city'] ?? $props['town'] ?? $props['municipality'] ?? $props['locality'] ?? $props['name'] ?? null,
                         'state' => $props['state'] ?? $props['county'] ?? null,
@@ -92,13 +97,13 @@ class Plot extends Model
                 }
             }
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Photon reverse geocoding failed: ' . $e->getMessage());
+            Log::warning('Photon reverse geocoding failed: '.$e->getMessage());
         }
 
         // Provider B: BigDataCloud free reverse geocoder fallback
         if (empty($geo['city']) && empty($geo['country'])) {
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(4)
+                $response = Http::timeout(4)
                     ->get('https://api.bigdatacloud.net/data/reverse-geocode-client', [
                         'latitude' => $lat,
                         'longitude' => $lon,
@@ -110,7 +115,7 @@ class Plot extends Model
                     $cityCandidate = $data['city'] ?? $data['locality'] ?? null;
                     $stateCandidate = null;
 
-                    if (!empty($data['localityInfo']['administrative'])) {
+                    if (! empty($data['localityInfo']['administrative'])) {
                         foreach ($data['localityInfo']['administrative'] as $admin) {
                             if (($admin['adminLevel'] ?? 0) === 4 || stripos($admin['description'] ?? '', 'province') !== false) {
                                 $stateCandidate = $admin['name'];
@@ -119,7 +124,7 @@ class Plot extends Model
                         }
                     }
 
-                    if (empty($stateCandidate) && !empty($data['principalSubdivision'])) {
+                    if (empty($stateCandidate) && ! empty($data['principalSubdivision'])) {
                         $stateCandidate = preg_replace('/\s*\(.*?\)/', '', $data['principalSubdivision']);
                     }
 
@@ -130,13 +135,14 @@ class Plot extends Model
                     ];
                 }
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('BigDataCloud reverse geocoding failed: ' . $e->getMessage());
+                Log::warning('BigDataCloud reverse geocoding failed: '.$e->getMessage());
             }
         }
 
         // Cache ONLY when we have successfully resolved real location data
-        if (!empty($geo['city']) || !empty($geo['country'])) {
-            \Illuminate\Support\Facades\Cache::put($cacheKey, $geo, 86400 * 30);
+        if (! empty($geo['city']) || ! empty($geo['country'])) {
+            Cache::put($cacheKey, $geo, 86400 * 30);
+
             return $geo;
         }
 
@@ -151,9 +157,9 @@ class Plot extends Model
 
         // 1. Primary: Reverse-geocode the plot's actual drawn polygon coordinates on the map
         $centroid = $this->getCentroid();
-        if ($centroid && !empty($centroid['lat']) && !empty($centroid['lon'])) {
+        if ($centroid && ! empty($centroid['lat']) && ! empty($centroid['lon'])) {
             $geo = self::reverseGeocodeCoordinates((float) $centroid['lat'], (float) $centroid['lon']);
-            if (!empty($geo)) {
+            if (! empty($geo)) {
                 $city = $geo['city'] ?? null;
                 $state = $geo['state'] ?? null;
                 $country = $geo['country'] ?? null;

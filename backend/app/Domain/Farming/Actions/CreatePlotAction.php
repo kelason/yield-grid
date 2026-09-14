@@ -20,10 +20,10 @@ class CreatePlotAction
 
         $points = array_map(function ($point) {
             // Strict float casting ensures no malicious SQL characters can be injected via the WKT string
-            return (float) $point[0] . ' ' . (float) $point[1];
+            return (float) $point[0].' '.(float) $point[1];
         }, $coords);
-        
-        $wkt = "POLYGON((" . implode(', ', $points) . "))";
+
+        $wkt = 'POLYGON(('.implode(', ', $points).'))';
 
         // We can safely use DB::raw here because $wkt is guaranteed to only contain floats and safe WKT formatting
         $plotId = DB::table('plots')->insertGetId([

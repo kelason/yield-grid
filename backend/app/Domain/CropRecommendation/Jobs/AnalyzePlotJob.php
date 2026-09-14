@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Jobs;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
-use App\Domain\CropRecommendation\Services\CropAdvisorService;
-use App\Domain\CropRecommendation\Services\AgroMonitoringService;
 use App\Domain\CropRecommendation\Events\AnalysisCompleted;
+use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Domain\CropRecommendation\Services\AgroMonitoringService;
+use App\Domain\CropRecommendation\Services\CropAdvisorService;
 use Domain\Farming\Models\Plot;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,16 +31,16 @@ class AnalyzePlotJob implements ShouldQueue
     {
         try {
             $plot = Plot::findOrFail($this->plotId);
-            
+
             // 1. Fetch AgroMonitoring Data (Weather & Soil)
             $agroData = $agroService->getPlotData($plot);
-            if (!$agroData || !isset($agroData['weather']) || !isset($agroData['soil'])) {
+            if (! $agroData || ! isset($agroData['weather']) || ! isset($agroData['soil'])) {
                 throw new \Exception('Could not fetch AgroMonitoring data');
             }
 
             // 2. Get AI Recommendations
             $recommendations = $advisorService->getRecommendations($plot, $agroData);
-            
+
             // 3. Save to Database (remove previous pending recommendations so fresh analysis is displayed)
             CropRecommendation::where('plot_id', $plot->id)
                 ->where('status', 'pending')
@@ -56,12 +56,12 @@ class AnalyzePlotJob implements ShouldQueue
                     'status' => 'pending',
                 ]);
             }
-            
+
             // 4. Broadcast Event
             event(new AnalysisCompleted($plot->id));
-            
+
         } catch (\Exception $e) {
-            Log::error('AnalyzePlotJob Failed: ' . $e->getMessage());
+            Log::error('AnalyzePlotJob Failed: '.$e->getMessage());
             $this->fail($e);
         }
     }

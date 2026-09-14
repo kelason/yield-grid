@@ -121,7 +121,10 @@ async function savePlot() {
           <div>
             <div class="text-gray-500 font-normal">Restricted Plotting Area:</div>
             <strong class="font-semibold text-farm-900">
-              {{ farmingStore.activeFarm.city }}<span v-if="farmingStore.activeFarm.country">, {{ farmingStore.activeFarm.country }}</span>
+              {{ farmingStore.activeFarm.city
+              }}<span v-if="farmingStore.activeFarm.country"
+                >, {{ farmingStore.activeFarm.country }}</span
+              >
             </strong>
           </div>
         </div>

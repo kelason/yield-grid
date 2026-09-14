@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
-use Domain\Users\Models\User;
-use Domain\Users\Enums\UserRole;
 use Domain\Farming\Models\Farm;
+use Domain\Users\Enums\UserRole;
+use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class PlotTest extends TestCase
@@ -17,7 +18,7 @@ class PlotTest extends TestCase
         $farmer = User::factory()->create(['role' => UserRole::FARMER]);
         $farm = Farm::create([
             'user_id' => $farmer->id,
-            'name' => 'Test Farm'
+            'name' => 'Test Farm',
         ]);
 
         $coordinates = [
@@ -25,7 +26,7 @@ class PlotTest extends TestCase
             [0, 10],
             [10, 10],
             [10, 0],
-            [0, 0] // Closed polygon
+            [0, 0], // Closed polygon
         ];
 
         $response = $this->actingAs($farmer)->postJson("/api/v1/farms/{$farm->id}/plots", [
@@ -35,19 +36,19 @@ class PlotTest extends TestCase
         ]);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('data.name', 'North Field')
-                 ->assertJsonPath('data.soil_type', 'loamy');
+            ->assertJsonPath('data.name', 'North Field')
+            ->assertJsonPath('data.soil_type', 'loamy');
 
         $this->assertDatabaseHas('plots', [
             'farm_id' => $farm->id,
             'name' => 'North Field',
         ]);
-        
+
         $indexResponse = $this->actingAs($farmer)->getJson("/api/v1/farms/{$farm->id}/plots");
-        
+
         $indexResponse->assertStatus(200)
-                      ->assertJsonPath('type', 'FeatureCollection')
-                      ->assertJsonPath('features.0.properties.name', 'North Field');
+            ->assertJsonPath('type', 'FeatureCollection')
+            ->assertJsonPath('features.0.properties.name', 'North Field');
     }
 
     public function test_cannot_create_plot_outside_farm_registered_city(): void
@@ -62,7 +63,7 @@ class PlotTest extends TestCase
         ]);
 
         // Mock cache for Tarlac coordinates
-        \Illuminate\Support\Facades\Cache::put('geo_coord_15.48_120.598', [
+        Cache::put('geo_coord_15.48_120.598', [
             'city' => 'Tarlac City',
             'state' => 'Tarlac',
             'country' => 'Philippines',
@@ -83,6 +84,6 @@ class PlotTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['coordinates']);
+            ->assertJsonValidationErrors(['coordinates']);
     }
 }

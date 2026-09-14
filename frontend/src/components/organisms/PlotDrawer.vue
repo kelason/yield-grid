@@ -35,7 +35,9 @@ async function focusFarmCity() {
 
   isGeocodingCity.value = true
   try {
-    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&limit=5`)
+    const res = await fetch(
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&limit=5`,
+    )
     if (!res.ok) return
     const data = await res.json()
     const features = data.features || []

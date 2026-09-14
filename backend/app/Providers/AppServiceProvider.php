@@ -7,7 +7,6 @@ use App\Policies\CropRecommendationPolicy;
 use App\Policies\PlotPolicy;
 use Domain\Farming\Models\Plot;
 use Illuminate\Auth\Middleware\Authenticate;
-use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 

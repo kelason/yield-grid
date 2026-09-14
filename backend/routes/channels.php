@@ -10,7 +10,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel('plot.{plotId}', function ($user, $plotId) {
     $plot = Plot::with('farm')->find((int) $plotId);
 
-    if (!$plot || !$plot->farm) {
+    if (! $plot || ! $plot->farm) {
         return false;
     }
 

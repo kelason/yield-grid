@@ -7,12 +7,11 @@ namespace App\Http\Controllers\Api\V1;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
 use App\Domain\CropRecommendation\Models\CropRecommendation;
-use Domain\Farming\Models\Plot;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CropRecommendationResource;
+use Domain\Farming\Models\Plot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 
@@ -25,7 +24,7 @@ class CropRecommendationController extends Controller
         $lockKey = "analyzing_plot_{$plot->id}";
 
         // Prevent spamming analysis jobs concurrently on the same plot within 15 seconds
-        if (!Cache::add($lockKey, true, 15)) {
+        if (! Cache::add($lockKey, true, 15)) {
             return response()->json([
                 'message' => 'An analysis is already underway for this plot. Please wait a moment.',
             ], 429);
@@ -69,9 +68,9 @@ class CropRecommendationController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:accepted,rejected',
         ]);
-        
+
         $status = RecommendationStatus::tryFrom($validated['status']);
-        
+
         $recommendation->update([
             'status' => $status,
         ]);
