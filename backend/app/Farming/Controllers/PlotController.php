@@ -10,6 +10,7 @@ use Domain\Farming\DTOs\CreatePlotDTO;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PlotController extends Controller
 {
@@ -22,6 +23,7 @@ class PlotController extends Controller
 
         // Return GeoJSON format for the map
         $plots = Plot::where('farm_id', $farm->id)
+            ->withCount('recommendations')
             ->selectRaw('id, name, soil_type, calculated_area, ST_AsGeoJSON(polygon) as geojson, created_at, updated_at')
             ->get();
 
@@ -34,6 +36,7 @@ class PlotController extends Controller
                     'name' => $plot->name,
                     'soil_type' => $plot->soil_type?->value,
                     'calculated_area' => $plot->calculated_area,
+                    'recommendations_count' => $plot->recommendations_count,
                 ],
             ];
         });
@@ -42,6 +45,20 @@ class PlotController extends Controller
             'type' => 'FeatureCollection',
             'features' => $features,
         ]);
+    }
+
+    public function allUserPlots(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $plots = Plot::whereHas('farm', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+            ->with('farm:id,name')
+            ->withCount('recommendations')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return PlotResource::collection($plots)->response();
     }
 
     public function store(StorePlotRequest $request, Farm $farm, CreatePlotAction $action): JsonResponse

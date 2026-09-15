@@ -18,7 +18,7 @@ defineProps({
     :type="type"
     :disabled="disabled || loading"
     :class="[
-      'inline-flex items-center justify-center font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500',
+      'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500',
       // Size
       { 'px-3 py-1.5 text-sm': size === 'sm' },
       { 'px-4 py-2 text-base': size === 'md' },
@@ -28,18 +28,24 @@ defineProps({
       { 'rounded-full': rounded === 'full' },
       // Variants
       {
-        'text-white bg-gradient-to-r from-farm-500 to-farm-600 hover:from-farm-600 hover:to-farm-700 shadow-md hover:shadow-lg':
+        'text-white bg-gradient-to-r from-farm-500 to-farm-600 hover:from-farm-600 hover:to-farm-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0':
           variant === 'primary',
       },
-      { 'text-farm-700 bg-farm-100 hover:bg-farm-200': variant === 'secondary' },
       {
-        'text-farm-700 border-2 border-farm-200 bg-transparent hover:bg-farm-50 hover:border-farm-300':
+        'text-farm-700 bg-farm-100 hover:bg-farm-200 hover:-translate-y-0.5 active:translate-y-0':
+          variant === 'secondary',
+      },
+      {
+        'text-farm-700 border-2 border-farm-200 bg-transparent hover:bg-farm-50 hover:border-farm-400 hover:-translate-y-0.5 active:translate-y-0':
           variant === 'outline',
       },
-      { 'text-white bg-red-500 hover:bg-red-600': variant === 'danger' },
-      { 'text-gray-600 hover:text-gray-900 hover:bg-gray-100': variant === 'ghost' },
+      {
+        'text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0':
+          variant === 'danger',
+      },
+      { 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md': variant === 'ghost' },
       // Disabled
-      { 'opacity-50 cursor-not-allowed': disabled || loading },
+      { 'opacity-50 cursor-not-allowed !transform-none': disabled || loading },
     ]"
   >
     <svg

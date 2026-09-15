@@ -51,6 +51,11 @@ const router = createRouter({
           component: () => import('../pages/dashboard/PlotPlanner.vue'),
         },
         {
+          path: 'recommendations',
+          name: 'recommendations',
+          component: () => import('../pages/RecommendationsPage.vue'),
+        },
+        {
           path: 'plots/:id/recommendations',
           name: 'crop-recommendations',
           component: () => import('../pages/RecommendationsPage.vue'),

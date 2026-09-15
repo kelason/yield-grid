@@ -1,138 +1,235 @@
 <template>
-  <div class="recommendations-page max-w-5xl mx-auto py-8 px-4">
-    <div class="mb-6">
+  <div class="max-w-5xl mx-auto py-8 px-4">
+    <!-- Top Bar: Navigation & Plot Selector -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <router-link
+          :to="{ name: 'farm-manager' }"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors duration-200 group"
+        >
+          <svg
+            class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to My Farms
+        </router-link>
+        <span class="text-gray-300">|</span>
+        <router-link
+          to="/dashboard"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200"
+        >
+          Dashboard Overview
+        </router-link>
+      </div>
+
+      <!-- Plot Selector dropdown (if multiple plots exist) -->
+      <div v-if="farmingStore.allPlots.length > 1" class="flex items-center gap-2">
+        <label
+          for="plot-selector"
+          class="text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+        >
+          Plot:
+        </label>
+        <div class="relative">
+          <select
+            id="plot-selector"
+            :value="activePlotId"
+            @change="handlePlotChange(Number($event.target.value))"
+            class="block w-full rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-800 shadow-sm focus:border-farm-500 focus:outline-none focus:ring-1 focus:ring-farm-500 transition-all cursor-pointer"
+          >
+            <option v-for="p in farmingStore.allPlots" :key="p.id" :value="p.id">
+              {{ p.name }} ({{ p.farm_name || 'Farm' }}) —
+              {{ p.calculated_area ? Number(p.calculated_area).toFixed(2) : 0 }} ha
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State: No Plots in Account -->
+    <div
+      v-if="!isLoadingPlots && farmingStore.allPlots.length === 0"
+      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-farm-300 transition-colors duration-200 shadow-sm"
+    >
+      <div class="text-5xl mb-4">🌾</div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">No plots registered yet</h3>
+      <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+        You need to create a farm and draw at least one plot before you can receive AI crop
+        recommendations.
+      </p>
       <router-link
-        to="/dashboard"
-        class="inline-flex items-center text-sm font-medium text-green-700 hover:text-green-800 transition-colors"
+        :to="{ name: 'farm-manager' }"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-farm-500 to-farm-600 hover:from-farm-600 hover:to-farm-700 text-white font-semibold rounded-full shadow-sm hover:shadow transition-all duration-200"
       >
-        ← Back to Farm Plots
+        <span>🏡</span>
+        <span>Go to My Farms</span>
       </router-link>
     </div>
 
-    <header class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <div class="flex flex-wrap items-center gap-3 mb-2">
-          <h1 class="text-3xl font-extrabold text-gray-900">
-            {{
-              store.meta.plot_name
-                ? `${store.meta.plot_name} Recommendations`
-                : 'Crop Recommendations'
-            }}
-          </h1>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2.5 text-sm text-gray-600 mt-2">
-          <span
-            class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-lg text-gray-700 font-medium border border-gray-200"
-          >
-            📐 Area:
-            <strong class="text-gray-900"
-              >{{
-                store.meta.calculated_area ? Number(store.meta.calculated_area).toFixed(2) : '0.00'
-              }}
-              ha</strong
-            >
-          </span>
-          <span
-            class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-lg text-gray-700 font-medium border border-gray-200"
-          >
-            🌱 Soil:
-            <strong class="text-gray-900 capitalize">{{
-              store.meta.soil_type || 'Unspecified'
-            }}</strong>
-          </span>
-          <span
-            v-if="locationLabel"
-            class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-800 rounded-lg font-medium border border-green-200"
-          >
-            📍 {{ locationLabel }}
-          </span>
-        </div>
-      </div>
-      <div>
-        <button
-          @click="triggerAnalysis"
-          :disabled="store.isAnalyzing || store.isLoading"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-xl shadow-sm transition-all whitespace-nowrap"
-        >
-          <span>🌱</span>
-          <span v-if="store.isAnalyzing">Analyzing Plot...</span>
-          <span v-else>{{
-            store.recommendations.length > 0 ? 'Re-analyze Plot' : 'Analyze This Plot'
-          }}</span>
-        </button>
-      </div>
-    </header>
-
-    <div
-      v-if="store.errorMessage"
-      class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm flex items-center justify-between shadow-sm"
-    >
-      <div class="flex items-center gap-2.5">
-        <span class="text-xl">⚠️</span>
-        <span>{{ store.errorMessage }}</span>
-      </div>
-      <button
-        @click="store.errorMessage = ''"
-        class="text-amber-600 hover:text-amber-800 font-bold ml-4"
-      >
-        ✕
-      </button>
-    </div>
-
-    <div v-if="store.isAnalyzing" class="mb-12">
-      <AnalysisProgress :location="locationLabel" />
-    </div>
-
+    <!-- Active Plot View -->
     <div v-else>
-      <div v-if="store.recommendations.length > 0" class="space-y-6">
-        <RecommendationCard
-          v-for="rec in store.recommendations"
-          :key="rec.id"
-          :recommendation="rec"
-          @accept="handleAccept"
-          @reject="handleReject"
-        />
-      </div>
-      <div
-        v-else-if="!store.isLoading"
-        class="text-center py-16 px-4 bg-gray-50 rounded-2xl border border-gray-200"
+      <!-- Header -->
+      <header class="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+            {{ plotDisplayName }} Recommendations
+          </h1>
+
+          <!-- Meta badges -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200"
+            >
+              📐 <span>{{ plotArea }} ha</span>
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200 capitalize"
+            >
+              🌱 <span>{{ plotSoilType }}</span>
+            </span>
+            <span
+              v-if="locationLabel"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-farm-50 text-farm-700 rounded-full text-xs font-semibold border border-farm-200"
+            >
+              📍 {{ locationLabel }}
+            </span>
+            <span
+              v-if="currentPlot?.farm_name"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-xs font-semibold border border-gray-200"
+            >
+              🏡 {{ currentPlot.farm_name }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Analyse CTA -->
+        <div class="flex-shrink-0">
+          <AppButton
+            variant="primary"
+            rounded="full"
+            :loading="store.isAnalyzing || store.isLoading"
+            :disabled="store.isAnalyzing || store.isLoading || !activePlotId"
+            @click="triggerAnalysis"
+          >
+            <span v-if="!store.isAnalyzing">🌱</span>
+            {{
+              store.isAnalyzing
+                ? 'Analysing...'
+                : store.recommendations.length > 0
+                  ? 'Re-analyse Plot'
+                  : 'Analyse This Plot'
+            }}
+          </AppButton>
+        </div>
+      </header>
+
+      <!-- Error banner -->
+      <AppAlert
+        v-if="store.errorMessage"
+        type="warning"
+        dismissible
+        class="mb-6"
+        @dismiss="store.errorMessage = ''"
       >
-        <div class="text-4xl mb-3">🌾</div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-1">No recommendations generated yet</h3>
-        <p class="text-gray-500 max-w-md mx-auto mb-6 text-sm">
-          Run our AI advisor to inspect soil conditions and weather patterns to get optimized crop
-          recommendations for this
-          {{
-            store.meta.calculated_area ? Number(store.meta.calculated_area).toFixed(2) + ' ha' : ''
-          }}
-          plot.
-        </p>
-        <button
-          @click="triggerAnalysis"
-          :disabled="store.isAnalyzing"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
+        {{ store.errorMessage }}
+      </AppAlert>
+
+      <!-- Analysis progress -->
+      <div v-if="store.isAnalyzing" class="mb-10">
+        <AnalysisProgress :location="locationLabel" />
+      </div>
+
+      <!-- Recommendations -->
+      <div v-else>
+        <div v-if="store.recommendations.length > 0" class="space-y-5">
+          <RecommendationCard
+            v-for="rec in store.recommendations"
+            :key="rec.id"
+            :recommendation="rec"
+            @accept="handleAccept"
+            @reject="handleReject"
+          />
+        </div>
+
+        <!-- Empty state -->
+        <div
+          v-else-if="!store.isLoading"
+          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-farm-300 transition-colors duration-200"
         >
-          <span>🌱</span> Run AI Analysis Now
-        </button>
+          <div class="text-5xl mb-4">🌾</div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">No recommendations yet</h3>
+          <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+            Run our AI advisor to analyse soil conditions and weather patterns and get optimised
+            crop recommendations for this
+            {{ plotArea !== '0.00' ? plotArea + ' ha' : '' }}
+            plot.
+          </p>
+          <AppButton
+            variant="primary"
+            size="lg"
+            rounded="full"
+            :disabled="store.isAnalyzing || !activePlotId"
+            @click="triggerAnalysis"
+          >
+            🌱 Run AI Analysis Now
+          </AppButton>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useRecommendationStore } from '../stores/recommendationStore'
+import { useFarmingStore } from '../stores/farming'
 import { useWebSocket } from '../composables/useWebSocket'
 import AnalysisProgress from '../components/atoms/AnalysisProgress.vue'
 import RecommendationCard from '../components/molecules/RecommendationCard.vue'
+import AppButton from '../components/atoms/AppButton.vue'
+import AppAlert from '../components/atoms/AppAlert.vue'
 
 const route = useRoute()
+const router = useRouter()
 const store = useRecommendationStore()
+const farmingStore = useFarmingStore()
 const { listenToPlot, leavePlot } = useWebSocket()
 
-const plotId = computed(() => route.params.id)
+const selectedPlotId = ref(null)
+const isLoadingPlots = ref(true)
+
+const activePlotId = computed(() => {
+  if (route.params.id) return Number(route.params.id)
+  return selectedPlotId.value
+})
+
+const currentPlot = computed(() => {
+  return farmingStore.allPlots.find((p) => p.id === activePlotId.value)
+})
+
+const plotDisplayName = computed(() => {
+  return store.meta?.plot_name || currentPlot.value?.name || 'Plot'
+})
+
+const plotArea = computed(() => {
+  const area = store.meta?.calculated_area ?? currentPlot.value?.calculated_area
+  return area ? Number(area).toFixed(2) : '0.00'
+})
+
+const plotSoilType = computed(() => {
+  return store.meta?.soil_type || currentPlot.value?.soil_type || 'Unspecified'
+})
 
 const locationLabel = computed(() => {
   const parts = [store.meta?.city, store.meta?.state, store.meta?.country].filter(Boolean)
@@ -140,8 +237,8 @@ const locationLabel = computed(() => {
 })
 
 const triggerAnalysis = async () => {
-  if (plotId.value) {
-    await store.analyzePlot(plotId.value)
+  if (activePlotId.value) {
+    await store.analyzePlot(activePlotId.value)
   }
 }
 
@@ -152,35 +249,60 @@ const loadPlotData = async (id) => {
     store.fetchRecommendations(id)
   })
 
+  // Load existing recommendations without automatically triggering AI analysis.
+  // Re-analysis can only be triggered explicitly via the Re-analyse Plot button.
   await store.fetchRecommendations(id)
+}
 
-  if (route.query.analyze === 'true' || store.recommendations.length === 0) {
-    await triggerAnalysis()
-  }
+function handlePlotChange(valOrEvent) {
+  const newPlotId = typeof valOrEvent === 'number' ? valOrEvent : Number(valOrEvent?.target?.value)
+  if (!newPlotId || newPlotId === activePlotId.value) return
+  router.push({ name: 'crop-recommendations', params: { id: newPlotId } })
 }
 
 watch(
   () => route.params.id,
   async (newId, oldId) => {
     if (oldId) {
-      leavePlot(oldId)
+      leavePlot(Number(oldId))
     }
     if (newId) {
+      selectedPlotId.value = Number(newId)
       store.recommendations = []
-      await loadPlotData(newId)
+      await loadPlotData(Number(newId))
     }
   },
 )
 
 onMounted(async () => {
-  if (plotId.value) {
-    await loadPlotData(plotId.value)
+  isLoadingPlots.value = true
+  try {
+    await farmingStore.fetchAllPlots()
+  } finally {
+    isLoadingPlots.value = false
+  }
+
+  let targetId = null
+  if (route.params.id) {
+    targetId = Number(route.params.id)
+  } else if (route.query.farmId) {
+    const farmPlot = farmingStore.allPlots.find((p) => p.farm_id === Number(route.query.farmId))
+    if (farmPlot) targetId = farmPlot.id
+  }
+
+  if (!targetId && farmingStore.allPlots.length > 0) {
+    targetId = farmingStore.allPlots[0].id
+  }
+
+  if (targetId) {
+    selectedPlotId.value = targetId
+    await loadPlotData(targetId)
   }
 })
 
 onUnmounted(() => {
-  if (plotId.value) {
-    leavePlot(plotId.value)
+  if (activePlotId.value) {
+    leavePlot(activePlotId.value)
   }
 })
 

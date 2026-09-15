@@ -1,18 +1,24 @@
 <template>
   <div
-    class="recommendation-card bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-6"
+    class="recommendation-card bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-farm-100 transition-all duration-200 hover:-translate-y-0.5 flex flex-col sm:flex-row gap-6 p-6"
   >
+    <!-- Confidence Meter -->
     <div class="flex-shrink-0 flex justify-center sm:justify-start">
       <CropConfidenceMeter :score="recommendation.confidence_score" />
     </div>
+
+    <!-- Content -->
     <div class="flex-grow flex flex-col justify-between">
       <div>
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-2xl font-bold text-gray-900">{{ recommendation.crop_name }}</h3>
+        <!-- Title row -->
+        <div class="flex items-start justify-between mb-2 gap-3">
+          <h3 class="text-2xl font-bold text-gray-900 leading-tight">
+            {{ recommendation.crop_name }}
+          </h3>
           <span
             v-if="recommendation.status !== 'pending'"
             :class="[
-              'px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide',
+              'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide flex-shrink-0',
               recommendation.status === 'accepted'
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800',
@@ -21,31 +27,37 @@
             {{ recommendation.status }}
           </span>
         </div>
-        <p class="text-gray-600 mb-4 leading-relaxed">{{ recommendation.reasoning }}</p>
+
+        <!-- Reasoning -->
+        <p class="text-gray-600 mb-4 leading-relaxed text-sm">{{ recommendation.reasoning }}</p>
+
+        <!-- Projected Yield badge -->
         <div
-          class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium mb-4 sm:mb-0"
+          class="inline-flex items-center gap-2 bg-farm-50 text-farm-700 border border-farm-100 px-3 py-1.5 rounded-lg text-sm font-semibold mb-4 sm:mb-0"
         >
-          <span>🌾 Projected Yield:</span>
-          <strong>{{ recommendation.projected_yield }}</strong>
+          <span>🌾</span>
+          <span
+            >Projected Yield: <strong>{{ recommendation.projected_yield }}</strong></span
+          >
         </div>
       </div>
 
+      <!-- Actions -->
       <div
         v-if="recommendation.status === 'pending'"
         class="flex items-center gap-3 mt-4 sm:justify-end"
       >
-        <button
-          @click="$emit('reject', recommendation.id)"
-          class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-        >
+        <AppButton variant="ghost" size="sm" @click="$emit('reject', recommendation.id)">
           Reject
-        </button>
-        <button
+        </AppButton>
+        <AppButton
+          variant="primary"
+          size="sm"
+          rounded="full"
           @click="$emit('accept', recommendation.id)"
-          class="px-6 py-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-colors"
         >
-          Accept & Contract
-        </button>
+          ✓ Accept &amp; Contract
+        </AppButton>
       </div>
     </div>
   </div>
@@ -53,6 +65,7 @@
 
 <script setup>
 import CropConfidenceMeter from '../atoms/CropConfidenceMeter.vue'
+import AppButton from '../atoms/AppButton.vue'
 
 defineProps({
   recommendation: {

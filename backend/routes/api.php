@@ -41,6 +41,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/farms', [FarmController::class, 'store']);
             Route::get('/farms/{farm}/plots', [PlotController::class, 'index']);
             Route::post('/farms/{farm}/plots', [PlotController::class, 'store']);
+            Route::get('/plots', [PlotController::class, 'allUserPlots']);
 
             // Crop Recommendations
             Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware('throttle:5,60');
