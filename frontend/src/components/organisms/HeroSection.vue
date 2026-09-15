@@ -5,7 +5,8 @@ const features = [
   {
     icon: '🤖',
     title: 'AI Crop Advisor',
-    description: 'Personalised crop recommendations powered by GPT-4, tuned to your soil and climate.',
+    description:
+      'Personalised crop recommendations powered by GPT-4, tuned to your soil and climate.',
   },
   {
     icon: '🗺️',
@@ -26,34 +27,49 @@ const features = [
 </script>
 
 <template>
-  <div class="relative bg-gradient-to-br from-earth-50 via-white to-farm-50 overflow-hidden min-h-[90vh] flex items-center">
-
+  <div
+    class="relative bg-gradient-to-br from-earth-50 via-white to-farm-50 overflow-hidden min-h-[90vh] flex items-center"
+  >
     <!-- Decorative blobs -->
-    <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-farm-200/20 rounded-full -translate-y-1/3 translate-x-1/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
-    <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-earth-200/20 rounded-full translate-y-1/3 -translate-x-1/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
-    <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-farm-100/40 to-transparent transform skew-x-12 hidden lg:block pointer-events-none" aria-hidden="true"></div>
+    <div
+      class="absolute top-0 right-0 w-[600px] h-[600px] bg-farm-200/20 rounded-full -translate-y-1/3 translate-x-1/3 blur-3xl pointer-events-none"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-earth-200/20 rounded-full translate-y-1/3 -translate-x-1/3 blur-3xl pointer-events-none"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-farm-100/40 to-transparent transform skew-x-12 hidden lg:block pointer-events-none"
+      aria-hidden="true"
+    ></div>
 
     <div class="max-w-7xl mx-auto w-full relative z-10 px-4 sm:px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-12 items-center py-16 lg:py-24">
-
         <!-- Left: Copy -->
         <div>
           <!-- Live badge -->
-          <div class="inline-flex items-center gap-2 bg-farm-100 text-farm-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-farm-200 mb-6">
+          <div
+            class="inline-flex items-center gap-2 bg-farm-100 text-farm-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-farm-200 mb-6"
+          >
             <span class="w-1.5 h-1.5 rounded-full bg-farm-500 animate-pulse"></span>
             AI-Powered Crop Intelligence
           </div>
 
-          <h1 class="text-5xl tracking-tight font-extrabold text-gray-900 sm:text-6xl leading-tight mb-4">
+          <h1
+            class="text-5xl tracking-tight font-extrabold text-gray-900 sm:text-6xl leading-tight mb-4"
+          >
             <span class="block">Smarter farming</span>
-            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-farm-500 to-farm-700">
+            <span
+              class="block text-transparent bg-clip-text bg-gradient-to-r from-farm-500 to-farm-700"
+            >
               for a better harvest
             </span>
           </h1>
 
           <p class="text-lg text-gray-600 font-light leading-relaxed max-w-xl mb-8">
-            Connect with local buyers, plan your crops with AI, and manage your farm's success —
-            all in one premium platform built for the modern farmer.
+            Connect with local buyers, plan your crops with AI, and manage your farm's success — all
+            in one premium platform built for the modern farmer.
           </p>
 
           <!-- CTA row -->
@@ -101,7 +117,6 @@ const features = [
             <p class="text-xs text-gray-500 leading-relaxed">{{ feature.description }}</p>
           </div>
         </div>
-
       </div>
     </div>
   </div>

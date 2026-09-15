@@ -12,7 +12,9 @@
       <div>
         <!-- Title row -->
         <div class="flex items-start justify-between mb-2 gap-3">
-          <h3 class="text-2xl font-bold text-gray-900 leading-tight">{{ recommendation.crop_name }}</h3>
+          <h3 class="text-2xl font-bold text-gray-900 leading-tight">
+            {{ recommendation.crop_name }}
+          </h3>
           <span
             v-if="recommendation.status !== 'pending'"
             :class="[
@@ -30,9 +32,13 @@
         <p class="text-gray-600 mb-4 leading-relaxed text-sm">{{ recommendation.reasoning }}</p>
 
         <!-- Projected Yield badge -->
-        <div class="inline-flex items-center gap-2 bg-farm-50 text-farm-700 border border-farm-100 px-3 py-1.5 rounded-lg text-sm font-semibold mb-4 sm:mb-0">
+        <div
+          class="inline-flex items-center gap-2 bg-farm-50 text-farm-700 border border-farm-100 px-3 py-1.5 rounded-lg text-sm font-semibold mb-4 sm:mb-0"
+        >
           <span>🌾</span>
-          <span>Projected Yield: <strong>{{ recommendation.projected_yield }}</strong></span>
+          <span
+            >Projected Yield: <strong>{{ recommendation.projected_yield }}</strong></span
+          >
         </div>
       </div>
 
@@ -41,11 +47,7 @@
         v-if="recommendation.status === 'pending'"
         class="flex items-center gap-3 mt-4 sm:justify-end"
       >
-        <AppButton
-          variant="ghost"
-          size="sm"
-          @click="$emit('reject', recommendation.id)"
-        >
+        <AppButton variant="ghost" size="sm" @click="$emit('reject', recommendation.id)">
           Reject
         </AppButton>
         <AppButton

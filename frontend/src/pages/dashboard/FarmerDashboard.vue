@@ -16,14 +16,14 @@ onMounted(() => {
 
 <template>
   <div class="space-y-8">
-
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-
       <!-- Total Farms — gradient card -->
       <AppCard variant="gradient" class="!rounded-2xl">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
+          <div
+            class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm"
+          >
             🏡
           </div>
           <div>
@@ -36,7 +36,9 @@ onMounted(() => {
       <!-- Total Plots -->
       <AppCard>
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl flex-shrink-0">
+          <div
+            class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl flex-shrink-0"
+          >
             🗺️
           </div>
           <div>
@@ -48,9 +50,13 @@ onMounted(() => {
 
       <!-- AI Recommendations -->
       <router-link :to="{ name: 'recommendations' }" class="block group">
-        <AppCard class="transition-all duration-200 group-hover:border-farm-200 group-hover:shadow-md">
+        <AppCard
+          class="transition-all duration-200 group-hover:border-farm-200 group-hover:shadow-md"
+        >
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+            <div
+              class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
+            >
               🤖
             </div>
             <div>
@@ -61,7 +67,6 @@ onMounted(() => {
           </div>
         </AppCard>
       </router-link>
-
     </div>
 
     <!-- Recent Activity -->
@@ -87,7 +92,10 @@ onMounted(() => {
           <h3 class="text-sm font-semibold text-gray-700 mb-1">No activity yet</h3>
           <p class="text-sm text-gray-500">
             Go to
-            <router-link :to="{ name: 'farm-manager' }" class="text-farm-600 hover:text-farm-700 font-medium transition-colors">
+            <router-link
+              :to="{ name: 'farm-manager' }"
+              class="text-farm-600 hover:text-farm-700 font-medium transition-colors"
+            >
               My Farms
             </router-link>
             to get started.
@@ -97,11 +105,8 @@ onMounted(() => {
 
       <!-- Placeholder -->
       <AppCard v-else>
-        <div class="text-sm text-gray-500 py-2">
-          Activity feed coming soon.
-        </div>
+        <div class="text-sm text-gray-500 py-2">Activity feed coming soon.</div>
       </AppCard>
     </div>
-
   </div>
 </template>

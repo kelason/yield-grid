@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-5xl mx-auto py-8 px-4">
-
     <!-- Top Bar: Navigation & Plot Selector -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center gap-4">
@@ -8,8 +7,19 @@
           :to="{ name: 'farm-manager' }"
           class="inline-flex items-center gap-1.5 text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors duration-200 group"
         >
-          <svg class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          <svg
+            class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Back to My Farms
         </router-link>
@@ -24,7 +34,10 @@
 
       <!-- Plot Selector dropdown (if multiple plots exist) -->
       <div v-if="farmingStore.allPlots.length > 1" class="flex items-center gap-2">
-        <label for="plot-selector" class="text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+        <label
+          for="plot-selector"
+          class="text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+        >
           Plot:
         </label>
         <div class="relative">
@@ -34,12 +47,9 @@
             @change="handlePlotChange(Number($event.target.value))"
             class="block w-full rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-800 shadow-sm focus:border-farm-500 focus:outline-none focus:ring-1 focus:ring-farm-500 transition-all cursor-pointer"
           >
-            <option
-              v-for="p in farmingStore.allPlots"
-              :key="p.id"
-              :value="p.id"
-            >
-              {{ p.name }} ({{ p.farm_name || 'Farm' }}) — {{ p.calculated_area ? Number(p.calculated_area).toFixed(2) : 0 }} ha
+            <option v-for="p in farmingStore.allPlots" :key="p.id" :value="p.id">
+              {{ p.name }} ({{ p.farm_name || 'Farm' }}) —
+              {{ p.calculated_area ? Number(p.calculated_area).toFixed(2) : 0 }} ha
             </option>
           </select>
         </div>
@@ -54,7 +64,8 @@
       <div class="text-5xl mb-4">🌾</div>
       <h3 class="text-xl font-bold text-gray-900 mb-2">No plots registered yet</h3>
       <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
-        You need to create a farm and draw at least one plot before you can receive AI crop recommendations.
+        You need to create a farm and draw at least one plot before you can receive AI crop
+        recommendations.
       </p>
       <router-link
         :to="{ name: 'farm-manager' }"
@@ -76,10 +87,14 @@
 
           <!-- Meta badges -->
           <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200">
+            <span
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200"
+            >
               📐 <span>{{ plotArea }} ha</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200 capitalize">
+            <span
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200 capitalize"
+            >
               🌱 <span>{{ plotSoilType }}</span>
             </span>
             <span
@@ -111,8 +126,8 @@
               store.isAnalyzing
                 ? 'Analysing...'
                 : store.recommendations.length > 0
-                ? 'Re-analyse Plot'
-                : 'Analyse This Plot'
+                  ? 'Re-analyse Plot'
+                  : 'Analyse This Plot'
             }}
           </AppButton>
         </div>
@@ -154,8 +169,8 @@
           <div class="text-5xl mb-4">🌾</div>
           <h3 class="text-lg font-bold text-gray-900 mb-2">No recommendations yet</h3>
           <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
-            Run our AI advisor to analyse soil conditions and weather patterns and get optimised crop
-            recommendations for this
+            Run our AI advisor to analyse soil conditions and weather patterns and get optimised
+            crop recommendations for this
             {{ plotArea !== '0.00' ? plotArea + ' ha' : '' }}
             plot.
           </p>
@@ -171,7 +186,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 

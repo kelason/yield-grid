@@ -46,18 +46,29 @@ function handleViewRecommendations(farmId) {
 
 <template>
   <div class="space-y-6">
-
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
         <h2 class="text-xl font-bold text-gray-900 tracking-tight">My Farms</h2>
         <p class="text-sm text-gray-500 mt-0.5">
-          {{ farmingStore.farms.length }} farm{{ farmingStore.farms.length !== 1 ? 's' : '' }} registered
+          {{ farmingStore.farms.length }} farm{{ farmingStore.farms.length !== 1 ? 's' : '' }}
+          registered
         </p>
       </div>
       <AppButton variant="primary" rounded="full" @click="showCreateForm = !showCreateForm">
-        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <svg
+          class="mr-2 h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
         </svg>
         {{ showCreateForm ? 'Cancel' : 'Add Farm' }}
       </AppButton>
@@ -91,7 +102,11 @@ function handleViewRecommendations(farmId) {
       v-if="farmingStore.loading && farmingStore.farms.length === 0"
       class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
     >
-      <div v-for="n in 3" :key="n" class="animate-pulse bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+      <div
+        v-for="n in 3"
+        :key="n"
+        class="animate-pulse bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4"
+      >
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-gray-200 rounded-xl"></div>
           <div class="flex-1 space-y-2">
@@ -115,8 +130,19 @@ function handleViewRecommendations(farmId) {
         Create your first farm to start planning plots and getting AI crop recommendations.
       </p>
       <AppButton variant="primary" rounded="full" @click="showCreateForm = true">
-        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <svg
+          class="mr-2 h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
         </svg>
         Create First Farm
       </AppButton>
@@ -132,6 +158,5 @@ function handleViewRecommendations(farmId) {
         @view-recommendations="handleViewRecommendations"
       />
     </div>
-
   </div>
 </template>

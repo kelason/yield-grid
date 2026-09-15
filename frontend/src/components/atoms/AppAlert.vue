@@ -16,9 +16,9 @@ const emit = defineEmits(['dismiss'])
     :class="[
       'rounded-xl p-4 border-l-4 flex items-start gap-3',
       type === 'success' && 'bg-green-50 text-green-800 border-green-500',
-      type === 'error'   && 'bg-red-50 text-red-800 border-red-500',
+      type === 'error' && 'bg-red-50 text-red-800 border-red-500',
       type === 'warning' && 'bg-amber-50 text-amber-800 border-amber-500',
-      type === 'info'    && 'bg-blue-50 text-blue-800 border-blue-500',
+      type === 'info' && 'bg-blue-50 text-blue-800 border-blue-500',
     ]"
     role="alert"
   >

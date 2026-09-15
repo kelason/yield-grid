@@ -53,10 +53,10 @@ class PlotController extends Controller
         $plots = Plot::whereHas('farm', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })
-        ->with('farm:id,name')
-        ->withCount('recommendations')
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->with('farm:id,name')
+            ->withCount('recommendations')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'data' => $plots->map(function ($plot) {

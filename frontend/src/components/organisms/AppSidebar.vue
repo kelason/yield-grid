@@ -51,8 +51,9 @@ function getInitials(name) {
 <template>
   <div class="hidden md:flex md:flex-shrink-0">
     <div class="flex flex-col w-64">
-      <div class="flex flex-col h-0 flex-1 border-r border-gray-200 bg-gradient-to-b from-white via-white to-earth-50">
-
+      <div
+        class="flex flex-col h-0 flex-1 border-r border-gray-200 bg-gradient-to-b from-white via-white to-earth-50"
+      >
         <!-- Logo area with gradient strip -->
         <div class="flex items-center flex-shrink-0 px-5 py-5 border-b border-gray-100">
           <AppLogo />
@@ -103,7 +104,9 @@ function getInitials(name) {
         <div class="flex-shrink-0 border-t border-gray-200 p-4 bg-white">
           <div class="flex items-center gap-3">
             <!-- Avatar -->
-            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-farm-400 to-farm-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
+            <div
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-farm-400 to-farm-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0"
+            >
               {{ getInitials(authStore.user?.name) }}
             </div>
             <div class="min-w-0">
@@ -116,7 +119,6 @@ function getInitials(name) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>

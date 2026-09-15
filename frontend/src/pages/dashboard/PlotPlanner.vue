@@ -94,7 +94,6 @@ async function savePlot() {
 
 <template>
   <div class="h-[calc(100vh-10rem)] flex flex-col md:flex-row gap-6">
-
     <!-- Map Area -->
     <div class="flex-1 relative rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
       <PlotDrawer
@@ -107,7 +106,6 @@ async function savePlot() {
 
     <!-- Side Panel -->
     <div class="w-full md:w-80 flex flex-col gap-4">
-
       <!-- Farm info card -->
       <AppCard variant="muted" padding="p-0">
         <div class="px-4 py-4 border-b border-earth-100">
@@ -120,15 +118,15 @@ async function savePlot() {
           </p>
         </div>
 
-        <div
-          v-if="farmingStore.activeFarm?.city"
-          class="px-4 py-3 flex items-start gap-2"
-        >
+        <div v-if="farmingStore.activeFarm?.city" class="px-4 py-3 flex items-start gap-2">
           <span class="text-sm leading-none mt-0.5">📍</span>
           <div class="text-xs">
             <div class="text-gray-500">Restricted Plotting Area:</div>
             <strong class="font-semibold text-farm-900">
-              {{ farmingStore.activeFarm.city }}<span v-if="farmingStore.activeFarm.country">, {{ farmingStore.activeFarm.country }}</span>
+              {{ farmingStore.activeFarm.city
+              }}<span v-if="farmingStore.activeFarm.country"
+                >, {{ farmingStore.activeFarm.country }}</span
+              >
             </strong>
           </div>
         </div>
@@ -169,7 +167,9 @@ async function savePlot() {
 
       <!-- Plot list (when not drawing) -->
       <AppCard v-else padding="p-0" class="flex-1 overflow-hidden flex flex-col min-h-0">
-        <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-earth-50 to-white flex items-center justify-between">
+        <div
+          class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-earth-50 to-white flex items-center justify-between"
+        >
           <h4 class="text-sm font-bold text-gray-900">Existing Plots</h4>
           <span class="text-xs font-medium text-gray-400">
             {{ farmingStore.plots?.features?.length || 0 }} total
@@ -194,14 +194,21 @@ async function savePlot() {
             >
               <div class="flex items-center justify-between gap-2">
                 <div class="min-w-0">
-                  <div class="font-semibold text-gray-900 text-sm truncate">{{ feature.properties.name }}</div>
+                  <div class="font-semibold text-gray-900 text-sm truncate">
+                    {{ feature.properties.name }}
+                  </div>
                   <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                    <span class="capitalize">{{ feature.properties.soil_type || 'Unknown soil' }}</span>
+                    <span class="capitalize">{{
+                      feature.properties.soil_type || 'Unknown soil'
+                    }}</span>
                     <span>•</span>
                     <span class="font-bold text-farm-600">
-                      {{ feature.properties.calculated_area
-                        ? Number(feature.properties.calculated_area).toFixed(2)
-                        : 0 }} ha
+                      {{
+                        feature.properties.calculated_area
+                          ? Number(feature.properties.calculated_area).toFixed(2)
+                          : 0
+                      }}
+                      ha
                     </span>
                   </div>
                 </div>
@@ -217,7 +224,6 @@ async function savePlot() {
           </ul>
         </div>
       </AppCard>
-
     </div>
   </div>
 </template>

@@ -10,9 +10,12 @@
       </div>
       <div>
         <div class="text-2xl font-extrabold text-gray-900 leading-tight">
-          {{ Math.round(weather.main?.temp) }}<span class="text-lg font-semibold text-gray-500">°C</span>
+          {{ Math.round(weather.main?.temp)
+          }}<span class="text-lg font-semibold text-gray-500">°C</span>
         </div>
-        <div class="text-xs text-gray-500 capitalize mt-0.5">{{ weather.weather[0]?.description }}</div>
+        <div class="text-xs text-gray-500 capitalize mt-0.5">
+          {{ weather.weather[0]?.description }}
+        </div>
       </div>
     </div>
 
