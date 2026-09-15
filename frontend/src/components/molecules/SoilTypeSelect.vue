@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
-const props = defineProps({
+defineProps({
   modelValue: {
     type: String,
     required: true,
@@ -143,7 +143,7 @@ onUnmounted(() => {
     <p v-if="error" class="mb-2 text-xs text-red-600 font-medium">{{ error }}</p>
 
     <!-- Radio Grid -->
-    <div class="grid grid-cols-1 gap-2.5">
+    <div class="grid grid-cols-1 gap-2.5" role="radiogroup" :aria-label="label">
       <div
         v-for="(soil, index) in SOIL_TYPES"
         :key="soil.value"
@@ -153,7 +153,7 @@ onUnmounted(() => {
           modelValue === soil.value
             ? 'border-farm-500 bg-farm-50/90 ring-1 ring-farm-500 shadow-sm'
             : 'border-gray-200 bg-white hover:border-farm-300 hover:bg-farm-50/40 shadow-xs',
-          activeTooltip === soil.value ? 'z-50' : 'z-10'
+          activeTooltip === soil.value ? 'z-50' : 'z-10',
         ]"
         role="radio"
         :aria-checked="modelValue === soil.value"
@@ -234,14 +234,16 @@ onUnmounted(() => {
             @mouseenter="showTooltip(soil.value)"
             @mouseleave="hideTooltip(soil.value)"
             class="absolute -inset-x-1 z-50 p-3 bg-gray-900/95 text-white rounded-xl shadow-2xl border border-gray-700/80 backdrop-blur-xl"
-            :class="index > 3 ? 'bottom-0' : 'top-0'"
+            :class="index >= Math.floor(SOIL_TYPES.length / 2) ? 'bottom-0' : 'top-0'"
             @click.stop="selectSoil(soil)"
           >
             <div class="relative space-y-2">
               <div class="flex items-center justify-between pb-2 border-b border-gray-800">
                 <div class="flex items-center gap-2.5">
                   <span class="font-bold text-farm-300 text-sm">{{ soil.label }} Soil</span>
-                  <span class="text-[11px] px-2 py-0.5 rounded-full bg-farm-900/70 text-farm-300 font-semibold border border-farm-700/60">
+                  <span
+                    class="text-[11px] px-2 py-0.5 rounded-full bg-farm-900/70 text-farm-300 font-semibold border border-farm-700/60"
+                  >
                     {{ soil.badge }}
                   </span>
                 </div>
