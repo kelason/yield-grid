@@ -24,9 +24,11 @@ class PlotResource extends JsonResource
         return [
             'id' => $this->id,
             'farm_id' => $this->farm_id,
+            'farm_name' => $this->whenLoaded('farm', fn () => $this->farm?->name),
             'name' => $this->name,
             'soil_type' => $this->soil_type?->value,
-            'calculated_area' => $this->calculated_area,
+            'calculated_area' => (float) ($this->calculated_area ?? 0),
+            'recommendations_count' => $this->whenCounted('recommendations', $this->recommendations_count),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

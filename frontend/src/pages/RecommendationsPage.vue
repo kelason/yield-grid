@@ -256,11 +256,8 @@ const loadPlotData = async (id) => {
 
 function handlePlotChange(valOrEvent) {
   const newPlotId = typeof valOrEvent === 'number' ? valOrEvent : Number(valOrEvent?.target?.value)
-  if (!newPlotId) return
-  selectedPlotId.value = newPlotId
-  store.recommendations = []
+  if (!newPlotId || newPlotId === activePlotId.value) return
   router.push({ name: 'crop-recommendations', params: { id: newPlotId } })
-  loadPlotData(newPlotId)
 }
 
 watch(

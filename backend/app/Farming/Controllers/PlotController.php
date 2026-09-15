@@ -58,19 +58,7 @@ class PlotController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json([
-            'data' => $plots->map(function ($plot) {
-                return [
-                    'id' => $plot->id,
-                    'name' => $plot->name,
-                    'farm_id' => $plot->farm_id,
-                    'farm_name' => $plot->farm?->name,
-                    'soil_type' => $plot->soil_type?->value,
-                    'calculated_area' => (float) ($plot->calculated_area ?? 0),
-                    'recommendations_count' => $plot->recommendations_count,
-                ];
-            }),
-        ]);
+        return PlotResource::collection($plots)->response();
     }
 
     public function store(StorePlotRequest $request, Farm $farm, CreatePlotAction $action): JsonResponse
