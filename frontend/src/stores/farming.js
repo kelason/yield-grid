@@ -9,12 +9,24 @@ export const useFarmingStore = defineStore('farming', () => {
   const loading = ref(false)
   const activeFarm = ref(null)
   const plots = ref([])
+  const allPlots = ref([])
 
   async function fetchFarms() {
     loading.value = true
     try {
       const response = await api.get('/farms')
       farms.value = response.data.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchAllPlots() {
+    loading.value = true
+    try {
+      const response = await api.get('/plots')
+      allPlots.value = response.data.data || []
+      return allPlots.value
     } finally {
       loading.value = false
     }
@@ -53,7 +65,9 @@ export const useFarmingStore = defineStore('farming', () => {
     loading,
     activeFarm,
     plots,
+    allPlots,
     fetchFarms,
+    fetchAllPlots,
     createFarm,
     fetchPlots,
     createPlot,

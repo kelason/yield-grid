@@ -237,11 +237,11 @@ function loadExistingPlots() {
 
         const plotId = encodeURIComponent(String(feature.properties?.id ?? ''))
         const link = document.createElement('a')
-        link.href = `/dashboard/plots/${plotId}/recommendations?analyze=true`
+        link.href = `/dashboard/plots/${plotId}/recommendations`
         link.className =
-          'inline-block mt-3 px-4 py-1.5 bg-green-600 !text-white rounded-md text-sm font-semibold hover:bg-green-700 transition-colors'
+          'inline-block mt-3 px-4 py-1.5 bg-farm-600 !text-white rounded-md text-sm font-semibold hover:bg-farm-700 transition-colors'
         link.style.cssText = 'text-decoration: none; color: white !important;'
-        link.textContent = '🌱 Analyze This Plot'
+        link.textContent = '🌾 View Recommendations'
         container.appendChild(link)
 
         layer.bindPopup(container)

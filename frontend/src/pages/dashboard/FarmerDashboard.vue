@@ -1,9 +1,13 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useFarmingStore } from '../../stores/farming'
 import AppCard from '../../components/atoms/AppCard.vue'
 
 const farmingStore = useFarmingStore()
+
+const totalPlots = computed(() =>
+  farmingStore.farms.reduce((acc, farm) => acc + (farm.plots_count || 0), 0),
+)
 
 onMounted(() => {
   farmingStore.fetchFarms()
@@ -11,74 +15,93 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-8">
+
+    <!-- KPI Cards -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <AppCard class="bg-gradient-to-r from-farm-500 to-farm-600 text-white border-none">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              />
-            </svg>
+
+      <!-- Total Farms — gradient card -->
+      <AppCard variant="gradient" class="!rounded-2xl">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
+            🏡
           </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt class="text-sm font-medium text-farm-100 truncate">Total Farms</dt>
-              <dd>
-                <div class="text-3xl font-semibold text-white">{{ farmingStore.farms.length }}</div>
-              </dd>
-            </dl>
+          <div>
+            <dt class="text-sm font-medium text-farm-100">Total Farms</dt>
+            <dd class="text-4xl font-bold text-white mt-1">{{ farmingStore.farms.length }}</dd>
           </div>
         </div>
       </AppCard>
 
+      <!-- Total Plots -->
       <AppCard>
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <svg
-              class="h-6 w-6 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-              />
-            </svg>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl flex-shrink-0">
+            🗺️
           </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Total Plots</dt>
-              <dd>
-                <div class="text-3xl font-semibold text-gray-900">
-                  {{ farmingStore.farms.reduce((acc, farm) => acc + (farm.plots_count || 0), 0) }}
-                </div>
-              </dd>
-            </dl>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Total Plots</dt>
+            <dd class="text-4xl font-bold text-gray-900 mt-1">{{ totalPlots }}</dd>
           </div>
+        </div>
+      </AppCard>
+
+      <!-- AI Recommendations -->
+      <router-link :to="{ name: 'recommendations' }" class="block group">
+        <AppCard class="transition-all duration-200 group-hover:border-farm-200 group-hover:shadow-md">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+              🤖
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">AI Advisor</dt>
+              <dd class="text-sm font-semibold text-farm-600 mt-1">View Recommendations →</dd>
+              <dd class="text-xs text-gray-400">Crop advisor insights</dd>
+            </div>
+          </div>
+        </AppCard>
+      </router-link>
+
+    </div>
+
+    <!-- Recent Activity -->
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-lg font-bold text-gray-900">Recent Activity</h2>
+        <div class="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent"></div>
+      </div>
+
+      <!-- Skeleton loading state -->
+      <AppCard v-if="farmingStore.loading">
+        <div class="animate-pulse space-y-3">
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      </AppCard>
+
+      <!-- Empty -->
+      <AppCard v-else-if="farmingStore.farms.length === 0">
+        <div class="text-center py-8">
+          <div class="text-4xl mb-3">🌱</div>
+          <h3 class="text-sm font-semibold text-gray-700 mb-1">No activity yet</h3>
+          <p class="text-sm text-gray-500">
+            Go to
+            <router-link :to="{ name: 'farm-manager' }" class="text-farm-600 hover:text-farm-700 font-medium transition-colors">
+              My Farms
+            </router-link>
+            to get started.
+          </p>
+        </div>
+      </AppCard>
+
+      <!-- Placeholder -->
+      <AppCard v-else>
+        <div class="text-sm text-gray-500 py-2">
+          Activity feed coming soon.
         </div>
       </AppCard>
     </div>
 
-    <h2 class="text-lg leading-6 font-medium text-gray-900 mt-8 mb-4">Recent Activity</h2>
-    <AppCard>
-      <div v-if="farmingStore.farms.length === 0" class="text-center py-8 text-gray-500">
-        You haven't created any farms yet. Go to
-        <router-link :to="{ name: 'farm-manager' }" class="text-farm-600 hover:underline"
-          >My Farms</router-link
-        >
-        to get started.
-      </div>
-      <div v-else class="text-sm text-gray-600 py-4">
-        Activity feed will be implemented in future phases.
-      </div>
-    </AppCard>
   </div>
 </template>
