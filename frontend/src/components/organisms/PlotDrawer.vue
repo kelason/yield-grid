@@ -6,6 +6,9 @@ import 'leaflet-draw'
 import 'leaflet-draw/dist/leaflet.draw.css'
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch'
 import 'leaflet-geosearch/dist/geosearch.css'
+import { useApi } from '../../composables/useApi'
+import booleanIntersects from '@turf/boolean-intersects'
+import { polygon as turfPolygon } from '@turf/helpers'
 
 const props = defineProps({
   existingPlots: { type: Object, default: () => ({ type: 'FeatureCollection', features: [] }) },
@@ -21,6 +24,149 @@ let drawControl = null
 let boundaryLayer = null
 const allowedCityBounds = ref(null)
 const isGeocodingCity = ref(false)
+const api = useApi()
+let restrictedZonesLayer = null
+const isCheckingZone = ref(false)
+
+// Type labels for friendly error messages
+const RESTRICTED_TYPE_LABELS = {
+  building: 'building or house',
+  highway: 'road',
+  waterway: 'river or waterway',
+}
+
+/**
+ * Queries Overpass for OSM features ONLY within the drawn polygon's tiny bounding box.
+ * This keeps requests small and fast (< 200ms typical for a farm-sized polygon).
+ * Returns the first conflicting feature found, or null if clear.
+ */
+async function queryOsmForPolygon(drawnGeoJson) {
+  const coords = drawnGeoJson.geometry.coordinates[0]
+  const lats = coords.map((c) => c[1])
+  const lngs = coords.map((c) => c[0])
+  // Expand bbox very slightly to catch adjacent features touching the edge
+  const south = (Math.min(...lats) - 0.0001).toFixed(6)
+  const west = (Math.min(...lngs) - 0.0001).toFixed(6)
+  const north = (Math.max(...lats) + 0.0001).toFixed(6)
+  const east = (Math.max(...lngs) + 0.0001).toFixed(6)
+
+  const bbox = `${south},${west},${north},${east}`
+
+  // maxsize:262144 = 256KB cap keeps response fast and prevents timeout
+  const query = `[out:json][timeout:8][maxsize:262144];
+(
+  way["building"](${bbox});
+  way["highway"~"^(residential|primary|secondary|tertiary|trunk|motorway|service|unclassified|living_street)$"](${bbox});
+  way["waterway"~"^(river|stream|canal|drain)$"](${bbox});
+);
+out geom;`
+
+  const mirrors = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  ]
+
+  for (const url of mirrors) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'data=' + encodeURIComponent(query),
+        signal: AbortSignal.timeout(10000),
+      })
+      if (!res.ok) continue
+
+      const contentType = res.headers.get('content-type') || ''
+      if (!contentType.includes('json')) continue // skip HTML error pages
+
+      const data = await res.json()
+      if (!data?.elements?.length) return null // no features in this tiny area = clear land
+
+      const drawnPoly = turfPolygon(drawnGeoJson.geometry.coordinates)
+
+      for (const el of data.elements) {
+        if (!el.geometry || el.geometry.length < 3) continue
+        const ring = el.geometry.map((pt) => [pt.lon, pt.lat])
+        if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
+          ring.push(ring[0])
+        }
+        try {
+          const osmPoly = turfPolygon([ring])
+          if (booleanIntersects(drawnPoly, osmPoly)) {
+            const osmType = el.tags?.building
+              ? 'building'
+              : el.tags?.highway
+                ? 'highway'
+                : 'waterway'
+            return {
+              type: RESTRICTED_TYPE_LABELS[osmType] || 'restricted area',
+              name:
+                el.tags?.name ||
+                el.tags?.['addr:street'] ||
+                el.tags?.ref ||
+                RESTRICTED_TYPE_LABELS[osmType],
+            }
+          }
+        } catch {
+          /* skip malformed */
+        }
+      }
+
+      return null // reached Overpass, no intersection found
+    } catch (err) {
+      console.warn(`Overpass mirror ${url} failed:`, err.message)
+    }
+  }
+
+  // All mirrors failed — fail open with a console warning
+  console.warn('All Overpass mirrors unavailable. Zone validation skipped for this draw.')
+  return null
+}
+
+const ZONE_STYLES = {
+  house: { color: '#ef4444', fillColor: '#fca5a5', label: '🏠' },
+  road: { color: '#f97316', fillColor: '#fdba74', label: '🛣️' },
+  river: { color: '#3b82f6', fillColor: '#93c5fd', label: '💧' },
+  default: { color: '#ef4444', fillColor: '#fca5a5', label: '⛔' },
+}
+
+async function fetchAndRenderRestrictedZones() {
+  if (!map) return
+  try {
+    const response = await api.get('/restricted-zones')
+    const geojson = response.data
+    if (!geojson || !geojson.features?.length) return
+
+    if (restrictedZonesLayer && map.hasLayer(restrictedZonesLayer)) {
+      map.removeLayer(restrictedZonesLayer)
+    }
+
+    restrictedZonesLayer = L.geoJSON(geojson, {
+      style: (feature) => {
+        const style = ZONE_STYLES[feature.properties?.type] || ZONE_STYLES.default
+        return {
+          color: style.color,
+          weight: 1.5,
+          fillColor: style.fillColor,
+          fillOpacity: 0.45,
+          dashArray: '4, 4',
+        }
+      },
+      onEachFeature: (feature, layer) => {
+        const style = ZONE_STYLES[feature.properties?.type] || ZONE_STYLES.default
+        const name = feature.properties?.name || 'Restricted Area'
+        const type = feature.properties?.type || 'restricted'
+        layer.bindTooltip(
+          `<span class="font-semibold">${style.label} ${name}</span><br><span class="text-xs text-gray-400">Type: ${type} — No plotting allowed</span>`,
+          { sticky: true, className: 'restricted-zone-tooltip' },
+        )
+      },
+    }).addTo(map)
+  } catch (err) {
+    console.warn('Could not load restricted zones:', err)
+  }
+}
 
 async function focusFarmCity() {
   if (!map || !props.farm?.city) return
@@ -145,8 +291,8 @@ onMounted(() => {
   })
   map.addControl(searchControl)
 
-  // Handle draw created event
-  map.on(L.Draw.Event.CREATED, function (e) {
+  // Handle draw created event — async to run Overpass validation
+  map.on(L.Draw.Event.CREATED, async function (e) {
     const type = e.layerType
     const layer = e.layer
 
@@ -170,12 +316,31 @@ onMounted(() => {
         }
       }
 
+      // OSM zone validation: query tiny bbox around drawn polygon
+      isCheckingZone.value = true
+      try {
+        const conflict = await queryOsmForPolygon(geojson)
+        if (conflict) {
+          map.removeLayer(layer)
+          emit(
+            'plot-error',
+            `Cannot plot here — your area overlaps a ${conflict.type} ("${conflict.name}"). Please draw only on vacant, agricultural land.`,
+          )
+          return
+        }
+      } finally {
+        isCheckingZone.value = false
+      }
+
       emit('plot-drawn', { layer, coordinates })
     }
   })
 
   // Focus farm city if available
   focusFarmCity()
+
+  // Load restricted zones as red overlays
+  fetchAndRenderRestrictedZones()
 
   // Load existing plots
   loadExistingPlots()
@@ -204,16 +369,22 @@ function loadExistingPlots() {
 
   drawnItems.clearLayers()
 
+  // Remove any previously rendered plots layer
+  if (window._plotsLayer && map.hasLayer(window._plotsLayer)) {
+    map.removeLayer(window._plotsLayer)
+  }
+
   if (
     props.existingPlots &&
     props.existingPlots.features &&
     props.existingPlots.features.length > 0
   ) {
-    L.geoJSON(props.existingPlots, {
+    window._plotsLayer = L.geoJSON(props.existingPlots, {
       style: {
-        color: '#059669', // farm-600
+        color: '#059669',
         weight: 2,
-        fillOpacity: 0.2,
+        fillColor: '#10b981',
+        fillOpacity: 0.25,
       },
       onEachFeature: (feature, layer) => {
         const area = feature.properties?.calculated_area
@@ -241,17 +412,23 @@ function loadExistingPlots() {
         link.className =
           'inline-block mt-3 px-4 py-1.5 bg-farm-600 !text-white rounded-md text-sm font-semibold hover:bg-farm-700 transition-colors'
         link.style.cssText = 'text-decoration: none; color: white !important;'
-        link.textContent = '🌾 View Recommendations'
+        link.textContent = '✨ View Recommendations'
         container.appendChild(link)
 
         layer.bindPopup(container)
-        drawnItems.addLayer(layer)
       },
-    })
+    }).addTo(map)
 
     // Fit map bounds to existing plots
-    if (drawnItems.getLayers().length > 0) {
-      map.fitBounds(drawnItems.getBounds(), { padding: [50, 50] })
+    try {
+      const bounds = window._plotsLayer.getBounds()
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 17 })
+      }
+    } catch {
+      if (allowedCityBounds.value) {
+        map.fitBounds(allowedCityBounds.value, { padding: [30, 30] })
+      }
     }
   } else if (allowedCityBounds.value) {
     map.fitBounds(allowedCityBounds.value, { padding: [30, 30] })
@@ -263,6 +440,23 @@ onBeforeUnmount(() => {
     map.remove()
   }
 })
+
+defineExpose({
+  zoomToPlot: (plotId) => {
+    if (window._plotsLayer && map) {
+      let targetLayer = null
+      window._plotsLayer.eachLayer((layer) => {
+        if (layer.feature && layer.feature.properties.id === plotId) {
+          targetLayer = layer
+        }
+      })
+      if (targetLayer) {
+        map.fitBounds(targetLayer.getBounds(), { padding: [60, 60], maxZoom: 18 })
+        targetLayer.openPopup()
+      }
+    }
+  },
+})
 </script>
 
 <template>
@@ -272,14 +466,51 @@ onBeforeUnmount(() => {
       class="w-full h-full z-0 rounded-md shadow-sm border border-gray-300"
     ></div>
 
+    <!-- Overpass validation loading indicator -->
+    <Transition
+      enter-active-class="transition-all duration-200"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-150"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div
+        v-if="isCheckingZone"
+        class="absolute inset-0 z-[500] bg-black/20 backdrop-blur-[1px] rounded-md flex items-center justify-center"
+      >
+        <div
+          class="bg-white rounded-xl shadow-xl px-5 py-4 flex items-center gap-3 border border-gray-200"
+        >
+          <svg class="w-5 h-5 text-amber-500 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+          <div>
+            <p class="text-sm font-bold text-gray-900">Checking zone...</p>
+            <p class="text-xs text-gray-500">Verifying no buildings or roads overlap</p>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Active City Zone Indicator Overlay -->
     <div
       v-if="farm?.city"
-      class="absolute top-3 right-3 z-[400] bg-white/95 backdrop-blur-sm px-3.5 py-2 rounded-lg shadow-md border border-emerald-300 text-xs font-semibold text-emerald-800 flex items-center gap-2"
+      class="absolute bottom-3 left-3 z-[400] bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md border border-emerald-300 text-xs font-semibold text-emerald-800 flex items-center gap-2 max-w-[calc(100%-1.5rem)]"
     >
-      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-      <div>
-        <span class="text-gray-500 font-normal">Plotting Zone: </span>
+      <span
+        class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"
+      ></span>
+      <div class="truncate">
+        <span class="text-gray-500 font-normal">Zone: </span>
         <strong class="text-emerald-900">{{ farm.city }}</strong>
         <span v-if="farm.country" class="text-gray-500 font-normal">, {{ farm.country }}</span>
       </div>
@@ -294,5 +525,18 @@ onBeforeUnmount(() => {
 }
 .leaflet-draw-tooltip {
   z-index: 20;
+}
+/* Restricted zone tooltip styling */
+.restricted-zone-tooltip {
+  background: rgba(17, 17, 17, 0.9) !important;
+  border: 1px solid #ef4444 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+.restricted-zone-tooltip::before {
+  border-top-color: #ef4444 !important;
 }
 </style>

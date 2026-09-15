@@ -24,6 +24,7 @@ const form = ref({
 })
 
 const activeLayer = ref(null)
+const plotDrawerRef = ref(null)
 
 onMounted(async () => {
   if (!farmingStore.activeFarm || farmingStore.activeFarm.id !== farmId) {
@@ -88,6 +89,7 @@ async function savePlot() {
     <!-- Map Area -->
     <div class="flex-1 relative rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
       <PlotDrawer
+        ref="plotDrawerRef"
         :existing-plots="farmingStore.plots"
         :farm="farmingStore.activeFarm"
         @plot-drawn="handlePlotDrawn"
@@ -176,7 +178,8 @@ async function savePlot() {
             <li
               v-for="feature in farmingStore.plots.features"
               :key="feature.properties.id"
-              class="p-3 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-farm-200 transition-all duration-150"
+              @click="plotDrawerRef?.zoomToPlot(feature.properties.id)"
+              class="p-3 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-farm-200 cursor-pointer transition-all duration-150"
             >
               <div class="flex items-center justify-between gap-2">
                 <div class="min-w-0">

@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class CropAdvisorService
 {
+    private const SCORE_BASE = 50;
+    private const SCORE_SOIL_MATCH = 40;
+    private const SCORE_SOIL_TOLERATED = 15;
+    private const PENALTY_SOIL_MISMATCH = 60;
+    private const SCORE_REGION_MATCH = 35;
+    private const SCORE_REGION_PARTIAL_MATCH = 25;
+    private const SCORE_AREA_MATCH = 15;
+    private const PENALTY_AREA_MISMATCH = 20;
     private string $apiKey;
 
     private int $cacheTtlSeconds = 1800; // 30 minutes recommendation cache
@@ -435,35 +443,35 @@ PROMPT;
         // Score each crop dynamically based on Soil Compatibility + Regional Fit + Plot Area Suitability
         $scored = [];
         foreach ($crops as $crop) {
-            $score = 50;
+            $score = self::SCORE_BASE;
 
             // 1. Soil Compatibility Score
             if (in_array($soil, $crop['ideal_soils'])) {
-                $score += 40;
+                $score += self::SCORE_SOIL_MATCH;
             } elseif (in_array($soil, $crop['unsuitable_soils'])) {
-                $score -= 60; // Strong penalty for agronomic mismatch
+                $score -= self::PENALTY_SOIL_MISMATCH; // Strong penalty for agronomic mismatch
             } else {
-                $score += 15; // Tolerated
+                $score += self::SCORE_SOIL_TOLERATED; // Tolerated
             }
 
             // 2. Geographic / Regional Fit Score
             $regionMatched = false;
             foreach ($crop['regions'] as $reg) {
                 if (str_contains($locLower, $reg)) {
-                    $score += 35;
+                    $score += self::SCORE_REGION_MATCH;
                     $regionMatched = true;
                     break;
                 }
             }
             if (! $regionMatched && in_array('central luzon', $crop['regions']) && (str_contains($locLower, 'tarlac') || str_contains($locLower, 'nueva ecija') || str_contains($locLower, 'pampanga') || str_contains($locLower, 'bulacan'))) {
-                $score += 25;
+                $score += self::SCORE_REGION_PARTIAL_MATCH;
             }
 
             // 3. Area Suitability Score
             if ($area >= $crop['min_area'] && $area <= $crop['max_area']) {
-                $score += 15;
+                $score += self::SCORE_AREA_MATCH;
             } elseif ($area < $crop['min_area']) {
-                $score -= 20; // Needs larger scale
+                $score -= self::PENALTY_AREA_MISMATCH; // Needs larger scale
             }
 
             $scored[] = [

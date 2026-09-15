@@ -6,6 +6,7 @@ use App\Auth\Controllers\RegisterController;
 use App\Contact\Controllers\ContactController;
 use App\Farming\Controllers\FarmController;
 use App\Farming\Controllers\PlotController;
+use App\Farming\Controllers\RestrictedZoneController;
 use App\Http\Controllers\Api\V1\CropRecommendationController;
 use App\Shared\Middleware\EnsureUserHasRole;
 use Illuminate\Http\Request;
@@ -42,6 +43,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/farms/{farm}/plots', [PlotController::class, 'index']);
             Route::post('/farms/{farm}/plots', [PlotController::class, 'store']);
             Route::get('/plots', [PlotController::class, 'allUserPlots']);
+            Route::get('/restricted-zones', [RestrictedZoneController::class, 'index']);
 
             // Crop Recommendations
             Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware('throttle:5,60');

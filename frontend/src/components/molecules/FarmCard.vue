@@ -19,7 +19,7 @@ defineEmits(['view-plots', 'view-recommendations'])
       <div class="flex items-start justify-between gap-3 mb-4">
         <div class="flex items-start gap-3 min-w-0 flex-1">
           <div
-            class="w-10 h-10 rounded-xl bg-gradient-to-br from-farm-400 to-farm-600 flex items-center justify-center text-white text-lg shadow-sm flex-shrink-0 mt-0.5"
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-earth-50 to-earth-100 border border-earth-200 flex items-center justify-center text-lg shadow-sm flex-shrink-0 mt-0.5"
           >
             🌾
           </div>

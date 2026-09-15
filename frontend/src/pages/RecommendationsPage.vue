@@ -118,10 +118,15 @@
             variant="primary"
             rounded="full"
             :loading="store.isAnalyzing || store.isLoading"
-            :disabled="store.isAnalyzing || store.isLoading || !activePlotId"
+            :disabled="
+              store.isAnalyzing ||
+              store.isLoading ||
+              !activePlotId ||
+              store.recommendations.length > 0
+            "
             @click="triggerAnalysis"
           >
-            <span v-if="!store.isAnalyzing">🌱</span>
+            <span v-if="!store.isAnalyzing">✨</span>
             {{
               store.isAnalyzing
                 ? 'Analysing...'

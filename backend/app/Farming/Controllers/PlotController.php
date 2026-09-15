@@ -2,6 +2,7 @@
 
 namespace App\Farming\Controllers;
 
+use App\Constants\HttpCode;
 use App\Farming\Requests\StorePlotRequest;
 use App\Farming\Resources\PlotResource;
 use App\Http\Controllers\Controller;
@@ -18,7 +19,7 @@ class PlotController extends Controller
     {
         // Simple authorization check inline (or use Policy)
         if ($farm->user_id !== request()->user()->id) {
-            abort(403);
+            abort(HttpCode::FORBIDDEN);
         }
 
         // Return GeoJSON format for the map
@@ -64,7 +65,7 @@ class PlotController extends Controller
     public function store(StorePlotRequest $request, Farm $farm, CreatePlotAction $action): JsonResponse
     {
         if ($farm->user_id !== $request->user()->id) {
-            abort(403);
+            abort(HttpCode::FORBIDDEN);
         }
 
         $dto = CreatePlotDTO::fromRequest($request->validated(), $farm->id);
@@ -73,6 +74,6 @@ class PlotController extends Controller
         return response()->json([
             'message' => 'Plot created successfully',
             'data' => new PlotResource($plot),
-        ], 201);
+        ], HttpCode::CREATED);
     }
 }
