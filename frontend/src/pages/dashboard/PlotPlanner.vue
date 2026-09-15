@@ -5,7 +5,7 @@ import { useFarmingStore } from '../../stores/farming'
 import AppButton from '../../components/atoms/AppButton.vue'
 import AppCard from '../../components/atoms/AppCard.vue'
 import FormField from '../../components/molecules/FormField.vue'
-import AppSelect from '../../components/atoms/AppSelect.vue'
+import SoilTypeSelect from '../../components/molecules/SoilTypeSelect.vue'
 import AppAlert from '../../components/atoms/AppAlert.vue'
 import PlotDrawer from '../../components/organisms/PlotDrawer.vue'
 
@@ -16,15 +16,6 @@ const farmingStore = useFarmingStore()
 const farmId = parseInt(route.params.farmId)
 const isSaving = ref(false)
 const error = ref('')
-
-const soilTypeOptions = [
-  { value: 'clay', label: 'Clay' },
-  { value: 'sandy', label: 'Sandy' },
-  { value: 'loamy', label: 'Loamy' },
-  { value: 'silt', label: 'Silt' },
-  { value: 'peat', label: 'Peat' },
-  { value: 'chalky', label: 'Chalky' },
-]
 
 const form = ref({
   name: '',
@@ -138,7 +129,7 @@ async function savePlot() {
       </AppAlert>
 
       <!-- Save plot form (when drawing active) -->
-      <AppCard v-if="activeLayer" padding="p-4">
+      <AppCard v-if="activeLayer" padding="p-4" class="!overflow-visible">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-lg">📐</span>
           <h4 class="font-bold text-gray-900 text-sm">Save New Plot</h4>
@@ -147,12 +138,7 @@ async function savePlot() {
 
         <form @submit.prevent="savePlot" class="space-y-4">
           <FormField id="plot-name" label="Plot Name" v-model="form.name" required />
-          <AppSelect
-            id="plot-soil"
-            label="Soil Type"
-            v-model="form.soil_type"
-            :options="soilTypeOptions"
-          />
+          <SoilTypeSelect id="plot-soil" label="Soil Type" v-model="form.soil_type" required />
 
           <div class="flex flex-col gap-2 pt-2">
             <AppButton type="submit" variant="primary" :loading="isSaving" class="w-full">
