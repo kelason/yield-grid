@@ -101,19 +101,36 @@ function selectSoil(soil) {
   activeTooltip.value = null
 }
 
+let hideTimeout = null
+
 function showTooltip(value, e) {
   if (e) e.stopPropagation()
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
   activeTooltip.value = value
 }
 
-function hideTooltip(value) {
-  if (activeTooltip.value === value) {
-    activeTooltip.value = null
+function hideTooltip(value, immediate = false) {
+  if (immediate) {
+    if (hideTimeout) clearTimeout(hideTimeout)
+    if (activeTooltip.value === value) {
+      activeTooltip.value = null
+    }
+    return
   }
+  if (hideTimeout) clearTimeout(hideTimeout)
+  hideTimeout = setTimeout(() => {
+    if (activeTooltip.value === value) {
+      activeTooltip.value = null
+    }
+  }, 150)
 }
 
 function toggleTooltip(value, e) {
   if (e) e.stopPropagation()
+  if (hideTimeout) clearTimeout(hideTimeout)
   activeTooltip.value = activeTooltip.value === value ? null : value
 }
 
@@ -137,6 +154,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (hideTimeout) clearTimeout(hideTimeout)
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleKeydown)
 })
@@ -174,12 +192,12 @@ onUnmounted(() => {
         <img
           :src="selectedSoil.photo"
           :alt="selectedSoil.label"
-          class="w-7 h-7 rounded-lg object-cover border border-gray-200 shadow-xs flex-shrink-0"
+          class="w-7 h-7 rounded-lg object-cover border border-gray-200 shadow-xs flex-shrink-0 transition-transform duration-300 hover:scale-[2.4] hover:shadow-lg hover:z-20 hover:border-gray-900 origin-left cursor-zoom-in"
         />
         <div class="flex items-center gap-2 min-w-0">
           <span class="text-sm font-bold text-gray-900 truncate">{{ selectedSoil.label }}</span>
           <span
-            class="text-[10px] px-1.5 py-0.5 rounded-full bg-farm-50 text-farm-700 font-semibold border border-farm-200"
+            class="text-[11px] px-1.5 py-0.5 rounded-full bg-farm-50 text-farm-700 font-semibold border border-farm-200"
           >
             {{ selectedSoil.badge }}
           </span>
@@ -229,14 +247,14 @@ onUnmounted(() => {
     >
       <div
         v-if="isOpen"
-        class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-visible divide-y divide-gray-100 max-h-80 overflow-y-auto"
+        class="absolute left-0 right-0 z-50 mt-1.5 bg-white rounded-2xl shadow-xl border border-gray-200 divide-y divide-gray-100 max-h-[420px] overflow-y-auto"
         role="listbox"
       >
         <div
-          v-for="soil in SOIL_TYPES"
+          v-for="(soil, index) in SOIL_TYPES"
           :key="soil.value"
           @click="selectSoil(soil)"
-          class="group relative flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer hover:bg-farm-50/70"
+          class="group relative flex items-center justify-between px-3 py-3 transition-colors cursor-pointer hover:bg-farm-50/70"
           :class="{
             'bg-farm-50/90': modelValue === soil.value,
           }"
@@ -245,61 +263,44 @@ onUnmounted(() => {
         >
           <!-- Left: Soil Photo & Label with Tooltip Trigger -->
           <div class="flex items-center gap-3 min-w-0 flex-1">
-            <!-- Soil Photo -->
-            <img
-              :src="soil.photo"
-              :alt="soil.label"
-              class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm flex-shrink-0 transition-transform group-hover:scale-105"
-            />
+            <!-- Soil Photo with smooth zoom animation on mouse hover -->
+            <div class="relative flex-shrink-0 group/img">
+              <img
+                :src="soil.photo"
+                :alt="soil.label"
+                class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm flex-shrink-0 transition-all duration-300 ease-out cursor-zoom-in group-hover/img:scale-[2.5] group-hover/img:z-40 group-hover/img:shadow-2xl group-hover/img:border-gray-900 group-hover/img:rounded-xl relative"
+                :class="
+                  index === 0
+                    ? 'group-hover/img:origin-top-left'
+                    : index === SOIL_TYPES.length - 1
+                      ? 'group-hover/img:origin-bottom-left'
+                      : 'group-hover/img:origin-left'
+                "
+              />
+            </div>
 
             <!-- Name and Question Mark Icon -->
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
-                <span class="text-sm font-bold text-gray-900 leading-none">{{ soil.label }}</span>
+                <span class="text-base font-bold text-gray-900 leading-none">{{ soil.label }}</span>
 
-                <!-- Question Mark Button & Hover Tooltip -->
+                <!-- Question Mark Button -->
                 <div class="relative inline-flex items-center">
                   <button
                     type="button"
                     @mouseenter="showTooltip(soil.value, $event)"
                     @mouseleave="hideTooltip(soil.value)"
                     @click="toggleTooltip(soil.value, $event)"
-                    class="w-4 h-4 rounded-full bg-gray-100 hover:bg-farm-100 text-gray-500 hover:text-farm-700 flex items-center justify-center text-[10px] font-bold transition-colors cursor-help"
+                    class="w-5 h-5 rounded-full bg-gray-100 hover:bg-farm-100 text-gray-500 hover:text-farm-700 flex items-center justify-center text-[11px] font-bold transition-colors cursor-help"
                     aria-label="Soil details"
                   >
                     ?
                   </button>
-
-                  <!-- Floating Tooltip Box -->
-                  <div
-                    v-if="activeTooltip === soil.value"
-                    class="absolute left-6 top-1/2 -translate-y-1/2 z-50 w-64 p-3 bg-gray-900 text-white rounded-xl shadow-2xl border border-gray-700 text-xs pointer-events-none transition-all duration-200"
-                  >
-                    <!-- Arrow -->
-                    <div
-                      class="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-gray-900 rotate-45 border-l border-b border-gray-700"
-                    ></div>
-
-                    <!-- Tooltip Content -->
-                    <div class="relative space-y-1.5">
-                      <div class="flex items-center justify-between pb-1 border-b border-gray-800">
-                        <span class="font-bold text-farm-300">{{ soil.label }} Soil</span>
-                        <span class="text-[10px] text-gray-400 font-mono">{{ soil.badge }}</span>
-                      </div>
-                      <p class="text-gray-300 text-[11px] leading-relaxed">
-                        {{ soil.description }}
-                      </p>
-                      <div class="pt-1 text-[10px] text-earth-200">
-                        <span class="font-semibold text-white">Ideal Crops:</span>
-                        {{ soil.bestFor }}
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
               <!-- Characteristic subtitle -->
-              <p class="text-[11px] text-gray-500 mt-1 truncate">
+              <p class="text-xs text-gray-500 mt-1 truncate">
                 {{ soil.badge }} • {{ soil.bestFor }}
               </p>
             </div>
@@ -325,6 +326,56 @@ onUnmounted(() => {
               class="w-5 h-5 rounded-full border-2 border-gray-200 group-hover:border-farm-400 transition-colors"
             ></div>
           </div>
+
+          <!-- Overlapping Description Card (overlaps directly over select option to see whole description) -->
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+          >
+            <div
+              v-if="activeTooltip === soil.value"
+              @mouseenter="showTooltip(soil.value)"
+              @mouseleave="hideTooltip(soil.value)"
+              class="absolute inset-x-1.5 z-30 p-4 bg-gray-900/95 text-white rounded-xl shadow-2xl border border-gray-700/80 backdrop-blur-xl"
+              :class="index < 3 ? 'top-1' : 'bottom-1'"
+            >
+              <div class="relative space-y-2">
+                <div class="flex items-center justify-between pb-2 border-b border-gray-800">
+                  <div class="flex items-center gap-2.5">
+                    <span class="font-bold text-farm-300 text-sm">{{ soil.label }} Soil</span>
+                    <span
+                      class="text-[11px] px-2 py-0.5 rounded-full bg-farm-900/70 text-farm-300 font-semibold border border-farm-700/60"
+                    >
+                      {{ soil.badge }}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    @click.stop="hideTooltip(soil.value, true)"
+                    class="text-gray-400 hover:text-white text-sm px-1.5 py-1 leading-none transition-colors"
+                    aria-label="Close details"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p class="text-gray-200 text-xs sm:text-[13px] leading-relaxed">
+                  {{ soil.description }}
+                </p>
+                <div class="pt-2 border-t border-gray-800/80 flex items-start gap-1.5 text-xs">
+                  <span class="font-bold text-emerald-400 flex-shrink-0">🌱 Ideal Crops:</span>
+                  <span class="text-gray-300">{{ soil.bestFor }}</span>
+                </div>
+                <div class="pt-1 flex items-center justify-between text-[11px] text-farm-400/80 font-medium">
+                  <span>Click to select this soil</span>
+                  <span>↵</span>
+                </div>
+              </div>
+            </div>
+          </Transition>
         </div>
       </div>
     </Transition>
