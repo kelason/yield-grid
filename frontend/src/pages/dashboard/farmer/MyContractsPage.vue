@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/vue/24/outline'
 

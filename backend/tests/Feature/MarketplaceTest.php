@@ -52,13 +52,13 @@ it('allows a farmer to publish an accepted recommendation as a contract', functi
     ]);
 });
 
-it('prevents publishing a recommendation that is not accepted', function () {
+it('prevents publishing a recommendation that is rejected', function () {
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
     $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
     $recommendation = CropRecommendation::create([
         'plot_id' => $plot->id,
-        'status' => RecommendationStatus::PENDING,
+        'status' => RecommendationStatus::REJECTED,
         'crop_name' => 'Jasmine Rice',
         'projected_yield' => 500,
         'confidence_score' => 90,
@@ -73,7 +73,7 @@ it('prevents publishing a recommendation that is not accepted', function () {
         'expiry_date' => now()->addDays(15)->format('Y-m-d'),
     ]);
 
-    $response->assertStatus(500); // Exception is thrown
+    $response->assertStatus(422); // ValidationException is thrown
 });
 
 it('allows anyone to browse the marketplace', function () {
