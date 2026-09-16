@@ -4,8 +4,8 @@ import { computed } from 'vue'
 const props = defineProps({
   method: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const methodConfig = computed(() => {
@@ -16,13 +16,13 @@ const methodConfig = computed(() => {
     qrph: { label: 'QR Ph', color: 'bg-red-500 text-white' },
     grab_pay: { label: 'GrabPay', color: 'bg-green-600 text-white' },
   }
-  
+
   return map[props.method] || { label: props.method, color: 'bg-gray-200 text-gray-800' }
 })
 </script>
 
 <template>
-  <div 
+  <div
     class="inline-flex items-center justify-center rounded px-2 py-1 text-xs font-bold uppercase shadow-sm border border-black/5"
     :class="methodConfig.color"
     :title="methodConfig.label"

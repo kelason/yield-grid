@@ -4,24 +4,24 @@ import { computed } from 'vue'
 const props = defineProps({
   amount: {
     type: Number,
-    required: true
+    required: true,
   },
   currency: {
     type: String,
-    default: 'PHP'
+    default: 'PHP',
   },
   size: {
     type: String,
     default: 'md',
-    validator: (value) => ['sm', 'md', 'lg'].includes(value)
-  }
+    validator: (value) => ['sm', 'md', 'lg'].includes(value),
+  },
 })
 
 const sizeClasses = computed(() => {
   const map = {
     sm: 'text-sm',
     md: 'text-lg',
-    lg: 'text-3xl'
+    lg: 'text-3xl',
   }
   return map[props.size]
 })

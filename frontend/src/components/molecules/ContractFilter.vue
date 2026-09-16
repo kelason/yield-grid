@@ -5,8 +5,8 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 const props = defineProps({
   modelValue: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'search'])
@@ -15,15 +15,18 @@ const localFilters = ref({ ...props.modelValue })
 
 // Debounce search
 let searchTimeout = null
-watch(() => localFilters.value.crop, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    if (searchTimeout) clearTimeout(searchTimeout)
-    searchTimeout = setTimeout(() => {
-      emit('update:modelValue', localFilters.value)
-      emit('search')
-    }, 300)
-  }
-})
+watch(
+  () => localFilters.value.crop,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      if (searchTimeout) clearTimeout(searchTimeout)
+      searchTimeout = setTimeout(() => {
+        emit('update:modelValue', localFilters.value)
+        emit('search')
+      }, 300)
+    }
+  },
+)
 
 function applyFilters() {
   emit('update:modelValue', localFilters.value)
@@ -34,7 +37,6 @@ function applyFilters() {
 <template>
   <div class="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-lg p-4 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-      
       <!-- Search -->
       <div class="md:col-span-4">
         <label for="search" class="block text-xs font-medium text-gray-700 mb-1">Search Crop</label>
@@ -51,11 +53,13 @@ function applyFilters() {
           />
         </div>
       </div>
-      
+
       <!-- Price Range -->
       <div class="md:col-span-4 flex space-x-2">
         <div class="w-1/2">
-          <label for="min_price" class="block text-xs font-medium text-gray-700 mb-1">Min Price</label>
+          <label for="min_price" class="block text-xs font-medium text-gray-700 mb-1"
+            >Min Price</label
+          >
           <div class="relative rounded-md shadow-sm">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">₱</span>
@@ -71,7 +75,9 @@ function applyFilters() {
           </div>
         </div>
         <div class="w-1/2">
-          <label for="max_price" class="block text-xs font-medium text-gray-700 mb-1">Max Price</label>
+          <label for="max_price" class="block text-xs font-medium text-gray-700 mb-1"
+            >Max Price</label
+          >
           <div class="relative rounded-md shadow-sm">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">₱</span>
@@ -103,7 +109,6 @@ function applyFilters() {
           <option value="harvest_soonest">Harvesting Soonest</option>
         </select>
       </div>
-
     </div>
   </div>
 </template>

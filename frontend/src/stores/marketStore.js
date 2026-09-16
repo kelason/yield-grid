@@ -9,21 +9,21 @@ export const useMarketStore = defineStore('market', () => {
   const farmerContracts = ref([])
   const buyerPurchases = ref([])
   const activeContract = ref(null)
-  
+
   const filters = ref({
     crop: '',
     minPrice: null,
     maxPrice: null,
     harvestBefore: '',
     harvestAfter: '',
-    sort: 'newest'
+    sort: 'newest',
   })
 
   const pagination = ref({
     currentPage: 1,
     lastPage: 1,
     total: 0,
-    perPage: 12
+    perPage: 12,
   })
 
   const loading = ref({
@@ -32,37 +32,39 @@ export const useMarketStore = defineStore('market', () => {
     purchases: false,
     details: false,
     publish: false,
-    cancel: false
+    cancel: false,
   })
 
-  const availableContracts = computed(() => contracts.value.filter(c => c.status === 'available'))
-  const totalSpent = computed(() => buyerPurchases.value.reduce((total, p) => total + p.amount_paid, 0))
+  const availableContracts = computed(() => contracts.value.filter((c) => c.status === 'available'))
+  const totalSpent = computed(() =>
+    buyerPurchases.value.reduce((total, p) => total + p.amount_paid, 0),
+  )
 
   async function fetchMarketContracts(page = 1) {
     loading.value.contracts = true
     try {
       const queryParams = new URLSearchParams()
       queryParams.append('page', page)
-      
+
       if (filters.value.crop) queryParams.append('crop', filters.value.crop)
       if (filters.value.minPrice) queryParams.append('min_price', filters.value.minPrice)
       if (filters.value.maxPrice) queryParams.append('max_price', filters.value.maxPrice)
       if (filters.value.sort) queryParams.append('sort', filters.value.sort)
-      
+
       const { data, meta } = (await api.get(`/market/contracts?${queryParams.toString()}`)).data
-      
+
       if (page === 1) {
         contracts.value = data
       } else {
         contracts.value = [...contracts.value, ...data]
       }
-      
+
       if (meta) {
         pagination.value = {
           currentPage: meta.current_page,
           lastPage: meta.last_page,
           total: meta.total,
-          perPage: meta.per_page
+          perPage: meta.per_page,
         }
       }
     } catch (error) {
@@ -91,7 +93,7 @@ export const useMarketStore = defineStore('market', () => {
     try {
       let url = `/farmer/contracts?page=${page}`
       if (status) url += `&status=${status}`
-      
+
       const response = await api.get(url)
       farmerContracts.value = response.data.data || response.data
     } catch (error) {
@@ -120,8 +122,8 @@ export const useMarketStore = defineStore('market', () => {
     try {
       const response = await api.patch(`/farmer/contracts/${contractId}/cancel`)
       const updatedData = response.data.data || response.data
-      
-      const index = farmerContracts.value.findIndex(c => c.id === contractId)
+
+      const index = farmerContracts.value.findIndex((c) => c.id === contractId)
       if (index !== -1) {
         farmerContracts.value[index] = updatedData
       }
@@ -148,7 +150,7 @@ export const useMarketStore = defineStore('market', () => {
 
   function handleContractPurchased(eventData) {
     // Update local state if needed
-    const contract = farmerContracts.value.find(c => c.id === eventData.contract_id)
+    const contract = farmerContracts.value.find((c) => c.id === eventData.contract_id)
     if (contract) {
       contract.status = 'sold'
     }
@@ -170,6 +172,6 @@ export const useMarketStore = defineStore('market', () => {
     publishContract,
     cancelContract,
     fetchBuyerPurchases,
-    handleContractPurchased
+    handleContractPurchased,
   }
 })

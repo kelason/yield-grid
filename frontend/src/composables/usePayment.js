@@ -10,12 +10,12 @@ export function usePayment() {
   async function startCheckout(contractId) {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await request(`/market/contracts/${contractId}/checkout`, {
-        method: 'POST'
+        method: 'POST',
       })
-      
+
       if (response.checkout_url) {
         checkoutUrl.value = response.checkout_url
         // Redirect to PayMongo hosted checkout page
@@ -36,6 +36,6 @@ export function usePayment() {
     loading,
     error,
     checkoutUrl,
-    startCheckout
+    startCheckout,
   }
 }

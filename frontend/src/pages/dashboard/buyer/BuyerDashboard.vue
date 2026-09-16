@@ -8,11 +8,11 @@ const marketStore = useMarketStore()
 const authStore = useAuthStore()
 
 const totalSpent = computed(() =>
-  marketStore.buyerPurchases.reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0)
+  marketStore.buyerPurchases.reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0),
 )
 
-const activePurchases = computed(() =>
-  marketStore.buyerPurchases.filter(p => p.payment_status === 'paid').length
+const activePurchases = computed(
+  () => marketStore.buyerPurchases.filter((p) => p.payment_status === 'paid').length,
 )
 
 onMounted(() => {
@@ -25,7 +25,11 @@ function formatCurrency(amount) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  return new Intl.DateTimeFormat('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(dateStr))
+  return new Intl.DateTimeFormat('en-PH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(dateStr))
 }
 
 const statusStyles = {
@@ -43,7 +47,9 @@ const statusStyles = {
         <div>
           <p class="text-farm-200 text-sm font-medium mb-1">Welcome back,</p>
           <h2 class="text-2xl font-bold">{{ authStore.user?.name }}</h2>
-          <p class="text-farm-300 text-sm mt-1">Browse fresh forward contracts from Filipino farmers.</p>
+          <p class="text-farm-300 text-sm mt-1">
+            Browse fresh forward contracts from Filipino farmers.
+          </p>
         </div>
         <router-link
           :to="{ name: 'buyer-marketplace' }"
@@ -59,12 +65,16 @@ const statusStyles = {
       <!-- Total Purchases -->
       <AppCard variant="gradient" class="!rounded-2xl">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
+          <div
+            class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm"
+          >
             📦
           </div>
           <div>
             <dt class="text-sm font-medium text-farm-100">Total Purchases</dt>
-            <dd class="text-4xl font-bold text-white mt-1">{{ marketStore.buyerPurchases.length }}</dd>
+            <dd class="text-4xl font-bold text-white mt-1">
+              {{ marketStore.buyerPurchases.length }}
+            </dd>
           </div>
         </div>
       </AppCard>
@@ -72,7 +82,9 @@ const statusStyles = {
       <!-- Active Contracts -->
       <AppCard>
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl flex-shrink-0">
+          <div
+            class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl flex-shrink-0"
+          >
             📋
           </div>
           <div>
@@ -85,7 +97,9 @@ const statusStyles = {
       <!-- Total Spent -->
       <AppCard>
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0">
+          <div
+            class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0"
+          >
             💰
           </div>
           <div>
@@ -123,7 +137,9 @@ const statusStyles = {
         <div class="text-center py-10">
           <div class="text-5xl mb-3">🌾</div>
           <h3 class="text-sm font-semibold text-gray-700 mb-1">No purchases yet</h3>
-          <p class="text-sm text-gray-500 mb-4">Forward contracts let you secure crops before harvest at a fixed price.</p>
+          <p class="text-sm text-gray-500 mb-4">
+            Forward contracts let you secure crops before harvest at a fixed price.
+          </p>
           <router-link
             :to="{ name: 'buyer-marketplace' }"
             class="inline-flex items-center gap-1.5 text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors"
@@ -142,7 +158,9 @@ const statusStyles = {
         >
           <div class="flex items-center justify-between gap-4">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-farm-50 flex items-center justify-center text-xl flex-shrink-0">
+              <div
+                class="w-10 h-10 rounded-xl bg-farm-50 flex items-center justify-center text-xl flex-shrink-0"
+              >
                 🌱
               </div>
               <div class="min-w-0">
@@ -150,8 +168,8 @@ const statusStyles = {
                   {{ purchase.contract?.crop_name || 'Forward Contract' }}
                 </p>
                 <p class="text-xs text-gray-500 mt-0.5">
-                  {{ purchase.contract?.quantity_kg ?? '—' }} kg &nbsp;·&nbsp;
-                  Harvest {{ formatDate(purchase.contract?.estimated_harvest_date) }}
+                  {{ purchase.contract?.quantity_kg ?? '—' }} kg &nbsp;·&nbsp; Harvest
+                  {{ formatDate(purchase.contract?.estimated_harvest_date) }}
                 </p>
               </div>
             </div>
