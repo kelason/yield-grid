@@ -122,7 +122,6 @@ class PayMongoService
         if (empty($this->webhookSecret)) {
             return false;
         }
-
         $signedPayload = $timestamp.'.'.$payload;
         $expectedSignature = hash_hmac('sha256', $signedPayload, $this->webhookSecret);
 
