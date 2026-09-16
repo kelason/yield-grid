@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class AgroMonitoringService
 {
+    private const MOCK_WEATHER_TEMP_KELVIN = 297.15;
+    private const MOCK_WEATHER_HUMIDITY = 60;
+    private const MOCK_SOIL_MOISTURE = 0.28;
+    private const MOCK_SOIL_SURFACE_TEMP = 296.15;
+    private const MOCK_SOIL_10CM_TEMP = 294.15;
     private string $apiKey;
 
     private string $baseUrl = 'https://api.agromonitoring.com/agro/1.0';
@@ -197,17 +202,17 @@ class AgroMonitoringService
         return [
             'weather' => [
                 'main' => [
-                    'temp' => 297.15, // Kelvin
-                    'humidity' => 60,
+                    'temp' => self::MOCK_WEATHER_TEMP_KELVIN, // Kelvin
+                    'humidity' => self::MOCK_WEATHER_HUMIDITY,
                 ],
                 'weather' => [
                     ['description' => 'clear sky', 'main' => 'Clear'],
                 ],
             ],
             'soil' => [
-                'moisture' => 0.28, // m3/m3
-                't0' => 296.15, // Surface temp Kelvin
-                't10' => 294.15, // 10cm temp Kelvin
+                'moisture' => self::MOCK_SOIL_MOISTURE, // m3/m3
+                't0' => self::MOCK_SOIL_SURFACE_TEMP, // Surface temp Kelvin
+                't10' => self::MOCK_SOIL_10CM_TEMP, // 10cm temp Kelvin
             ],
         ];
     }

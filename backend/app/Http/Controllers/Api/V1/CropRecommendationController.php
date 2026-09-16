@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Constants\HttpCode;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
 use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Http\Controllers\Controller;
@@ -27,14 +28,14 @@ class CropRecommendationController extends Controller
         if (! Cache::add($lockKey, true, 15)) {
             return response()->json([
                 'message' => 'An analysis is already underway for this plot. Please wait a moment.',
-            ], 429);
+            ], HttpCode::TOO_MANY_REQUESTS);
         }
 
         AnalyzePlotJob::dispatch($plot->id);
 
         return response()->json([
             'message' => 'Analysis started.',
-        ], 202);
+        ], HttpCode::ACCEPTED);
     }
 
     public function index(Plot $plot): JsonResponse

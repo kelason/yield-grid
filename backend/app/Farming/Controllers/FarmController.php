@@ -2,6 +2,7 @@
 
 namespace App\Farming\Controllers;
 
+use App\Constants\HttpCode;
 use App\Farming\Requests\StoreFarmRequest;
 use App\Farming\Resources\FarmResource;
 use App\Http\Controllers\Controller;
@@ -29,6 +30,6 @@ class FarmController extends Controller
         return response()->json([
             'message' => 'Farm created successfully',
             'data' => new FarmResource($farm),
-        ], 201);
+        ], HttpCode::CREATED);
     }
 }
