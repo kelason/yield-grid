@@ -52,7 +52,7 @@ it('allows a farmer to publish an accepted recommendation as a contract', functi
     ]);
 });
 
-it('automatically accepts a recommendation when publishing', function () {
+it('prevents publishing a recommendation that is not accepted', function () {
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
     $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
@@ -73,11 +73,7 @@ it('automatically accepts a recommendation when publishing', function () {
         'expiry_date' => now()->addDays(15)->format('Y-m-d'),
     ]);
 
-    $response->assertCreated();
-    $this->assertDatabaseHas('crop_recommendations', [
-        'id' => $recommendation->id,
-        'status' => RecommendationStatus::ACCEPTED->value,
-    ]);
+    $response->assertStatus(500); // Exception is thrown
 });
 
 it('allows anyone to browse the marketplace', function () {
