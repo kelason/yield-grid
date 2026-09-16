@@ -1,17 +1,19 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
+import { useAuthStore } from '@/stores/authStore'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/vue/24/outline'
 
 const marketStore = useMarketStore()
+const authStore = useAuthStore()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
 
   // Listen for contract purchases
   if (window.Echo) {
-    window.Echo.private(`user.${marketStore.user?.id || ''}`).listen('.ContractPurchased', (e) => {
+    window.Echo.private(`user.${authStore.user?.id || ''}`).listen('.ContractPurchased', (e) => {
       marketStore.handleContractPurchased(e)
     })
   }
@@ -19,7 +21,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (window.Echo) {
-    window.Echo.leave(`user.${marketStore.user?.id || ''}`)
+    window.Echo.leave(`user.${authStore.user?.id || ''}`)
   }
 })
 

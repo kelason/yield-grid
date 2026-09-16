@@ -37,7 +37,7 @@ export const useMarketStore = defineStore('market', () => {
 
   const availableContracts = computed(() => contracts.value.filter((c) => c.status === 'available'))
   const totalSpent = computed(() =>
-    buyerPurchases.value.reduce((total, p) => total + p.amount_paid, 0),
+    buyerPurchases.value.reduce((total, p) => total + parseFloat(p.amount_paid), 0),
   )
 
   async function fetchMarketContracts(page = 1) {
