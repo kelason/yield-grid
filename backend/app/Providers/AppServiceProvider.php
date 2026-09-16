@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\PlotPolicy;
 use Domain\Farming\Models\Plot;
