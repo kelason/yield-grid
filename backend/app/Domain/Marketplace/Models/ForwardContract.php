@@ -78,7 +78,7 @@ class ForwardContract extends Model
 
     public function scopeExpired(Builder $query): Builder
     {
-        return $query->where('expiry_date', '<', now())
+        return $query->where('expiry_date', '<', today())
             ->where('status', ContractStatus::AVAILABLE);
     }
 

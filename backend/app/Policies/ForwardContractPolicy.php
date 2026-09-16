@@ -13,12 +13,20 @@ final class ForwardContractPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role === UserRole::FARMER;
+        return in_array($user->role, [UserRole::FARMER, UserRole::BUYER], true);
     }
 
     public function view(User $user, ForwardContract $contract): bool
     {
-        return $user->id === $contract->farmer_id;
+        if ($user->role === UserRole::FARMER) {
+            return $user->id === $contract->farmer_id;
+        }
+
+        if ($user->role === UserRole::BUYER) {
+            return $contract->status === ContractStatus::AVAILABLE;
+        }
+
+        return false;
     }
 
     public function create(User $user): bool
