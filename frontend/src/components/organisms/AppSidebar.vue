@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AppLogo from '../atoms/AppLogo.vue'
@@ -6,10 +7,10 @@ import AppLogo from '../atoms/AppLogo.vue'
 const authStore = useAuthStore()
 const route = useRoute()
 
-const navigation = [
+const farmerNavigation = [
   {
     name: 'Overview',
-    to: { name: 'dashboard' },
+    to: { name: 'farmer-dashboard' },
     icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
     emoji: '📊',
   },
@@ -25,7 +26,38 @@ const navigation = [
     icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
     emoji: '🤖',
   },
+  {
+    name: 'My Contracts',
+    to: { name: 'farmer-contracts' },
+    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    emoji: '📝',
+  },
 ]
+
+const buyerNavigation = [
+  {
+    name: 'Overview',
+    to: { name: 'buyer-dashboard' },
+    icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+    emoji: '📊',
+  },
+  {
+    name: 'Browse Market',
+    to: { name: 'buyer-marketplace' },
+    icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
+    emoji: '🛒',
+  },
+  {
+    name: 'My Purchases',
+    to: { name: 'buyer-purchases' },
+    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    emoji: '📦',
+  },
+]
+
+const navigation = computed(() => {
+  return authStore.userRole === 'buyer' ? buyerNavigation : farmerNavigation
+})
 
 function isActive(to) {
   if (to.name === 'recommendations') {
@@ -55,7 +87,7 @@ function getInitials(name) {
         class="flex flex-col h-0 flex-1 border-r border-gray-200 bg-gradient-to-b from-white via-white to-earth-50"
       >
         <!-- Logo area with gradient strip -->
-        <div class="flex items-center flex-shrink-0 px-5 py-5 border-b border-gray-100">
+        <div class="flex items-center flex-shrink-0 px-5 border-b border-gray-100 h-16">
           <AppLogo />
         </div>
 

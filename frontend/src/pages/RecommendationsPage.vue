@@ -113,27 +113,16 @@
         </div>
 
         <!-- Analyse CTA -->
-        <div class="flex-shrink-0">
+        <div v-if="store.recommendations.length === 0" class="flex-shrink-0">
           <AppButton
             variant="primary"
             rounded="full"
             :loading="store.isAnalyzing || store.isLoading"
-            :disabled="
-              store.isAnalyzing ||
-              store.isLoading ||
-              !activePlotId ||
-              store.recommendations.length > 0
-            "
+            :disabled="store.isAnalyzing || store.isLoading || !activePlotId"
             @click="triggerAnalysis"
           >
             <span v-if="!store.isAnalyzing">✨</span>
-            {{
-              store.isAnalyzing
-                ? 'Analysing...'
-                : store.recommendations.length > 0
-                  ? 'Re-analyse Plot'
-                  : 'Analyse This Plot'
-            }}
+            {{ store.isAnalyzing ? 'Analysing...' : 'Analyse This Plot' }}
           </AppButton>
         </div>
       </header>
@@ -191,6 +180,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Publish Contract Modal -->
+    <div
+      v-if="showPublishModal && selectedRecommendation"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+          @click="closePublishModal"
+        ></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"
+          >&#8203;</span
+        >
+        <div
+          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
+        >
+          <PublishContractForm
+            :recommendation="selectedRecommendation"
+            :loading="marketStore.loading?.publish"
+            :errors="publishErrors"
+            @publish="handlePublishContract"
+            @cancel="closePublishModal"
+            @clear-errors="publishErrors = {}"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -202,17 +225,23 @@ import { useFarmingStore } from '../stores/farming'
 import { useWebSocket } from '../composables/useWebSocket'
 import AnalysisProgress from '../components/atoms/AnalysisProgress.vue'
 import RecommendationCard from '../components/molecules/RecommendationCard.vue'
+import PublishContractForm from '../components/organisms/PublishContractForm.vue'
 import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
+import { useMarketStore } from '../stores/marketStore'
 
 const route = useRoute()
 const router = useRouter()
 const store = useRecommendationStore()
 const farmingStore = useFarmingStore()
+const marketStore = useMarketStore()
 const { listenToPlot, leavePlot } = useWebSocket()
 
 const selectedPlotId = ref(null)
 const isLoadingPlots = ref(true)
+
+const showPublishModal = ref(false)
+const selectedRecommendation = ref(null)
 
 const activePlotId = computed(() => {
   if (route.params.id) return Number(route.params.id)
@@ -311,8 +340,45 @@ onUnmounted(() => {
   }
 })
 
-const handleAccept = async (id) => {
-  await store.updateStatus(id, 'accepted')
+const handleAccept = (id) => {
+  const rec = store.recommendations.find((r) => r.id === id)
+  if (rec) {
+    selectedRecommendation.value = rec
+    showPublishModal.value = true
+  }
+}
+
+const publishErrors = ref({})
+
+const closePublishModal = () => {
+  showPublishModal.value = false
+  selectedRecommendation.value = null
+  publishErrors.value = {}
+}
+
+const handlePublishContract = async (formData) => {
+  if (selectedRecommendation.value) {
+    try {
+      publishErrors.value = {}
+      // The backend now automatically marks it as 'accepted' and 'is_published' when successfully created
+      await marketStore.publishContract(selectedRecommendation.value.id, formData)
+
+      // Update local state so UI updates
+      const index = store.recommendations.findIndex((r) => r.id === selectedRecommendation.value.id)
+      if (index !== -1) {
+        store.recommendations[index].status = 'accepted'
+      }
+
+      closePublishModal()
+      router.push({ name: 'farmer-contracts' })
+    } catch (error) {
+      if (error.response?.status === 422) {
+        publishErrors.value = error.response.data.errors || {}
+      } else {
+        store.errorMessage = 'An unexpected error occurred while publishing the contract.'
+      }
+    }
+  }
 }
 
 const handleReject = async (id) => {

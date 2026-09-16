@@ -13,14 +13,24 @@ use Illuminate\Support\Facades\RateLimiter;
 class CropAdvisorService
 {
     private const SCORE_BASE = 50;
+
     private const SCORE_SOIL_MATCH = 40;
+
     private const SCORE_SOIL_TOLERATED = 15;
+
     private const PENALTY_SOIL_MISMATCH = 60;
+
     private const SCORE_REGION_MATCH = 35;
+
     private const SCORE_REGION_PARTIAL_MATCH = 25;
+
     private const SCORE_AREA_MATCH = 15;
+
     private const PENALTY_AREA_MISMATCH = 20;
+
     private string $apiKey;
+
+    private string $model;
 
     private int $cacheTtlSeconds = 1800; // 30 minutes recommendation cache
 
@@ -29,6 +39,7 @@ class CropAdvisorService
     public function __construct()
     {
         $this->apiKey = (string) (config('services.gemini.key') ?? '');
+        $this->model = (string) (config('services.gemini.model', 'gemini-3.5-flash-lite'));
     }
 
     public function getRecommendations(Plot $plot, array $agroData): array
@@ -63,7 +74,7 @@ class CropAdvisorService
         RateLimiter::hit($rateKey, 60);
 
         try {
-            $response = Http::timeout(12)->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key='.$this->apiKey, [
+            $response = Http::timeout(12)->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]],
                 ],

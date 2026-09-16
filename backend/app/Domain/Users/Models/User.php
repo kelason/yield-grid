@@ -3,9 +3,11 @@
 namespace Domain\Users\Models;
 
 use Database\Factories\UserFactory;
+use Domain\Farming\Models\Farm;
 use Domain\Users\Enums\UserRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -57,5 +59,13 @@ class User extends Authenticatable implements MustVerifyEmail
     protected static function newFactory()
     {
         return UserFactory::new();
+    }
+
+    /**
+     * @return HasMany<Farm, $this>
+     */
+    public function farms(): HasMany
+    {
+        return $this->hasMany(Farm::class);
     }
 }

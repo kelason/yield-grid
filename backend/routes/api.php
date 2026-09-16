@@ -8,6 +8,10 @@ use App\Farming\Controllers\FarmController;
 use App\Farming\Controllers\PlotController;
 use App\Farming\Controllers\RestrictedZoneController;
 use App\Http\Controllers\Api\V1\CropRecommendationController;
+use App\Http\Controllers\Api\V1\ForwardContractController;
+use App\Http\Controllers\Api\V1\MarketplaceController;
+use App\Http\Controllers\Api\V1\PayMongoWebhookController;
+use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Shared\Middleware\EnsureUserHasRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -20,6 +24,13 @@ Route::prefix('v1')->group(function () {
 
     // Public Contact
     Route::post('/contact', ContactController::class);
+
+    // Public Marketplace
+    Route::get('/market/contracts', [MarketplaceController::class, 'index']);
+    Route::get('/market/contracts/{contract}', [MarketplaceController::class, 'show']);
+
+    // PayMongo Webhooks
+    Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle']);
 
     // Protected Auth routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -49,6 +60,19 @@ Route::prefix('v1')->group(function () {
             Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware('throttle:5,60');
             Route::get('/plots/{plot}/recommendations', [CropRecommendationController::class, 'index']);
             Route::patch('/recommendations/{recommendation}/status', [CropRecommendationController::class, 'updateStatus']);
+
+            // Forward Contracts
+            Route::post('/recommendations/{recommendation}/publish', [ForwardContractController::class, 'store']);
+            Route::get('/farmer/contracts', [ForwardContractController::class, 'index']);
+            Route::get('/farmer/contracts/{contract}', [ForwardContractController::class, 'show']);
+            Route::patch('/farmer/contracts/{contract}/cancel', [ForwardContractController::class, 'cancel']);
+        });
+
+        // Buyer Routes
+        Route::middleware(EnsureUserHasRole::class.':buyer')->group(function () {
+            Route::post('/market/contracts/{contract}/checkout', [PurchaseController::class, 'checkout'])->middleware('throttle:10,1');
+            Route::get('/buyer/purchases', [PurchaseController::class, 'index']);
+            Route::get('/buyer/purchases/{purchase}', [PurchaseController::class, 'show']);
         });
     });
 });

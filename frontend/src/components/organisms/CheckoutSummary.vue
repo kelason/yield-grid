@@ -1,0 +1,165 @@
+<script setup>
+import { computed } from 'vue'
+import PriceTag from '../atoms/PriceTag.vue'
+import PaymentMethodIcon from '../atoms/PaymentMethodIcon.vue'
+import {
+  CalendarIcon,
+  MapPinIcon,
+  UserIcon,
+  CheckCircleIcon,
+  InformationCircleIcon,
+} from '@heroicons/vue/24/outline'
+
+const props = defineProps({
+  contract: {
+    type: Object,
+    required: true,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+defineEmits(['confirm', 'cancel'])
+
+const pricePerKg = computed(() => {
+  return props.contract.price_per_kg || props.contract.total_price / props.contract.quantity_kg
+})
+</script>
+
+<template>
+  <div
+    class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden border border-white max-w-2xl mx-auto"
+  >
+    <div class="h-2 bg-gradient-to-r from-farm-500 to-farm-700 w-full"></div>
+
+    <div class="p-6 sm:p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Review Your Purchase</h2>
+      <p class="text-gray-500 text-sm mb-8">
+        Please confirm the details of this forward contract before proceeding to payment.
+      </p>
+
+      <div class="bg-gray-50 rounded-xl p-5 mb-8 border border-gray-100">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">{{ contract.title }}</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm">
+          <div class="flex items-start">
+            <CheckCircleIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+            <div>
+              <span class="block font-medium text-gray-900">Crop</span>
+              <span class="text-gray-600"
+                >{{ contract.crop_name }} ({{ contract.quantity_kg }}kg)</span
+              >
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <CalendarIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+            <div>
+              <span class="block font-medium text-gray-900">Est. Harvest</span>
+              <span class="text-gray-600">{{ contract.estimated_harvest_date }}</span>
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <UserIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+            <div>
+              <span class="block font-medium text-gray-900">Farmer</span>
+              <span class="text-gray-600">{{ contract.farmer?.name }}</span>
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <MapPinIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+            <div>
+              <span class="block font-medium text-gray-900">Location</span>
+              <span class="text-gray-600">{{
+                contract.farmer?.location || contract.farmer?.farm_name
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="contract.description" class="mt-4 pt-4 border-t border-gray-200">
+          <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+            Description
+          </h4>
+          <p class="text-gray-700 text-sm">{{ contract.description }}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-between items-end mb-8">
+        <div class="mb-4 sm:mb-0 w-full sm:w-auto">
+          <h4 class="text-sm font-medium text-gray-500 mb-2">Accepted Payment Methods</h4>
+          <div class="flex gap-2">
+            <PaymentMethodIcon method="gcash" />
+            <PaymentMethodIcon method="paymaya" />
+            <PaymentMethodIcon method="card" />
+            <PaymentMethodIcon method="qrph" />
+          </div>
+        </div>
+
+        <div class="text-right w-full sm:w-auto">
+          <div class="text-sm text-gray-500 mb-1">
+            Total Amount (<PriceTag :amount="pricePerKg" size="sm" />/kg)
+          </div>
+          <PriceTag
+            :amount="contract.total_price"
+            :currency="contract.currency"
+            size="lg"
+            class="text-farm-700"
+          />
+        </div>
+      </div>
+
+      <div
+        class="bg-blue-50 text-blue-800 p-4 rounded-lg flex items-start mb-8 text-sm border border-blue-100"
+      >
+        <InformationCircleIcon class="h-5 w-5 mr-3 flex-shrink-0 text-blue-500 mt-0.5" />
+        <p>
+          You will be redirected to PayMongo's secure checkout page to complete this transaction.
+          The contract will be reserved for 30 minutes.
+        </p>
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+        <button
+          @click="$emit('cancel')"
+          :disabled="loading"
+          class="px-5 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 transition-colors w-full sm:w-auto text-center disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          @click="$emit('confirm')"
+          :disabled="loading"
+          class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-farm-600 to-farm-700 hover:from-farm-700 hover:to-farm-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto text-center flex justify-center items-center disabled:opacity-50 disabled:transform-none"
+        >
+          <svg
+            v-if="loading"
+            class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          {{ loading ? 'Preparing Checkout...' : 'Proceed to Payment' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
