@@ -15,6 +15,21 @@ const router = createRouter({
           name: 'contact',
           component: () => import('../pages/public/ContactPage.vue'),
         },
+        {
+          path: 'marketplace',
+          name: 'marketplace',
+          component: () => import('@/pages/public/MarketplacePage.vue')
+        },
+        {
+          path: 'checkout/success',
+          name: 'checkout-success',
+          component: () => import('@/pages/public/CheckoutSuccessPage.vue')
+        },
+        {
+          path: 'checkout/cancel',
+          name: 'checkout-cancel',
+          component: () => import('@/pages/public/CheckoutCancelPage.vue')
+        }
       ],
     },
     {
@@ -34,11 +49,21 @@ const router = createRouter({
       path: '/dashboard',
       component: () => import('../components/templates/DashboardLayout.vue'),
       meta: { requiresAuth: true },
+      beforeEnter: (to, from) => {
+        // Redirect bare /dashboard to the role-appropriate sub-route
+        if (to.path === '/dashboard' || to.path === '/dashboard/') {
+          const authStore = useAuthStore()
+          if (authStore.userRole === 'buyer') return { name: 'buyer-dashboard' }
+          return { name: 'farmer-dashboard' }
+        }
+        return true
+      },
       children: [
         {
-          path: '',
-          name: 'dashboard',
+          path: 'farmer',
+          name: 'farmer-dashboard',
           component: () => import('../pages/dashboard/FarmerDashboard.vue'),
+          meta: { role: 'farmer' }
         },
         {
           path: 'farms',
@@ -60,12 +85,36 @@ const router = createRouter({
           name: 'crop-recommendations',
           component: () => import('../pages/RecommendationsPage.vue'),
         },
+        {
+          path: 'contracts',
+          name: 'farmer-contracts',
+          component: () => import('@/pages/dashboard/farmer/MyContractsPage.vue'),
+          meta: { role: 'farmer' }
+        },
+        {
+          path: 'buyer',
+          name: 'buyer-dashboard',
+          component: () => import('@/pages/dashboard/buyer/BuyerDashboard.vue'),
+          meta: { role: 'buyer' }
+        },
+        {
+          path: 'buyer/purchases',
+          name: 'buyer-purchases',
+          component: () => import('@/pages/dashboard/buyer/MyPurchasesPage.vue'),
+          meta: { role: 'buyer' }
+        },
+        {
+          path: 'buyer/marketplace',
+          name: 'buyer-marketplace',
+          component: () => import('@/pages/public/MarketplacePage.vue'),
+          meta: { role: 'buyer' }
+        }
       ],
     },
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   const authStore = useAuthStore()
 
   // Try to fetch user if token exists but user isn't loaded
@@ -74,12 +123,16 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'login' })
-  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next({ name: 'dashboard' })
-  } else {
-    next()
+    return { name: 'login' }
+  } else if ((to.name === 'home' || to.meta.requiresGuest) && authStore.isAuthenticated) {
+    if (authStore.userRole === 'buyer') {
+      return { name: 'buyer-dashboard' }
+    } else {
+      return { name: 'farmer-dashboard' }
+    }
   }
+  
+  return true
 })
 
 export default router
