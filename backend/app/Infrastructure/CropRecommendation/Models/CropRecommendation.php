@@ -47,6 +47,10 @@ class CropRecommendation extends Model
 
     public function getIsPublishedAttribute(): bool
     {
+        if ($this->relationLoaded('forwardContract')) {
+            return $this->forwardContract !== null;
+        }
+
         return $this->forwardContract()->exists();
     }
 }
