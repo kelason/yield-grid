@@ -6,25 +6,27 @@ use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
-use App\Domain\Marketplace\Services\PayMongoService;
+use App\Infrastructure\Marketplace\Services\PayMongoService;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('allows a farmer to publish an accepted recommendation as a contract', function () {
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
-    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
     $recommendation = CropRecommendation::create([
         'plot_id' => $plot->id,
         'status' => RecommendationStatus::ACCEPTED,
         'crop_name' => 'Jasmine Rice',
         'projected_yield' => 500,
         'confidence_score' => 90,
+        'reasoning' => 'Good soil',
     ]);
 
     $response = $this->actingAs($farmer)->postJson("/api/v1/recommendations/{$recommendation->id}/publish", [
@@ -50,13 +52,14 @@ it('allows a farmer to publish an accepted recommendation as a contract', functi
 it('prevents publishing a recommendation that is not accepted', function () {
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
-    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
     $recommendation = CropRecommendation::create([
         'plot_id' => $plot->id,
         'status' => RecommendationStatus::PENDING,
         'crop_name' => 'Jasmine Rice',
         'projected_yield' => 500,
         'confidence_score' => 90,
+        'reasoning' => 'Good soil',
     ]);
 
     $response = $this->actingAs($farmer)->postJson("/api/v1/recommendations/{$recommendation->id}/publish", [
@@ -73,13 +76,14 @@ it('prevents publishing a recommendation that is not accepted', function () {
 it('allows anyone to browse the marketplace', function () {
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
-    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
     $recommendation = CropRecommendation::create([
         'plot_id' => $plot->id,
         'status' => RecommendationStatus::ACCEPTED,
         'crop_name' => 'Jasmine Rice',
         'projected_yield' => 500,
         'confidence_score' => 90,
+        'reasoning' => 'Good soil',
     ]);
     
     ForwardContract::factory()->count(3)->available()->create([
@@ -98,13 +102,14 @@ it('allows a buyer to create a checkout session', function () {
     
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
-    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
     $recommendation = CropRecommendation::create([
         'plot_id' => $plot->id,
         'status' => RecommendationStatus::ACCEPTED,
         'crop_name' => 'Jasmine Rice',
         'projected_yield' => 500,
         'confidence_score' => 90,
+        'reasoning' => 'Good soil',
     ]);
     
     $contract = ForwardContract::factory()->available()->create([
@@ -145,13 +150,14 @@ it('processes a paymongo webhook successfully', function () {
 
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
-    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
     $recommendation = CropRecommendation::create([
         'plot_id' => $plot->id,
         'status' => RecommendationStatus::ACCEPTED,
         'crop_name' => 'Jasmine Rice',
         'projected_yield' => 500,
         'confidence_score' => 90,
+        'reasoning' => 'Good soil',
     ]);
 
     $contract = ForwardContract::factory()->available()->create([

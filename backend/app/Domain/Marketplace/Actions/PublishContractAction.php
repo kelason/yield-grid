@@ -27,27 +27,31 @@ final class PublishContractAction
              throw new \InvalidArgumentException('This recommendation has already been published.');
         }
 
-        // Accept the recommendation automatically when publishing
-        $recommendation->update([
-            'status' => RecommendationStatus::ACCEPTED,
-            'is_published' => true,
-        ]);
+        if ($recommendation->status !== RecommendationStatus::ACCEPTED) {
+            throw new \InvalidArgumentException('Only accepted recommendations can be published.');
+        }
 
-        $totalPrice = $dto->quantityKg * $dto->pricePerKg;
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($dto, $recommendation) {
+            $recommendation->update([
+                'is_published' => true,
+            ]);
 
-        return ForwardContract::create([
-            'farmer_id' => $dto->farmerId,
-            'crop_recommendation_id' => $dto->recommendationId,
-            'title' => $dto->title,
-            'description' => $dto->description,
-            'crop_name' => $recommendation->crop_name,
-            'quantity_kg' => $dto->quantityKg,
-            'price_per_kg' => $dto->pricePerKg,
-            'total_price' => $totalPrice,
-            'currency' => PaymentConstants::DEFAULT_CURRENCY,
-            'estimated_harvest_date' => $dto->estimatedHarvestDate,
-            'expiry_date' => $dto->expiryDate,
-            'status' => ContractStatus::AVAILABLE,
-        ]);
+            $totalPrice = $dto->quantityKg * $dto->pricePerKg;
+
+            return ForwardContract::create([
+                'farmer_id' => $dto->farmerId,
+                'crop_recommendation_id' => $dto->recommendationId,
+                'title' => $dto->title,
+                'description' => $dto->description,
+                'crop_name' => $recommendation->crop_name,
+                'quantity_kg' => $dto->quantityKg,
+                'price_per_kg' => $dto->pricePerKg,
+                'total_price' => $totalPrice,
+                'currency' => PaymentConstants::DEFAULT_CURRENCY,
+                'estimated_harvest_date' => $dto->estimatedHarvestDate,
+                'expiry_date' => $dto->expiryDate,
+                'status' => ContractStatus::AVAILABLE,
+            ]);
+        });
     }
 }

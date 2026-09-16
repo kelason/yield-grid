@@ -12,7 +12,7 @@ use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\ContractPurchased;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
-use App\Domain\Marketplace\Services\PayMongoService;
+use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -61,18 +61,18 @@ final class PayMongoWebhookController extends Controller
             return response('Missing checkout ID', HttpCode::OK); // Return 200 to prevent retries
         }
 
-        // Idempotency check
-        $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->first();
-        if (!$purchase) {
-             Log::warning('Purchase not found for checkout ID: ' . $checkoutId);
-             return response('Purchase not found', HttpCode::OK);
-        }
+        return DB::transaction(function () use ($checkoutId, $paymentIntentId, $paymentMethod) {
+            $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->lockForUpdate()->first();
+            
+            if (!$purchase) {
+                 Log::warning('Purchase not found for checkout ID: ' . $checkoutId);
+                 return response('Purchase not found', HttpCode::OK);
+            }
 
-        if ($purchase->payment_status === PaymentStatus::COMPLETED) {
-            return response('Already processed', HttpCode::OK);
-        }
+            if ($purchase->payment_status === PaymentStatus::COMPLETED) {
+                return response('Already processed', HttpCode::OK);
+            }
 
-        DB::transaction(function () use ($purchase, $paymentIntentId, $paymentMethod): void {
             $contract = ForwardContract::lockForUpdate()->findOrFail($purchase->forward_contract_id);
 
             $purchase->update([
@@ -85,9 +85,9 @@ final class PayMongoWebhookController extends Controller
             $contract->update(['status' => ContractStatus::SOLD]);
 
             broadcast(new ContractPurchased($purchase, $contract))->toOthers();
-        });
 
-        return response('OK', HttpCode::OK);
+            return response('OK', HttpCode::OK);
+        });
     }
 
     private function handlePaymentFailed(array $event): Response

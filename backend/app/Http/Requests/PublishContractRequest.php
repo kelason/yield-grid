@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -32,7 +34,7 @@ class PublishContractRequest extends FormRequest
         ];
     }
 
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator): void
     {
         \Illuminate\Support\Facades\Log::error('Validation Failed Data:', $this->all());
         \Illuminate\Support\Facades\Log::error('Validation Failed Errors:', $validator->errors()->toArray());

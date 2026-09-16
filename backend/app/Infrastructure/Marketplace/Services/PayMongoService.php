@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Marketplace\Services;
+namespace App\Infrastructure\Marketplace\Services;
 
 use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-final class PayMongoService
+class PayMongoService
 {
     private string $baseUrl;
     private string $secretKey;
@@ -114,6 +114,10 @@ final class PayMongoService
 
         // Check if timestamp is within tolerance (e.g., 5 minutes)
         if (abs(time() - (int) $timestamp) > PaymentConstants::WEBHOOK_TOLERANCE_SECONDS) {
+            return false;
+        }
+
+        if (empty($this->webhookSecret)) {
             return false;
         }
 
