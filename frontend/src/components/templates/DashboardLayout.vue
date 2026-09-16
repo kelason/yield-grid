@@ -1,5 +1,5 @@
 <script setup>
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView } from 'vue-router'
 import AppSidebar from '../organisms/AppSidebar.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
@@ -33,7 +33,9 @@ async function handleLogout() {
       <!-- Main scrollable area -->
       <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none">
         <!-- Page header strip -->
-        <div class="bg-gradient-to-r from-earth-50 to-white border-b border-gray-200 h-16 flex items-center">
+        <div
+          class="bg-gradient-to-r from-earth-50 to-white border-b border-gray-200 h-16 flex items-center"
+        >
           <div
             class="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex justify-between items-center"
           >
