@@ -59,7 +59,18 @@ final class ForwardContractController extends Controller
             expiryDate: $request->validated('expiry_date'),
         );
 
-        $contract = $action->execute($dto);
+        try {
+            $contract = $action->execute($dto);
+        } catch (\App\Domain\Marketplace\Exceptions\UnauthorizedContractPublishingException $e) {
+            return response()->json(['message' => $e->getMessage()], HttpCode::FORBIDDEN);
+        } catch (\App\Domain\Marketplace\Exceptions\ContractPublishingException $e) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'recommendation' => [$e->getMessage()]
+                ]
+            ], HttpCode::UNPROCESSABLE_ENTITY);
+        }
 
         return response()->json([
             'data' => new ForwardContractResource($contract),
