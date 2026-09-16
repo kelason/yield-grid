@@ -25,15 +25,20 @@ final class PublishContractAction
         }
 
         if ($recommendation->is_published) {
-            throw new \InvalidArgumentException('This recommendation has already been published.');
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'recommendation' => 'This recommendation has already been published.'
+            ]);
         }
 
-        if ($recommendation->status !== RecommendationStatus::ACCEPTED) {
-            throw new \InvalidArgumentException('Only accepted recommendations can be published.');
+        if ($recommendation->status === RecommendationStatus::REJECTED || $recommendation->status === RecommendationStatus::FAILED) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'recommendation' => 'Rejected or failed recommendations cannot be published.'
+            ]);
         }
 
         return DB::transaction(function () use ($dto, $recommendation) {
             $recommendation->update([
+                'status' => RecommendationStatus::ACCEPTED,
                 'is_published' => true,
             ]);
 
