@@ -2,7 +2,7 @@
 
 namespace Domain\Farming\Models;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Enums\SoilType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

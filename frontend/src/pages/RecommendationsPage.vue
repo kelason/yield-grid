@@ -375,7 +375,7 @@ const handlePublishContract = async (formData) => {
       if (error.response?.status === 422) {
         publishErrors.value = error.response.data.errors || {}
       } else {
-        alert('An unexpected error occurred while publishing the contract.')
+        store.errorMessage = 'An unexpected error occurred while publishing the contract.'
       }
     }
   }

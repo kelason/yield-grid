@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Marketplace\Services;
+namespace App\Infrastructure\Marketplace\Services;
 
 use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
@@ -119,6 +119,9 @@ class PayMongoService
             return false;
         }
 
+        if (empty($this->webhookSecret)) {
+            return false;
+        }
         $signedPayload = $timestamp.'.'.$payload;
         $expectedSignature = hash_hmac('sha256', $signedPayload, $this->webhookSecret);
 

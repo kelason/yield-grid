@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Users\Models\User;
 
 class CropRecommendationPolicy

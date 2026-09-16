@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\HttpCode;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+
 use App\Domain\Marketplace\Actions\PublishContractAction;
 use App\Domain\Marketplace\DTOs\PublishContractDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
@@ -13,6 +13,7 @@ use App\Domain\Marketplace\Models\ForwardContract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublishContractRequest;
 use App\Http\Resources\ForwardContractResource;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

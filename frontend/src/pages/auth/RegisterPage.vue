@@ -5,7 +5,7 @@ import RegisterForm from '../../components/organisms/RegisterForm.vue'
 const router = useRouter()
 
 function onRegisterSuccess() {
-  router.push('/dashboard')
+  router.push({ name: 'dashboard' })
 }
 </script>
 

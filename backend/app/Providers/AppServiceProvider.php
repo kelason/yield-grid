@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;

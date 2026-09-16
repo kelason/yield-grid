@@ -2,14 +2,14 @@
 
 use App\Constants\PaymentConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\ContractPurchased;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
-use App\Domain\Marketplace\Services\PayMongoService;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\Marketplace\Services\PayMongoService;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
