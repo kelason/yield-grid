@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Marketplace\Enums\ContractStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,7 +25,7 @@ return new class extends Migration
             $table->char('currency', 3)->default('PHP');
             $table->date('estimated_harvest_date');
             $table->date('expiry_date');
-            $table->string('status', 20)->default(\App\Domain\Marketplace\Enums\ContractStatus::AVAILABLE->value);
+            $table->string('status', 20)->default(ContractStatus::AVAILABLE->value);
             $table->timestamps();
 
             $table->index(['status', 'estimated_harvest_date']);

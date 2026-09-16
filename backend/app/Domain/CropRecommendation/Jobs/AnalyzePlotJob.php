@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\CropRecommendation\Jobs;
 
 use App\Domain\CropRecommendation\Events\AnalysisCompleted;
-use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Domain\CropRecommendation\Services\AgroMonitoringService;
 use App\Domain\CropRecommendation\Services\CropAdvisorService;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Models\Plot;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

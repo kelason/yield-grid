@@ -50,6 +50,7 @@ class CropRecommendation extends Model
         if ($this->relationLoaded('forwardContract')) {
             return $this->forwardContract !== null;
         }
+
         return $this->forwardContract()->exists();
     }
 }

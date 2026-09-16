@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Marketplace\Models;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Database\Factories\ForwardContractFactory;
 use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -94,6 +94,6 @@ class ForwardContract extends Model
 
     public function getIsPurchasableAttribute(): bool
     {
-        return $this->status === ContractStatus::AVAILABLE && !$this->is_expired;
+        return $this->status === ContractStatus::AVAILABLE && ! $this->is_expired;
     }
 }
