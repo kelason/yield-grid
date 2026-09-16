@@ -1,17 +1,20 @@
 <?php
 
+use App\Constants\PaymentConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
+use App\Domain\Marketplace\Events\ContractPurchased;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -85,7 +88,7 @@ it('allows anyone to browse the marketplace', function () {
         'confidence_score' => 90,
         'reasoning' => 'Good soil',
     ]);
-    
+
     ForwardContract::factory()->count(3)->available()->create([
         'farmer_id' => $farmer->id,
         'crop_recommendation_id' => $recommendation->id,
@@ -99,7 +102,7 @@ it('allows anyone to browse the marketplace', function () {
 
 it('allows a buyer to create a checkout session', function () {
     $buyer = User::factory()->buyer()->create();
-    
+
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
     $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
@@ -111,19 +114,19 @@ it('allows a buyer to create a checkout session', function () {
         'confidence_score' => 90,
         'reasoning' => 'Good soil',
     ]);
-    
+
     $contract = ForwardContract::factory()->available()->create([
         'total_price' => 5000,
         'farmer_id' => $farmer->id,
         'crop_recommendation_id' => $recommendation->id,
     ]);
 
-    $mockService = \Mockery::mock(PayMongoService::class);
+    $mockService = Mockery::mock(PayMongoService::class);
     $mockService->shouldReceive('createCheckoutSession')
         ->once()
         ->andReturn([
             'checkout_url' => 'https://paymongo.com/checkout/test',
-            'checkout_id' => 'cs_test_123'
+            'checkout_id' => 'cs_test_123',
         ]);
 
     $this->app->instance(PayMongoService::class, $mockService);
@@ -146,7 +149,7 @@ it('allows a buyer to create a checkout session', function () {
 });
 
 it('processes a paymongo webhook successfully', function () {
-    Event::fake([\App\Domain\Marketplace\Events\ContractPurchased::class]);
+    Event::fake([ContractPurchased::class]);
 
     $farmer = User::factory()->farmer()->create();
     $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
@@ -164,34 +167,34 @@ it('processes a paymongo webhook successfully', function () {
         'farmer_id' => $farmer->id,
         'crop_recommendation_id' => $recommendation->id,
     ]);
-    
+
     $purchase = Purchase::factory()->create([
         'forward_contract_id' => $contract->id,
         'paymongo_checkout_id' => 'cs_test_webhook123',
         'payment_status' => PaymentStatus::PENDING,
     ]);
 
-    $mockService = \Mockery::mock(PayMongoService::class);
+    $mockService = Mockery::mock(PayMongoService::class);
     $mockService->shouldReceive('verifyWebhookSignature')->andReturn(true);
     $mockService->shouldReceive('parseWebhookEvent')->andReturn([
         'data' => [
             'attributes' => [
-                'type' => \App\Constants\PaymentConstants::EVENT_PAYMENT_PAID,
+                'type' => PaymentConstants::EVENT_PAYMENT_PAID,
                 'data' => [
                     'id' => 'cs_test_webhook123',
                     'attributes' => [
                         'payment_intent' => ['id' => 'pi_test_intent123'],
-                        'payment_method_used' => 'gcash'
-                    ]
-                ]
-            ]
-        ]
+                        'payment_method_used' => 'gcash',
+                    ],
+                ],
+            ],
+        ],
     ]);
-    
+
     $this->app->instance(PayMongoService::class, $mockService);
 
     $response = $this->postJson('/api/v1/webhooks/paymongo', [], [
-        'Paymongo-Signature' => 'test-signature'
+        'Paymongo-Signature' => 'test-signature',
     ]);
 
     $response->assertOk();
@@ -199,7 +202,7 @@ it('processes a paymongo webhook successfully', function () {
     $this->assertDatabaseHas('purchases', [
         'id' => $purchase->id,
         'payment_status' => PaymentStatus::COMPLETED->value,
-        'payment_method' => \App\Domain\Marketplace\Enums\PaymentMethod::GCASH->value,
+        'payment_method' => PaymentMethod::GCASH->value,
     ]);
 
     $this->assertDatabaseHas('forward_contracts', [
@@ -207,5 +210,5 @@ it('processes a paymongo webhook successfully', function () {
         'status' => ContractStatus::SOLD->value,
     ]);
 
-    Event::assertDispatched(\App\Domain\Marketplace\Events\ContractPurchased::class);
+    Event::assertDispatched(ContractPurchased::class);
 });

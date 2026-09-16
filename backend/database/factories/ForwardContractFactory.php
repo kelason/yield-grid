@@ -2,14 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
 use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Marketplace\Models\ForwardContract>
+ * @extends Factory<ForwardContract>
  */
 class ForwardContractFactory extends Factory
 {

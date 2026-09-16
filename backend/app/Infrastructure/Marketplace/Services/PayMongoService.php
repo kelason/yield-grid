@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Log;
 class PayMongoService
 {
     private string $baseUrl;
+
     private string $secretKey;
+
     private string $webhookSecret;
 
     public function __construct()
@@ -44,21 +46,21 @@ class PayMongoService
                             'quantity' => 1,
                             'amount' => $amountInCentavos,
                             'currency' => PaymentConstants::DEFAULT_CURRENCY,
-                        ]
+                        ],
                     ],
                     'payment_method_types' => ['card', 'paymaya', 'gcash', 'qrph'],
                     'success_url' => $successUrl,
                     'cancel_url' => $cancelUrl,
-                    'description' => "Forward Contract Purchase - YieldGrid",
+                    'description' => 'Forward Contract Purchase - YieldGrid',
                     'metadata' => [
                         'forward_contract_id' => (string) $contract->id,
                         'buyer_id' => (string) $buyerId,
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
-        $response = Http::withToken(base64_encode($this->secretKey . ':'))
+        $response = Http::withToken(base64_encode($this->secretKey.':'))
             ->post("{$this->baseUrl}/checkout_sessions", $payload);
 
         if ($response->failed()) {
@@ -85,7 +87,7 @@ class PayMongoService
     {
         // PayMongo sends signature in format: t=1612345678,te=signature_hash,li=test_signature_hash
         // We extract the timestamp and signature hash to verify
-        
+
         $parts = explode(',', $signatureHeader);
         $timestamp = '';
         $testSignature = '';
@@ -96,9 +98,9 @@ class PayMongoService
             if (count($keyValue) !== 2) {
                 continue;
             }
-            
+
             [$key, $value] = $keyValue;
-            
+
             if ($key === 't') {
                 $timestamp = $value;
             } elseif ($key === 'te') {
@@ -121,7 +123,7 @@ class PayMongoService
             return false;
         }
 
-        $signedPayload = $timestamp . '.' . $payload;
+        $signedPayload = $timestamp.'.'.$payload;
         $expectedSignature = hash_hmac('sha256', $signedPayload, $this->webhookSecret);
 
         // We accept either the test or live signature depending on the environment mode

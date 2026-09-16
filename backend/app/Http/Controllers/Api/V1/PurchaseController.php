@@ -9,9 +9,9 @@ use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
-use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseResource;
+use App\Infrastructure\Marketplace\Services\PayMongoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -46,29 +46,30 @@ final class PurchaseController extends Controller
 
     public function checkout(Request $request, ForwardContract $contract): JsonResponse
     {
-        if (!$contract->is_purchasable) {
+        if (! $contract->is_purchasable) {
             return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
         }
 
         $lockedContract = DB::transaction(function () use ($contract) {
             // Lock for update to prevent concurrent purchases
             $innerContract = ForwardContract::where('id', $contract->id)->lockForUpdate()->firstOrFail();
-            
-            if (!$innerContract->is_purchasable) {
-                 return null;
+
+            if (! $innerContract->is_purchasable) {
+                return null;
             }
 
             // Reserve the contract
             $innerContract->update(['status' => ContractStatus::RESERVED]);
+
             return $innerContract;
         });
 
-        if (!$lockedContract) {
+        if (! $lockedContract) {
             return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
         }
 
-        $successUrl = config('app.frontend_url') . '/checkout/success?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl = config('app.frontend_url') . '/checkout/cancel';
+        $successUrl = config('app.frontend_url').'/checkout/success?session_id={CHECKOUT_SESSION_ID}';
+        $cancelUrl = config('app.frontend_url').'/checkout/cancel';
 
         try {
             // Create PayMongo checkout

@@ -17,7 +17,7 @@ final class MarketplaceController extends Controller
         $query = ForwardContract::available()->with(['farmer.farms']);
 
         if ($request->has('crop')) {
-            $query->where('crop_name', 'ilike', '%' . $request->query('crop') . '%');
+            $query->where('crop_name', 'ilike', '%'.$request->query('crop').'%');
         }
 
         if ($request->has('min_price')) {
@@ -50,7 +50,7 @@ final class MarketplaceController extends Controller
     public function show(ForwardContract $contract): ForwardContractResource
     {
         $contract->load('farmer.farms');
-        
+
         return new ForwardContractResource($contract);
     }
 }

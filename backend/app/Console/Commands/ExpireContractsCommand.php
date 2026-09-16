@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
 final class ExpireContractsCommand extends Command
 {
     protected $signature = 'marketplace:expire-contracts';
+
     protected $description = 'Mark available contracts as expired if their expiry date has passed';
 
     public function handle(): void
@@ -24,6 +25,7 @@ final class ExpireContractsCommand extends Command
 
         if ($count === 0) {
             $this->info('No contracts to expire today.');
+
             return;
         }
 

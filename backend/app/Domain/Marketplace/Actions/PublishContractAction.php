@@ -6,11 +6,12 @@ namespace App\Domain\Marketplace\Actions;
 
 use App\Constants\PaymentConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Domain\Marketplace\DTOs\PublishContractDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 
 final class PublishContractAction
 {
@@ -24,14 +25,14 @@ final class PublishContractAction
         }
 
         if ($recommendation->is_published) {
-             throw new \InvalidArgumentException('This recommendation has already been published.');
+            throw new \InvalidArgumentException('This recommendation has already been published.');
         }
 
         if ($recommendation->status !== RecommendationStatus::ACCEPTED) {
             throw new \InvalidArgumentException('Only accepted recommendations can be published.');
         }
 
-        return \Illuminate\Support\Facades\DB::transaction(function () use ($dto, $recommendation) {
+        return DB::transaction(function () use ($dto, $recommendation) {
             $recommendation->update([
                 'is_published' => true,
             ]);

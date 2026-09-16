@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Constants\HttpCode;
 use App\Domain\Marketplace\Actions\PublishContractAction;
 use App\Domain\Marketplace\DTOs\PublishContractDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
@@ -12,6 +12,7 @@ use App\Domain\Marketplace\Models\ForwardContract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublishContractRequest;
 use App\Http\Resources\ForwardContractResource;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -34,7 +35,7 @@ final class ForwardContractController extends Controller
     public function show(ForwardContract $contract): ForwardContractResource
     {
         $this->authorize('view', $contract);
-        
+
         $contract->load('recommendation');
 
         return new ForwardContractResource($contract);
@@ -61,8 +62,8 @@ final class ForwardContractController extends Controller
         $contract = $action->execute($dto);
 
         return response()->json([
-            'data' => new ForwardContractResource($contract)
-        ], \App\Constants\HttpCode::CREATED);
+            'data' => new ForwardContractResource($contract),
+        ], HttpCode::CREATED);
     }
 
     public function cancel(ForwardContract $contract): JsonResponse
@@ -73,7 +74,7 @@ final class ForwardContractController extends Controller
 
         return response()->json([
             'message' => 'Contract cancelled successfully.',
-            'data' => new ForwardContractResource($contract->fresh())
+            'data' => new ForwardContractResource($contract->fresh()),
         ]);
     }
 }

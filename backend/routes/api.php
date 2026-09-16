@@ -60,7 +60,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware('throttle:5,60');
             Route::get('/plots/{plot}/recommendations', [CropRecommendationController::class, 'index']);
             Route::patch('/recommendations/{recommendation}/status', [CropRecommendationController::class, 'updateStatus']);
-            
+
             // Forward Contracts
             Route::post('/recommendations/{recommendation}/publish', [ForwardContractController::class, 'store']);
             Route::get('/farmer/contracts', [ForwardContractController::class, 'index']);

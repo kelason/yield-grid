@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\CropRecommendation\Models;
+namespace App\Infrastructure\CropRecommendation\Models;
 
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
