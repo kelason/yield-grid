@@ -118,19 +118,11 @@
             variant="primary"
             rounded="full"
             :loading="store.isAnalyzing || store.isLoading"
-            :disabled="
-              store.isAnalyzing ||
-              store.isLoading ||
-              !activePlotId
-            "
+            :disabled="store.isAnalyzing || store.isLoading || !activePlotId"
             @click="triggerAnalysis"
           >
             <span v-if="!store.isAnalyzing">✨</span>
-            {{
-              store.isAnalyzing
-                ? 'Analysing...'
-                : 'Analyse This Plot'
-            }}
+            {{ store.isAnalyzing ? 'Analysing...' : 'Analyse This Plot' }}
           </AppButton>
         </div>
       </header>
@@ -190,12 +182,28 @@
     </div>
 
     <!-- Publish Contract Modal -->
-    <div v-if="showPublishModal && selectedRecommendation" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closePublishModal"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full">
-          <PublishContractForm 
+    <div
+      v-if="showPublishModal && selectedRecommendation"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+          @click="closePublishModal"
+        ></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"
+          >&#8203;</span
+        >
+        <div
+          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
+        >
+          <PublishContractForm
             :recommendation="selectedRecommendation"
             :loading="marketStore.loading?.publish"
             :errors="publishErrors"
@@ -333,7 +341,7 @@ onUnmounted(() => {
 })
 
 const handleAccept = (id) => {
-  const rec = store.recommendations.find(r => r.id === id)
+  const rec = store.recommendations.find((r) => r.id === id)
   if (rec) {
     selectedRecommendation.value = rec
     showPublishModal.value = true
@@ -354,13 +362,13 @@ const handlePublishContract = async (formData) => {
       publishErrors.value = {}
       // The backend now automatically marks it as 'accepted' and 'is_published' when successfully created
       await marketStore.publishContract(selectedRecommendation.value.id, formData)
-      
+
       // Update local state so UI updates
       const index = store.recommendations.findIndex((r) => r.id === selectedRecommendation.value.id)
       if (index !== -1) {
         store.recommendations[index].status = 'accepted'
       }
-      
+
       closePublishModal()
       router.push({ name: 'farmer-contracts' })
     } catch (error) {
