@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
+use Domain\Farming\Models\RestrictedZone;
 use Domain\Users\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -54,7 +55,7 @@ class DatabaseSeeder extends Seeder
             $houseWkt = 'POLYGON((-120.485 36.505, -120.483 36.505, -120.483 36.507, -120.485 36.507, -120.485 36.505))';
             $riverWkt = 'POLYGON((-120.495 36.495, -120.490 36.490, -120.488 36.492, -120.493 36.497, -120.495 36.495))';
 
-            \Domain\Farming\Models\RestrictedZone::firstOrCreate(
+            RestrictedZone::firstOrCreate(
                 ['name' => 'Farm House'],
                 [
                     'type' => 'house',
@@ -62,7 +63,7 @@ class DatabaseSeeder extends Seeder
                 ]
             );
 
-            \Domain\Farming\Models\RestrictedZone::firstOrCreate(
+            RestrictedZone::firstOrCreate(
                 ['name' => 'Local River'],
                 [
                     'type' => 'river',

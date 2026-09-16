@@ -10,7 +10,7 @@ use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Marketplace\Models\Purchase>
+ * @extends Factory<Purchase>
  */
 class PurchaseFactory extends Factory
 {
@@ -26,8 +26,8 @@ class PurchaseFactory extends Factory
         return [
             'buyer_id' => User::factory()->buyer(),
             'forward_contract_id' => ForwardContract::factory(),
-            'paymongo_payment_id' => 'pi_' . $this->faker->uuid(),
-            'paymongo_checkout_id' => 'cs_' . $this->faker->uuid(),
+            'paymongo_payment_id' => 'pi_'.$this->faker->uuid(),
+            'paymongo_checkout_id' => 'cs_'.$this->faker->uuid(),
             'payment_method' => $this->faker->randomElement([PaymentMethod::GCASH, PaymentMethod::MAYA, PaymentMethod::CARD]),
             'amount_paid' => $this->faker->randomFloat(2, 1000, 100000),
             'currency' => 'PHP',

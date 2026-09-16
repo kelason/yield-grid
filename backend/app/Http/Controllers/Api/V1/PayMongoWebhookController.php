@@ -28,9 +28,10 @@ final class PayMongoWebhookController extends Controller
     public function handle(Request $request): Response
     {
         $signature = $request->header('Paymongo-Signature', '');
-        
-        if (!$this->payMongo->verifyWebhookSignature($request->getContent(), $signature)) {
+
+        if (! $this->payMongo->verifyWebhookSignature($request->getContent(), $signature)) {
             Log::warning('PayMongo webhook signature verification failed');
+
             return response('Invalid signature', HttpCode::BAD_REQUEST);
         }
 
@@ -50,22 +51,24 @@ final class PayMongoWebhookController extends Controller
         $checkoutData = $event['data']['attributes']['data']['attributes'] ?? [];
         $checkoutId = $event['data']['attributes']['data']['id'] ?? null;
         $paymentIntentId = $checkoutData['payment_intent']['id'] ?? null;
-        
+
         // Some methods like GCash don't expose raw method name easily in checkout payload
         // We'll fall back to 'card' or infer from intent if possible
         $paymentMethodString = $checkoutData['payment_method_used'] ?? 'card';
         $paymentMethod = PaymentMethod::tryFrom($paymentMethodString) ?? PaymentMethod::CARD;
 
-        if (!$checkoutId) {
+        if (! $checkoutId) {
             Log::warning('PayMongo webhook missing checkout ID');
+
             return response('Missing checkout ID', HttpCode::OK); // Return 200 to prevent retries
         }
 
         // Idempotency check
         $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->first();
-        if (!$purchase) {
-             Log::warning('Purchase not found for checkout ID: ' . $checkoutId);
-             return response('Purchase not found', HttpCode::OK);
+        if (! $purchase) {
+            Log::warning('Purchase not found for checkout ID: '.$checkoutId);
+
+            return response('Purchase not found', HttpCode::OK);
         }
 
         if ($purchase->payment_status === PaymentStatus::COMPLETED) {
@@ -77,9 +80,9 @@ final class PayMongoWebhookController extends Controller
 
             $purchase->update([
                 'paymongo_payment_id' => $paymentIntentId,
-                'payment_method'      => $paymentMethod,
-                'payment_status'      => PaymentStatus::COMPLETED,
-                'purchased_at'        => now(),
+                'payment_method' => $paymentMethod,
+                'payment_status' => PaymentStatus::COMPLETED,
+                'purchased_at' => now(),
             ]);
 
             $contract->update(['status' => ContractStatus::SOLD]);
@@ -93,7 +96,9 @@ final class PayMongoWebhookController extends Controller
     private function handlePaymentFailed(array $event): Response
     {
         $checkoutId = $event['data']['attributes']['data']['id'] ?? null;
-        if (!$checkoutId) return response('OK', HttpCode::OK);
+        if (! $checkoutId) {
+            return response('OK', HttpCode::OK);
+        }
 
         $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->first();
         if ($purchase && $purchase->payment_status === PaymentStatus::PENDING) {
@@ -106,11 +111,13 @@ final class PayMongoWebhookController extends Controller
 
         return response('OK', HttpCode::OK);
     }
-    
+
     private function handleSessionExpired(array $event): Response
     {
         $checkoutId = $event['data']['attributes']['data']['id'] ?? null;
-        if (!$checkoutId) return response('OK', HttpCode::OK);
+        if (! $checkoutId) {
+            return response('OK', HttpCode::OK);
+        }
 
         $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->first();
         if ($purchase && $purchase->payment_status === PaymentStatus::PENDING) {

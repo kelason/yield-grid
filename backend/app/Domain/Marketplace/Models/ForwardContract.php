@@ -94,6 +94,6 @@ class ForwardContract extends Model
 
     public function getIsPurchasableAttribute(): bool
     {
-        return $this->status === ContractStatus::AVAILABLE && !$this->is_expired;
+        return $this->status === ContractStatus::AVAILABLE && ! $this->is_expired;
     }
 }

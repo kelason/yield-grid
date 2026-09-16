@@ -46,23 +46,23 @@ final class PurchaseController extends Controller
 
     public function checkout(Request $request, ForwardContract $contract): JsonResponse
     {
-        if (!$contract->is_purchasable) {
+        if (! $contract->is_purchasable) {
             return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
         }
 
         return DB::transaction(function () use ($request, $contract) {
             // Lock for update to prevent concurrent purchases
             $lockedContract = ForwardContract::where('id', $contract->id)->lockForUpdate()->firstOrFail();
-            
-            if (!$lockedContract->is_purchasable) {
-                 return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
+
+            if (! $lockedContract->is_purchasable) {
+                return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
             }
 
             // Reserve the contract
             $lockedContract->update(['status' => ContractStatus::RESERVED]);
 
-            $successUrl = config('app.frontend_url') . '/checkout/success?session_id={CHECKOUT_SESSION_ID}';
-            $cancelUrl = config('app.frontend_url') . '/checkout/cancel';
+            $successUrl = config('app.frontend_url').'/checkout/success?session_id={CHECKOUT_SESSION_ID}';
+            $cancelUrl = config('app.frontend_url').'/checkout/cancel';
 
             // Create PayMongo checkout
             $checkoutData = $this->payMongoService->createCheckoutSession(

@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class PublishContractRequest extends FormRequest
 {
@@ -18,7 +20,7 @@ class PublishContractRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -32,10 +34,10 @@ class PublishContractRequest extends FormRequest
         ];
     }
 
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    protected function failedValidation(Validator $validator)
     {
-        \Illuminate\Support\Facades\Log::error('Validation Failed Data:', $this->all());
-        \Illuminate\Support\Facades\Log::error('Validation Failed Errors:', $validator->errors()->toArray());
+        Log::error('Validation Failed Data:', $this->all());
+        Log::error('Validation Failed Errors:', $validator->errors()->toArray());
         parent::failedValidation($validator);
     }
 }

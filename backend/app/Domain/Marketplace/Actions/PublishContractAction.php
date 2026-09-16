@@ -24,7 +24,7 @@ final class PublishContractAction
         }
 
         if ($recommendation->is_published) {
-             throw new \InvalidArgumentException('This recommendation has already been published.');
+            throw new \InvalidArgumentException('This recommendation has already been published.');
         }
 
         // Accept the recommendation automatically when publishing

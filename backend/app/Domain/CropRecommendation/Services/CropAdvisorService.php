@@ -13,13 +13,21 @@ use Illuminate\Support\Facades\RateLimiter;
 class CropAdvisorService
 {
     private const SCORE_BASE = 50;
+
     private const SCORE_SOIL_MATCH = 40;
+
     private const SCORE_SOIL_TOLERATED = 15;
+
     private const PENALTY_SOIL_MISMATCH = 60;
+
     private const SCORE_REGION_MATCH = 35;
+
     private const SCORE_REGION_PARTIAL_MATCH = 25;
+
     private const SCORE_AREA_MATCH = 15;
+
     private const PENALTY_AREA_MISMATCH = 20;
+
     private string $apiKey;
 
     private int $cacheTtlSeconds = 1800; // 30 minutes recommendation cache

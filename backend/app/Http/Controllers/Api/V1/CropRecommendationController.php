@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Constants\HttpCode;
+use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
 use App\Domain\CropRecommendation\Models\CropRecommendation;
 use App\Http\Controllers\Controller;

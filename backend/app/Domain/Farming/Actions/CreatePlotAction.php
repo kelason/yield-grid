@@ -10,7 +10,9 @@ use Illuminate\Validation\ValidationException;
 class CreatePlotAction
 {
     private const LONGITUDE_INDEX = 0;
+
     private const LATITUDE_INDEX = 1;
+
     private const FIRST_ITERATION_INDEX = 0;
 
     public function __invoke(CreatePlotDTO $dto): Plot
@@ -32,7 +34,7 @@ class CreatePlotAction
 
         // Check if the drawn polygon intersects any restricted zone (houses, roads, rivers, etc.)
         $conflicting = DB::table('restricted_zones')
-            ->whereRaw("ST_Intersects(polygon, ST_GeomFromText(?, 4326))", [$wkt])
+            ->whereRaw('ST_Intersects(polygon, ST_GeomFromText(?, 4326))', [$wkt])
             ->first();
 
         if ($conflicting) {
