@@ -14,4 +14,6 @@ class HttpCode
     public const UNPROCESSABLE_ENTITY = 422;
     public const TOO_MANY_REQUESTS = 429;
     public const INTERNAL_SERVER_ERROR = 500;
+    public const CONFLICT = 409;
+    public const PAYMENT_REQUIRED = 402;
 }

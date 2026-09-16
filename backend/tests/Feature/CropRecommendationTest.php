@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Domain\CropRecommendation\Services\AgroMonitoringService;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;

@@ -148,7 +148,7 @@ onUnmounted(() => {
         v-for="(soil, index) in SOIL_TYPES"
         :key="soil.value"
         @click="selectSoil(soil)"
-        class="group relative flex items-center justify-between px-3 py-3 rounded-xl border transition-all duration-200 cursor-pointer"
+        class="group relative flex items-center justify-between px-3 py-3 rounded-xl border transition-all duration-200 cursor-pointer hover:z-40"
         :class="[
           modelValue === soil.value
             ? 'border-farm-500 bg-farm-50/90 ring-1 ring-farm-500 shadow-sm'

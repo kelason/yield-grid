@@ -45,4 +45,18 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function farmer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'farmer',
+        ]);
+    }
+
+    public function buyer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'buyer',
+        ]);
+    }
 }

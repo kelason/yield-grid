@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Constants\HttpCode;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CropRecommendationResource;
 use Domain\Farming\Models\Plot;

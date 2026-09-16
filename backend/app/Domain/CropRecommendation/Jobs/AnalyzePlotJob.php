@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\CropRecommendation\Jobs;
 
 use App\Domain\CropRecommendation\Events\AnalysisCompleted;
-use App\Domain\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Domain\CropRecommendation\Services\AgroMonitoringService;
 use App\Domain\CropRecommendation\Services\CropAdvisorService;
 use Domain\Farming\Models\Plot;
