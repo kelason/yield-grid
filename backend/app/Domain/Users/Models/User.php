@@ -2,9 +2,9 @@
 
 namespace Domain\Users\Models;
 
+use Database\Factories\UserFactory;
 use Domain\Users\Enums\UserRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -56,6 +56,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected static function newFactory()
     {
-        return \Database\Factories\UserFactory::new();
+        return UserFactory::new();
     }
 }

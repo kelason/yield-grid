@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Domain\Users\Models\User;
 use Domain\Users\Enums\UserRole;
+use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,7 +22,7 @@ class FarmTest extends TestCase
         ]);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('data.name', 'Green Acres');
+            ->assertJsonPath('data.name', 'Green Acres');
 
         $this->assertDatabaseHas('farms', [
             'user_id' => $farmer->id,

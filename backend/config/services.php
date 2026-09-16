@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+    ],
+
+    'agromonitoring' => [
+        'key' => env('AGROMONITORING_API_KEY'),
+    ],
+
 ];

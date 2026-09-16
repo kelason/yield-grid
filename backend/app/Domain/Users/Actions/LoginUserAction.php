@@ -11,11 +11,12 @@ class LoginUserAction
 {
     /**
      * @return array{user: User, token: string}
+     *
      * @throws ValidationException
      */
     public function __invoke(LoginUserDTO $dto): array
     {
-        if (!Auth::attempt(['email' => $dto->email, 'password' => $dto->password])) {
+        if (! Auth::attempt(['email' => $dto->email, 'password' => $dto->password])) {
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials.'],
             ]);
