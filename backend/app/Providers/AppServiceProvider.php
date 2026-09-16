@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         // Register authorization policies
         Gate::policy(Plot::class, PlotPolicy::class);
         Gate::policy(CropRecommendation::class, CropRecommendationPolicy::class);
+        Gate::policy(\App\Domain\Marketplace\Models\ForwardContract::class, \App\Policies\ForwardContractPolicy::class);
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route
         require base_path('routes/channels.php');

@@ -58,4 +58,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return UserFactory::new();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Domain\Farming\Models\Farm, $this>
+     */
+    public function farms(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\Domain\Farming\Models\Farm::class);
+    }
 }

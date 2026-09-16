@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\CropRecommendation\Models;
 
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Domain\Marketplace\Models\ForwardContract;
 use Domain\Farming\Models\Plot;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CropRecommendation extends Model
 {
@@ -33,5 +35,18 @@ class CropRecommendation extends Model
     public function plot(): BelongsTo
     {
         return $this->belongsTo(Plot::class);
+    }
+
+    /**
+     * @return HasOne<ForwardContract, $this>
+     */
+    public function forwardContract(): HasOne
+    {
+        return $this->hasOne(ForwardContract::class, 'crop_recommendation_id');
+    }
+
+    public function getIsPublishedAttribute(): bool
+    {
+        return $this->forwardContract()->exists();
     }
 }

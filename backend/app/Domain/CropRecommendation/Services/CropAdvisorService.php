@@ -63,7 +63,7 @@ class CropAdvisorService
         RateLimiter::hit($rateKey, 60);
 
         try {
-            $response = Http::timeout(12)->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key='.$this->apiKey, [
+            $response = Http::timeout(12)->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key='.$this->apiKey, [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]],
                 ],
