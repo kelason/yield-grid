@@ -150,7 +150,7 @@ class AgroMonitoringService
                 'SELECT ST_AsGeoJSON(polygon::geometry) as geojson FROM plots WHERE id = ?', 
                 [$plot->id]
             );
-            $geometry = json_decode($geojsonResult->geojson, true);
+            $geometry = $geojsonResult ? json_decode($geojsonResult->geojson, true) : null;
 
             $response = Http::post("{$this->baseUrl}/polygons?appid={$this->apiKey}", [
                 'name' => $plot->name,

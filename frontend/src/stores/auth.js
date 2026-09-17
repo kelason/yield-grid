@@ -89,10 +89,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function verifyEmail(url) {
-    // The url passed is the absolute signed backend URL.
-    // Passing the absolute URL directly ensures axios ignores the baseURL ('/api/v1')
-    // while still applying interceptors (e.g. auth tokens).
-    const response = await api.get(url)
+    const parsedUrl = new URL(url);
+    // Only request the pathname and search parameters relative to the configured API base URL
+    const response = await api.get(parsedUrl.pathname + parsedUrl.search)
 
     // Refresh user state to update email_verified_at
     await fetchUser()

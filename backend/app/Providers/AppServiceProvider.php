@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
                 ]
             );
 
-            return env('FRONTEND_URL', 'http://localhost:5173') . '/auth/verify-email?verify_url=' . urlencode($url);
+            return config('app.frontend_url', 'http://localhost:5173') . '/auth/verify-email?verify_url=' . urlencode($url);
         });
 
         // Register authorization policies
