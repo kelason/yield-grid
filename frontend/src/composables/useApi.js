@@ -24,7 +24,7 @@ api.interceptors.response.use(
     // Dynamic import to avoid circular dependency issues if useApi is used in stores
     import('../stores/notificationStore').then(({ useNotificationStore }) => {
       const notificationStore = useNotificationStore()
-      
+
       if (!error.response) {
         notificationStore.error('Network error. Please check your connection.')
         return
@@ -38,9 +38,11 @@ api.interceptors.response.use(
         notificationStore.warning('Your session has expired. Please log in again.')
         // Redirect to login handled via router guards or specific logic elsewhere
       } else if (status === 403) {
-        notificationStore.error(data.message || 'You do not have permission to perform this action.')
+        notificationStore.error(
+          data.message || 'You do not have permission to perform this action.',
+        )
       } else if (status === 422) {
-        // Validation errors are typically handled locally by forms, 
+        // Validation errors are typically handled locally by forms,
         // but we can provide a generic toast if needed.
         // notificationStore.error('Please check your input for validation errors.')
       } else if (status >= 500) {

@@ -14,10 +14,7 @@ const head = createHead()
 Sentry.init({
   app,
   dsn: import.meta.env.VITE_SENTRY_DSN || '',
-  integrations: [
-    Sentry.browserTracingIntegration({ router }),
-    Sentry.replayIntegration(),
-  ],
+  integrations: [Sentry.browserTracingIntegration({ router }), Sentry.replayIntegration()],
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,

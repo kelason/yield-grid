@@ -7,7 +7,8 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'From soil to sale — let data grow your harvest. YieldGrid provides predictive agriculture tools, GIS mapping, and a forward contracts marketplace for modern farmers and buyers.',
+      content:
+        'From soil to sale — let data grow your harvest. YieldGrid provides predictive agriculture tools, GIS mapping, and a forward contracts marketplace for modern farmers and buyers.',
     },
     {
       property: 'og:title',
@@ -15,12 +16,13 @@ useHead({
     },
     {
       property: 'og:description',
-      content: 'Predictive agriculture platform combining AI crop recommendations, GIS mapping, and direct B2B forward contract sales.',
+      content:
+        'Predictive agriculture platform combining AI crop recommendations, GIS mapping, and direct B2B forward contract sales.',
     },
     {
       property: 'og:image',
       content: '/og-image-home.jpg', // Placeholder for actual image
-    }
+    },
   ],
 })
 </script>

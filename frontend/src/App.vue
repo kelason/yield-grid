@@ -5,10 +5,7 @@ import ToastContainer from '@/components/organisms/ToastContainer.vue'
 
 <template>
   <RouterView v-slot="{ Component }">
-    <transition
-      name="page"
-      mode="out-in"
-    >
+    <transition name="page" mode="out-in">
       <component :is="Component" />
     </transition>
   </RouterView>
@@ -18,7 +15,9 @@ import ToastContainer from '@/components/organisms/ToastContainer.vue'
 <style>
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .page-enter-from,
@@ -27,4 +26,3 @@ import ToastContainer from '@/components/organisms/ToastContainer.vue'
   transform: translateY(10px);
 }
 </style>
-
