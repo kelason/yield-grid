@@ -5,7 +5,7 @@ import LoginForm from '../../components/organisms/LoginForm.vue'
 const router = useRouter()
 
 function onLoginSuccess() {
-  router.push({ name: 'dashboard' })
+  router.push('/dashboard')
 }
 </script>
 

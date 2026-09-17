@@ -18,6 +18,7 @@ class PurchaseResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'session_id' => $this->paymongo_checkout_id,
             'contract' => new ForwardContractResource($this->whenLoaded('contract')),
             'payment_method' => $this->payment_method?->value,
             'amount_paid' => (float) $this->amount_paid,

@@ -1,5 +1,22 @@
 <script setup>
+import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { XCircleIcon } from '@heroicons/vue/24/solid'
+import { useApi } from '@/composables/useApi'
+
+const route = useRoute()
+const api = useApi()
+
+onMounted(async () => {
+  const sessionId = route.query.session_id
+  if (sessionId) {
+    try {
+      await api.post(`/checkout/${sessionId}/cancel`)
+    } catch (err) {
+      console.error('Failed to cancel checkout session:', err)
+    }
+  }
+})
 </script>
 
 <template>

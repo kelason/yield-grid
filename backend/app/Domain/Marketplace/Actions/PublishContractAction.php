@@ -6,40 +6,45 @@ namespace App\Domain\Marketplace\Actions;
 
 use App\Constants\PaymentConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
 use App\Domain\Marketplace\DTOs\PublishContractDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Exceptions\ContractPublishingException;
+use App\Domain\Marketplace\Exceptions\UnauthorizedContractPublishingException;
 use App\Domain\Marketplace\Models\ForwardContract;
-use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Facades\DB;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
+use App\Domain\Shared\Database\TransactionManagerInterface;
 
 final class PublishContractAction
 {
+    public function __construct(
+        private readonly CropRecommendationRepositoryInterface $recommendationRepository,
+        private readonly ForwardContractRepositoryInterface $contractRepository,
+        private readonly TransactionManagerInterface $transactionManager
+    ) {}
+
     public function execute(PublishContractDTO $dto): ForwardContract
     {
-        $recommendation = CropRecommendation::with('plot.farm')->findOrFail($dto->recommendationId);
+        $recommendation = $this->recommendationRepository->findByIdAndFarmer($dto->recommendationId, $dto->farmerId);
 
-        // Validate the recommendation belongs to the farmer
-        if ($recommendation->plot->farm->user_id !== $dto->farmerId) {
-            throw new AuthorizationException('You do not own this recommendation.');
+        if (! $recommendation) {
+            throw new UnauthorizedContractPublishingException('You do not own this recommendation or it does not exist.');
         }
 
         if ($recommendation->is_published) {
-            throw new \InvalidArgumentException('This recommendation has already been published.');
+            throw new ContractPublishingException('This recommendation has already been published.');
         }
 
-        if ($recommendation->status !== RecommendationStatus::ACCEPTED) {
-            throw new \InvalidArgumentException('Only accepted recommendations can be published.');
+        if ($recommendation->status === RecommendationStatus::REJECTED || $recommendation->status === RecommendationStatus::FAILED) {
+            throw new ContractPublishingException('Rejected or failed recommendations cannot be published.');
         }
 
-        return DB::transaction(function () use ($dto, $recommendation) {
-            $recommendation->update([
-                'is_published' => true,
-            ]);
+        return $this->transactionManager->run(function () use ($dto, $recommendation) {
+            $this->recommendationRepository->markAsPublished($recommendation);
 
             $totalPrice = $dto->quantityKg * $dto->pricePerKg;
 
-            return ForwardContract::create([
+            return $this->contractRepository->create([
                 'farmer_id' => $dto->farmerId,
                 'crop_recommendation_id' => $dto->recommendationId,
                 'title' => $dto->title,

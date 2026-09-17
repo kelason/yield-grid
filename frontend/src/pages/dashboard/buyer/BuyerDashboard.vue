@@ -2,17 +2,21 @@
 import { onMounted, computed } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
+import { useApi } from '@/composables/useApi'
+import { ShoppingCartIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/atoms/AppCard.vue'
+import PurchaseCard from '@/components/molecules/PurchaseCard.vue'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const api = useApi()
 
 const totalSpent = computed(() =>
   marketStore.buyerPurchases.reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0),
 )
 
 const activePurchases = computed(
-  () => marketStore.buyerPurchases.filter((p) => p.payment_status === 'paid').length,
+  () => marketStore.buyerPurchases.filter((p) => p.payment_status === 'completed').length,
 )
 
 onMounted(() => {
@@ -23,19 +27,22 @@ function formatCurrency(amount) {
   return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—'
-  return new Intl.DateTimeFormat('en-PH', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(dateStr))
-}
+async function cancelPurchase(purchase) {
+  if (
+    !confirm(
+      'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
+    )
+  ) {
+    return
+  }
 
-const statusStyles = {
-  paid: 'bg-green-100 text-green-800',
-  pending: 'bg-yellow-100 text-yellow-800',
-  failed: 'bg-red-100 text-red-800',
+  try {
+    await api.post(`/checkout/${purchase.session_id}/cancel`)
+    marketStore.fetchBuyerPurchases() // Refresh list
+  } catch (err) {
+    console.error('Failed to cancel purchase:', err)
+    alert('Failed to cancel purchase. Please try again.')
+  }
 }
 </script>
 
@@ -53,26 +60,26 @@ const statusStyles = {
         </div>
         <router-link
           :to="{ name: 'buyer-marketplace' }"
-          class="inline-flex items-center gap-2 bg-white text-farm-700 font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-farm-50 transition-colors shadow-sm flex-shrink-0"
+          class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm font-medium rounded-xl px-4 py-2 self-start sm:self-auto"
         >
-          🛒 Browse Marketplace
+          <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
         </router-link>
       </div>
     </div>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <!-- Total Purchases -->
       <AppCard variant="gradient" class="!rounded-2xl">
         <div class="flex items-center gap-4">
           <div
-            class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm"
+            class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl flex-shrink-0 shadow-sm"
           >
             📦
           </div>
           <div>
-            <dt class="text-sm font-medium text-farm-100">Total Purchases</dt>
-            <dd class="text-4xl font-bold text-white mt-1">
+            <dt class="text-xs font-medium text-farm-100">Total Purchases</dt>
+            <dd class="text-3xl font-bold text-white mt-0.5">
               {{ marketStore.buyerPurchases.length }}
             </dd>
           </div>
@@ -83,13 +90,13 @@ const statusStyles = {
       <AppCard>
         <div class="flex items-center gap-4">
           <div
-            class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl flex-shrink-0"
+            class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center text-xl flex-shrink-0"
           >
-            📋
+            ✅
           </div>
           <div>
-            <dt class="text-sm font-medium text-gray-500">Active Contracts</dt>
-            <dd class="text-4xl font-bold text-gray-900 mt-1">{{ activePurchases }}</dd>
+            <dt class="text-xs font-medium text-gray-500">Active Contracts</dt>
+            <dd class="text-3xl font-bold text-gray-900 mt-0.5">{{ activePurchases }}</dd>
           </div>
         </div>
       </AppCard>
@@ -98,13 +105,13 @@ const statusStyles = {
       <AppCard>
         <div class="flex items-center gap-4">
           <div
-            class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0"
+            class="w-11 h-11 rounded-xl bg-earth-50 flex items-center justify-center text-xl flex-shrink-0"
           >
             💰
           </div>
           <div>
-            <dt class="text-sm font-medium text-gray-500">Total Spent</dt>
-            <dd class="text-xl font-bold text-gray-900 mt-1">{{ formatCurrency(totalSpent) }}</dd>
+            <dt class="text-xs font-medium text-gray-500">Total Spent</dt>
+            <dd class="text-lg font-bold text-gray-900 mt-0.5">{{ formatCurrency(totalSpent) }}</dd>
           </div>
         </div>
       </AppCard>
@@ -142,50 +149,21 @@ const statusStyles = {
           </p>
           <router-link
             :to="{ name: 'buyer-marketplace' }"
-            class="inline-flex items-center gap-1.5 text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors"
+            class="inline-flex items-center gap-1.5 bg-farm-600 hover:bg-farm-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
-            Browse available contracts →
+            <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
           </router-link>
         </div>
       </AppCard>
 
       <!-- Purchase rows -->
-      <div v-else class="space-y-3">
-        <AppCard
+      <div v-else class="space-y-4">
+        <PurchaseCard
           v-for="purchase in marketStore.buyerPurchases.slice(0, 5)"
           :key="purchase.id"
-          class="hover:border-farm-200 hover:shadow-md transition-all duration-200"
-        >
-          <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3 min-w-0">
-              <div
-                class="w-10 h-10 rounded-xl bg-farm-50 flex items-center justify-center text-xl flex-shrink-0"
-              >
-                🌱
-              </div>
-              <div class="min-w-0">
-                <p class="font-semibold text-gray-900 text-sm truncate">
-                  {{ purchase.contract?.crop_name || 'Forward Contract' }}
-                </p>
-                <p class="text-xs text-gray-500 mt-0.5">
-                  {{ purchase.contract?.quantity_kg ?? '—' }} kg &nbsp;·&nbsp; Harvest
-                  {{ formatDate(purchase.contract?.estimated_harvest_date) }}
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 flex-shrink-0">
-              <span
-                :class="statusStyles[purchase.payment_status] || 'bg-gray-100 text-gray-600'"
-                class="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
-              >
-                {{ purchase.payment_status }}
-              </span>
-              <p class="text-sm font-bold text-gray-900 w-24 text-right">
-                {{ formatCurrency(purchase.amount_paid) }}
-              </p>
-            </div>
-          </div>
-        </AppCard>
+          :purchase="purchase"
+          @cancel="cancelPurchase"
+        />
       </div>
     </div>
   </div>

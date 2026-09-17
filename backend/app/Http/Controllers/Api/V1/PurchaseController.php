@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\HttpCode;
+use App\Constants\PaginationConstants;
+use App\Domain\Marketplace\Actions\VerifyPurchaseAction;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseResource;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
+use App\Jobs\VerifyPurchaseJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,15 +24,33 @@ use Illuminate\Support\Facades\DB;
 final class PurchaseController extends Controller
 {
     public function __construct(
+        private readonly PurchaseRepositoryInterface $purchaseRepository,
+        private readonly VerifyPurchaseAction $verifyPurchaseAction,
         private readonly PayMongoService $payMongoService
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        $purchases = Purchase::where('buyer_id', $request->user()->id)
-            ->with(['contract.farmer.farms'])
-            ->latest()
-            ->paginate(15);
+        $filters = [
+            'search' => $request->query('search'),
+            'sort' => $request->query('sort'),
+        ];
+
+        $perPage = (int) $request->query('per_page', PaginationConstants::PURCHASES_PER_PAGE);
+
+        $purchases = $this->purchaseRepository->getBuyerPurchases(
+            $request->user()->id,
+            $filters,
+            $perPage
+        );
+
+        // Rely on webhooks or explicit user-initiated verification instead of looping API calls.
+        // If fallback is absolutely necessary, dispatch a queued job to verify asynchronously.
+        foreach ($purchases as $purchase) {
+            if ($purchase->payment_status === PaymentStatus::PENDING && $purchase->paymongo_checkout_id) {
+                VerifyPurchaseJob::dispatch($purchase);
+            }
+        }
 
         return PurchaseResource::collection($purchases);
     }
@@ -68,8 +90,9 @@ final class PurchaseController extends Controller
             return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
         }
 
-        $successUrl = config('app.frontend_url').'/checkout/success?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl = config('app.frontend_url').'/checkout/cancel';
+        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
+        $successUrl = $frontendUrl.'/checkout/success?session_id={CHECKOUT_SESSION_ID}';
+        $cancelUrl = $frontendUrl.'/checkout/cancel?session_id={CHECKOUT_SESSION_ID}';
 
         try {
             // Create PayMongo checkout
@@ -99,5 +122,34 @@ final class PurchaseController extends Controller
             'checkout_url' => $checkoutData['checkout_url'],
             'checkout_id' => $checkoutData['checkout_id'],
         ]);
+    }
+
+    public function cancelCheckout(Request $request, string $sessionId): JsonResponse
+    {
+        $purchase = Purchase::where('paymongo_checkout_id', $sessionId)
+            ->where('buyer_id', $request->user()->id)
+            ->where('payment_status', PaymentStatus::PENDING)
+            ->first();
+
+        if ($purchase) {
+            DB::transaction(function () use ($purchase) {
+                $purchase->update(['payment_status' => PaymentStatus::FAILED]);
+                ForwardContract::where('id', $purchase->forward_contract_id)
+                    ->update(['status' => ContractStatus::AVAILABLE]);
+            });
+        }
+
+        return response()->json(['message' => 'Checkout cancelled successfully.']);
+    }
+
+    public function verifyCheckout(Request $request, string $sessionId): JsonResponse
+    {
+        $purchase = Purchase::where('paymongo_checkout_id', $sessionId)
+            ->where('buyer_id', $request->user()->id)
+            ->firstOrFail();
+
+        $purchase = $this->verifyPurchaseAction->execute($purchase);
+
+        return response()->json(['status' => $purchase->payment_status->value]);
     }
 }

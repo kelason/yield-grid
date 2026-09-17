@@ -88,6 +88,8 @@ jobs:
           DB_USERNAME: test
           DB_PASSWORD: test
           REDIS_HOST: 127.0.0.1
+          PAYMONGO_SECRET_KEY: test-secret
+          PAYMONGO_WEBHOOK_SECRET: test-webhook-secret
         run: php ./vendor/bin/pest
 
   # ──────────────────────────────────
