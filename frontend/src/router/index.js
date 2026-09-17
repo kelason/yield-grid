@@ -35,13 +35,24 @@ const router = createRouter({
     {
       path: '/auth',
       component: () => import('../components/templates/AuthLayout.vue'),
-      meta: { requiresGuest: true },
       children: [
-        { path: 'login', name: 'login', component: () => import('../pages/auth/LoginPage.vue') },
+        {
+          path: 'login',
+          name: 'login',
+          component: () => import('../pages/auth/LoginPage.vue'),
+          meta: { requiresGuest: true },
+        },
         {
           path: 'register',
           name: 'register',
           component: () => import('../pages/auth/RegisterPage.vue'),
+          meta: { requiresGuest: true },
+        },
+        {
+          path: 'verify-email',
+          name: 'verify-email',
+          component: () => import('../pages/auth/EmailVerificationCallback.vue'),
+          meta: { requiresAuth: true },
         },
       ],
     },

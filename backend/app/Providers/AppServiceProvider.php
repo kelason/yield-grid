@@ -40,13 +40,24 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         // Prevent auth middleware from redirecting to 'login' route (API-only app)
         Authenticate::redirectUsing(fn () => null);
+
+        // Customize the Email Verification URL to point to the frontend SPA
+        \Illuminate\Auth\Notifications\VerifyEmail::createUrlUsing(function ($notifiable) {
+            $url = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'verification.verify',
+                \Illuminate\Support\Carbon::now()->addMinutes(\Illuminate\Support\Facades\Config::get('auth.verification.expire', 60)),
+                [
+                    'id' => $notifiable->getKey(),
+                    'hash' => sha1($notifiable->getEmailForVerification()),
+                ]
+            );
+
+            return env('FRONTEND_URL', 'http://localhost:5173') . '/auth/verify-email?verify_url=' . urlencode($url);
+        });
 
         // Register authorization policies
         Gate::policy(Plot::class, PlotPolicy::class);
