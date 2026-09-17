@@ -36,4 +36,24 @@ final class EloquentPurchaseRepository implements PurchaseRepositoryInterface
 
         return $query->paginate($perPage);
     }
+
+    public function update(Purchase $purchase, array $data): bool
+    {
+        return $purchase->update($data);
+    }
+
+    public function findByCheckoutId(string $checkoutId, int $buyerId): Purchase
+    {
+        return Purchase::where('paymongo_checkout_id', $checkoutId)
+            ->where('buyer_id', $buyerId)
+            ->firstOrFail();
+    }
+
+    public function findPendingByCheckoutId(string $checkoutId, int $buyerId): ?Purchase
+    {
+        return Purchase::where('paymongo_checkout_id', $checkoutId)
+            ->where('buyer_id', $buyerId)
+            ->where('payment_status', \App\Domain\Marketplace\Enums\PaymentStatus::PENDING)
+            ->first();
+    }
 }

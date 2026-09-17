@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\HttpCode;
 use App\Constants\PaginationConstants;
+use App\Domain\Marketplace\Actions\CancelCheckoutAction;
 use App\Domain\Marketplace\Actions\VerifyPurchaseAction;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
@@ -26,6 +27,7 @@ final class PurchaseController extends Controller
     public function __construct(
         private readonly PurchaseRepositoryInterface $purchaseRepository,
         private readonly VerifyPurchaseAction $verifyPurchaseAction,
+        private readonly CancelCheckoutAction $cancelCheckoutAction,
         private readonly PayMongoService $payMongoService
     ) {}
 
@@ -46,11 +48,6 @@ final class PurchaseController extends Controller
 
         // Rely on webhooks or explicit user-initiated verification instead of looping API calls.
         // If fallback is absolutely necessary, dispatch a queued job to verify asynchronously.
-        foreach ($purchases as $purchase) {
-            if ($purchase->payment_status === PaymentStatus::PENDING && $purchase->paymongo_checkout_id) {
-                VerifyPurchaseJob::dispatch($purchase);
-            }
-        }
 
         return PurchaseResource::collection($purchases);
     }
@@ -90,9 +87,19 @@ final class PurchaseController extends Controller
             return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
         }
 
+        // Create pending purchase FIRST so we can pass its ID in the URL
+        $purchase = Purchase::create([
+            'buyer_id' => $request->user()->id,
+            'forward_contract_id' => $lockedContract->id,
+            'amount_paid' => $lockedContract->total_price,
+            'currency' => $lockedContract->currency,
+            'payment_status' => PaymentStatus::PENDING,
+        ]);
+
         $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
-        $successUrl = $frontendUrl.'/checkout/success?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl = $frontendUrl.'/checkout/cancel?session_id={CHECKOUT_SESSION_ID}';
+        // PayMongo doesn't support template replacement, so we pass our internal purchase ID instead
+        $successUrl = $frontendUrl.'/checkout/success?session_id='.$purchase->id;
+        $cancelUrl = $frontendUrl.'/checkout/cancel?session_id='.$purchase->id;
 
         try {
             // Create PayMongo checkout
@@ -103,19 +110,14 @@ final class PurchaseController extends Controller
                 buyerId: $request->user()->id
             );
         } catch (\Exception $e) {
-            // Revert reservation if API call fails
+            // Revert reservation and delete purchase if API call fails
             $lockedContract->update(['status' => ContractStatus::AVAILABLE]);
+            $purchase->delete();
             throw $e;
         }
 
-        // Create pending purchase
-        $purchase = Purchase::create([
-            'buyer_id' => $request->user()->id,
-            'forward_contract_id' => $lockedContract->id,
+        $purchase->update([
             'paymongo_checkout_id' => $checkoutData['checkout_id'],
-            'amount_paid' => $lockedContract->total_price,
-            'currency' => $lockedContract->currency,
-            'payment_status' => PaymentStatus::PENDING,
         ]);
 
         return response()->json([
@@ -126,17 +128,17 @@ final class PurchaseController extends Controller
 
     public function cancelCheckout(Request $request, string $sessionId): JsonResponse
     {
-        $purchase = Purchase::where('paymongo_checkout_id', $sessionId)
-            ->where('buyer_id', $request->user()->id)
-            ->where('payment_status', PaymentStatus::PENDING)
-            ->first();
+        if (is_numeric($sessionId)) {
+            $purchase = Purchase::where('id', $sessionId)
+                ->where('buyer_id', $request->user()->id)
+                ->where('payment_status', PaymentStatus::PENDING)
+                ->first();
+        } else {
+            $purchase = $this->purchaseRepository->findPendingByCheckoutId($sessionId, $request->user()->id);
+        }
 
         if ($purchase) {
-            DB::transaction(function () use ($purchase) {
-                $purchase->update(['payment_status' => PaymentStatus::FAILED]);
-                ForwardContract::where('id', $purchase->forward_contract_id)
-                    ->update(['status' => ContractStatus::AVAILABLE]);
-            });
+            $this->cancelCheckoutAction->execute($purchase);
         }
 
         return response()->json(['message' => 'Checkout cancelled successfully.']);
@@ -144,9 +146,13 @@ final class PurchaseController extends Controller
 
     public function verifyCheckout(Request $request, string $sessionId): JsonResponse
     {
-        $purchase = Purchase::where('paymongo_checkout_id', $sessionId)
-            ->where('buyer_id', $request->user()->id)
-            ->firstOrFail();
+        if (is_numeric($sessionId)) {
+            $purchase = Purchase::where('id', $sessionId)
+                ->where('buyer_id', $request->user()->id)
+                ->firstOrFail();
+        } else {
+            $purchase = $this->purchaseRepository->findByCheckoutId($sessionId, $request->user()->id);
+        }
 
         $purchase = $this->verifyPurchaseAction->execute($purchase);
 

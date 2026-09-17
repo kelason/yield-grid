@@ -8,20 +8,24 @@ use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\ContractPurchased;
-use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
+use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use App\Domain\Shared\Events\EventDispatcherInterface;
 use Exception;
-use Illuminate\Support\Facades\Log;
+use Psr\Log\LoggerInterface;
 
 final class VerifyPurchaseAction
 {
     public function __construct(
         private readonly PaymentGatewayInterface $paymentGateway,
         private readonly TransactionManagerInterface $transactionManager,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ForwardContractRepositoryInterface $contractRepository,
+        private readonly PurchaseRepositoryInterface $purchaseRepository,
+        private readonly LoggerInterface $logger
     ) {}
 
     /**
@@ -37,6 +41,7 @@ final class VerifyPurchaseAction
 
         try {
             $sessionData = $this->paymentGateway->getCheckoutSession($purchase->paymongo_checkout_id);
+            $this->logger->info('VerifyPurchaseAction debug 1', ['is_paid' => false, 'session_data' => $sessionData]);
 
             // Check for payments array
             $payments = $sessionData['data']['attributes']['payments'] ?? [];
@@ -61,19 +66,21 @@ final class VerifyPurchaseAction
                 $paymentMethodString = $sessionData['data']['attributes']['payment_method_used'] ?? 'card';
             }
 
+            $this->logger->info('VerifyPurchaseAction debug 2', ['is_paid' => $isPaid, 'payment_status' => $purchase->payment_status->value]);
+
             if ($isPaid && $purchase->payment_status === PaymentStatus::PENDING) {
                 $contract = $this->transactionManager->run(function () use ($purchase, $paymentIntentId, $paymentMethodString) {
-                    $contract = ForwardContract::lockForUpdate()->findOrFail($purchase->forward_contract_id);
+                    $contract = $this->contractRepository->findByIdLocked($purchase->forward_contract_id);
                     $paymentMethod = PaymentMethod::tryFrom($paymentMethodString) ?? PaymentMethod::CARD;
 
-                    $purchase->update([
+                    $this->purchaseRepository->update($purchase, [
                         'paymongo_payment_id' => $paymentIntentId,
                         'payment_method' => $paymentMethod,
                         'payment_status' => PaymentStatus::COMPLETED,
                         'purchased_at' => new \DateTimeImmutable,
                     ]);
 
-                    $contract->update(['status' => ContractStatus::SOLD]);
+                    $this->contractRepository->update($contract, ['status' => ContractStatus::SOLD]);
 
                     return $contract;
                 });
@@ -82,7 +89,7 @@ final class VerifyPurchaseAction
                 $this->eventDispatcher->dispatch(new ContractPurchased($purchase, $contract));
             }
         } catch (Exception $e) {
-            Log::error('Failed to verify purchase: '.$e->getMessage());
+            $this->logger->error('Failed to verify purchase: '.$e->getMessage());
             // Silently fail, let webhook handle it later or log it in the caller
         }
 

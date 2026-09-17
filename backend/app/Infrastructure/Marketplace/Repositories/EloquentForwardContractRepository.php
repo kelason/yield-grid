@@ -23,4 +23,14 @@ class EloquentForwardContractRepository implements ForwardContractRepositoryInte
             'total_revenue' => ForwardContract::byFarmer($farmerId)->where('status', 'sold')->sum('total_price'),
         ];
     }
+
+    public function findByIdLocked(int $id): ForwardContract
+    {
+        return ForwardContract::lockForUpdate()->findOrFail($id);
+    }
+
+    public function update(ForwardContract $contract, array $data): bool
+    {
+        return $contract->update($data);
+    }
 }

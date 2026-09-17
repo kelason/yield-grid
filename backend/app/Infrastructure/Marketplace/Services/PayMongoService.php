@@ -87,6 +87,11 @@ class PayMongoService implements PaymentGatewayInterface
             ->get("{$this->baseUrl}/checkout_sessions/{$sessionId}");
 
         if ($response->failed()) {
+            Log::error('Failed to fetch PayMongo checkout session', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'session_id' => $sessionId,
+            ]);
             throw new \RuntimeException('Failed to fetch checkout session from PayMongo.');
         }
 

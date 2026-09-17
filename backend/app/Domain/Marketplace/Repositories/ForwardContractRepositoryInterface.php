@@ -11,4 +11,8 @@ interface ForwardContractRepositoryInterface
     public function create(array $data): ForwardContract;
 
     public function getFarmerStats(int $farmerId): array;
+
+    public function findByIdLocked(int $id): ForwardContract;
+
+    public function update(ForwardContract $contract, array $data): bool;
 }
