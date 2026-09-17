@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFarmingStore } from '../../stores/farming'
+import { useAuthStore } from '../../stores/auth'
 import AppButton from '../../components/atoms/AppButton.vue'
 import AppCard from '../../components/atoms/AppCard.vue'
 import FormField from '../../components/molecules/FormField.vue'
@@ -12,6 +13,7 @@ import PlotDrawer from '../../components/organisms/PlotDrawer.vue'
 const route = useRoute()
 const router = useRouter()
 const farmingStore = useFarmingStore()
+const authStore = useAuthStore()
 
 const farmId = parseInt(route.params.farmId)
 const isSaving = ref(false)
@@ -143,7 +145,13 @@ async function savePlot() {
           <SoilTypeSelect id="plot-soil" label="Soil Type" v-model="form.soil_type" required />
 
           <div class="flex flex-col gap-2 pt-2">
-            <AppButton type="submit" variant="primary" :loading="isSaving" class="w-full">
+            <AppButton
+              type="submit"
+              variant="primary"
+              :loading="isSaving"
+              class="w-full"
+              :disabled="!authStore.isEmailVerified"
+            >
               Save Plot
             </AppButton>
             <AppButton type="button" variant="ghost" @click="cancelDrawing" class="w-full">

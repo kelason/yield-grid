@@ -9,6 +9,43 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
   const userRole = computed(() => user.value?.role)
+  const isEmailVerified = computed(() => user.value?.email_verified_at != null)
+
+  const RESEND_COOLDOWN_SECONDS = 20
+  const COOLDOWN_INTERVAL_MS = 1000
+
+  const resendCooldown = ref(0)
+  let cooldownInterval = null
+
+  function startResendCooldown() {
+    resendCooldown.value = RESEND_COOLDOWN_SECONDS
+    localStorage.setItem('resend_cooldown_start', Date.now().toString())
+    if (cooldownInterval) clearInterval(cooldownInterval)
+    cooldownInterval = setInterval(() => {
+      const start = parseInt(localStorage.getItem('resend_cooldown_start')) || Date.now()
+      const elapsed = Math.floor((Date.now() - start) / 1000)
+      const remaining = RESEND_COOLDOWN_SECONDS - elapsed
+      if (remaining <= 0) {
+        resendCooldown.value = 0
+        clearInterval(cooldownInterval)
+      } else {
+        resendCooldown.value = remaining
+      }
+    }, COOLDOWN_INTERVAL_MS)
+  }
+
+  function checkResendCooldown() {
+    const start = parseInt(localStorage.getItem('resend_cooldown_start'))
+    if (start) {
+      const elapsed = Math.floor((Date.now() - start) / 1000)
+      if (elapsed < RESEND_COOLDOWN_SECONDS) {
+        startResendCooldown()
+      }
+    }
+  }
+
+  // Initialize cooldown check
+  checkResendCooldown()
 
   async function fetchUser() {
     if (!token.value) return
@@ -27,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = response.data.user
     token.value = response.data.token
     localStorage.setItem('auth_token', token.value)
+    startResendCooldown()
   }
 
   async function register(data) {
@@ -34,6 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = response.data.user
     token.value = response.data.token
     localStorage.setItem('auth_token', token.value)
+    startResendCooldown()
   }
 
   async function logout() {
@@ -43,7 +82,27 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       token.value = null
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('resend_cooldown_start')
+      resendCooldown.value = 0
+      if (cooldownInterval) clearInterval(cooldownInterval)
     }
+  }
+
+  async function verifyEmail(url) {
+    const parsedUrl = new URL(url)
+    // Only request the pathname and search parameters relative to the configured API base URL
+    const response = await api.get(parsedUrl.pathname + parsedUrl.search)
+
+    // Refresh user state to update email_verified_at
+    await fetchUser()
+
+    return response.data
+  }
+
+  async function resendVerificationEmail() {
+    const response = await api.post('/email/verification-notification')
+    startResendCooldown()
+    return response.data
   }
 
   return {
@@ -51,9 +110,13 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isAuthenticated,
     userRole,
+    isEmailVerified,
+    resendCooldown,
     fetchUser,
     login,
     register,
     logout,
+    verifyEmail,
+    resendVerificationEmail,
   }
 })

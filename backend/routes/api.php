@@ -50,28 +50,28 @@ Route::prefix('v1')->group(function () {
         // Farming (Farmers only)
         Route::middleware(EnsureUserHasRole::class.':farmer')->group(function () {
             Route::get('/farms', [FarmController::class, 'index']);
-            Route::post('/farms', [FarmController::class, 'store']);
+            Route::post('/farms', [FarmController::class, 'store'])->middleware('verified');
             Route::get('/farms/{farm}/plots', [PlotController::class, 'index']);
-            Route::post('/farms/{farm}/plots', [PlotController::class, 'store']);
+            Route::post('/farms/{farm}/plots', [PlotController::class, 'store'])->middleware('verified');
             Route::get('/plots', [PlotController::class, 'allUserPlots']);
             Route::get('/restricted-zones', [RestrictedZoneController::class, 'index']);
 
             // Crop Recommendations
-            Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware('throttle:5,60');
+            Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware(['throttle:30,1', 'verified']);
             Route::get('/plots/{plot}/recommendations', [CropRecommendationController::class, 'index']);
-            Route::patch('/recommendations/{recommendation}/status', [CropRecommendationController::class, 'updateStatus']);
+            Route::patch('/recommendations/{recommendation}/status', [CropRecommendationController::class, 'updateStatus'])->middleware('verified');
 
             // Forward Contracts
-            Route::post('/recommendations/{recommendation}/publish', [ForwardContractController::class, 'store']);
+            Route::post('/recommendations/{recommendation}/publish', [ForwardContractController::class, 'store'])->middleware('verified');
             Route::get('/farmer/contracts/stats', [ForwardContractController::class, 'stats']);
             Route::get('/farmer/contracts', [ForwardContractController::class, 'index']);
             Route::get('/farmer/contracts/{contract}', [ForwardContractController::class, 'show']);
-            Route::patch('/farmer/contracts/{contract}/cancel', [ForwardContractController::class, 'cancel']);
+            Route::patch('/farmer/contracts/{contract}/cancel', [ForwardContractController::class, 'cancel'])->middleware('verified');
         });
 
         // Buyer Routes
         Route::middleware(EnsureUserHasRole::class.':buyer')->group(function () {
-            Route::post('/market/contracts/{contract}/checkout', [PurchaseController::class, 'checkout'])->middleware('throttle:10,1');
+            Route::post('/market/contracts/{contract}/checkout', [PurchaseController::class, 'checkout'])->middleware(['throttle:10,1', 'verified']);
             Route::post('/checkout/{session_id}/cancel', [PurchaseController::class, 'cancelCheckout']);
             Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout']);
             Route::get('/buyer/purchases', [PurchaseController::class, 'index']);

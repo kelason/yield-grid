@@ -146,21 +146,27 @@ class AgroMonitoringService
     private function registerPolygon(Plot $plot): ?string
     {
         try {
+            $geojsonResult = \Illuminate\Support\Facades\DB::selectOne(
+                'SELECT ST_AsGeoJSON(polygon::geometry) as geojson FROM plots WHERE id = ?', 
+                [$plot->id]
+            );
+            $geometry = $geojsonResult ? json_decode($geojsonResult->geojson, true) : null;
+
             $response = Http::post("{$this->baseUrl}/polygons?appid={$this->apiKey}", [
                 'name' => $plot->name,
                 'geo_json' => [
                     'type' => 'Feature',
-                    'properties' => [],
-                    'geometry' => json_decode($plot->polygon, true),
+                    'properties' => (object) [],
+                    'geometry' => $geometry,
                 ],
             ]);
 
             if ($response->successful()) {
                 return $response->json('id');
             }
-            Log::error('AgroMonitoring create polygon failed', ['body' => $response->body()]);
+            Log::warning('AgroMonitoring create polygon failed (falling back to mock data)', ['body' => $response->body()]);
         } catch (\Exception $e) {
-            Log::error('AgroMonitoring Exception', ['message' => $e->getMessage()]);
+            Log::warning('AgroMonitoring Exception (falling back to mock data)', ['message' => $e->getMessage()]);
         }
 
         return null;

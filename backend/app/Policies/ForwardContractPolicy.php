@@ -31,9 +31,7 @@ final class ForwardContractPolicy
 
     public function create(User $user): bool
     {
-        // @TODO: Re-enable email verification check once the email verification feature is fully implemented
-        // return $user->role === UserRole::FARMER && $user->hasVerifiedEmail();
-        return $user->role === UserRole::FARMER;
+        return $user->role === UserRole::FARMER && $user->hasVerifiedEmail();
     }
 
     public function cancel(User $user, ForwardContract $contract): bool
