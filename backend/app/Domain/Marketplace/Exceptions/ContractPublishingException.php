@@ -6,6 +6,4 @@ namespace App\Domain\Marketplace\Exceptions;
 
 use Exception;
 
-class ContractPublishingException extends Exception
-{
-}
+class ContractPublishingException extends Exception {}

@@ -63,7 +63,7 @@ final class PayMongoWebhookController extends Controller
             return response('Missing checkout ID', HttpCode::OK); // Return 200 to prevent retries
         }
 
-        return DB::transaction(function () use ($checkoutId, $paymentIntentId, $paymentMethod) {
+        $result = DB::transaction(function () use ($checkoutId, $paymentIntentId, $paymentMethod, &$purchase, &$contract) {
             $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->lockForUpdate()->first();
 
             if (! $purchase) {
@@ -87,10 +87,20 @@ final class PayMongoWebhookController extends Controller
 
             $contract->update(['status' => ContractStatus::SOLD]);
 
-            broadcast(new ContractPurchased($purchase, $contract))->toOthers();
-
-            return response('OK', HttpCode::OK);
+            return null; // Signals success
         });
+
+        if ($result !== null) {
+            return $result;
+        }
+
+        try {
+            broadcast(new ContractPurchased($purchase, $contract))->toOthers();
+        } catch (\Exception $e) {
+            Log::error('Webhook broadcast failed: '.$e->getMessage());
+        }
+
+        return response('OK', HttpCode::OK);
     }
 
     private function handlePaymentFailed(array $event): Response

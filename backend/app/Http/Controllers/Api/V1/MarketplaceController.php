@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Constants\PaginationConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ForwardContractResource;
@@ -44,7 +45,9 @@ final class MarketplaceController extends Controller
             default => $query->latest(),
         };
 
-        return ForwardContractResource::collection($query->paginate(12));
+        $perPage = (int) $request->query('per_page', PaginationConstants::MARKETPLACE_PER_PAGE);
+
+        return ForwardContractResource::collection($query->paginate($perPage));
     }
 
     public function show(ForwardContract $contract): ForwardContractResource

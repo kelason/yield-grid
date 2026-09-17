@@ -14,7 +14,7 @@ class EloquentCropRecommendationRepository implements CropRecommendationReposito
     {
         $recommendation = CropRecommendation::with('plot.farm')->find($id);
 
-        if (!$recommendation) {
+        if (! $recommendation) {
             return null;
         }
 

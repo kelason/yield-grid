@@ -6,10 +6,11 @@ namespace App\Infrastructure\Marketplace\Services;
 
 use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class PayMongoService
+class PayMongoService implements PaymentGatewayInterface
 {
     private string $baseUrl;
 
@@ -19,9 +20,9 @@ class PayMongoService
 
     public function __construct()
     {
-        $this->baseUrl = config('services.paymongo.base_url', 'https://api.paymongo.com/v1');
-        $this->secretKey = config('services.paymongo.secret_key', '');
-        $this->webhookSecret = config('services.paymongo.webhook_secret', '');
+        $this->baseUrl = (string) config('services.paymongo.base_url', 'https://api.paymongo.com/v1');
+        $this->secretKey = (string) (config('services.paymongo.secret_key') ?? '');
+        $this->webhookSecret = (string) (config('services.paymongo.webhook_secret') ?? '');
     }
 
     /**
@@ -60,7 +61,7 @@ class PayMongoService
             ],
         ];
 
-        $response = Http::withToken(base64_encode($this->secretKey.':'))
+        $response = Http::withBasicAuth($this->secretKey, '')
             ->post("{$this->baseUrl}/checkout_sessions", $payload);
 
         if ($response->failed()) {
@@ -78,6 +79,23 @@ class PayMongoService
             'checkout_url' => $data['data']['attributes']['checkout_url'],
             'checkout_id' => $data['data']['id'],
         ];
+    }
+
+    public function getCheckoutSession(string $sessionId): array
+    {
+        $response = Http::withBasicAuth($this->secretKey, '')
+            ->get("{$this->baseUrl}/checkout_sessions/{$sessionId}");
+
+        if ($response->failed()) {
+            Log::error('Failed to fetch PayMongo checkout session', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'session_id' => $sessionId,
+            ]);
+            throw new \RuntimeException('Failed to fetch checkout session from PayMongo.');
+        }
+
+        return $response->json();
     }
 
     /**

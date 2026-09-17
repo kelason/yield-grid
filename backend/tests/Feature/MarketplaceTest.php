@@ -212,3 +212,106 @@ it('processes a paymongo webhook successfully', function () {
 
     Event::assertDispatched(ContractPurchased::class);
 });
+
+it('allows a farmer to list their own contracts', function () {
+    $farmer = User::factory()->farmer()->create();
+    $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $recommendation = CropRecommendation::create([
+        'plot_id' => $plot->id,
+        'status' => RecommendationStatus::ACCEPTED,
+        'crop_name' => 'Jasmine Rice',
+        'projected_yield' => 500,
+        'confidence_score' => 90,
+        'reasoning' => 'Good soil',
+    ]);
+
+    ForwardContract::factory()->count(3)->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+    ]);
+
+    $response = $this->actingAs($farmer)->getJson('/api/v1/farmer/contracts');
+
+    $response->assertOk();
+    $response->assertJsonCount(3, 'data');
+    $response->assertJsonStructure([
+        'data' => [
+            '*' => ['id', 'title', 'total_price', 'status'],
+        ],
+        'meta' => ['current_page', 'last_page', 'per_page', 'total'],
+    ]);
+});
+
+it('allows a farmer to fetch their contract stats', function () {
+    $farmer = User::factory()->farmer()->create();
+    $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $recommendation = CropRecommendation::create([
+        'plot_id' => $plot->id,
+        'status' => RecommendationStatus::ACCEPTED,
+        'crop_name' => 'Jasmine Rice',
+        'projected_yield' => 500,
+        'confidence_score' => 90,
+        'reasoning' => 'Good soil',
+    ]);
+
+    ForwardContract::factory()->count(2)->available()->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+    ]);
+
+    ForwardContract::factory()->count(1)->sold()->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+        'total_price' => 1000,
+    ]);
+
+    $response = $this->actingAs($farmer)->getJson('/api/v1/farmer/contracts/stats');
+
+    $response->assertOk();
+    $response->assertJson([
+        'data' => [
+            'total_listed' => 3,
+            'total_sold' => 1,
+            'total_revenue' => 1000,
+        ],
+    ]);
+});
+
+it('allows a buyer to list their own purchases', function () {
+    $buyer = User::factory()->buyer()->create();
+
+    $farmer = User::factory()->farmer()->create();
+    $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $recommendation = CropRecommendation::create([
+        'plot_id' => $plot->id,
+        'status' => RecommendationStatus::ACCEPTED,
+        'crop_name' => 'Jasmine Rice',
+        'projected_yield' => 500,
+        'confidence_score' => 90,
+        'reasoning' => 'Good soil',
+    ]);
+
+    $contract = ForwardContract::factory()->sold()->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+    ]);
+
+    Purchase::factory()->count(2)->create([
+        'buyer_id' => $buyer->id,
+        'forward_contract_id' => $contract->id,
+    ]);
+
+    $response = $this->actingAs($buyer)->getJson('/api/v1/buyer/purchases');
+
+    $response->assertOk();
+    $response->assertJsonCount(2, 'data');
+    $response->assertJsonStructure([
+        'data' => [
+            '*' => ['id', 'amount_paid', 'payment_status', 'contract'],
+        ],
+        'meta' => ['current_page', 'last_page', 'per_page', 'total'],
+    ]);
+});

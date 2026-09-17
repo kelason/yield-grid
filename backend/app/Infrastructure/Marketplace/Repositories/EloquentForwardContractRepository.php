@@ -13,4 +13,24 @@ class EloquentForwardContractRepository implements ForwardContractRepositoryInte
     {
         return ForwardContract::create($data);
     }
+
+    public function getFarmerStats(int $farmerId): array
+    {
+        return [
+            'total_listed' => ForwardContract::byFarmer($farmerId)->count(),
+            'total_sold' => ForwardContract::byFarmer($farmerId)->where('status', 'sold')->count(),
+            'total_reserved' => ForwardContract::byFarmer($farmerId)->where('status', 'reserved')->count(),
+            'total_revenue' => ForwardContract::byFarmer($farmerId)->where('status', 'sold')->sum('total_price'),
+        ];
+    }
+
+    public function findByIdLocked(int $id): ForwardContract
+    {
+        return ForwardContract::lockForUpdate()->findOrFail($id);
+    }
+
+    public function update(ForwardContract $contract, array $data): bool
+    {
+        return $contract->update($data);
+    }
 }

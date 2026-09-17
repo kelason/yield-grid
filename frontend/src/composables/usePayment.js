@@ -16,10 +16,10 @@ export function usePayment() {
         method: 'POST',
       })
 
-      if (response.checkout_url) {
-        checkoutUrl.value = response.checkout_url
+      if (response.data && response.data.checkout_url) {
+        checkoutUrl.value = response.data.checkout_url
         // Redirect to PayMongo hosted checkout page
-        window.location.href = response.checkout_url
+        window.location.href = response.data.checkout_url
       } else {
         throw new Error('No checkout URL returned from server')
       }
