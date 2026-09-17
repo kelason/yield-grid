@@ -1,12 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useApi } from '@/composables/useApi'
+import { PaginationConstants } from '@/constants/pagination'
 
 export const useMarketStore = defineStore('market', () => {
   const api = useApi()
 
   const contracts = ref([])
   const farmerContracts = ref([])
+  const farmerStats = ref({
+    total_listed: 0,
+    total_sold: 0,
+    total_reserved: 0,
+    total_revenue: 0,
+  })
   const buyerPurchases = ref([])
   const activeContract = ref(null)
 
@@ -23,7 +30,26 @@ export const useMarketStore = defineStore('market', () => {
     currentPage: 1,
     lastPage: 1,
     total: 0,
-    perPage: 12,
+    perPage: PaginationConstants.MARKETPLACE_PER_PAGE,
+  })
+
+  const farmerPagination = ref({
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
+    perPage: PaginationConstants.DEFAULT_PER_PAGE,
+  })
+
+  const buyerPurchasesFilters = ref({
+    search: '',
+    sort: 'newest',
+  })
+
+  const buyerPurchasesPagination = ref({
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
+    perPage: PaginationConstants.PURCHASES_PER_PAGE,
   })
 
   const loading = ref({
@@ -45,6 +71,7 @@ export const useMarketStore = defineStore('market', () => {
     try {
       const queryParams = new URLSearchParams()
       queryParams.append('page', page)
+      queryParams.append('per_page', pagination.value.perPage)
 
       if (filters.value.crop) queryParams.append('crop', filters.value.crop)
       if (filters.value.minPrice) queryParams.append('min_price', filters.value.minPrice)
@@ -53,11 +80,7 @@ export const useMarketStore = defineStore('market', () => {
 
       const { data, meta } = (await api.get(`/market/contracts?${queryParams.toString()}`)).data
 
-      if (page === 1) {
-        contracts.value = data
-      } else {
-        contracts.value = [...contracts.value, ...data]
-      }
+      contracts.value = data
 
       if (meta) {
         pagination.value = {
@@ -91,15 +114,34 @@ export const useMarketStore = defineStore('market', () => {
   async function fetchFarmerContracts(page = 1, status = null) {
     loading.value.farmerContracts = true
     try {
-      let url = `/farmer/contracts?page=${page}`
+      let url = `/farmer/contracts?page=${page}&per_page=${farmerPagination.value.perPage}`
       if (status) url += `&status=${status}`
 
       const response = await api.get(url)
       farmerContracts.value = response.data.data || response.data
+
+      const meta = response.data.meta
+      if (meta) {
+        farmerPagination.value = {
+          currentPage: meta.current_page,
+          lastPage: meta.last_page,
+          total: meta.total,
+          perPage: meta.per_page,
+        }
+      }
     } catch (error) {
       console.error('Error fetching farmer contracts:', error)
     } finally {
       loading.value.farmerContracts = false
+    }
+  }
+
+  async function fetchFarmerContractsStats() {
+    try {
+      const response = await api.get('/farmer/contracts/stats')
+      farmerStats.value = response.data.data || response.data
+    } catch (error) {
+      console.error('Error fetching farmer stats:', error)
     }
   }
 
@@ -139,8 +181,26 @@ export const useMarketStore = defineStore('market', () => {
   async function fetchBuyerPurchases(page = 1) {
     loading.value.purchases = true
     try {
-      const response = await api.get(`/buyer/purchases?page=${page}`)
+      const queryParams = new URLSearchParams()
+      queryParams.append('page', page)
+      queryParams.append('per_page', buyerPurchasesPagination.value.perPage)
+      if (buyerPurchasesFilters.value.search)
+        queryParams.append('search', buyerPurchasesFilters.value.search)
+      if (buyerPurchasesFilters.value.sort)
+        queryParams.append('sort', buyerPurchasesFilters.value.sort)
+
+      const response = await api.get(`/buyer/purchases?${queryParams.toString()}`)
       buyerPurchases.value = response.data.data || response.data
+
+      const meta = response.data.meta
+      if (meta) {
+        buyerPurchasesPagination.value = {
+          currentPage: meta.current_page,
+          lastPage: meta.last_page,
+          total: meta.total,
+          perPage: meta.per_page,
+        }
+      }
     } catch (error) {
       console.error('Error fetching purchases:', error)
     } finally {
@@ -159,7 +219,11 @@ export const useMarketStore = defineStore('market', () => {
   return {
     contracts,
     farmerContracts,
+    farmerStats,
+    farmerPagination,
     buyerPurchases,
+    buyerPurchasesFilters,
+    buyerPurchasesPagination,
     activeContract,
     filters,
     pagination,
@@ -169,6 +233,7 @@ export const useMarketStore = defineStore('market', () => {
     fetchMarketContracts,
     fetchContractDetail,
     fetchFarmerContracts,
+    fetchFarmerContractsStats,
     publishContract,
     cancelContract,
     fetchBuyerPurchases,

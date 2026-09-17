@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 
@@ -12,11 +12,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  pagination: {
+    type: Object,
+    required: true,
+  },
+  currentTab: {
+    type: String,
+    default: 'all',
+  },
 })
 
-defineEmits(['cancel-contract', 'view-contract'])
-
-const currentTab = ref('all')
+const emit = defineEmits(['cancel-contract', 'tab-change'])
 
 const tabs = [
   { id: 'all', name: 'All Contracts' },
@@ -26,12 +32,11 @@ const tabs = [
   { id: 'expired', name: 'Expired/Cancelled' },
 ]
 
-const filteredContracts = computed(() => {
-  if (currentTab.value === 'all') return props.contracts
-  if (currentTab.value === 'expired')
-    return props.contracts.filter((c) => ['expired', 'cancelled'].includes(c.status))
-  return props.contracts.filter((c) => c.status === currentTab.value)
-})
+const handleTabChange = (tabId) => {
+  if (tabId !== props.currentTab) {
+    emit('tab-change', tabId)
+  }
+}
 </script>
 
 <template>
@@ -41,7 +46,7 @@ const filteredContracts = computed(() => {
         <button
           v-for="tab in tabs"
           :key="tab.id"
-          @click="currentTab = tab.id"
+          @click="handleTabChange(tab.id)"
           :class="[
             currentTab === tab.id
               ? 'border-farm-500 text-farm-600'
@@ -79,7 +84,7 @@ const filteredContracts = computed(() => {
         Loading contracts...
       </div>
 
-      <div v-else-if="filteredContracts.length === 0" class="p-12 text-center text-gray-500">
+      <div v-else-if="contracts.length === 0" class="p-12 text-center text-gray-500">
         <div
           class="bg-gray-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4"
         >
@@ -133,7 +138,7 @@ const filteredContracts = computed(() => {
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr
-              v-for="contract in filteredContracts"
+              v-for="contract in contracts"
               :key="contract.id"
               class="hover:bg-gray-50 transition-colors"
             >
@@ -157,12 +162,6 @@ const filteredContracts = computed(() => {
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex justify-end gap-3">
-                  <button
-                    @click="$emit('view-contract', contract)"
-                    class="text-farm-600 hover:text-farm-900"
-                  >
-                    View
-                  </button>
                   <button
                     v-if="contract.status === 'available'"
                     @click="$emit('cancel-contract', contract)"

@@ -2,18 +2,20 @@
 
 namespace App\Providers;
 
+use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
+use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
+use App\Domain\Shared\Database\TransactionManagerInterface;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
+use App\Infrastructure\Marketplace\Repositories\EloquentForwardContractRepository;
+use App\Infrastructure\Marketplace\Repositories\EloquentPurchaseRepository;
+use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;
 use Domain\Farming\Models\Plot;
-use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
-use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
-use App\Domain\Shared\Database\TransactionManagerInterface;
-use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
-use App\Infrastructure\Marketplace\Repositories\EloquentForwardContractRepository;
-use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(CropRecommendationRepositoryInterface::class, EloquentCropRecommendationRepository::class);
         $this->app->bind(ForwardContractRepositoryInterface::class, EloquentForwardContractRepository::class);
+        $this->app->bind(PurchaseRepositoryInterface::class, EloquentPurchaseRepository::class);
         $this->app->bind(TransactionManagerInterface::class, LaravelTransactionManager::class);
     }
 

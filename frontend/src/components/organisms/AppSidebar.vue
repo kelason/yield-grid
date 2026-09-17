@@ -109,7 +109,6 @@ function getInitials(name) {
               'group flex items-center pr-2 py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
             ]"
           >
-            <span class="mr-3 text-base leading-none">{{ item.emoji }}</span>
             <svg
               :class="[
                 isActive(item.to) ? 'text-farm-600' : 'text-gray-400 group-hover:text-gray-500',

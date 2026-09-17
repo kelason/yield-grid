@@ -60,7 +60,7 @@ class PayMongoService
             ],
         ];
 
-        $response = Http::withToken(base64_encode($this->secretKey.':'))
+        $response = Http::withBasicAuth($this->secretKey, '')
             ->post("{$this->baseUrl}/checkout_sessions", $payload);
 
         if ($response->failed()) {
@@ -78,6 +78,18 @@ class PayMongoService
             'checkout_url' => $data['data']['attributes']['checkout_url'],
             'checkout_id' => $data['data']['id'],
         ];
+    }
+
+    public function getCheckoutSession(string $sessionId): array
+    {
+        $response = Http::withBasicAuth($this->secretKey, '')
+            ->get("{$this->baseUrl}/checkout_sessions/{$sessionId}");
+
+        if ($response->failed()) {
+            throw new \RuntimeException('Failed to fetch checkout session from PayMongo.');
+        }
+
+        return $response->json();
     }
 
     /**

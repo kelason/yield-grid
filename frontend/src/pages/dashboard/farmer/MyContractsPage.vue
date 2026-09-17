@@ -3,13 +3,15 @@ import { onMounted, onUnmounted } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
-import { BanknotesIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/vue/24/outline'
+import PaginationControls from '@/components/molecules/PaginationControls.vue'
+import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
+  marketStore.fetchFarmerContractsStats()
 
   // Listen for contract purchases
   if (window.Echo) {
@@ -28,7 +30,22 @@ onUnmounted(() => {
 const handleCancel = async (contract) => {
   if (confirm(`Are you sure you want to cancel the listing for "${contract.title}"?`)) {
     await marketStore.cancelContract(contract.id)
+    await marketStore.fetchFarmerContractsStats()
   }
+}
+
+import { ref } from 'vue'
+const currentTab = ref('all')
+
+const handleTabChange = (tabId) => {
+  currentTab.value = tabId
+  const status = tabId === 'all' ? null : tabId
+  marketStore.fetchFarmerContracts(1, status)
+}
+
+const handlePageChange = (page) => {
+  const status = currentTab.value === 'all' ? null : currentTab.value
+  marketStore.fetchFarmerContracts(page, status)
 }
 </script>
 
@@ -46,7 +63,7 @@ const handleCancel = async (contract) => {
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <div
         class="bg-gradient-to-br from-white to-gray-50 overflow-hidden shadow rounded-lg border border-gray-100"
       >
@@ -60,7 +77,29 @@ const handleCancel = async (contract) => {
                 <dt class="text-sm font-medium text-gray-500 truncate">Total Listed</dt>
                 <dd>
                   <div class="text-2xl font-semibold text-gray-900">
-                    {{ marketStore.farmerContracts.length }}
+                    {{ marketStore.farmerStats.total_listed }}
+                  </div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-gradient-to-br from-white to-gray-50 overflow-hidden shadow rounded-lg border border-gray-100"
+      >
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+              <ClockIcon class="h-6 w-6 text-yellow-600" aria-hidden="true" />
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Reserved</dt>
+                <dd>
+                  <div class="text-2xl font-semibold text-gray-900">
+                    {{ marketStore.farmerStats.total_reserved }}
                   </div>
                 </dd>
               </dl>
@@ -82,7 +121,7 @@ const handleCancel = async (contract) => {
                 <dt class="text-sm font-medium text-gray-500 truncate">Total Sold</dt>
                 <dd>
                   <div class="text-2xl font-semibold text-gray-900">
-                    {{ marketStore.farmerContracts.filter((c) => c.status === 'sold').length }}
+                    {{ marketStore.farmerStats.total_sold }}
                   </div>
                 </dd>
               </dl>
@@ -104,12 +143,7 @@ const handleCancel = async (contract) => {
                 <dt class="text-sm font-medium text-white/80 truncate">Total Revenue</dt>
                 <dd>
                   <div class="text-2xl font-semibold text-white">
-                    ₱{{
-                      marketStore.farmerContracts
-                        .filter((c) => c.status === 'sold')
-                        .reduce((sum, c) => sum + parseFloat(c.total_price), 0)
-                        .toLocaleString()
-                    }}
+                    ₱{{ parseFloat(marketStore.farmerStats.total_revenue || 0).toLocaleString() }}
                   </div>
                 </dd>
               </dl>
@@ -123,7 +157,18 @@ const handleCancel = async (contract) => {
     <FarmerContractsList
       :contracts="marketStore.farmerContracts"
       :loading="marketStore.loading.farmerContracts"
+      :pagination="marketStore.farmerPagination"
+      :current-tab="currentTab"
       @cancel-contract="handleCancel"
+      @tab-change="handleTabChange"
+    />
+
+    <!-- Pagination -->
+    <PaginationControls
+      :current-page="marketStore.farmerPagination.currentPage"
+      :last-page="marketStore.farmerPagination.lastPage"
+      :total="marketStore.farmerPagination.total"
+      @page-change="handlePageChange"
     />
   </div>
 </template>

@@ -27,7 +27,7 @@ final class PublishContractAction
     {
         $recommendation = $this->recommendationRepository->findByIdAndFarmer($dto->recommendationId, $dto->farmerId);
 
-        if (!$recommendation) {
+        if (! $recommendation) {
             throw new UnauthorizedContractPublishingException('You do not own this recommendation or it does not exist.');
         }
 

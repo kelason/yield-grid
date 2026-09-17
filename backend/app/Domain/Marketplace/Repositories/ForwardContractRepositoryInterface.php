@@ -9,4 +9,6 @@ use App\Domain\Marketplace\Models\ForwardContract;
 interface ForwardContractRepositoryInterface
 {
     public function create(array $data): ForwardContract;
+
+    public function getFarmerStats(int $farmerId): array;
 }

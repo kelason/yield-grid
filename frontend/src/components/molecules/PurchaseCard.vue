@@ -1,9 +1,5 @@
 <script setup>
-import StatusBadge from '../atoms/StatusBadge.vue'
-import PriceTag from '../atoms/PriceTag.vue'
-import PaymentMethodIcon from '../atoms/PaymentMethodIcon.vue'
-import { CalendarIcon, DocumentTextIcon, BuildingStorefrontIcon } from '@heroicons/vue/24/outline'
-import { format } from 'date-fns'
+import AppCard from '@/components/atoms/AppCard.vue'
 
 defineProps({
   purchase: {
@@ -12,66 +8,93 @@ defineProps({
   },
 })
 
-function formatDate(dateString) {
-  if (!dateString) return 'Pending'
-  try {
-    return format(new Date(dateString), 'MMM d, yyyy h:mm a')
-  } catch {
-    return dateString
-  }
+defineEmits(['cancel'])
+
+const statusStyles = {
+  completed: 'bg-green-50 text-green-700 border border-green-200/60',
+  pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200/60',
+  failed: 'bg-red-50 text-red-700 border border-red-200/60',
+}
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—'
+  return new Intl.DateTimeFormat('en-PH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(dateStr))
 }
 </script>
 
 <template>
-  <div
-    class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 p-5 hover:border-farm-300 transition-colors"
+  <AppCard
+    class="group hover:border-farm-300 hover:shadow-lg transition-all duration-300 bg-white"
+    body-class="p-5"
   >
-    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-      <!-- Contract Info -->
-      <div class="flex-grow">
-        <div class="flex items-center gap-2 mb-2">
-          <StatusBadge :status="purchase.payment_status" size="sm" />
-          <span class="text-xs text-gray-500">{{ formatDate(purchase.purchased_at) }}</span>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      <!-- Left: crop info -->
+      <div class="flex items-center gap-4 min-w-0">
+        <div
+          class="w-12 h-12 rounded-2xl bg-gradient-to-br from-farm-50 to-farm-100/50 flex items-center justify-center text-2xl flex-shrink-0 border border-farm-100"
+        >
+          🌱
         </div>
-
-        <h3 class="text-lg font-bold text-gray-900 mb-1">
-          {{ purchase.contract?.title || 'Unknown Contract' }}
-        </h3>
-
-        <div class="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-sm text-gray-600">
-          <div class="flex items-center">
-            <BuildingStorefrontIcon class="h-4 w-4 mr-1.5 text-gray-400" />
-            {{ purchase.contract?.farmer?.name || 'Farmer' }}
-          </div>
-          <div class="flex items-center">
-            <DocumentTextIcon class="h-4 w-4 mr-1.5 text-gray-400" />
-            {{ purchase.contract?.quantity_kg || 0 }}kg {{ purchase.contract?.crop_name }}
-          </div>
-          <div class="flex items-center">
-            <CalendarIcon class="h-4 w-4 mr-1.5 text-gray-400" />
-            Harvest: {{ purchase.contract?.estimated_harvest_date }}
+        <div class="min-w-0">
+          <h3 class="font-bold text-gray-900 text-[17px] leading-tight truncate">
+            {{ purchase.contract?.crop_name || 'Forward Contract' }}
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-gray-500 mt-1">
+            <span class="font-medium text-gray-700"
+              >{{ purchase.contract?.quantity_kg ?? '—' }} kg</span
+            >
+            <span class="text-gray-300 hidden sm:inline">•</span>
+            <span>Harvest {{ formatDate(purchase.contract?.estimated_harvest_date) }}</span>
+            <span class="text-gray-300 hidden sm:inline">•</span>
+            <span>Purchased {{ formatDate(purchase.created_at) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Payment Info -->
+      <!-- Right: status + amount + actions -->
       <div
-        class="flex flex-col items-start sm:items-end bg-gray-50 p-4 rounded-md sm:min-w-[200px]"
+        class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-gray-100"
       >
-        <div class="text-xs text-gray-500 mb-1">Total Paid</div>
-        <PriceTag
-          :amount="purchase.amount_paid"
-          :currency="purchase.currency"
-          size="md"
-          class="mb-2"
-        />
+        <div class="flex items-center gap-4">
+          <span
+            :class="
+              statusStyles[purchase.payment_status] ||
+              'bg-gray-50 text-gray-600 border border-gray-200'
+            "
+            class="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+          >
+            {{ purchase.payment_status === 'completed' ? 'paid' : purchase.payment_status }}
+          </span>
 
-        <div class="flex items-center gap-2 mt-auto">
-          <span class="text-xs text-gray-500">via</span>
-          <PaymentMethodIcon v-if="purchase.payment_method" :method="purchase.payment_method" />
-          <span v-else class="text-xs text-gray-400 italic">Not set</span>
+          <div class="text-right min-w-[100px]">
+            <p class="text-lg font-extrabold text-gray-900 tracking-tight leading-none">
+              {{ formatCurrency(purchase.amount_paid) }}
+            </p>
+            <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wider mt-1.5">
+              {{ purchase.payment_method || '—' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions (fixed width reserved so price aligns consistently across all rows) -->
+        <div class="w-[85px] flex justify-end flex-shrink-0">
+          <button
+            v-if="purchase.payment_status === 'pending'"
+            @click="$emit('cancel', purchase)"
+            class="text-xs font-semibold text-red-600 hover:text-white border border-red-200 hover:bg-red-500 hover:border-red-500 px-3 py-1.5 rounded-xl transition-all duration-200 shadow-sm w-full text-center"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
-  </div>
+  </AppCard>
 </template>

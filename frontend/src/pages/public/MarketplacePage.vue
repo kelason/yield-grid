@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import ContractFilter from '@/components/molecules/ContractFilter.vue'
 import ContractGrid from '@/components/organisms/ContractGrid.vue'
+import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import CheckoutSummary from '@/components/organisms/CheckoutSummary.vue'
 import { usePayment } from '@/composables/usePayment'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
@@ -20,10 +21,8 @@ const handleSearch = () => {
   marketStore.fetchMarketContracts(1)
 }
 
-const loadMore = () => {
-  if (marketStore.pagination.currentPage < marketStore.pagination.lastPage) {
-    marketStore.fetchMarketContracts(marketStore.pagination.currentPage + 1)
-  }
+const handlePageChange = (page) => {
+  marketStore.fetchMarketContracts(page)
 }
 
 const handleViewContract = async (contract) => {
@@ -49,11 +48,6 @@ const handleConfirmCheckout = async () => {
             Secure your supply directly from Filipino farmers at a fixed price.
           </p>
         </div>
-        <span
-          class="inline-flex items-center gap-1.5 bg-white/10 rounded-lg px-3 py-1.5 text-sm font-medium self-start sm:self-auto"
-        >
-          🌾 Forward Contracts
-        </span>
       </div>
     </div>
 
@@ -64,9 +58,17 @@ const handleConfirmCheckout = async () => {
     <ContractGrid
       :contracts="marketStore.contracts"
       :loading="marketStore.loading.contracts"
-      :has-more="marketStore.pagination.currentPage < marketStore.pagination.lastPage"
-      @load-more="loadMore"
       @view-contract="handleViewContract"
+    />
+
+    <PaginationControls
+      v-if="!marketStore.loading.contracts"
+      :current-page="marketStore.pagination.currentPage"
+      :last-page="marketStore.pagination.lastPage"
+      :total-items="marketStore.pagination.total"
+      :per-page="marketStore.pagination.perPage"
+      @page-change="handlePageChange"
+      class="mt-6"
     />
 
     <!-- Centered Modal for Checkout -->
@@ -85,6 +87,7 @@ const handleConfirmCheckout = async () => {
         <div
           class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all"
         >
+          <div class="h-2 bg-gradient-to-r from-farm-500 to-farm-700 w-full"></div>
           <!-- Header -->
           <div
             class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100 z-10"
@@ -101,7 +104,7 @@ const handleConfirmCheckout = async () => {
           </div>
 
           <!-- Content -->
-          <div class="flex-1 overflow-y-auto p-0 bg-gray-50 relative">
+          <div class="flex-1 overflow-y-auto p-0 bg-white relative">
             <div v-if="marketStore.loading.details" class="flex justify-center items-center h-64">
               <svg
                 class="animate-spin h-8 w-8 text-farm-500"

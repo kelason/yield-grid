@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Constants\HttpCode;
+use App\Constants\PaginationConstants;
 use App\Domain\Marketplace\Actions\PublishContractAction;
 use App\Domain\Marketplace\DTOs\PublishContractDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Exceptions\ContractPublishingException;
+use App\Domain\Marketplace\Exceptions\UnauthorizedContractPublishingException;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublishContractRequest;
 use App\Http\Resources\ForwardContractResource;
@@ -19,6 +23,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class ForwardContractController extends Controller
 {
+    public function __construct(
+        private readonly ForwardContractRepositoryInterface $contractRepository
+    ) {}
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', ForwardContract::class);
@@ -29,7 +37,18 @@ final class ForwardContractController extends Controller
             $query->where('status', $request->query('status'));
         }
 
-        return ForwardContractResource::collection($query->paginate(15));
+        $perPage = (int) $request->query('per_page', PaginationConstants::DEFAULT_PER_PAGE);
+
+        return ForwardContractResource::collection($query->paginate($perPage));
+    }
+
+    public function stats(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', ForwardContract::class);
+
+        $stats = $this->contractRepository->getFarmerStats($request->user()->id);
+
+        return response()->json(['data' => $stats]);
     }
 
     public function show(ForwardContract $contract): ForwardContractResource
@@ -61,14 +80,14 @@ final class ForwardContractController extends Controller
 
         try {
             $contract = $action->execute($dto);
-        } catch (\App\Domain\Marketplace\Exceptions\UnauthorizedContractPublishingException $e) {
+        } catch (UnauthorizedContractPublishingException $e) {
             return response()->json(['message' => $e->getMessage()], HttpCode::FORBIDDEN);
-        } catch (\App\Domain\Marketplace\Exceptions\ContractPublishingException $e) {
+        } catch (ContractPublishingException $e) {
             return response()->json([
                 'message' => 'The given data was invalid.',
                 'errors' => [
-                    'recommendation' => [$e->getMessage()]
-                ]
+                    'recommendation' => [$e->getMessage()],
+                ],
             ], HttpCode::UNPROCESSABLE_ENTITY);
         }
 

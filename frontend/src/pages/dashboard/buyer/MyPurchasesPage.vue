@@ -1,39 +1,71 @@
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
+import { ShoppingCartIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/atoms/AppCard.vue'
+import SearchInput from '@/components/molecules/SearchInput.vue'
+import SortSelect from '@/components/molecules/SortSelect.vue'
+import PaginationControls from '@/components/molecules/PaginationControls.vue'
+import PurchaseCard from '@/components/molecules/PurchaseCard.vue'
+import { useApi } from '@/composables/useApi'
 
 const marketStore = useMarketStore()
+const api = useApi()
 
 onMounted(() => {
   marketStore.fetchBuyerPurchases()
 })
+
+let searchTimeout = null
+watch(
+  () => marketStore.buyerPurchasesFilters.search,
+  () => {
+    clearTimeout(searchTimeout)
+    searchTimeout = setTimeout(() => {
+      marketStore.fetchBuyerPurchases(1)
+    }, 300)
+  },
+)
+
+watch(
+  () => marketStore.buyerPurchasesFilters.sort,
+  () => {
+    marketStore.fetchBuyerPurchases(1)
+  },
+)
 
 const totalSpent = computed(() =>
   marketStore.buyerPurchases.reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0),
 )
 
 const activePurchases = computed(
-  () => marketStore.buyerPurchases.filter((p) => p.payment_status === 'paid').length,
+  () => marketStore.buyerPurchases.filter((p) => p.payment_status === 'completed').length,
+)
+
+const totalOrders = computed(
+  () => marketStore.buyerPurchases.filter((p) => p.payment_status !== 'failed').length,
 )
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—'
-  return new Intl.DateTimeFormat('en-PH', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(dateStr))
-}
+async function cancelPurchase(purchase) {
+  if (
+    !confirm(
+      'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
+    )
+  ) {
+    return
+  }
 
-const statusStyles = {
-  paid: 'bg-green-100 text-green-800',
-  pending: 'bg-yellow-100 text-yellow-800',
-  failed: 'bg-red-100 text-red-800',
+  try {
+    await api.post(`/checkout/${purchase.session_id}/cancel`)
+    marketStore.fetchBuyerPurchases() // Refresh list
+  } catch (err) {
+    console.error('Failed to cancel purchase:', err)
+    alert('Failed to cancel purchase. Please try again.')
+  }
 }
 </script>
 
@@ -50,7 +82,7 @@ const statusStyles = {
           :to="{ name: 'buyer-marketplace' }"
           class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm font-medium rounded-xl px-4 py-2 self-start sm:self-auto"
         >
-          🛒 Browse More
+          <ShoppingCartIcon class="w-5 h-5" /> Browse More
         </router-link>
       </div>
     </div>
@@ -67,7 +99,7 @@ const statusStyles = {
           <div>
             <dt class="text-xs font-medium text-farm-100">Total Orders</dt>
             <dd class="text-3xl font-bold text-white mt-0.5">
-              {{ marketStore.buyerPurchases.length }}
+              {{ totalOrders }}
             </dd>
           </div>
         </div>
@@ -102,6 +134,34 @@ const statusStyles = {
       </AppCard>
     </div>
 
+    <!-- Controls: Search and Sort -->
+    <div class="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-lg p-4">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <!-- Search -->
+        <div class="w-full md:w-1/3">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5 ml-1">Search Crop</label>
+          <SearchInput
+            v-model="marketStore.buyerPurchasesFilters.search"
+            placeholder="e.g. Rice, Corn..."
+          />
+        </div>
+
+        <!-- Sort -->
+        <div class="w-full md:w-1/4">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5 ml-1">Sort By</label>
+          <SortSelect
+            v-model="marketStore.buyerPurchasesFilters.sort"
+            :options="[
+              { value: 'newest', label: 'Newest First' },
+              { value: 'oldest', label: 'Oldest First' },
+              { value: 'highest_price', label: 'Highest Price' },
+              { value: 'lowest_price', label: 'Lowest Price' },
+            ]"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- Loading -->
     <AppCard v-if="marketStore.loading.purchases">
       <div class="animate-pulse space-y-4">
@@ -123,55 +183,27 @@ const statusStyles = {
           :to="{ name: 'buyer-marketplace' }"
           class="inline-flex items-center gap-1.5 bg-farm-600 hover:bg-farm-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
         >
-          🛒 Browse Marketplace
+          <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
         </router-link>
       </div>
     </AppCard>
 
     <!-- Purchase List -->
-    <div v-else class="space-y-3">
-      <AppCard
+    <div v-else class="space-y-4">
+      <PurchaseCard
         v-for="purchase in marketStore.buyerPurchases"
         :key="purchase.id"
-        class="hover:border-farm-200 hover:shadow-md transition-all duration-200"
-      >
-        <div class="flex items-center justify-between gap-4 flex-wrap">
-          <!-- Left: crop info -->
-          <div class="flex items-center gap-3 min-w-0">
-            <div
-              class="w-11 h-11 rounded-xl bg-farm-50 flex items-center justify-center text-xl flex-shrink-0"
-            >
-              🌱
-            </div>
-            <div class="min-w-0">
-              <p class="font-semibold text-gray-900 truncate">
-                {{ purchase.contract?.crop_name || 'Forward Contract' }}
-              </p>
-              <p class="text-xs text-gray-500 mt-0.5">
-                {{ purchase.contract?.quantity_kg ?? '—' }} kg &nbsp;·&nbsp; Harvest
-                {{ formatDate(purchase.contract?.estimated_harvest_date) }} &nbsp;·&nbsp; Purchased
-                {{ formatDate(purchase.created_at) }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Right: status + amount -->
-          <div class="flex items-center gap-3 flex-shrink-0">
-            <span
-              :class="statusStyles[purchase.payment_status] || 'bg-gray-100 text-gray-600'"
-              class="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
-            >
-              {{ purchase.payment_status }}
-            </span>
-            <div class="text-right">
-              <p class="text-sm font-bold text-gray-900">
-                {{ formatCurrency(purchase.amount_paid) }}
-              </p>
-              <p class="text-xs text-gray-400">{{ purchase.payment_method || '—' }}</p>
-            </div>
-          </div>
-        </div>
-      </AppCard>
+        :purchase="purchase"
+        @cancel="cancelPurchase"
+      />
     </div>
+
+    <!-- Pagination -->
+    <PaginationControls
+      :current-page="marketStore.buyerPurchasesPagination.currentPage"
+      :last-page="marketStore.buyerPurchasesPagination.lastPage"
+      :total="marketStore.buyerPurchasesPagination.total"
+      @page-change="marketStore.fetchBuyerPurchases"
+    />
   </div>
 </template>

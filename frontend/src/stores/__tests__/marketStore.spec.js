@@ -36,7 +36,7 @@ describe('marketStore', () => {
 
     await store.fetchMarketContracts()
 
-    expect(mockGet).toHaveBeenCalledWith('/market/contracts?page=1&sort=newest')
+    expect(mockGet).toHaveBeenCalledWith('/market/contracts?page=1&per_page=12&sort=newest')
     expect(store.contracts).toEqual(mockData.data)
     expect(store.loading.contracts).toBe(false)
   })

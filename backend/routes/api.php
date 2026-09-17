@@ -63,6 +63,7 @@ Route::prefix('v1')->group(function () {
 
             // Forward Contracts
             Route::post('/recommendations/{recommendation}/publish', [ForwardContractController::class, 'store']);
+            Route::get('/farmer/contracts/stats', [ForwardContractController::class, 'stats']);
             Route::get('/farmer/contracts', [ForwardContractController::class, 'index']);
             Route::get('/farmer/contracts/{contract}', [ForwardContractController::class, 'show']);
             Route::patch('/farmer/contracts/{contract}/cancel', [ForwardContractController::class, 'cancel']);
@@ -71,6 +72,8 @@ Route::prefix('v1')->group(function () {
         // Buyer Routes
         Route::middleware(EnsureUserHasRole::class.':buyer')->group(function () {
             Route::post('/market/contracts/{contract}/checkout', [PurchaseController::class, 'checkout'])->middleware('throttle:10,1');
+            Route::post('/checkout/{session_id}/cancel', [PurchaseController::class, 'cancelCheckout']);
+            Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout']);
             Route::get('/buyer/purchases', [PurchaseController::class, 'index']);
             Route::get('/buyer/purchases/{purchase}', [PurchaseController::class, 'show']);
         });
