@@ -15,11 +15,11 @@ use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseResource;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
+use App\Jobs\VerifyPurchaseJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 final class PurchaseController extends Controller
 {
@@ -44,14 +44,11 @@ final class PurchaseController extends Controller
             $perPage
         );
 
-        // Auto-verify pending purchases as a fallback for missing webhooks/redirects
+        // Rely on webhooks or explicit user-initiated verification instead of looping API calls.
+        // If fallback is absolutely necessary, dispatch a queued job to verify asynchronously.
         foreach ($purchases as $purchase) {
             if ($purchase->payment_status === PaymentStatus::PENDING && $purchase->paymongo_checkout_id) {
-                try {
-                    $this->verifyPurchaseAction->execute($purchase);
-                } catch (\Exception $e) {
-                    Log::warning("Failed to auto-verify purchase {$purchase->id}: ".$e->getMessage());
-                }
+                VerifyPurchaseJob::dispatch($purchase);
             }
         }
 
@@ -93,7 +90,7 @@ final class PurchaseController extends Controller
             return response()->json(['message' => 'Contract is no longer available.'], HttpCode::CONFLICT);
         }
 
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
         $successUrl = $frontendUrl.'/checkout/success?session_id={CHECKOUT_SESSION_ID}';
         $cancelUrl = $frontendUrl.'/checkout/cancel?session_id={CHECKOUT_SESSION_ID}';
 

@@ -6,12 +6,16 @@ use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInter
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
+use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use App\Domain\Shared\Database\TransactionManagerInterface;
+use App\Domain\Shared\Events\EventDispatcherInterface;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
 use App\Infrastructure\Marketplace\Repositories\EloquentForwardContractRepository;
 use App\Infrastructure\Marketplace\Repositories\EloquentPurchaseRepository;
+use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Infrastructure\Shared\Database\LaravelTransactionManager;
+use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;
@@ -31,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ForwardContractRepositoryInterface::class, EloquentForwardContractRepository::class);
         $this->app->bind(PurchaseRepositoryInterface::class, EloquentPurchaseRepository::class);
         $this->app->bind(TransactionManagerInterface::class, LaravelTransactionManager::class);
+
+        $this->app->bind(PaymentGatewayInterface::class, PayMongoService::class);
+        $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
     }
 
     /**

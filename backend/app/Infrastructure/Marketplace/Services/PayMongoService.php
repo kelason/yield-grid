@@ -6,10 +6,11 @@ namespace App\Infrastructure\Marketplace\Services;
 
 use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class PayMongoService
+class PayMongoService implements PaymentGatewayInterface
 {
     private string $baseUrl;
 
@@ -19,9 +20,9 @@ class PayMongoService
 
     public function __construct()
     {
-        $this->baseUrl = config('services.paymongo.base_url', 'https://api.paymongo.com/v1');
-        $this->secretKey = config('services.paymongo.secret_key', '');
-        $this->webhookSecret = config('services.paymongo.webhook_secret', '');
+        $this->baseUrl = (string) config('services.paymongo.base_url', 'https://api.paymongo.com/v1');
+        $this->secretKey = (string) (config('services.paymongo.secret_key') ?? '');
+        $this->webhookSecret = (string) (config('services.paymongo.webhook_secret') ?? '');
     }
 
     /**

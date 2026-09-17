@@ -65,8 +65,7 @@ const handleConfirmCheckout = async () => {
       v-if="!marketStore.loading.contracts"
       :current-page="marketStore.pagination.currentPage"
       :last-page="marketStore.pagination.lastPage"
-      :total-items="marketStore.pagination.total"
-      :per-page="marketStore.pagination.perPage"
+      :total="marketStore.pagination.total"
       @page-change="handlePageChange"
       class="mt-6"
     />

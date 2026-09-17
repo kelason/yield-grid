@@ -10,14 +10,18 @@ use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\ContractPurchased;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
-use App\Infrastructure\Marketplace\Services\PayMongoService;
+use App\Domain\Marketplace\Services\PaymentGatewayInterface;
+use App\Domain\Shared\Database\TransactionManagerInterface;
+use App\Domain\Shared\Events\EventDispatcherInterface;
 use Exception;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 final class VerifyPurchaseAction
 {
     public function __construct(
-        private readonly PayMongoService $payMongoService
+        private readonly PaymentGatewayInterface $paymentGateway,
+        private readonly TransactionManagerInterface $transactionManager,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {}
 
     /**
@@ -32,7 +36,7 @@ final class VerifyPurchaseAction
         }
 
         try {
-            $sessionData = $this->payMongoService->getCheckoutSession($purchase->paymongo_checkout_id);
+            $sessionData = $this->paymentGateway->getCheckoutSession($purchase->paymongo_checkout_id);
 
             // Check for payments array
             $payments = $sessionData['data']['attributes']['payments'] ?? [];
@@ -58,7 +62,7 @@ final class VerifyPurchaseAction
             }
 
             if ($isPaid && $purchase->payment_status === PaymentStatus::PENDING) {
-                DB::transaction(function () use ($purchase, $paymentIntentId, $paymentMethodString) {
+                $contract = $this->transactionManager->run(function () use ($purchase, $paymentIntentId, $paymentMethodString) {
                     $contract = ForwardContract::lockForUpdate()->findOrFail($purchase->forward_contract_id);
                     $paymentMethod = PaymentMethod::tryFrom($paymentMethodString) ?? PaymentMethod::CARD;
 
@@ -66,14 +70,19 @@ final class VerifyPurchaseAction
                         'paymongo_payment_id' => $paymentIntentId,
                         'payment_method' => $paymentMethod,
                         'payment_status' => PaymentStatus::COMPLETED,
-                        'purchased_at' => now(),
+                        'purchased_at' => new \DateTimeImmutable,
                     ]);
 
                     $contract->update(['status' => ContractStatus::SOLD]);
-                    broadcast(new ContractPurchased($purchase, $contract))->toOthers();
+
+                    return $contract;
                 });
+
+                // Dispatch event outside transaction so Reverb connection errors don't rollback the database changes
+                $this->eventDispatcher->dispatch(new ContractPurchased($purchase, $contract));
             }
         } catch (Exception $e) {
+            Log::error('Failed to verify purchase: '.$e->getMessage());
             // Silently fail, let webhook handle it later or log it in the caller
         }
 

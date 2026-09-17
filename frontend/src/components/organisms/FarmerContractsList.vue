@@ -1,5 +1,4 @@
 <script setup>
-
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 
