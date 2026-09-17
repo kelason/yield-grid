@@ -16,9 +16,12 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
+    "@sentry/vite-plugin": "^5.4.0",
+    "@sentry/vue": "^10.75.0",
     "@turf/bbox-polygon": "^7.4.0",
     "@turf/boolean-intersects": "^7.4.0",
     "@turf/helpers": "^7.4.0",
+    "@unhead/vue": "^3.4.1",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.20.0",
     "chart.js": "^4.5.1",
@@ -35,6 +38,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitest/eslint-plugin": "^1.6.23",
     "@vue/test-utils": "^2.4.11",

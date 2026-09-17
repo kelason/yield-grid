@@ -26,12 +26,12 @@ final class CancelCheckoutAction
     {
         $this->transactionManager->run(function () use ($purchase) {
             $this->purchaseRepository->update($purchase, [
-                'payment_status' => PaymentStatus::FAILED
+                'payment_status' => PaymentStatus::FAILED,
             ]);
 
             $contract = $this->contractRepository->findByIdLocked($purchase->forward_contract_id);
             $this->contractRepository->update($contract, [
-                'status' => ContractStatus::AVAILABLE
+                'status' => ContractStatus::AVAILABLE,
             ]);
         });
     }

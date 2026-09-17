@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Marketplace\Repositories;
 
 use App\Constants\PaginationConstants;
+use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -53,7 +54,7 @@ final class EloquentPurchaseRepository implements PurchaseRepositoryInterface
     {
         return Purchase::where('paymongo_checkout_id', $checkoutId)
             ->where('buyer_id', $buyerId)
-            ->where('payment_status', \App\Domain\Marketplace\Enums\PaymentStatus::PENDING)
+            ->where('payment_status', PaymentStatus::PENDING)
             ->first();
     }
 }

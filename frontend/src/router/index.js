@@ -122,6 +122,16 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: '/500',
+      name: 'server-error',
+      component: () => import('@/pages/error/ServerErrorPage.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/pages/error/NotFoundPage.vue'),
+    },
   ],
 })
 
