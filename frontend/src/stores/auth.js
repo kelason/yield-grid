@@ -89,7 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function verifyEmail(url) {
-    const parsedUrl = new URL(url);
+    const parsedUrl = new URL(url)
     // Only request the pathname and search parameters relative to the configured API base URL
     const response = await api.get(parsedUrl.pathname + parsedUrl.search)
 

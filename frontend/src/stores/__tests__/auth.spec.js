@@ -53,7 +53,7 @@ describe('Auth Store', () => {
 
     const result = await store.verifyEmail(url)
 
-    expect(api.get).toHaveBeenNthCalledWith(1, url)
+    expect(api.get).toHaveBeenNthCalledWith(1, '/api/email/verify/1/hash?signature=xyz')
     expect(api.get).toHaveBeenNthCalledWith(2, '/user')
     expect(result).toEqual({ message: 'Verified' })
     expect(store.user.email_verified_at).not.toBeNull()
