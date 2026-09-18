@@ -2,11 +2,11 @@
 
 namespace App\Auth\Controllers;
 
+use App\Auth\Actions\ResetPasswordAction;
+use App\Auth\Actions\SendPasswordResetLinkAction;
 use App\Auth\Requests\ForgotPasswordRequest;
 use App\Auth\Requests\ResetPasswordRequest;
 use App\Http\Controllers\Controller;
-use App\Auth\Actions\ResetPasswordAction;
-use App\Auth\Actions\SendPasswordResetLinkAction;
 use Domain\Users\DTOs\ForgotPasswordDTO;
 use Domain\Users\DTOs\ResetPasswordDTO;
 use Illuminate\Http\JsonResponse;
