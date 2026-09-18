@@ -1,12 +1,12 @@
 <?php
 
 use Domain\Users\Models\User;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
@@ -23,7 +23,7 @@ it('restricts unverified users from creating farms', function () {
     ]);
 
     $response->assertStatus(403)
-             ->assertJson(['message' => 'Your email address is not verified.']);
+        ->assertJson(['message' => 'Your email address is not verified.']);
 });
 
 it('allows verified users to create farms', function () {
@@ -62,7 +62,7 @@ it('verifies the user email when a valid signature is provided', function () {
     $response = $this->getJson($url);
 
     $response->assertStatus(200)
-             ->assertJson(['message' => 'Email verified successfully']);
+        ->assertJson(['message' => 'Email verified successfully']);
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
 });
@@ -84,12 +84,12 @@ it('returns 403 when an invalid signature is provided', function () {
         ]
     );
 
-    $tamperedUrl = $url . '123'; // Break the signature
+    $tamperedUrl = $url.'123'; // Break the signature
 
     $response = $this->getJson($tamperedUrl);
 
     $response->assertStatus(403);
-    
+
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
 });
 
@@ -105,7 +105,7 @@ it('can resend the verification email', function () {
     $response = $this->postJson('/api/v1/email/verification-notification');
 
     $response->assertStatus(200)
-             ->assertJson(['message' => 'Verification link sent']);
+        ->assertJson(['message' => 'Verification link sent']);
 
     Notification::assertSentTo($user, VerifyEmail::class);
 });

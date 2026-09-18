@@ -7,6 +7,7 @@ namespace App\Domain\CropRecommendation\Services;
 use App\Domain\CropRecommendation\Models\WeatherCache;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -146,8 +147,8 @@ class AgroMonitoringService
     private function registerPolygon(Plot $plot): ?string
     {
         try {
-            $geojsonResult = \Illuminate\Support\Facades\DB::selectOne(
-                'SELECT ST_AsGeoJSON(polygon::geometry) as geojson FROM plots WHERE id = ?', 
+            $geojsonResult = DB::selectOne(
+                'SELECT ST_AsGeoJSON(polygon::geometry) as geojson FROM plots WHERE id = ?',
                 [$plot->id]
             );
             $geometry = $geojsonResult ? json_decode($geojsonResult->geojson, true) : null;
