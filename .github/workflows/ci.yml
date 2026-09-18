@@ -76,7 +76,18 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: cp ../.env.ci .env
       - run: php artisan key:generate
-      - run: php artisan test --coverage --min=80
+      - name: Create parallel test databases
+        run: |
+          for database in yieldgrid_test_test_1 yieldgrid_test_test_2 yieldgrid_test_test_3 yieldgrid_test_test_4 yieldgrid_test_test_5; do
+            PGPASSWORD=test psql \
+              --host=127.0.0.1 \
+              --port=5432 \
+              --username=test \
+              --dbname=yieldgrid_test \
+              --command="CREATE DATABASE \"$database\";" \
+              2>/dev/null || true
+          done
+      - run: php artisan test --parallel --recreate-databases --processes=4 --coverage --min=80
 
   # ═══════════════════════════════════
   # FRONTEND
