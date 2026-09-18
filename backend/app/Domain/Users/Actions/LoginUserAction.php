@@ -23,7 +23,7 @@ class LoginUserAction
         }
 
         $user = User::where('email', $dto->email)->firstOrFail();
-        
+
         $expiresAt = $dto->remember ? null : now()->addHours(2);
         $token = $user->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
 

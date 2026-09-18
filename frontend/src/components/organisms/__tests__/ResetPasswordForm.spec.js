@@ -66,7 +66,7 @@ describe('ResetPasswordForm.vue', () => {
     const wrapper = mount(ResetPasswordForm)
 
     await wrapper.find('form').trigger('submit.prevent')
-    
+
     expect(wrapper.html()).toContain('Invalid token')
     expect(pushMock).not.toHaveBeenCalled()
   })

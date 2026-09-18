@@ -22,8 +22,8 @@ Route::prefix('v1')->group(function () {
     // Public Auth
     Route::post('/register', RegisterController::class);
     Route::post('/login', [LoginController::class, 'login']);
-    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
-    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->middleware('throttle:6,1')->name('password.email');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:6,1')->name('password.update');
 
     // Public Contact
     Route::post('/contact', ContactController::class);

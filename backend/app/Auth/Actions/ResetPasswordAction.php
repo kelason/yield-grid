@@ -1,6 +1,6 @@
 <?php
 
-namespace Domain\Users\Actions;
+namespace App\Auth\Actions;
 
 use Domain\Users\DTOs\ResetPasswordDTO;
 use Illuminate\Auth\Events\PasswordReset;

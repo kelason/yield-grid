@@ -56,7 +56,10 @@ async function handleLogin() {
         />
         <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
       </div>
-      <router-link :to="{ name: 'forgot-password' }" class="text-sm font-medium text-farm-600 hover:text-farm-500">
+      <router-link
+        :to="{ name: 'forgot-password' }"
+        class="text-sm font-medium text-farm-600 hover:text-farm-500"
+      >
         Forgot your password?
       </router-link>
     </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Domain\Users\Actions;
+namespace App\Auth\Actions;
 
 use Domain\Users\DTOs\ForgotPasswordDTO;
 use Illuminate\Support\Facades\Password;

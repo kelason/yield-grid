@@ -102,7 +102,12 @@ describe('Auth Store', () => {
 
     api.post.mockResolvedValueOnce({ data: { message: 'Password reset' } })
 
-    const payload = { email: 'test@example.com', token: 'token', password: 'password', password_confirmation: 'password' }
+    const payload = {
+      email: 'test@example.com',
+      token: 'token',
+      password: 'password',
+      password_confirmation: 'password',
+    }
     const result = await store.resetPassword(payload)
 
     expect(api.post).toHaveBeenCalledWith('/reset-password', payload)

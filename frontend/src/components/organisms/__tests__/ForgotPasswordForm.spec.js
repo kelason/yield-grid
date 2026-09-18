@@ -37,7 +37,9 @@ describe('ForgotPasswordForm.vue', () => {
   })
 
   it('shows error message on failure', async () => {
-    mockStore.sendPasswordResetLink.mockRejectedValue({ response: { data: { message: 'User not found' } } })
+    mockStore.sendPasswordResetLink.mockRejectedValue({
+      response: { data: { message: 'User not found' } },
+    })
     const wrapper = mount(ForgotPasswordForm)
 
     await wrapper.find('input[type="email"]').setValue('test@example.com')

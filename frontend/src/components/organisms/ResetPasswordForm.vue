@@ -37,7 +37,11 @@ async function handleResetPassword() {
       router.push({ name: 'login' })
     }, 2000)
   } catch (e) {
-    error.value = e.response?.data?.message || 'Failed to reset password.'
+    if (e.response?.status === 422 && e.response?.data?.errors) {
+      error.value = Object.values(e.response.data.errors).flat().join(' ')
+    } else {
+      error.value = e.response?.data?.message || 'Failed to reset password.'
+    }
   } finally {
     loading.value = false
   }
