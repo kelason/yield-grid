@@ -111,20 +111,6 @@
             </span>
           </div>
         </div>
-
-        <!-- Analyse CTA -->
-        <div v-if="store.recommendations.length === 0" class="flex-shrink-0">
-          <AppButton
-            variant="primary"
-            rounded="full"
-            :loading="store.isAnalyzing || store.isLoading"
-            :disabled="store.isAnalyzing || store.isLoading || !activePlotId"
-            @click="triggerAnalysis"
-          >
-            <span v-if="!store.isAnalyzing">✨</span>
-            {{ store.isAnalyzing ? 'Analysing...' : 'Analyse This Plot' }}
-          </AppButton>
-        </div>
       </header>
 
       <!-- Error banner -->
@@ -214,6 +200,14 @@
         </div>
       </div>
     </div>
+    <ConfirmModal
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :type="config.type"
+      @confirm="execute"
+      @cancel="cancel"
+    />
   </div>
 </template>
 
@@ -228,7 +222,9 @@ import RecommendationCard from '../components/molecules/RecommendationCard.vue'
 import PublishContractForm from '../components/organisms/PublishContractForm.vue'
 import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
+import ConfirmModal from '../components/molecules/ConfirmModal.vue'
 import { useMarketStore } from '../stores/marketStore'
+import { useConfirmModal } from '../composables/useConfirmModal'
 
 const route = useRoute()
 const router = useRouter()
@@ -236,6 +232,7 @@ const store = useRecommendationStore()
 const farmingStore = useFarmingStore()
 const marketStore = useMarketStore()
 const { listenToPlot, leavePlot } = useWebSocket()
+const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 const selectedPlotId = ref(null)
 const isLoadingPlots = ref(true)
@@ -381,9 +378,16 @@ const handlePublishContract = async (formData) => {
   }
 }
 
-const handleReject = async (id) => {
-  if (confirm('Are you sure you want to reject this recommendation?')) {
-    await store.updateStatus(id, 'rejected')
-  }
+const handleReject = (id) => {
+  confirm(
+    {
+      title: 'Reject Recommendation',
+      message: 'Are you sure you want to reject this recommendation?',
+      type: 'danger',
+    },
+    async () => {
+      await store.updateStatus(id, 'rejected')
+    },
+  )
 }
 </script>

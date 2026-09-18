@@ -49,11 +49,14 @@ describe('Auth Store', () => {
     const token = 'fake-token'
     store.token = token // necessary for fetchUser to proceed
 
-    const url = 'http://localhost:8000/api/email/verify/1/hash?signature=xyz'
+    const url = 'http://localhost:3000/api/email/verify/1/hash?signature=xyz'
 
     const result = await store.verifyEmail(url)
 
-    expect(api.get).toHaveBeenNthCalledWith(1, '/api/email/verify/1/hash?signature=xyz')
+    expect(api.get).toHaveBeenNthCalledWith(
+      1,
+      'http://localhost:3000/api/email/verify/1/hash?signature=xyz',
+    )
     expect(api.get).toHaveBeenNthCalledWith(2, '/user')
     expect(result).toEqual({ message: 'Verified' })
     expect(store.user.email_verified_at).not.toBeNull()
