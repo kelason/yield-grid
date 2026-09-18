@@ -1,6 +1,5 @@
 <?php
 
-use Domain\Farming\Models\RestrictedZone;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
