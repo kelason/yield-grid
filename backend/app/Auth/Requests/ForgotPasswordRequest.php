@@ -11,6 +11,9 @@ class ForgotPasswordRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, list<string|\Illuminate\Contracts\Validation\Rule>>
+     */
     public function rules(): array
     {
         return [

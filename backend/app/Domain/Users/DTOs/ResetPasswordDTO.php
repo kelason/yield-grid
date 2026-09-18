@@ -10,6 +10,9 @@ readonly class ResetPasswordDTO
         public string $password,
     ) {}
 
+    /**
+     * @param array<string, mixed> $validated
+     */
     public static function fromRequest(array $validated): self
     {
         return new self(

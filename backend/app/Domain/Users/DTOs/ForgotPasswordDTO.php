@@ -8,6 +8,9 @@ readonly class ForgotPasswordDTO
         public string $email,
     ) {}
 
+    /**
+     * @param array<string, mixed> $validated
+     */
     public static function fromRequest(array $validated): self
     {
         return new self(
