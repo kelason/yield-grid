@@ -90,6 +90,15 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function verifyEmail(url) {
     const parsedUrl = new URL(url)
+
+    // Validate that the path belongs to the email verification endpoint
+    const isValidPath =
+      parsedUrl.pathname.startsWith('/api/v1/email/verify/') ||
+      parsedUrl.pathname.startsWith('/api/email/verify/')
+    if (!isValidPath) {
+      throw new Error('Invalid verification URL.')
+    }
+
     // Only request the pathname and search parameters relative to the configured API base URL
     const response = await api.get(parsedUrl.pathname + parsedUrl.search)
 

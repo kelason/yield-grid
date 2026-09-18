@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ContractFilter from '@/components/molecules/ContractFilter.vue'
 import ContractGrid from '@/components/organisms/ContractGrid.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
@@ -11,6 +12,7 @@ import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const { startCheckout, loading: checkoutLoading } = usePayment()
 
 const showCheckoutPanel = ref(false)
@@ -34,7 +36,7 @@ const handleViewContract = async (contract) => {
 
 const handleConfirmCheckout = async () => {
   if (authStore.isAuthenticated && !authStore.isEmailVerified) {
-    alert('Please verify your email address to purchase contracts.')
+    notificationStore.warning('Please verify your email address to purchase contracts.')
     return
   }
   if (marketStore.activeContract) {

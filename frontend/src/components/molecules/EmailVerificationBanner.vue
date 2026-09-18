@@ -47,8 +47,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const isSending = ref(false)
 
 const handleResend = async () => {
@@ -56,10 +58,10 @@ const handleResend = async () => {
   isSending.value = true
   try {
     await authStore.resendVerificationEmail()
-    alert('Verification email sent! Please check your inbox.')
+    notificationStore.success('Verification email sent! Please check your inbox.')
   } catch (error) {
     console.error(error)
-    alert(error.response?.data?.message || 'Failed to resend verification email.')
+    notificationStore.error(error.response?.data?.message || 'Failed to resend verification email.')
   } finally {
     isSending.value = false
   }
