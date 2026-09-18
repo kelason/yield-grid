@@ -2,6 +2,7 @@
 
 namespace App\Auth\Requests;
 
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -13,7 +14,7 @@ class ResetPasswordRequest extends FormRequest
     }
 
     /**
-     * @return array<string, list<string|\Illuminate\Contracts\Validation\Rule>>
+     * @return array<string, list<string|Rule>>
      */
     public function rules(): array
     {
