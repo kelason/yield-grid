@@ -7,7 +7,7 @@ import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
 
-const form = ref({ email: '', password: '' })
+const form = ref({ email: '', password: '', remember: false })
 const error = ref('')
 const loading = ref(false)
 
@@ -51,13 +51,17 @@ async function handleLogin() {
         <input
           id="remember-me"
           type="checkbox"
+          v-model="form.remember"
           class="h-4 w-4 text-farm-600 focus:ring-farm-500 border-gray-300 rounded"
         />
         <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
       </div>
-      <a href="#" class="text-sm font-medium text-farm-600 hover:text-farm-500"
-        >Forgot your password?</a
+      <router-link
+        :to="{ name: 'forgot-password' }"
+        class="text-sm font-medium text-farm-600 hover:text-farm-500"
       >
+        Forgot your password?
+      </router-link>
     </div>
 
     <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">

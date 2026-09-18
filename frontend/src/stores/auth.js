@@ -4,7 +4,7 @@ import { useApi } from '../composables/useApi'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
-  const token = ref(localStorage.getItem('auth_token'))
+  const token = ref(localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token'))
   const api = useApi()
 
   const isAuthenticated = computed(() => !!token.value)
@@ -56,6 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       token.value = null
       localStorage.removeItem('auth_token')
+      sessionStorage.removeItem('auth_token')
     }
   }
 
@@ -63,7 +64,13 @@ export const useAuthStore = defineStore('auth', () => {
     const response = await api.post('/login', credentials)
     user.value = response.data.user
     token.value = response.data.token
-    localStorage.setItem('auth_token', token.value)
+    if (credentials.remember) {
+      localStorage.setItem('auth_token', token.value)
+      sessionStorage.removeItem('auth_token')
+    } else {
+      sessionStorage.setItem('auth_token', token.value)
+      localStorage.removeItem('auth_token')
+    }
     startResendCooldown()
   }
 
@@ -82,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       token.value = null
       localStorage.removeItem('auth_token')
+      sessionStorage.removeItem('auth_token')
       localStorage.removeItem('resend_cooldown_start')
       resendCooldown.value = 0
       if (cooldownInterval) clearInterval(cooldownInterval)
@@ -120,6 +128,16 @@ export const useAuthStore = defineStore('auth', () => {
     return response.data
   }
 
+  async function sendPasswordResetLink(email) {
+    const response = await api.post('/forgot-password', { email })
+    return response.data
+  }
+
+  async function resetPassword(data) {
+    const response = await api.post('/reset-password', data)
+    return response.data
+  }
+
   return {
     user,
     token,
@@ -133,5 +151,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     verifyEmail,
     resendVerificationEmail,
+    sendPasswordResetLink,
+    resetPassword,
   }
 })

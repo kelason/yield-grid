@@ -54,6 +54,18 @@ const router = createRouter({
           component: () => import('../pages/auth/EmailVerificationCallback.vue'),
           meta: { requiresAuth: true },
         },
+        {
+          path: 'forgot-password',
+          name: 'forgot-password',
+          component: () => import('../pages/auth/ForgotPasswordPage.vue'),
+          meta: { requiresGuest: true },
+        },
+        {
+          path: 'reset-password',
+          name: 'reset-password',
+          component: () => import('../pages/auth/ResetPasswordPage.vue'),
+          meta: { requiresGuest: true },
+        },
       ],
     },
     {
