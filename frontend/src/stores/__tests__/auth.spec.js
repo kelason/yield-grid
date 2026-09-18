@@ -83,4 +83,29 @@ describe('Auth Store', () => {
     vi.advanceTimersByTime(15000)
     expect(store.resendCooldown).toBe(0)
   })
+
+  it('sendPasswordResetLink calls api correctly', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+
+    api.post.mockResolvedValueOnce({ data: { message: 'Link sent' } })
+
+    const result = await store.sendPasswordResetLink('test@example.com')
+
+    expect(api.post).toHaveBeenCalledWith('/forgot-password', { email: 'test@example.com' })
+    expect(result).toEqual({ message: 'Link sent' })
+  })
+
+  it('resetPassword calls api correctly', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+
+    api.post.mockResolvedValueOnce({ data: { message: 'Password reset' } })
+
+    const payload = { email: 'test@example.com', token: 'token', password: 'password', password_confirmation: 'password' }
+    const result = await store.resetPassword(payload)
+
+    expect(api.post).toHaveBeenCalledWith('/reset-password', payload)
+    expect(result).toEqual({ message: 'Password reset' })
+  })
 })

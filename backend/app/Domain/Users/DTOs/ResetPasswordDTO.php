@@ -2,20 +2,20 @@
 
 namespace Domain\Users\DTOs;
 
-readonly class LoginUserDTO
+readonly class ResetPasswordDTO
 {
     public function __construct(
         public string $email,
+        public string $token,
         public string $password,
-        public bool $remember = false,
     ) {}
 
     public static function fromRequest(array $validated): self
     {
         return new self(
             email: $validated['email'],
+            token: $validated['token'],
             password: $validated['password'],
-            remember: $validated['remember'] ?? false,
         );
     }
 }

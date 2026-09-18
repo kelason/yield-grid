@@ -2,6 +2,7 @@
 
 use App\Auth\Controllers\EmailVerificationController;
 use App\Auth\Controllers\LoginController;
+use App\Auth\Controllers\PasswordResetController;
 use App\Auth\Controllers\RegisterController;
 use App\Contact\Controllers\ContactController;
 use App\Farming\Controllers\FarmController;
@@ -21,6 +22,8 @@ Route::prefix('v1')->group(function () {
     // Public Auth
     Route::post('/register', RegisterController::class);
     Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 
     // Public Contact
     Route::post('/contact', ContactController::class);
