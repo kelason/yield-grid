@@ -6,9 +6,11 @@ import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
@@ -28,31 +30,18 @@ onUnmounted(() => {
   }
 })
 
-const isConfirmModalOpen = ref(false)
-const confirmModalConfig = ref({ title: '', message: '', type: 'primary' })
-let confirmAction = null
-
-const executeConfirm = async () => {
-  if (confirmAction) await confirmAction()
-  isConfirmModalOpen.value = false
-}
-
-const cancelConfirm = () => {
-  confirmAction = null
-  isConfirmModalOpen.value = false
-}
-
 const handleCancel = (contract) => {
-  confirmModalConfig.value = {
-    title: 'Cancel Listing',
-    message: `Are you sure you want to cancel the listing for "${contract.title}"?`,
-    type: 'danger',
-  }
-  confirmAction = async () => {
-    await marketStore.cancelContract(contract.id)
-    await marketStore.fetchFarmerContractsStats()
-  }
-  isConfirmModalOpen.value = true
+  confirm(
+    {
+      title: 'Cancel Listing',
+      message: `Are you sure you want to cancel the listing for "${contract.title}"?`,
+      type: 'danger',
+    },
+    async () => {
+      await marketStore.cancelContract(contract.id)
+      await marketStore.fetchFarmerContractsStats()
+    },
+  )
 }
 
 const currentTab = ref('all')
@@ -191,12 +180,12 @@ const handlePageChange = (page) => {
       @page-change="handlePageChange"
     />
     <ConfirmModal
-      :is-open="isConfirmModalOpen"
-      :title="confirmModalConfig.title"
-      :message="confirmModalConfig.message"
-      :type="confirmModalConfig.type"
-      @confirm="executeConfirm"
-      @cancel="cancelConfirm"
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :type="config.type"
+      @confirm="execute"
+      @cancel="cancel"
     />
   </div>
 </template>

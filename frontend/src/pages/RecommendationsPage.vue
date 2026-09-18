@@ -201,12 +201,12 @@
       </div>
     </div>
     <ConfirmModal
-      :is-open="isConfirmModalOpen"
-      :title="confirmModalConfig.title"
-      :message="confirmModalConfig.message"
-      :type="confirmModalConfig.type"
-      @confirm="executeConfirm"
-      @cancel="cancelConfirm"
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :type="config.type"
+      @confirm="execute"
+      @cancel="cancel"
     />
   </div>
 </template>
@@ -224,6 +224,7 @@ import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
 import ConfirmModal from '../components/molecules/ConfirmModal.vue'
 import { useMarketStore } from '../stores/marketStore'
+import { useConfirmModal } from '../composables/useConfirmModal'
 
 const route = useRoute()
 const router = useRouter()
@@ -231,6 +232,7 @@ const store = useRecommendationStore()
 const farmingStore = useFarmingStore()
 const marketStore = useMarketStore()
 const { listenToPlot, leavePlot } = useWebSocket()
+const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 const selectedPlotId = ref(null)
 const isLoadingPlots = ref(true)
@@ -376,29 +378,16 @@ const handlePublishContract = async (formData) => {
   }
 }
 
-const isConfirmModalOpen = ref(false)
-const confirmModalConfig = ref({ title: '', message: '', type: 'primary' })
-let confirmAction = null
-
 const handleReject = (id) => {
-  confirmModalConfig.value = {
-    title: 'Reject Recommendation',
-    message: 'Are you sure you want to reject this recommendation?',
-    type: 'danger',
-  }
-  confirmAction = async () => {
-    await store.updateStatus(id, 'rejected')
-  }
-  isConfirmModalOpen.value = true
-}
-
-const executeConfirm = async () => {
-  if (confirmAction) await confirmAction()
-  isConfirmModalOpen.value = false
-}
-
-const cancelConfirm = () => {
-  confirmAction = null
-  isConfirmModalOpen.value = false
+  confirm(
+    {
+      title: 'Reject Recommendation',
+      message: 'Are you sure you want to reject this recommendation?',
+      type: 'danger',
+    },
+    async () => {
+      await store.updateStatus(id, 'rejected')
+    },
+  )
 }
 </script>

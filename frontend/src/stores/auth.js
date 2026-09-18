@@ -99,6 +99,11 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('Invalid verification URL.')
     }
 
+    const apiBaseUrl = new URL(import.meta.env.VITE_API_BASE_URL || window.location.origin)
+    if (parsedUrl.origin !== apiBaseUrl.origin) {
+      throw new Error('Invalid verification URL origin.')
+    }
+
     // Make the request using the absolute URL directly
     // This bypasses the api baseURL but still uses our interceptors (e.g. for auth tokens)
     const response = await api.get(url)

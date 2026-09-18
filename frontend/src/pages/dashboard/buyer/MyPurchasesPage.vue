@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed, watch, ref } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { ShoppingCartIcon } from '@heroicons/vue/24/outline'
@@ -10,10 +10,12 @@ import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import PurchaseCard from '@/components/molecules/PurchaseCard.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { useApi } from '@/composables/useApi'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
+const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
   marketStore.fetchBuyerPurchases()
@@ -53,37 +55,24 @@ function formatCurrency(amount) {
   return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
 }
 
-const isConfirmModalOpen = ref(false)
-const confirmModalConfig = ref({ title: '', message: '', type: 'primary' })
-let confirmAction = null
-
-const executeConfirm = async () => {
-  if (confirmAction) await confirmAction()
-  isConfirmModalOpen.value = false
-}
-
-const cancelConfirm = () => {
-  confirmAction = null
-  isConfirmModalOpen.value = false
-}
-
 const cancelPurchase = (purchase) => {
-  confirmModalConfig.value = {
-    title: 'Cancel Purchase',
-    message:
-      'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
-    type: 'danger',
-  }
-  confirmAction = async () => {
-    try {
-      await api.post(`/checkout/${purchase.session_id}/cancel`)
-      marketStore.fetchBuyerPurchases() // Refresh list
-    } catch (err) {
-      console.error('Failed to cancel purchase:', err)
-      notificationStore.error('Failed to cancel purchase. Please try again.')
-    }
-  }
-  isConfirmModalOpen.value = true
+  confirm(
+    {
+      title: 'Cancel Purchase',
+      message:
+        'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
+      type: 'danger',
+    },
+    async () => {
+      try {
+        await api.post(`/checkout/${purchase.session_id}/cancel`)
+        marketStore.fetchBuyerPurchases() // Refresh list
+      } catch (err) {
+        console.error('Failed to cancel purchase:', err)
+        notificationStore.error('Failed to cancel purchase. Please try again.')
+      }
+    },
+  )
 }
 </script>
 
@@ -224,12 +213,12 @@ const cancelPurchase = (purchase) => {
       @page-change="marketStore.fetchBuyerPurchases"
     />
     <ConfirmModal
-      :is-open="isConfirmModalOpen"
-      :title="confirmModalConfig.title"
-      :message="confirmModalConfig.message"
-      :type="confirmModalConfig.type"
-      @confirm="executeConfirm"
-      @cancel="cancelConfirm"
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :type="config.type"
+      @confirm="execute"
+      @cancel="cancel"
     />
   </div>
 </template>
