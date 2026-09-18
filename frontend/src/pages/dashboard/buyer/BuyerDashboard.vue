@@ -1,14 +1,17 @@
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notificationStore'
 import { useApi } from '@/composables/useApi'
 import { ShoppingCartIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/atoms/AppCard.vue'
 import PurchaseCard from '@/components/molecules/PurchaseCard.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const api = useApi()
 
 const totalSpent = computed(() =>
@@ -27,22 +30,37 @@ function formatCurrency(amount) {
   return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
 }
 
-async function cancelPurchase(purchase) {
-  if (
-    !confirm(
-      'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
-    )
-  ) {
-    return
-  }
+const isConfirmModalOpen = ref(false)
+const confirmModalConfig = ref({ title: '', message: '', type: 'primary' })
+let confirmAction = null
 
-  try {
-    await api.post(`/checkout/${purchase.session_id}/cancel`)
-    marketStore.fetchBuyerPurchases() // Refresh list
-  } catch (err) {
-    console.error('Failed to cancel purchase:', err)
-    alert('Failed to cancel purchase. Please try again.')
+const executeConfirm = async () => {
+  if (confirmAction) await confirmAction()
+  isConfirmModalOpen.value = false
+}
+
+const cancelConfirm = () => {
+  confirmAction = null
+  isConfirmModalOpen.value = false
+}
+
+const cancelPurchase = (purchase) => {
+  confirmModalConfig.value = {
+    title: 'Cancel Purchase',
+    message:
+      'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
+    type: 'danger',
   }
+  confirmAction = async () => {
+    try {
+      await api.post(`/checkout/${purchase.session_id}/cancel`)
+      marketStore.fetchBuyerPurchases() // Refresh list
+    } catch (err) {
+      console.error('Failed to cancel purchase:', err)
+      notificationStore.error('Failed to cancel purchase. Please try again.')
+    }
+  }
+  isConfirmModalOpen.value = true
 }
 </script>
 
@@ -166,5 +184,13 @@ async function cancelPurchase(purchase) {
         />
       </div>
     </div>
+    <ConfirmModal
+      :is-open="isConfirmModalOpen"
+      :title="confirmModalConfig.title"
+      :message="confirmModalConfig.message"
+      :type="confirmModalConfig.type"
+      @confirm="executeConfirm"
+      @cancel="cancelConfirm"
+    />
   </div>
 </template>

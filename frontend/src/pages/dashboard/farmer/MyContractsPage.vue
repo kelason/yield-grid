@@ -1,9 +1,10 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
 const marketStore = useMarketStore()
@@ -27,14 +28,33 @@ onUnmounted(() => {
   }
 })
 
-const handleCancel = async (contract) => {
-  if (confirm(`Are you sure you want to cancel the listing for "${contract.title}"?`)) {
+const isConfirmModalOpen = ref(false)
+const confirmModalConfig = ref({ title: '', message: '', type: 'primary' })
+let confirmAction = null
+
+const executeConfirm = async () => {
+  if (confirmAction) await confirmAction()
+  isConfirmModalOpen.value = false
+}
+
+const cancelConfirm = () => {
+  confirmAction = null
+  isConfirmModalOpen.value = false
+}
+
+const handleCancel = (contract) => {
+  confirmModalConfig.value = {
+    title: 'Cancel Listing',
+    message: `Are you sure you want to cancel the listing for "${contract.title}"?`,
+    type: 'danger',
+  }
+  confirmAction = async () => {
     await marketStore.cancelContract(contract.id)
     await marketStore.fetchFarmerContractsStats()
   }
+  isConfirmModalOpen.value = true
 }
 
-import { ref } from 'vue'
 const currentTab = ref('all')
 
 const handleTabChange = (tabId) => {
@@ -169,6 +189,14 @@ const handlePageChange = (page) => {
       :last-page="marketStore.farmerPagination.lastPage"
       :total="marketStore.farmerPagination.total"
       @page-change="handlePageChange"
+    />
+    <ConfirmModal
+      :is-open="isConfirmModalOpen"
+      :title="confirmModalConfig.title"
+      :message="confirmModalConfig.message"
+      :type="confirmModalConfig.type"
+      @confirm="executeConfirm"
+      @cancel="cancelConfirm"
     />
   </div>
 </template>

@@ -111,20 +111,6 @@
             </span>
           </div>
         </div>
-
-        <!-- Analyse CTA -->
-        <div v-if="store.recommendations.length === 0" class="flex-shrink-0">
-          <AppButton
-            variant="primary"
-            rounded="full"
-            :loading="store.isAnalyzing || store.isLoading"
-            :disabled="store.isAnalyzing || store.isLoading || !activePlotId"
-            @click="triggerAnalysis"
-          >
-            <span v-if="!store.isAnalyzing">✨</span>
-            {{ store.isAnalyzing ? 'Analysing...' : 'Analyse This Plot' }}
-          </AppButton>
-        </div>
       </header>
 
       <!-- Error banner -->
@@ -214,6 +200,14 @@
         </div>
       </div>
     </div>
+    <ConfirmModal
+      :is-open="isConfirmModalOpen"
+      :title="confirmModalConfig.title"
+      :message="confirmModalConfig.message"
+      :type="confirmModalConfig.type"
+      @confirm="executeConfirm"
+      @cancel="cancelConfirm"
+    />
   </div>
 </template>
 
@@ -228,6 +222,7 @@ import RecommendationCard from '../components/molecules/RecommendationCard.vue'
 import PublishContractForm from '../components/organisms/PublishContractForm.vue'
 import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
+import ConfirmModal from '../components/molecules/ConfirmModal.vue'
 import { useMarketStore } from '../stores/marketStore'
 
 const route = useRoute()
@@ -381,9 +376,29 @@ const handlePublishContract = async (formData) => {
   }
 }
 
-const handleReject = async (id) => {
-  if (confirm('Are you sure you want to reject this recommendation?')) {
+const isConfirmModalOpen = ref(false)
+const confirmModalConfig = ref({ title: '', message: '', type: 'primary' })
+let confirmAction = null
+
+const handleReject = (id) => {
+  confirmModalConfig.value = {
+    title: 'Reject Recommendation',
+    message: 'Are you sure you want to reject this recommendation?',
+    type: 'danger',
+  }
+  confirmAction = async () => {
     await store.updateStatus(id, 'rejected')
   }
+  isConfirmModalOpen.value = true
+}
+
+const executeConfirm = async () => {
+  if (confirmAction) await confirmAction()
+  isConfirmModalOpen.value = false
+}
+
+const cancelConfirm = () => {
+  confirmAction = null
+  isConfirmModalOpen.value = false
 }
 </script>

@@ -99,8 +99,9 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('Invalid verification URL.')
     }
 
-    // Only request the pathname and search parameters relative to the configured API base URL
-    const response = await api.get(parsedUrl.pathname + parsedUrl.search)
+    // Make the request using the absolute URL directly
+    // This bypasses the api baseURL but still uses our interceptors (e.g. for auth tokens)
+    const response = await api.get(url)
 
     // Refresh user state to update email_verified_at
     await fetchUser()
