@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFarmingStore } from '../../stores/farming'
+import { useAuthStore } from '../../stores/auth'
 import AppButton from '../../components/atoms/AppButton.vue'
 import FarmCard from '../../components/molecules/FarmCard.vue'
 import CreateFarmForm from '../../components/organisms/CreateFarmForm.vue'
@@ -9,6 +10,7 @@ import AppCard from '../../components/atoms/AppCard.vue'
 
 const router = useRouter()
 const farmingStore = useFarmingStore()
+const authStore = useAuthStore()
 
 const showCreateForm = ref(false)
 const createError = ref('')
@@ -55,7 +57,12 @@ function handleViewRecommendations(farmId) {
           registered
         </p>
       </div>
-      <AppButton variant="primary" rounded="full" @click="showCreateForm = !showCreateForm">
+      <AppButton
+        variant="primary"
+        rounded="full"
+        :disabled="!authStore.isEmailVerified"
+        @click="showCreateForm = !showCreateForm"
+      >
         <svg
           class="mr-2 h-4 w-4"
           fill="none"
@@ -129,7 +136,12 @@ function handleViewRecommendations(farmId) {
       <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
         Create your first farm to start planning plots and getting AI crop recommendations.
       </p>
-      <AppButton variant="primary" rounded="full" @click="showCreateForm = true">
+      <AppButton
+        variant="primary"
+        rounded="full"
+        :disabled="!authStore.isEmailVerified"
+        @click="showCreateForm = true"
+      >
         <svg
           class="mr-2 h-4 w-4"
           fill="none"

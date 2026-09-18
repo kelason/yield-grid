@@ -8,9 +8,11 @@ import AppFooter from '../organisms/AppFooter.vue'
   <div class="min-h-screen flex flex-col font-sans">
     <AppNavbar />
     <main class="flex-grow">
-      <Transition name="fade" mode="out-in">
-        <RouterView />
-      </Transition>
+      <RouterView v-slot="{ Component }">
+        <Transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </main>
     <AppFooter />
   </div>

@@ -21,7 +21,11 @@ use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;
 use Domain\Farming\Models\Plot;
 use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -40,13 +44,24 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         // Prevent auth middleware from redirecting to 'login' route (API-only app)
         Authenticate::redirectUsing(fn () => null);
+
+        // Customize the Email Verification URL to point to the frontend SPA
+        VerifyEmail::createUrlUsing(function ($notifiable) {
+            $url = URL::temporarySignedRoute(
+                'verification.verify',
+                Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+                [
+                    'id' => $notifiable->getKey(),
+                    'hash' => sha1($notifiable->getEmailForVerification()),
+                ]
+            );
+
+            return config('app.frontend_url', 'http://localhost:5173').'/auth/verify-email?verify_url='.urlencode($url);
+        });
 
         // Register authorization policies
         Gate::policy(Plot::class, PlotPolicy::class);

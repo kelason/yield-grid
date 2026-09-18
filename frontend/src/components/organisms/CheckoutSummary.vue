@@ -9,6 +9,7 @@ import {
   CheckCircleIcon,
   InformationCircleIcon,
 } from '@heroicons/vue/24/outline'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   contract: {
@@ -22,6 +23,8 @@ const props = defineProps({
 })
 
 defineEmits(['confirm', 'cancel'])
+
+const authStore = useAuthStore()
 
 const pricePerKg = computed(() => {
   return props.contract.price_per_kg || props.contract.total_price / props.contract.quantity_kg
@@ -128,7 +131,7 @@ const pricePerKg = computed(() => {
       </button>
       <button
         @click="$emit('confirm')"
-        :disabled="loading"
+        :disabled="loading || !authStore.isEmailVerified"
         class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-farm-600 to-farm-700 hover:from-farm-700 hover:to-farm-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto text-center flex justify-center items-center disabled:opacity-50 disabled:transform-none"
       >
         <svg
@@ -152,7 +155,13 @@ const pricePerKg = computed(() => {
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        {{ loading ? 'Preparing Checkout...' : 'Proceed to Payment' }}
+        {{
+          loading
+            ? 'Preparing Checkout...'
+            : !authStore.isEmailVerified
+              ? 'Verify Email to Purchase'
+              : 'Proceed to Payment'
+        }}
       </button>
     </div>
   </div>
