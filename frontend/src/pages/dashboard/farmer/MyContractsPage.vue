@@ -4,6 +4,7 @@ import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
 const marketStore = useMarketStore()
@@ -27,10 +28,20 @@ onUnmounted(() => {
   }
 })
 
-const handleCancel = async (contract) => {
-  if (confirm(`Are you sure you want to cancel the listing for "${contract.title}"?`)) {
-    await marketStore.cancelContract(contract.id)
+const isCancelModalOpen = ref(false)
+const contractToCancel = ref(null)
+
+const handleCancel = (contract) => {
+  contractToCancel.value = contract
+  isCancelModalOpen.value = true
+}
+
+const confirmCancel = async () => {
+  if (contractToCancel.value) {
+    await marketStore.cancelContract(contractToCancel.value.id)
     await marketStore.fetchFarmerContractsStats()
+    isCancelModalOpen.value = false
+    contractToCancel.value = null
   }
 }
 
@@ -169,6 +180,18 @@ const handlePageChange = (page) => {
       :last-page="marketStore.farmerPagination.lastPage"
       :total="marketStore.farmerPagination.total"
       @page-change="handlePageChange"
+    />
+
+    <!-- Cancel Confirmation Modal -->
+    <ConfirmModal
+      :is-open="isCancelModalOpen"
+      title="Cancel Forward Contract"
+      :message="`Are you sure you want to cancel the listing for '${contractToCancel?.title}'? This action cannot be undone.`"
+      confirm-text="Cancel Contract"
+      cancel-text="Keep Listing"
+      type="danger"
+      @confirm="confirmCancel"
+      @cancel="isCancelModalOpen = false"
     />
   </div>
 </template>

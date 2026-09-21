@@ -28,7 +28,9 @@ async function handleLogout() {
         >
           <div class="flex items-center gap-2">
             <span class="text-xl">🌾</span>
-            <span class="text-lg font-bold text-moss-600 tracking-tight font-serif">YieldGrid</span>
+            <span class="text-lg font-bold text-stone-900 tracking-tight font-serif"
+              >YieldGrid</span
+            >
           </div>
           <AppButton variant="ghost" size="sm" @click="handleLogout">Logout</AppButton>
         </div>
@@ -36,9 +38,7 @@ async function handleLogout() {
         <!-- Main scrollable area -->
         <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <!-- Page header strip -->
-          <div
-            class="bg-gradient-to-r from-stone-100 to-white border-b border-stone-200 h-16 flex items-center"
-          >
+          <div class="bg-white border-b border-stone-200 h-16 flex items-center shadow-soft">
             <div
               class="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex justify-between items-center"
             >
@@ -52,8 +52,8 @@ async function handleLogout() {
               </div>
               <div class="hidden md:flex items-center gap-3">
                 <div class="text-right hidden lg:block">
-                  <p class="text-sm font-semibold text-stone-800">{{ authStore.user?.name }}</p>
-                  <p class="text-xs text-stone-400 capitalize">{{ authStore.userRole }}</p>
+                  <p class="text-sm font-semibold text-stone-900">{{ authStore.user?.name }}</p>
+                  <p class="text-xs text-stone-500 capitalize">{{ authStore.userRole }}</p>
                 </div>
                 <AppButton variant="ghost" size="sm" @click="handleLogout">Logout</AppButton>
               </div>

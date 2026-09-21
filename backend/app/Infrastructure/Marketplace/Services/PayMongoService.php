@@ -70,6 +70,15 @@ class PayMongoService implements PaymentGatewayInterface
                 'body' => $response->body(),
                 'contract_id' => $contract->id,
             ]);
+
+            $errors = $response->json('errors') ?? [];
+            if (! empty($errors)) {
+                $firstError = $errors[0];
+                if (($firstError['code'] ?? '') === 'parameter_above_maximum') {
+                    throw new \InvalidArgumentException($firstError['detail'] ?? 'Payment amount exceeds the maximum limit.');
+                }
+            }
+
             throw new \RuntimeException('Failed to create payment session with PayMongo.');
         }
 

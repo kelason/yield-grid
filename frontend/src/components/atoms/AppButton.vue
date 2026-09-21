@@ -3,7 +3,8 @@ defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (v) => ['primary', 'secondary', 'outline', 'danger', 'ghost', 'harvest'].includes(v),
+    validator: (v) =>
+      ['primary', 'secondary', 'outline', 'danger', 'ghost', 'ghost-dark', 'harvest'].includes(v),
   },
   size: { type: String, default: 'md', validator: (v) => ['sm', 'md', 'lg'].includes(v) },
   loading: { type: Boolean, default: false },
@@ -13,24 +14,30 @@ defineProps({
 })
 
 const variantClasses = {
-  primary: 'text-white bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 shadow-soft hover:shadow-organic hover:scale-[1.02] active:scale-[0.99]',
-  secondary: 'text-moss-700 bg-moss-100 hover:bg-moss-200 hover:scale-[1.02] active:scale-[0.99] border border-moss-200',
-  outline: 'text-moss-700 border-2 border-moss-300 bg-transparent hover:bg-moss-50 hover:border-moss-500 hover:scale-[1.02] active:scale-[0.99]',
-  danger: 'text-white bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.99]',
+  primary:
+    'text-white bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 shadow-soft hover:shadow-organic hover:scale-[1.02] active:scale-[0.99]',
+  secondary:
+    'text-moss-700 bg-moss-100 hover:bg-moss-200 hover:scale-[1.02] active:scale-[0.99] border border-moss-200',
+  outline:
+    'text-moss-700 border-2 border-moss-300 bg-transparent hover:bg-moss-50 hover:border-moss-500 hover:scale-[1.02] active:scale-[0.99]',
+  danger:
+    'text-white bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.99]',
   ghost: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg',
-  harvest: 'text-white bg-gradient-to-br from-harvest-500 to-harvest-600 hover:from-harvest-600 hover:to-harvest-700 shadow-harvest-glow hover:scale-[1.02] active:scale-[0.99]'
+  'ghost-dark': 'text-stone-300 hover:text-white hover:bg-white/10 rounded-lg',
+  harvest:
+    'text-white bg-gradient-to-br from-harvest-500 to-harvest-600 hover:from-harvest-600 hover:to-harvest-700 shadow-harvest-glow hover:scale-[1.02] active:scale-[0.99]',
 }
 
 const sizeClasses = {
   sm: 'px-3 py-1.5 text-sm gap-1.5',
   md: 'px-5 py-2.5 text-base gap-2',
-  lg: 'px-8 py-4 text-lg gap-2.5'
+  lg: 'px-8 py-4 text-lg gap-2.5',
 }
 
 const roundedClasses = {
   md: 'rounded-md',
   xl: 'rounded-xl',
-  full: 'rounded-full'
+  full: 'rounded-full',
 }
 </script>
 
@@ -43,7 +50,7 @@ const roundedClasses = {
       sizeClasses[size],
       roundedClasses[rounded],
       variantClasses[variant],
-      (disabled || loading) ? 'opacity-50 cursor-not-allowed !transform-none !shadow-none' : ''
+      disabled || loading ? 'opacity-50 cursor-not-allowed !transform-none !shadow-none' : '',
     ]"
   >
     <svg

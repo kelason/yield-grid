@@ -40,7 +40,13 @@ const handleConfirmCheckout = async () => {
     return
   }
   if (marketStore.activeContract) {
-    await startCheckout(marketStore.activeContract.id)
+    try {
+      await startCheckout(marketStore.activeContract.id)
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || err.message || 'Failed to initialize checkout session'
+      notificationStore.error(errorMessage)
+    }
   }
 }
 </script>

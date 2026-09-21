@@ -15,6 +15,7 @@ const authStore = useAuthStore()
 const showCreateForm = ref(false)
 const createError = ref('')
 const isCreating = ref(false)
+const SKELETON_COUNT = 3
 
 onMounted(() => {
   farmingStore.fetchFarms()
@@ -53,11 +54,11 @@ function handleViewRecommendations(farmId) {
       <div>
         <h2 class="text-xl font-bold text-gray-900 tracking-tight">My Farms</h2>
         <p class="text-sm text-gray-500 mt-0.5">
-          {{ farmingStore.farms.length }} farm{{ farmingStore.farms.length !== 1 ? 's' : '' }}
-          registered
+          {{ farmingStore.farms.length }} farm(s) registered
         </p>
       </div>
       <AppButton
+        v-if="farmingStore.farms.length"
         variant="primary"
         rounded="full"
         :disabled="!authStore.isEmailVerified"
@@ -106,11 +107,11 @@ function handleViewRecommendations(farmId) {
 
     <!-- Loading skeleton -->
     <div
-      v-if="farmingStore.loading && farmingStore.farms.length === 0"
+      v-if="farmingStore.loading && !farmingStore.farms.length"
       class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
     >
       <div
-        v-for="n in 3"
+        v-for="n in SKELETON_COUNT"
         :key="n"
         class="animate-pulse bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4"
       >
@@ -128,7 +129,7 @@ function handleViewRecommendations(farmId) {
 
     <!-- Empty state -->
     <div
-      v-else-if="farmingStore.farms.length === 0"
+      v-else-if="!farmingStore.farms.length && !showCreateForm"
       class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-farm-300 transition-colors duration-200"
     >
       <div class="text-5xl mb-4">🌾</div>
@@ -161,7 +162,7 @@ function handleViewRecommendations(farmId) {
     </div>
 
     <!-- Farm grid -->
-    <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div v-else-if="!showCreateForm" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       <FarmCard
         v-for="farm in farmingStore.farms"
         :key="farm.id"
