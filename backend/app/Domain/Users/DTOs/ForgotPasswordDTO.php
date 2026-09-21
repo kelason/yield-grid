@@ -2,20 +2,19 @@
 
 namespace Domain\Users\DTOs;
 
-readonly class LoginUserDTO
+readonly class ForgotPasswordDTO
 {
     public function __construct(
         public string $email,
-        public string $password,
-        public bool $remember = false,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $validated
+     */
     public static function fromRequest(array $validated): self
     {
         return new self(
             email: $validated['email'],
-            password: $validated['password'],
-            remember: $validated['remember'] ?? false,
         );
     }
 }

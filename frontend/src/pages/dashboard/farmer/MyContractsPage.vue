@@ -1,14 +1,16 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
@@ -28,24 +30,22 @@ onUnmounted(() => {
   }
 })
 
-const isCancelModalOpen = ref(false)
-const contractToCancel = ref(null)
-
 const handleCancel = (contract) => {
-  contractToCancel.value = contract
-  isCancelModalOpen.value = true
+  confirm(
+    {
+      title: 'Cancel Forward Contract',
+      message: `Are you sure you want to cancel the listing for '${contract.title}'? This action cannot be undone.`,
+      type: 'danger',
+      confirmText: 'Cancel Contract',
+      cancelText: 'Keep Listing'
+    },
+    async () => {
+      await marketStore.cancelContract(contract.id)
+      await marketStore.fetchFarmerContractsStats()
+    }
+  )
 }
 
-const confirmCancel = async () => {
-  if (contractToCancel.value) {
-    await marketStore.cancelContract(contractToCancel.value.id)
-    await marketStore.fetchFarmerContractsStats()
-    isCancelModalOpen.value = false
-    contractToCancel.value = null
-  }
-}
-
-import { ref } from 'vue'
 const currentTab = ref('all')
 
 const handleTabChange = (tabId) => {
@@ -181,17 +181,16 @@ const handlePageChange = (page) => {
       :total="marketStore.farmerPagination.total"
       @page-change="handlePageChange"
     />
-
     <!-- Cancel Confirmation Modal -->
     <ConfirmModal
-      :is-open="isCancelModalOpen"
-      title="Cancel Forward Contract"
-      :message="`Are you sure you want to cancel the listing for '${contractToCancel?.title}'? This action cannot be undone.`"
-      confirm-text="Cancel Contract"
-      cancel-text="Keep Listing"
-      type="danger"
-      @confirm="confirmCancel"
-      @cancel="isCancelModalOpen = false"
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :confirm-text="config.confirmText || 'Confirm'"
+      :cancel-text="config.cancelText || 'Cancel'"
+      :type="config.type"
+      @confirm="execute"
+      @cancel="cancel"
     />
   </div>
 </template>

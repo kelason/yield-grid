@@ -2,9 +2,11 @@
 
 namespace App\Auth\Requests;
 
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
-class LoginRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -12,14 +14,14 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, list<string|Rule>>
      */
     public function rules(): array
     {
         return [
+            'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required'],
-            'remember' => ['nullable', 'boolean'],
+            'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
 }
