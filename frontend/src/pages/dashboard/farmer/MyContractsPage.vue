@@ -33,9 +33,11 @@ onUnmounted(() => {
 const handleCancel = (contract) => {
   confirm(
     {
-      title: 'Cancel Listing',
-      message: `Are you sure you want to cancel the listing for "${contract.title}"?`,
+      title: 'Cancel Forward Contract',
+      message: `Are you sure you want to cancel the listing for '${contract.title}'? This action cannot be undone.`,
       type: 'danger',
+      confirmText: 'Cancel Contract',
+      cancelText: 'Keep Listing',
     },
     async () => {
       await marketStore.cancelContract(contract.id)
@@ -179,10 +181,13 @@ const handlePageChange = (page) => {
       :total="marketStore.farmerPagination.total"
       @page-change="handlePageChange"
     />
+    <!-- Cancel Confirmation Modal -->
     <ConfirmModal
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"
+      :confirm-text="config.confirmText || 'Confirm'"
+      :cancel-text="config.cancelText || 'Cancel'"
       :type="config.type"
       @confirm="execute"
       @cancel="cancel"

@@ -25,7 +25,8 @@ export function usePayment() {
       }
     } catch (err) {
       console.error('Checkout error:', err)
-      error.value = err.message || 'Failed to initialize checkout session'
+      error.value =
+        err.response?.data?.message || err.message || 'Failed to initialize checkout session'
       throw err
     } finally {
       loading.value = false

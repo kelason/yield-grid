@@ -12,6 +12,7 @@
         "laravel/reverb": "^1.11",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.10.1",
+        "predis/predis": "^3.6",
         "sentry/sentry-laravel": "^4.27",
         "symfony/options-resolver": "^7.0",
         "symfony/psr-http-message-bridge": "^7.0"

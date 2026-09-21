@@ -84,16 +84,16 @@ function getInitials(name) {
   <div class="hidden md:flex md:flex-shrink-0">
     <div class="flex flex-col w-64">
       <div
-        class="flex flex-col h-0 flex-1 border-r border-gray-200 bg-gradient-to-b from-white via-white to-earth-50"
+        class="flex flex-col h-0 flex-1 border-r border-stone-200 bg-gradient-to-b from-white via-white to-stone-50"
       >
-        <!-- Logo area with gradient strip -->
-        <div class="flex items-center flex-shrink-0 px-5 border-b border-gray-100 h-16">
+        <!-- Logo area -->
+        <div class="flex items-center flex-shrink-0 px-5 border-b border-stone-100 h-16">
           <AppLogo />
         </div>
 
         <!-- Nav section label -->
         <div class="px-4 pt-5 pb-2">
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Navigation</p>
+          <p class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Navigation</p>
         </div>
 
         <!-- Nav links -->
@@ -104,14 +104,14 @@ function getInitials(name) {
             :to="item.to"
             :class="[
               isActive(item.to)
-                ? 'bg-farm-50 text-farm-700 border-l-2 border-farm-500 pl-[calc(0.5rem-2px)]'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-2 border-transparent pl-2',
+                ? 'bg-moss-50 text-moss-700 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
+                : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900 border-l-[3px] border-transparent pl-2',
               'group flex items-center pr-2 py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
             ]"
           >
             <svg
               :class="[
-                isActive(item.to) ? 'text-farm-600' : 'text-gray-400 group-hover:text-gray-500',
+                isActive(item.to) ? 'text-moss-600' : 'text-stone-400 group-hover:text-stone-500',
                 'mr-2 flex-shrink-0 h-5 w-5',
               ]"
               xmlns="http://www.w3.org/2000/svg"
@@ -132,19 +132,19 @@ function getInitials(name) {
         </nav>
 
         <!-- User footer -->
-        <div class="flex-shrink-0 border-t border-gray-200 p-4 bg-white">
+        <div class="flex-shrink-0 border-t border-stone-200 p-4 bg-white">
           <div class="flex items-center gap-3">
-            <!-- Avatar -->
+            <!-- Organic avatar -->
             <div
-              class="w-9 h-9 rounded-full bg-gradient-to-br from-farm-400 to-farm-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0"
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0"
             >
               {{ getInitials(authStore.user?.name) }}
             </div>
             <div class="min-w-0">
-              <p class="text-sm font-semibold text-gray-800 truncate">
+              <p class="text-sm font-semibold text-stone-800 truncate">
                 {{ authStore.user?.name }}
               </p>
-              <p class="text-xs font-medium text-gray-400 capitalize">
+              <p class="text-xs font-medium text-stone-400 capitalize">
                 {{ authStore.userRole }}
               </p>
             </div>
