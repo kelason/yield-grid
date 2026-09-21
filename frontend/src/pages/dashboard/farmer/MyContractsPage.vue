@@ -1,13 +1,16 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
@@ -27,14 +30,22 @@ onUnmounted(() => {
   }
 })
 
-const handleCancel = async (contract) => {
-  if (confirm(`Are you sure you want to cancel the listing for "${contract.title}"?`)) {
-    await marketStore.cancelContract(contract.id)
-    await marketStore.fetchFarmerContractsStats()
-  }
+const handleCancel = (contract) => {
+  confirm(
+    {
+      title: 'Cancel Forward Contract',
+      message: `Are you sure you want to cancel the listing for '${contract.title}'? This action cannot be undone.`,
+      type: 'danger',
+      confirmText: 'Cancel Contract',
+      cancelText: 'Keep Listing',
+    },
+    async () => {
+      await marketStore.cancelContract(contract.id)
+      await marketStore.fetchFarmerContractsStats()
+    },
+  )
 }
 
-import { ref } from 'vue'
 const currentTab = ref('all')
 
 const handleTabChange = (tabId) => {
@@ -169,6 +180,17 @@ const handlePageChange = (page) => {
       :last-page="marketStore.farmerPagination.lastPage"
       :total="marketStore.farmerPagination.total"
       @page-change="handlePageChange"
+    />
+    <!-- Cancel Confirmation Modal -->
+    <ConfirmModal
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :confirm-text="config.confirmText || 'Confirm'"
+      :cancel-text="config.cancelText || 'Cancel'"
+      :type="config.type"
+      @confirm="execute"
+      @cancel="cancel"
     />
   </div>
 </template>

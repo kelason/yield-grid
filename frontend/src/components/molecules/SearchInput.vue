@@ -17,14 +17,14 @@ defineEmits(['update:modelValue'])
 
 <template>
   <div class="relative w-full sm:w-96">
-    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-      <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
+    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+      <MagnifyingGlassIcon class="h-4 w-4 text-stone-400" aria-hidden="true" />
     </div>
     <input
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       type="text"
-      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-farm-500 focus:border-farm-500 sm:text-sm transition-shadow shadow-sm"
+      class="block w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
       :placeholder="placeholder"
     />
   </div>

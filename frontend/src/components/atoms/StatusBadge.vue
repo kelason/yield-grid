@@ -19,20 +19,32 @@ const sizeClasses = computed(() => {
 
 const statusConfig = computed(() => {
   const map = {
-    available: { classes: 'bg-farm-100 text-farm-800 border border-farm-200', label: 'Available' },
+    available: {
+      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+      label: 'Available',
+    },
     reserved: {
-      classes: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
       label: 'Reserved',
     },
-    sold: { classes: 'bg-green-100 text-green-800 border border-green-200', label: 'Sold' },
-    expired: { classes: 'bg-gray-100 text-gray-800 border border-gray-200', label: 'Expired' },
-    cancelled: { classes: 'bg-red-100 text-red-800 border border-red-200', label: 'Cancelled' },
+    sold: {
+      classes: 'bg-soil-100 text-soil-800 border border-soil-200',
+      label: 'Sold',
+    },
+    expired: {
+      classes: 'bg-stone-100 text-stone-600 border border-stone-200',
+      label: 'Expired',
+    },
+    cancelled: {
+      classes: 'bg-red-100 text-red-800 border border-red-200',
+      label: 'Cancelled',
+    },
     pending: {
-      classes: 'bg-blue-50 text-blue-700 border border-blue-200',
+      classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
       label: 'Pending Payment',
     },
     completed: {
-      classes: 'bg-green-100 text-green-800 border border-green-200',
+      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
       label: 'Completed',
     },
     failed: { classes: 'bg-red-100 text-red-800 border border-red-200', label: 'Failed' },
@@ -40,7 +52,7 @@ const statusConfig = computed(() => {
 
   return (
     map[props.status.toLowerCase()] || {
-      classes: 'bg-gray-100 text-gray-800 border border-gray-200',
+      classes: 'bg-stone-100 text-stone-700 border border-stone-200',
       label: props.status,
     }
   )

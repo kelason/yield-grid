@@ -49,11 +49,14 @@ describe('Auth Store', () => {
     const token = 'fake-token'
     store.token = token // necessary for fetchUser to proceed
 
-    const url = 'http://localhost:8000/api/email/verify/1/hash?signature=xyz'
+    const url = 'http://localhost:3000/api/email/verify/1/hash?signature=xyz'
 
     const result = await store.verifyEmail(url)
 
-    expect(api.get).toHaveBeenNthCalledWith(1, '/api/email/verify/1/hash?signature=xyz')
+    expect(api.get).toHaveBeenNthCalledWith(
+      1,
+      'http://localhost:3000/api/email/verify/1/hash?signature=xyz',
+    )
     expect(api.get).toHaveBeenNthCalledWith(2, '/user')
     expect(result).toEqual({ message: 'Verified' })
     expect(store.user.email_verified_at).not.toBeNull()
@@ -79,5 +82,35 @@ describe('Auth Store', () => {
     // Fast forward 15 more seconds
     vi.advanceTimersByTime(15000)
     expect(store.resendCooldown).toBe(0)
+  })
+
+  it('sendPasswordResetLink calls api correctly', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+
+    api.post.mockResolvedValueOnce({ data: { message: 'Link sent' } })
+
+    const result = await store.sendPasswordResetLink('test@example.com')
+
+    expect(api.post).toHaveBeenCalledWith('/forgot-password', { email: 'test@example.com' })
+    expect(result).toEqual({ message: 'Link sent' })
+  })
+
+  it('resetPassword calls api correctly', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+
+    api.post.mockResolvedValueOnce({ data: { message: 'Password reset' } })
+
+    const payload = {
+      email: 'test@example.com',
+      token: 'token',
+      password: 'password',
+      password_confirmation: 'password',
+    }
+    const result = await store.resetPassword(payload)
+
+    expect(api.post).toHaveBeenCalledWith('/reset-password', payload)
+    expect(result).toEqual({ message: 'Password reset' })
   })
 })

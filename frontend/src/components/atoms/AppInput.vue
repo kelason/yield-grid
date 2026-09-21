@@ -22,10 +22,12 @@ defineEmits(['update:modelValue'])
     :disabled="disabled"
     @input="$emit('update:modelValue', $event.target.value)"
     :class="[
-      'block w-full px-3 py-2 border rounded-lg shadow-sm placeholder-gray-400 transition-all duration-200 sm:text-sm',
-      'focus:outline-none focus:ring-2 focus:ring-farm-500 focus:border-farm-500',
-      error ? 'border-red-300 text-red-900 focus:ring-red-400' : 'border-gray-300 text-gray-900',
-      { 'bg-gray-100 cursor-not-allowed opacity-60': disabled },
+      'block w-full px-4 py-2.5 border rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50',
+      'focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white',
+      error
+        ? 'border-red-300 text-red-900 focus:ring-red-400 focus:border-red-400 bg-red-50'
+        : 'border-stone-300 text-stone-900 hover:border-stone-400',
+      { 'bg-stone-200 cursor-not-allowed opacity-60 border-stone-200': disabled },
     ]"
   />
 </template>

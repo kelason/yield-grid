@@ -31,14 +31,13 @@ export const useRecommendationStore = defineStore('recommendation', () => {
     recommendations.value = [] // Immediately hide previous data when re-analyzing
     try {
       await api.post(`/plots/${plotId}/analyze`, {})
-      await fetchRecommendations(plotId)
+      // On success, isAnalyzing remains true until the WebSocket event is received
     } catch (error) {
       errorMessage.value =
         error.response?.data?.message || 'Rate limit reached or analysis in progress. Please wait.'
       console.error('Failed to analyze plot:', error)
       // Fetch latest existing recommendations if new analysis couldn't be started
       await fetchRecommendations(plotId)
-    } finally {
       isAnalyzing.value = false
     }
   }

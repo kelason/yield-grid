@@ -1,15 +1,14 @@
 <template>
   <div
-    class="text-center bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 p-12"
+    class="text-center bg-stone-50 overflow-hidden shadow-soft rounded-2xl border border-stone-200 p-12"
   >
-    <!-- Icon Slot -->
     <div
       v-if="$slots.icon"
-      class="mx-auto h-12 w-12 text-gray-400 mb-4 flex items-center justify-center"
+      class="mx-auto h-14 w-14 text-stone-400 mb-5 flex items-center justify-center"
     >
       <slot name="icon"></slot>
     </div>
-    <div v-else class="mx-auto h-12 w-12 text-gray-400 mb-4 flex items-center justify-center">
+    <div v-else class="mx-auto h-14 w-14 text-stone-300 mb-5 flex items-center justify-center">
       <!-- Default Icon (e.g. Inbox) -->
       <svg
         class="h-12 w-12"
@@ -27,8 +26,8 @@
       </svg>
     </div>
 
-    <h3 class="mt-2 text-lg font-medium text-gray-900">{{ title }}</h3>
-    <p class="mt-1 text-sm text-gray-500 max-w-sm mx-auto">
+    <h3 class="mt-2 text-lg font-medium text-stone-900 font-serif">{{ title }}</h3>
+    <p class="mt-1 text-sm text-stone-500 max-w-sm mx-auto leading-relaxed">
       {{ description }}
     </p>
 

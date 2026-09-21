@@ -108,11 +108,18 @@ final class PurchaseController extends Controller
                 cancelUrl: $cancelUrl,
                 buyerId: $request->user()->id
             );
+        } catch (\InvalidArgumentException $e) {
+            // Revert reservation and delete purchase if amount exceeds limit
+            $lockedContract->update(['status' => ContractStatus::AVAILABLE]);
+            $purchase->delete();
+
+            return response()->json(['message' => $e->getMessage()], HttpCode::UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
             // Revert reservation and delete purchase if API call fails
             $lockedContract->update(['status' => ContractStatus::AVAILABLE]);
             $purchase->delete();
-            throw $e;
+
+            return response()->json(['message' => 'Payment gateway error. Please try again later.'], HttpCode::INTERNAL_SERVER_ERROR);
         }
 
         $purchase->update([

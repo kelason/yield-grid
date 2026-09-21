@@ -10,7 +10,7 @@ describe('AppButton', () => {
       },
     })
     expect(wrapper.text()).toContain('Click Me')
-    expect(wrapper.classes()).toContain('bg-gradient-to-r')
+    expect(wrapper.classes()).toContain('bg-gradient-to-br')
   })
 
   it('renders a loading spinner and is disabled when loading is true', () => {
@@ -29,6 +29,6 @@ describe('AppButton', () => {
         variant: 'secondary',
       },
     })
-    expect(wrapper.classes()).toContain('bg-farm-100')
+    expect(wrapper.classes()).toContain('bg-moss-100')
   })
 })

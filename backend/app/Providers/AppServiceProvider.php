@@ -21,6 +21,7 @@ use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;
 use Domain\Farming\Models\Plot;
 use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -61,6 +62,11 @@ class AppServiceProvider extends ServiceProvider
             );
 
             return config('app.frontend_url', 'http://localhost:5173').'/auth/verify-email?verify_url='.urlencode($url);
+        });
+
+        // Customize the Password Reset URL to point to the frontend SPA
+        ResetPassword::createUrlUsing(function ($notifiable, string $token) {
+            return config('app.frontend_url', 'http://localhost:5173').'/auth/reset-password?token='.$token.'&email='.urlencode($notifiable->getEmailForPasswordReset());
         });
 
         // Register authorization policies
