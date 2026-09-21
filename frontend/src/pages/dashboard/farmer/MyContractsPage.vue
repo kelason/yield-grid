@@ -37,12 +37,12 @@ const handleCancel = (contract) => {
       message: `Are you sure you want to cancel the listing for '${contract.title}'? This action cannot be undone.`,
       type: 'danger',
       confirmText: 'Cancel Contract',
-      cancelText: 'Keep Listing'
+      cancelText: 'Keep Listing',
     },
     async () => {
       await marketStore.cancelContract(contract.id)
       await marketStore.fetchFarmerContractsStats()
-    }
+    },
   )
 }
 
