@@ -9,7 +9,7 @@
   >
     <div
       v-if="show"
-      class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
+      class="max-w-sm w-full bg-white shadow-organic rounded-2xl pointer-events-auto ring-1 ring-stone-200 overflow-hidden border border-stone-100"
     >
       <div class="p-4">
         <div class="flex items-start">
@@ -17,7 +17,7 @@
             <!-- Icons based on type -->
             <svg
               v-if="notification.type === 'success'"
-              class="h-6 w-6 text-green-400"
+              class="h-6 w-6 text-moss-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -31,7 +31,7 @@
             </svg>
             <svg
               v-else-if="notification.type === 'error'"
-              class="h-6 w-6 text-red-400"
+              class="h-6 w-6 text-red-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -45,7 +45,7 @@
             </svg>
             <svg
               v-else-if="notification.type === 'warning'"
-              class="h-6 w-6 text-yellow-400"
+              class="h-6 w-6 text-harvest-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -59,7 +59,7 @@
             </svg>
             <svg
               v-else
-              class="h-6 w-6 text-blue-400"
+              class="h-6 w-6 text-dew-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -73,17 +73,17 @@
             </svg>
           </div>
           <div class="ml-3 w-0 flex-1 pt-0.5">
-            <p class="text-sm font-medium text-gray-900">
+            <p class="text-sm font-semibold text-stone-900">
               {{ notification.title }}
             </p>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-stone-500">
               {{ notification.message }}
             </p>
           </div>
           <div class="ml-4 flex-shrink-0 flex">
             <button
               @click="close"
-              class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500"
+              class="bg-white rounded-xl inline-flex text-stone-400 hover:text-stone-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 transition-colors duration-150"
             >
               <span class="sr-only">Close</span>
               <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

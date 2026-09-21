@@ -96,7 +96,7 @@ onMounted(async () => {
     }, 2000)
   } catch (error) {
     loading.value = false
-    errorMessage.value = error.response?.data?.message || 'Verification failed.'
+    errorMessage.value = error.response?.data?.message || error.message || 'Verification failed.'
   }
 })
 </script>

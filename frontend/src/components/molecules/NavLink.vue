@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 
 defineProps({
-  to: { type: String, required: true },
+  to: { type: [String, Object], required: true },
   label: { type: String, required: true },
 })
 </script>
@@ -10,8 +10,12 @@ defineProps({
 <template>
   <RouterLink
     :to="to"
-    class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-farm-600 hover:border-farm-400 transition-all duration-200"
-    active-class="!text-farm-600 !border-farm-500 !font-semibold"
+    class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-all duration-200 border-b-2 focus:outline-none"
+    :class="[
+      $route.path === to || $route.name === to?.name
+        ? 'border-moss-500 text-moss-700'
+        : 'border-transparent text-stone-600 hover:border-moss-300 hover:text-moss-600',
+    ]"
   >
     {{ label }}
   </RouterLink>

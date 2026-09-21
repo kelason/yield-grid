@@ -24,16 +24,17 @@ const props = defineProps({
 })
 
 const chartData = computed(() => {
-  let color = '#10B981' // green for high
+  // Organic palette: moss green (high), harvest amber (medium), red (low)
+  let color = '#4a8c42' // moss-500 for high confidence
   if (props.score < 50)
-    color = '#EF4444' // red for low
-  else if (props.score < 75) color = '#F59E0B' // yellow for medium
+    color = '#dc2626' // red-600 for low
+  else if (props.score < 75) color = '#d49a20' // harvest-500 for medium
 
   return {
     labels: ['Confidence', 'Remaining'],
     datasets: [
       {
-        backgroundColor: [color, '#E5E7EB'], // Tailwind gray-200 for remaining
+        backgroundColor: [color, '#e8e4de'], // stone-200 for remaining track
         data: [props.score, 100 - props.score],
         borderWidth: 0,
       },

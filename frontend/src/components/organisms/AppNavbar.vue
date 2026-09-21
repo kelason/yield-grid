@@ -9,7 +9,7 @@ const authStore = useAuthStore()
 </script>
 
 <template>
-  <nav class="bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50">
+  <nav class="bg-white/96 backdrop-blur-md border-b border-stone-200 shadow-soft sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
         <!-- Left: Logo + Nav -->
@@ -27,7 +27,7 @@ const authStore = useAuthStore()
           <template v-if="!authStore.isAuthenticated">
             <RouterLink
               to="/auth/login"
-              class="text-sm font-medium text-gray-600 hover:text-farm-600 transition-colors duration-200 px-3 py-2 rounded-md hover:bg-farm-50"
+              class="text-sm font-medium text-stone-600 hover:text-moss-600 transition-colors duration-200 px-3 py-2 rounded-xl hover:bg-moss-50"
             >
               Log in
             </RouterLink>
@@ -43,7 +43,7 @@ const authStore = useAuthStore()
           <template v-else>
             <RouterLink
               to="/dashboard"
-              class="text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors duration-200 px-3 py-2 rounded-md hover:bg-farm-50"
+              class="text-sm font-medium text-moss-600 hover:text-moss-700 transition-colors duration-200 px-3 py-2 rounded-xl hover:bg-moss-50"
             >
               Dashboard
             </RouterLink>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 sm:px-6 lg:px-8 relative z-50 shadow-md border-b border-amber-600"
+    class="bg-gradient-to-r from-harvest-400 to-harvest-500 px-4 py-3 sm:px-6 lg:px-8 relative z-50 shadow-md border-b border-harvest-500"
   >
     <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
       <div class="flex flex-1 items-center gap-x-3">
@@ -31,7 +31,7 @@
           type="button"
           @click="handleResend"
           :disabled="isSending || authStore.resendCooldown > 0"
-          class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-amber-700 shadow-sm hover:bg-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-95 min-w-[180px]"
+          class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-harvest-800 shadow-sm hover:bg-harvest-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-95 min-w-[180px]"
         >
           <span v-if="isSending">Sending...</span>
           <span v-else-if="authStore.resendCooldown > 0"
