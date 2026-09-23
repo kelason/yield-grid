@@ -7,14 +7,27 @@ export function usePayment() {
   const error = ref(null)
   const checkoutUrl = ref(null)
 
-  async function startCheckout(contractId) {
+  async function startCheckout(
+    contractId,
+    type = 'contracts',
+    quantityKg = null,
+    paymentOption = 'paymongo',
+  ) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await request(`/market/contracts/${contractId}/checkout`, {
+      const response = await request(`/market/${type}/${contractId}/checkout`, {
         method: 'POST',
+        data: {
+          quantity_kg: quantityKg,
+          payment_option: paymentOption,
+        },
       })
+
+      if (paymentOption === 'cash') {
+        return response.data
+      }
 
       if (response.data && response.data.checkout_url) {
         checkoutUrl.value = response.data.checkout_url

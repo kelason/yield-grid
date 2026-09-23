@@ -11,12 +11,14 @@ vi.mock('@/composables/useApi', () => ({
 describe('marketStore', () => {
   let store
   let mockGet
+  let mockPost
 
   beforeEach(() => {
     setActivePinia(createPinia())
 
     mockGet = vi.fn()
-    useApi.mockReturnValue({ get: mockGet })
+    mockPost = vi.fn()
+    useApi.mockReturnValue({ get: mockGet, post: mockPost })
 
     store = useMarketStore()
   })
@@ -51,5 +53,30 @@ describe('marketStore', () => {
 
     expect(store.farmerContracts[0].status).toBe('sold')
     expect(store.farmerContracts[1].status).toBe('available')
+  })
+
+  it('creates manual listing successfully', async () => {
+    mockPost.mockResolvedValueOnce({ data: { id: 1, title: 'Manual Listing' } })
+
+    const formData = { title: 'Manual Listing', quantity_kg: 100 }
+    const result = await store.createManualListing(formData)
+
+    expect(mockPost).toHaveBeenCalledWith('/farmer/listings', formData)
+    expect(result).toEqual({ id: 1, title: 'Manual Listing' })
+    expect(store.loading.publish).toBe(false)
+  })
+
+  it('approves cash payment successfully', async () => {
+    mockPost.mockResolvedValueOnce({ data: { id: 1, cash_payment_status: 'partially_paid' } })
+    store.farmerPurchases = [{ id: 1, cash_payment_status: 'pending_approval' }]
+
+    const result = await store.approveCashPayment(1, 'partial', 500)
+
+    expect(mockPost).toHaveBeenCalledWith('/farmer/purchases/1/approve', {
+      type: 'partial',
+      amount: 500,
+    })
+    expect(result).toEqual({ id: 1, cash_payment_status: 'partially_paid' })
+    expect(store.farmerPurchases[0].cash_payment_status).toBe('partially_paid')
   })
 })

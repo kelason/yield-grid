@@ -21,6 +21,19 @@ jobs:
           config.custom_model_max_tokens: "1048576"
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Auto actions - improve disabled to save tokens on free tier
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
-          github_action_config.auto_improve: "true"
+          github_action_config.auto_improve: "false"
+          # Ignore non-essential files to save tokens
+          ignore.glob: >-
+            ['*.lock', '*.lockb',
+            'package-lock.json', 'composer.lock', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb',
+            '*.md', '*.txt', '*.rst',
+            '*.png', '*.jpg', '*.jpeg', '*.gif', '*.svg', '*.ico', '*.webp', '*.avif',
+            '*.woff', '*.woff2', '*.ttf', '*.eot', '*.otf',
+            '*.mp4', '*.webm', '*.ogg', '*.mp3', '*.wav',
+            '*.pdf', '*.zip', '*.tar.gz',
+            '*.min.js', '*.min.css', '*.map',
+            'public/build/**', 'public/assets/**',
+            'storage/**', '.github/**', '.vscode/**', '.idea/**']

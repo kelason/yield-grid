@@ -10,6 +10,7 @@ use App\Farming\Controllers\PlotController;
 use App\Farming\Controllers\RestrictedZoneController;
 use App\Http\Controllers\Api\V1\CropRecommendationController;
 use App\Http\Controllers\Api\V1\ForwardContractController;
+use App\Http\Controllers\Api\V1\HarvestListingController;
 use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\PayMongoWebhookController;
 use App\Http\Controllers\Api\V1\PurchaseController;
@@ -29,8 +30,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/contact', ContactController::class);
 
     // Public Marketplace
-    Route::get('/market/contracts', [MarketplaceController::class, 'index']);
-    Route::get('/market/contracts/{contract}', [MarketplaceController::class, 'show']);
+    Route::get('/market/contracts', [MarketplaceController::class, 'index']); // Kept name for backwards compatibility
+    Route::get('/market/items/{type}/{id}', [MarketplaceController::class, 'show']);
 
     // PayMongo Webhooks
     Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle']);
@@ -70,11 +71,17 @@ Route::prefix('v1')->group(function () {
             Route::get('/farmer/contracts', [ForwardContractController::class, 'index']);
             Route::get('/farmer/contracts/{contract}', [ForwardContractController::class, 'show']);
             Route::patch('/farmer/contracts/{contract}/cancel', [ForwardContractController::class, 'cancel'])->middleware('verified');
+
+            // Manual Listings & Cash Approvals
+            Route::post('/farmer/listings', [HarvestListingController::class, 'store'])->middleware('verified');
+            Route::patch('/farmer/listings/{listing}/cancel', [HarvestListingController::class, 'cancel'])->middleware('verified');
+            Route::get('/farmer/purchases', [PurchaseController::class, 'farmerPurchases']);
+            Route::post('/farmer/purchases/{purchase}/approve', [PurchaseController::class, 'approveCashPayment'])->middleware('verified');
         });
 
         // Buyer Routes
         Route::middleware(EnsureUserHasRole::class.':buyer')->group(function () {
-            Route::post('/market/contracts/{contract}/checkout', [PurchaseController::class, 'checkout'])->middleware(['throttle:10,1', 'verified']);
+            Route::post('/market/{type}/{id}/checkout', [PurchaseController::class, 'checkout'])->middleware(['throttle:10,1', 'verified']);
             Route::post('/checkout/{session_id}/cancel', [PurchaseController::class, 'cancelCheckout']);
             Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout']);
             Route::get('/buyer/purchases', [PurchaseController::class, 'index']);
@@ -84,5 +91,6 @@ Route::prefix('v1')->group(function () {
 });
 
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-    ->middleware(['auth:sanctum', 'signed'])
+    ->middleware(['signed'])
+    ->withoutMiddleware(['auth:sanctum'])
     ->name('verification.verify');

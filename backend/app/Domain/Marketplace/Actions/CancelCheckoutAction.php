@@ -29,10 +29,14 @@ final class CancelCheckoutAction
                 'payment_status' => PaymentStatus::FAILED,
             ]);
 
-            $contract = $this->contractRepository->findByIdLocked($purchase->forward_contract_id);
-            $this->contractRepository->update($contract, [
-                'status' => ContractStatus::AVAILABLE,
-            ]);
+            $purchasable = $purchase->contract ?? $purchase->harvestListing;
+            if ($purchasable) {
+                $purchasableClass = get_class($purchasable);
+                $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
+                $lockedPurchasable->update([
+                    'status' => ContractStatus::AVAILABLE,
+                ]);
+            }
         });
     }
 }

@@ -71,7 +71,9 @@ export const useAuthStore = defineStore('auth', () => {
       sessionStorage.setItem('auth_token', token.value)
       localStorage.removeItem('auth_token')
     }
-    startResendCooldown()
+    if (!isEmailVerified.value) {
+      resendVerificationEmail().catch(() => {})
+    }
   }
 
   async function register(data) {
@@ -107,7 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('Invalid verification URL.')
     }
 
-    const apiBaseUrl = new URL(import.meta.env.VITE_API_BASE_URL || window.location.origin)
+    const apiBaseUrl = new URL(api.defaults.baseURL || window.location.origin)
     if (parsedUrl.origin !== apiBaseUrl.origin) {
       throw new Error('Invalid verification URL origin.')
     }
