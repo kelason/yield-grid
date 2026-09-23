@@ -22,6 +22,8 @@ use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseResource;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
+use App\Marketplace\Requests\ApproveCashPaymentRequest;
+use App\Marketplace\Requests\CheckoutRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -71,12 +73,9 @@ final class PurchaseController extends Controller
         return new PurchaseResource($purchase);
     }
 
-    public function checkout(Request $request, string $type, int $id): JsonResponse
+    public function checkout(CheckoutRequest $request, string $type, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'quantity_kg' => 'required|numeric|min:1',
-            'payment_option' => 'required|in:cash,paymongo',
-        ]);
+        $validated = $request->validated();
 
         $purchasableClass = ($type === 'listing' || $type === 'listings') ? HarvestListing::class : ForwardContract::class;
         $purchasable = $purchasableClass::findOrFail($id);
@@ -223,12 +222,9 @@ final class PurchaseController extends Controller
         return PurchaseResource::collection($purchases);
     }
 
-    public function approveCashPayment(Request $request, Purchase $purchase): PurchaseResource
+    public function approveCashPayment(ApproveCashPaymentRequest $request, Purchase $purchase): PurchaseResource
     {
-        $validated = $request->validate([
-            'type' => 'required|in:partial,full',
-            'amount' => 'nullable|numeric|min:0.01',
-        ]);
+        $validated = $request->validated();
 
         // Authorize farmer owns the contract/listing
         $purchasable = $purchase->contract ?? $purchase->harvestListing;

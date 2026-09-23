@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Marketplace\Actions;
 
+use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Enums\CashPaymentStatus;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
@@ -49,7 +50,7 @@ final class CreateCashPurchaseAction
             $splitItem->save();
 
             $totalContractAmount = $splitItem->total_price;
-            $amountPaid = $isDownpayment ? $totalContractAmount * 0.10 : $totalContractAmount;
+            $amountPaid = $isDownpayment ? $totalContractAmount * PaymentConstants::DOWNPAYMENT_PERCENTAGE : $totalContractAmount;
 
             $purchaseData = [
                 'buyer_id' => $buyerId,
