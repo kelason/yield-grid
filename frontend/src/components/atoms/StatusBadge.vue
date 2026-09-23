@@ -27,6 +27,10 @@ const statusConfig = computed(() => {
       classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
       label: 'Reserved',
     },
+    partially_paid: {
+      classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
+      label: 'Partially Paid',
+    },
     sold: {
       classes: 'bg-soil-100 text-soil-800 border border-soil-200',
       label: 'Sold',
@@ -42,6 +46,10 @@ const statusConfig = computed(() => {
     pending: {
       classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
       label: 'Pending Payment',
+    },
+    pending_approval: {
+      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+      label: 'Pending Approval',
     },
     completed: {
       classes: 'bg-moss-100 text-moss-800 border border-moss-200',

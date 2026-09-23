@@ -4,7 +4,6 @@ namespace App\Auth\Controllers;
 
 use App\Http\Controllers\Controller;
 use Domain\Users\Actions\VerifyEmailAction;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

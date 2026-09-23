@@ -26,5 +26,5 @@ it('verifies the user email when called with url from frontend but different hos
     // e.g. the proxy strips the port
     $response = $this->withHeaders(['Host' => 'localhost'])->getJson($url);
 
-    $response->assertStatus(403);
+    $response->assertOk();
 });

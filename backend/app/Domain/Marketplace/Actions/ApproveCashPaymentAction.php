@@ -44,15 +44,15 @@ final class ApproveCashPaymentAction
             $purchase->farmer_confirmed_at = Carbon::now();
             $purchase->save();
 
-            // Update contract status if fully paid
-            if ($type === 'full') {
-                $purchasable = $purchase->contract ?? $purchase->harvestListing;
-                if ($purchasable) {
-                    $purchasableClass = get_class($purchasable);
-                    $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
-                    $lockedPurchasable->status = ContractStatus::SOLD;
-                    $lockedPurchasable->save();
-                }
+            // Update contract/listing status to reflect payment state
+            $purchasable = $purchase->contract ?? $purchase->harvestListing;
+            if ($purchasable) {
+                $purchasableClass = get_class($purchasable);
+                $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
+                $lockedPurchasable->status = $type === 'full'
+                    ? ContractStatus::SOLD
+                    : ContractStatus::PARTIALLY_PAID;
+                $lockedPurchasable->save();
             }
 
             // Here we would dispatch CashPaymentApproved event (Phase 7)

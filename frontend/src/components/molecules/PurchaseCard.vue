@@ -1,7 +1,7 @@
 <script setup>
 import AppCard from '@/components/atoms/AppCard.vue'
 
-defineProps({
+const props = defineProps({
   purchase: {
     type: Object,
     required: true,
@@ -10,11 +10,37 @@ defineProps({
 
 defineEmits(['cancel'])
 
+import { computed } from 'vue'
+
 const statusStyles = {
-  completed: 'bg-green-50 text-green-700 border border-green-200/60',
+  completed: 'bg-moss-50 text-moss-700 border border-moss-200/60',
+  partially_paid: 'bg-harvest-50 text-harvest-700 border border-harvest-200/60',
   pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200/60',
   failed: 'bg-red-50 text-red-700 border border-red-200/60',
 }
+
+const displayStatus = computed(() => {
+  const p = props.purchase
+  if (p.payment_status === 'completed') {
+    return p.is_downpayment ? 'partially paid' : 'paid'
+  }
+  if (p.cash_payment_status === 'partially_paid') {
+    return 'partially paid'
+  }
+  if (p.cash_payment_status === 'pending_approval') {
+    return 'pending approval'
+  }
+  return p.payment_status
+})
+
+const displayStyle = computed(() => {
+  if (displayStatus.value === 'partially paid') return statusStyles.partially_paid
+  if (displayStatus.value === 'paid') return statusStyles.completed
+  return (
+    statusStyles[props.purchase.payment_status] ||
+    'bg-stone-50 text-stone-600 border border-stone-200'
+  )
+})
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
@@ -65,13 +91,10 @@ function formatDate(dateStr) {
       >
         <div class="flex items-center gap-4">
           <span
-            :class="
-              statusStyles[purchase.payment_status] ||
-              'bg-gray-50 text-gray-600 border border-gray-200'
-            "
+            :class="displayStyle"
             class="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
           >
-            {{ purchase.payment_status === 'completed' ? 'paid' : purchase.payment_status }}
+            {{ displayStatus }}
           </span>
 
           <div class="text-right min-w-[100px]">
@@ -87,7 +110,10 @@ function formatDate(dateStr) {
         <!-- Actions (fixed width reserved so price aligns consistently across all rows) -->
         <div class="w-[85px] flex justify-end flex-shrink-0">
           <button
-            v-if="purchase.payment_status === 'pending'"
+            v-if="
+              purchase.payment_status === 'pending' &&
+              purchase.cash_payment_status !== 'partially_paid'
+            "
             @click="$emit('cancel', purchase)"
             class="text-xs font-semibold text-red-600 hover:text-white border border-red-200 hover:bg-red-500 hover:border-red-500 px-3 py-1.5 rounded-xl transition-all duration-200 shadow-sm w-full text-center"
           >

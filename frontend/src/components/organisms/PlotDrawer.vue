@@ -113,11 +113,7 @@ out geom;`
       for (const el of data.elements) {
         if (!el.geometry || el.geometry.length < GEOMETRY_CONSTANTS.MIN_LINE_POINTS) continue
 
-        const osmType = el.tags?.building
-          ? 'building'
-          : el.tags?.highway
-            ? 'highway'
-            : 'waterway'
+        const osmType = el.tags?.building ? 'building' : el.tags?.highway ? 'highway' : 'waterway'
 
         try {
           let osmFeature
@@ -127,7 +123,10 @@ out geom;`
             const ring = el.geometry.map((pt) => [pt.lon, pt.lat])
             if (ring.length < GEOMETRY_CONSTANTS.MIN_RING_POINTS) continue
             // Close the ring if needed
-            if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
+            if (
+              ring[0][0] !== ring[ring.length - 1][0] ||
+              ring[0][1] !== ring[ring.length - 1][1]
+            ) {
               ring.push(ring[0])
             }
             if (ring.length < GEOMETRY_CONSTANTS.MIN_POLYGON_POINTS) continue // need at least 4 points for a valid polygon
@@ -465,7 +464,10 @@ function loadExistingPlots() {
     try {
       const bounds = window._plotsLayer.getBounds()
       if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: MAP_CONSTANTS.PADDING_LARGE, maxZoom: MAP_CONSTANTS.MAX_ZOOM_FIT_PLOTS })
+        map.fitBounds(bounds, {
+          padding: MAP_CONSTANTS.PADDING_LARGE,
+          maxZoom: MAP_CONSTANTS.MAX_ZOOM_FIT_PLOTS,
+        })
       }
     } catch {
       if (allowedCityBounds.value) {
@@ -493,7 +495,10 @@ defineExpose({
         }
       })
       if (targetLayer) {
-        map.fitBounds(targetLayer.getBounds(), { padding: MAP_CONSTANTS.PADDING_LARGE, maxZoom: MAP_CONSTANTS.MAX_ZOOM_ZOOM_TO_PLOT })
+        map.fitBounds(targetLayer.getBounds(), {
+          padding: MAP_CONSTANTS.PADDING_LARGE,
+          maxZoom: MAP_CONSTANTS.MAX_ZOOM_ZOOM_TO_PLOT,
+        })
         targetLayer.openPopup()
       }
     }

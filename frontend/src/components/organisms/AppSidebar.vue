@@ -95,27 +95,52 @@ function getInitials(name) {
 
 <template>
   <div class="hidden md:flex md:flex-shrink-0 relative">
-    <div :class="['flex flex-col transition-all duration-300 ease-in-out', isCollapsed ? 'w-20' : 'w-64']">
+    <div
+      :class="[
+        'flex flex-col transition-all duration-300 ease-in-out',
+        isCollapsed ? 'w-20' : 'w-64',
+      ]"
+    >
       <div
         class="flex flex-col h-0 flex-1 border-r border-stone-200 bg-gradient-to-b from-white via-white to-stone-50 relative"
       >
         <!-- Toggle button -->
-        <button 
-          @click="isCollapsed = !isCollapsed" 
-          class="absolute -right-3 top-5 bg-white border border-stone-200 rounded-full p-1 text-stone-400 hover:text-stone-600 shadow-sm z-10 transition-transform duration-300" 
+        <button
+          @click="isCollapsed = !isCollapsed"
+          class="absolute -right-3 top-5 bg-white border border-stone-200 rounded-full p-1 text-stone-400 hover:text-stone-600 shadow-sm z-10 transition-transform duration-300"
           :class="isCollapsed ? 'rotate-180' : ''"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            ></path>
+          </svg>
         </button>
 
         <!-- Logo area -->
-        <div :class="['flex items-center flex-shrink-0 border-b border-stone-100 h-16', isCollapsed ? 'justify-center px-0' : 'px-5']">
+        <div
+          :class="[
+            'flex items-center flex-shrink-0 border-b border-stone-100 h-16',
+            isCollapsed ? 'justify-center px-0' : 'px-5',
+          ]"
+        >
           <AppLogo :collapsed="isCollapsed" />
         </div>
 
         <!-- Nav section label -->
-        <div class="pt-5 pb-2 transition-all duration-300" :class="isCollapsed ? 'px-0 text-center' : 'px-4'">
-          <p v-if="!isCollapsed" class="text-[10px] font-bold text-stone-400 uppercase tracking-widest whitespace-nowrap">Navigation</p>
+        <div
+          class="pt-5 pb-2 transition-all duration-300"
+          :class="isCollapsed ? 'px-0 text-center' : 'px-4'"
+        >
+          <p
+            v-if="!isCollapsed"
+            class="text-[10px] font-bold text-stone-400 uppercase tracking-widest whitespace-nowrap"
+          >
+            Navigation
+          </p>
           <div v-else class="h-[15px]"></div>
         </div>
 
@@ -130,7 +155,7 @@ function getInitials(name) {
                 ? 'bg-moss-50 text-moss-700 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
                 : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900 border-l-[3px] border-transparent pl-2',
               'group flex items-center py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
-              isCollapsed ? 'justify-center pr-2' : 'pr-2'
+              isCollapsed ? 'justify-center pr-2' : 'pr-2',
             ]"
             :title="isCollapsed ? item.name : ''"
           >
@@ -138,7 +163,7 @@ function getInitials(name) {
               :class="[
                 isActive(item.to) ? 'text-moss-600' : 'text-stone-400 group-hover:text-stone-500',
                 'flex-shrink-0 h-5 w-5',
-                isCollapsed ? '' : 'mr-3'
+                isCollapsed ? '' : 'mr-3',
               ]"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -158,7 +183,9 @@ function getInitials(name) {
         </nav>
 
         <!-- User footer -->
-        <div class="flex-shrink-0 border-t border-stone-200 p-4 bg-white transition-all duration-300">
+        <div
+          class="flex-shrink-0 border-t border-stone-200 p-4 bg-white transition-all duration-300"
+        >
           <div :class="['flex items-center', isCollapsed ? 'justify-center' : 'gap-3']">
             <!-- Organic avatar -->
             <div

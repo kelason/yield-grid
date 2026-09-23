@@ -40,27 +40,35 @@ function applyFilters() {
 <template>
   <div class="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-lg p-4 mb-6">
     <!-- Availability Tabs -->
-    <div class="flex space-x-1 bg-stone-100/50 p-1 rounded-lg mb-5 w-fit border border-stone-200/50">
+    <div
+      class="flex space-x-1 bg-stone-100/50 p-1 rounded-lg mb-5 w-fit border border-stone-200/50"
+    >
       <button
         type="button"
-        @click="localFilters.availability = 'all'; applyFilters()"
+        @click="
+          localFilters.availability = 'all'
+          applyFilters()
+        "
         :class="[
           localFilters.availability === 'all'
             ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-md transition-all'
+          'px-4 py-1.5 text-sm font-medium rounded-md transition-all',
         ]"
       >
         All Markets
       </button>
       <button
         type="button"
-        @click="localFilters.availability = 'available'; applyFilters()"
+        @click="
+          localFilters.availability = 'available'
+          applyFilters()
+        "
         :class="[
           localFilters.availability === 'available'
             ? 'bg-white text-moss-700 shadow-sm ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5'
+          'px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5',
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-moss-500"></span>
@@ -68,12 +76,15 @@ function applyFilters() {
       </button>
       <button
         type="button"
-        @click="localFilters.availability = 'incoming'; applyFilters()"
+        @click="
+          localFilters.availability = 'incoming'
+          applyFilters()
+        "
         :class="[
           localFilters.availability === 'incoming'
             ? 'bg-white text-harvest-700 shadow-sm ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5'
+          'px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5',
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-harvest-500"></span>

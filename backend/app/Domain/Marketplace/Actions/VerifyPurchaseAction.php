@@ -69,8 +69,11 @@ final class VerifyPurchaseAction
             $this->logger->info('VerifyPurchaseAction debug 2', ['is_paid' => $isPaid, 'payment_status' => $purchase->payment_status->value]);
 
             if ($isPaid && $purchase->payment_status === PaymentStatus::PENDING) {
-                $contract = $this->transactionManager->run(function () use ($purchase, $paymentIntentId, $paymentMethodString) {
-                    $contract = $this->contractRepository->findByIdLocked($purchase->forward_contract_id);
+                $purchasable = $this->transactionManager->run(function () use ($purchase, $paymentIntentId, $paymentMethodString) {
+                    $purchasable = $purchase->contract ?? $purchase->harvestListing;
+                    $purchasableClass = get_class($purchasable);
+                    $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
+
                     $paymentMethod = PaymentMethod::tryFrom($paymentMethodString) ?? PaymentMethod::CARD;
 
                     $this->purchaseRepository->update($purchase, [
@@ -80,13 +83,14 @@ final class VerifyPurchaseAction
                         'purchased_at' => new \DateTimeImmutable,
                     ]);
 
-                    $this->contractRepository->update($contract, ['status' => ContractStatus::SOLD]);
+                    $newStatus = $purchase->is_downpayment ? ContractStatus::PARTIALLY_PAID : ContractStatus::SOLD;
+                    $lockedPurchasable->update(['status' => $newStatus]);
 
-                    return $contract;
+                    return $lockedPurchasable;
                 });
 
                 // Dispatch event outside transaction so Reverb connection errors don't rollback the database changes
-                $this->eventDispatcher->dispatch(new ContractPurchased($purchase, $contract));
+                $this->eventDispatcher->dispatch(new ContractPurchased($purchase, $purchasable));
             }
         } catch (Exception $e) {
             $this->logger->error('Failed to verify purchase: '.$e->getMessage());

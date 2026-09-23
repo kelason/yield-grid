@@ -7,7 +7,12 @@ export function usePayment() {
   const error = ref(null)
   const checkoutUrl = ref(null)
 
-  async function startCheckout(contractId, type = 'contracts', quantityKg = null, paymentOption = 'paymongo') {
+  async function startCheckout(
+    contractId,
+    type = 'contracts',
+    quantityKg = null,
+    paymentOption = 'paymongo',
+  ) {
     loading.value = true
     error.value = null
 
@@ -17,7 +22,7 @@ export function usePayment() {
         data: {
           quantity_kg: quantityKg,
           payment_option: paymentOption,
-        }
+        },
       })
 
       if (paymentOption === 'cash') {

@@ -72,7 +72,10 @@ describe('marketStore', () => {
 
     const result = await store.approveCashPayment(1, 'partial', 500)
 
-    expect(mockPost).toHaveBeenCalledWith('/farmer/purchases/1/approve', { type: 'partial', amount: 500 })
+    expect(mockPost).toHaveBeenCalledWith('/farmer/purchases/1/approve', {
+      type: 'partial',
+      amount: 500,
+    })
     expect(result).toEqual({ id: 1, cash_payment_status: 'partially_paid' })
     expect(store.farmerPurchases[0].cash_payment_status).toBe('partially_paid')
   })

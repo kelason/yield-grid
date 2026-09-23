@@ -106,25 +106,44 @@ const handleTabChange = (tabId) => {
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Contract Details
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Status
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Total Value
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Harvest Date
                 </th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="contract in contracts" :key="contract.id" class="hover:bg-gray-50 transition-colors">
+              <tr
+                v-for="contract in contracts"
+                :key="contract.id"
+                class="hover:bg-gray-50 transition-colors"
+              >
                 <td class="px-6 py-4 align-top">
                   <div class="flex flex-col">
                     <div class="flex flex-wrap items-center gap-2 mb-1">
@@ -153,7 +172,11 @@ const handleTabChange = (tabId) => {
                   <StatusBadge :status="contract.status" size="sm" />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap align-top">
-                  <PriceTag :amount="contract.total_price" :currency="contract.currency" size="sm" />
+                  <PriceTag
+                    :amount="contract.total_price"
+                    :currency="contract.currency"
+                    size="sm"
+                  />
                   <div class="text-xs text-gray-400 mt-1">@ ₱{{ contract.price_per_kg }}/kg</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-top">
@@ -168,20 +191,35 @@ const handleTabChange = (tabId) => {
                     >
                       Cancel
                     </button>
+                    <router-link
+                      v-else-if="
+                        contract.status === 'reserved' || contract.status === 'partially_paid'
+                      "
+                      :to="{ name: 'farmer-cash-approvals' }"
+                      class="text-moss-600 hover:text-moss-900"
+                    >
+                      Review Payment
+                    </router-link>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        
+
         <!-- Mobile/Tablet Card List -->
         <div class="lg:hidden divide-y divide-gray-200">
-          <div v-for="contract in contracts" :key="contract.id" class="p-4 bg-white hover:bg-gray-50 transition-colors">
+          <div
+            v-for="contract in contracts"
+            :key="contract.id"
+            class="p-4 bg-white hover:bg-gray-50 transition-colors"
+          >
             <div class="flex justify-between items-start mb-3">
               <div class="flex flex-col pr-4">
                 <span class="text-sm font-bold text-stone-900">{{ contract.title }}</span>
-                <span class="text-xs text-stone-500 mt-0.5">{{ contract.quantity_kg }}kg {{ contract.crop_name }}</span>
+                <span class="text-xs text-stone-500 mt-0.5"
+                  >{{ contract.quantity_kg }}kg {{ contract.crop_name }}</span
+                >
                 <div class="mt-2">
                   <span
                     v-if="contract.type === 'listing'"
@@ -201,8 +239,10 @@ const handleTabChange = (tabId) => {
               </div>
               <StatusBadge :status="contract.status" size="sm" />
             </div>
-            
-            <div class="grid grid-cols-2 gap-4 mt-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+
+            <div
+              class="grid grid-cols-2 gap-4 mt-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100"
+            >
               <div>
                 <span class="block text-xs font-medium text-gray-500 mb-1">Total Value</span>
                 <PriceTag :amount="contract.total_price" :currency="contract.currency" size="sm" />
@@ -214,13 +254,28 @@ const handleTabChange = (tabId) => {
               </div>
             </div>
 
-            <div class="flex justify-end pt-3 mt-3 border-t border-gray-100" v-if="contract.status === 'available'">
-              <button 
-                @click="$emit('cancel-contract', contract)" 
+            <div
+              class="flex justify-end pt-3 mt-3 border-t border-gray-100"
+              v-if="
+                contract.status === 'available' ||
+                contract.status === 'reserved' ||
+                contract.status === 'partially_paid'
+              "
+            >
+              <button
+                v-if="contract.status === 'available'"
+                @click="$emit('cancel-contract', contract)"
                 class="inline-flex items-center justify-center px-4 py-2 border border-red-200 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors w-full sm:w-auto"
               >
                 Cancel Listing
               </button>
+              <router-link
+                v-else
+                :to="{ name: 'farmer-cash-approvals' }"
+                class="inline-flex items-center justify-center px-4 py-2 border border-moss-200 rounded-lg text-sm font-medium text-moss-600 bg-moss-50 hover:bg-moss-100 transition-colors w-full sm:w-auto"
+              >
+                Review Payment
+              </router-link>
             </div>
           </div>
         </div>

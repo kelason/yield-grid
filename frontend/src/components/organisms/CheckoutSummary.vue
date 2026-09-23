@@ -34,10 +34,13 @@ const quantityKg = ref(props.contract.quantity_kg)
 const paymentOption = ref('paymongo')
 
 // Reset if contract changes
-watch(() => props.contract.id, () => {
-  quantityKg.value = props.contract.quantity_kg
-  paymentOption.value = 'paymongo'
-})
+watch(
+  () => props.contract.id,
+  () => {
+    quantityKg.value = props.contract.quantity_kg
+    paymentOption.value = 'paymongo'
+  },
+)
 
 const totalPriceForQuantity = computed(() => quantityKg.value * pricePerKg.value)
 
@@ -49,7 +52,9 @@ const isDownpayment = computed(() => {
 })
 
 const amountToPay = computed(() => {
-  return isDownpayment.value ? totalPriceForQuantity.value * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE : totalPriceForQuantity.value
+  return isDownpayment.value
+    ? totalPriceForQuantity.value * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE
+    : totalPriceForQuantity.value
 })
 
 const handleConfirm = () => {
@@ -57,7 +62,7 @@ const handleConfirm = () => {
     contractId: props.contract.id,
     type: props.contract.type,
     quantityKg: quantityKg.value,
-    paymentOption: paymentOption.value
+    paymentOption: paymentOption.value,
   })
 }
 </script>
@@ -120,7 +125,9 @@ const handleConfirm = () => {
 
     <div class="mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-sm space-y-6">
       <div>
-        <label for="quantity" class="block text-sm font-bold text-gray-900 mb-2">Purchase Quantity (kg)</label>
+        <label for="quantity" class="block text-sm font-bold text-gray-900 mb-2"
+          >Purchase Quantity (kg)</label
+        >
         <div class="flex items-center gap-4">
           <input
             type="range"
@@ -149,8 +156,14 @@ const handleConfirm = () => {
       <div class="border-t border-gray-100 pt-6">
         <label class="block text-sm font-bold text-gray-900 mb-3">Payment Method</label>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
-            :class="paymentOption === 'paymongo' ? 'border-farm-500 ring-1 ring-farm-500' : 'border-gray-300'">
+          <label
+            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+            :class="
+              paymentOption === 'paymongo'
+                ? 'border-farm-500 ring-1 ring-farm-500'
+                : 'border-gray-300'
+            "
+          >
             <input type="radio" v-model="paymentOption" value="paymongo" class="sr-only" />
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
@@ -163,8 +176,12 @@ const handleConfirm = () => {
             </div>
           </label>
 
-          <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
-            :class="paymentOption === 'cash' ? 'border-farm-500 ring-1 ring-farm-500' : 'border-gray-300'">
+          <label
+            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+            :class="
+              paymentOption === 'cash' ? 'border-farm-500 ring-1 ring-farm-500' : 'border-gray-300'
+            "
+          >
             <input type="radio" v-model="paymentOption" value="cash" class="sr-only" />
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
@@ -183,12 +200,21 @@ const handleConfirm = () => {
     <div class="flex flex-col sm:flex-row justify-between items-end mb-8">
       <div class="mb-4 sm:mb-0 w-full sm:w-auto">
         <h4 class="text-sm font-medium text-gray-500 mb-2">Total Contract Value</h4>
-        <PriceTag :amount="totalPriceForQuantity" :currency="contract.currency" size="md" class="text-gray-600" />
+        <PriceTag
+          :amount="totalPriceForQuantity"
+          :currency="contract.currency"
+          size="md"
+          class="text-gray-600"
+        />
       </div>
 
       <div class="text-right w-full sm:w-auto">
         <div class="text-sm font-bold text-gray-900 mb-1">
-          {{ isDownpayment ? `Required ${PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100}% Downpayment` : 'Total Amount to Pay' }}
+          {{
+            isDownpayment
+              ? `Required ${PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100}% Downpayment`
+              : 'Total Amount to Pay'
+          }}
         </div>
         <PriceTag
           :amount="amountToPay"
@@ -205,7 +231,9 @@ const handleConfirm = () => {
     >
       <InformationCircleIcon class="h-5 w-5 mr-3 flex-shrink-0 text-blue-500 mt-0.5" />
       <p>
-        Because this harvest is scheduled in the future, only a {{ PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100 }}% downpayment is required today to reserve your supply.
+        Because this harvest is scheduled in the future, only a
+        {{ PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100 }}% downpayment is required today to
+        reserve your supply.
       </p>
     </div>
 

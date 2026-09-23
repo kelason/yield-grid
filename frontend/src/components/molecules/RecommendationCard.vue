@@ -29,7 +29,9 @@
         </div>
 
         <!-- Reasoning -->
-        <p class="text-stone-600 mb-4 leading-relaxed text-sm text-justify">{{ recommendation.reasoning }}</p>
+        <p class="text-stone-600 mb-4 leading-relaxed text-sm text-justify">
+          {{ recommendation.reasoning }}
+        </p>
 
         <!-- Projected Yield badge -->
         <div

@@ -77,8 +77,10 @@ export const useMarketStore = defineStore('market', () => {
       if (filters.value.crop) queryParams.append('crop', filters.value.crop)
       if (filters.value.minPrice) queryParams.append('min_price', filters.value.minPrice)
       if (filters.value.maxPrice) queryParams.append('max_price', filters.value.maxPrice)
-      if (filters.value.harvestBefore) queryParams.append('harvest_before', filters.value.harvestBefore)
-      if (filters.value.harvestAfter) queryParams.append('harvest_after', filters.value.harvestAfter)
+      if (filters.value.harvestBefore)
+        queryParams.append('harvest_before', filters.value.harvestBefore)
+      if (filters.value.harvestAfter)
+        queryParams.append('harvest_after', filters.value.harvestAfter)
       if (filters.value.availability && filters.value.availability !== 'all') {
         queryParams.append('availability', filters.value.availability)
       }
@@ -181,14 +183,15 @@ export const useMarketStore = defineStore('market', () => {
   async function cancelContract(id, type = 'contract') {
     loading.value.cancel = true
     try {
-      const endpoint = type === 'listing' 
-        ? `/farmer/listings/${id}/cancel` 
-        : `/farmer/contracts/${id}/cancel`
-        
+      const endpoint =
+        type === 'listing' ? `/farmer/listings/${id}/cancel` : `/farmer/contracts/${id}/cancel`
+
       const response = await api.patch(endpoint)
       const updatedData = response.data.data || response.data
 
-      const index = farmerContracts.value.findIndex((c) => c.id === id && (c.type || 'contract') === type)
+      const index = farmerContracts.value.findIndex(
+        (c) => c.id === id && (c.type || 'contract') === type,
+      )
       if (index !== -1) {
         farmerContracts.value[index] = updatedData
       }
@@ -236,7 +239,7 @@ export const useMarketStore = defineStore('market', () => {
     try {
       const response = await api.get(`/farmer/purchases?page=${page}`)
       farmerPurchases.value = response.data.data || response.data
-      
+
       const meta = response.data.meta
       if (meta) {
         farmerPagination.value = {
@@ -257,11 +260,11 @@ export const useMarketStore = defineStore('market', () => {
     try {
       const response = await api.post(`/farmer/purchases/${purchaseId}/approve`, {
         type,
-        amount
+        amount,
       })
-      
+
       // Update local state
-      const index = farmerPurchases.value.findIndex(p => p.id === purchaseId)
+      const index = farmerPurchases.value.findIndex((p) => p.id === purchaseId)
       if (index !== -1) {
         farmerPurchases.value[index] = response.data.data || response.data
       }

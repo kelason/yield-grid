@@ -106,7 +106,7 @@ onMounted(async () => {
         router.push({ name: 'login' })
       }
     }, REDIRECT_DELAY_MS)
-  } catch (error) {
+  } catch {
     loading.value = false
     errorMessage.value = 'The link expired please click resend.'
   }

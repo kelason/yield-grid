@@ -10,6 +10,7 @@ use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Actions\ApproveCashPaymentAction;
 use App\Domain\Marketplace\Actions\CancelCheckoutAction;
 use App\Domain\Marketplace\Actions\CreateCashPurchaseAction;
+use App\Domain\Marketplace\Actions\SplitPurchasableAction;
 use App\Domain\Marketplace\Actions\VerifyPurchaseAction;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
@@ -34,7 +35,8 @@ final class PurchaseController extends Controller
         private readonly CancelCheckoutAction $cancelCheckoutAction,
         private readonly PayMongoService $payMongoService,
         private readonly CreateCashPurchaseAction $createCashPurchaseAction,
-        private readonly ApproveCashPaymentAction $approveCashPaymentAction
+        private readonly ApproveCashPaymentAction $approveCashPaymentAction,
+        private readonly SplitPurchasableAction $splitPurchasableAction
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -76,7 +78,7 @@ final class PurchaseController extends Controller
             'payment_option' => 'required|in:cash,paymongo',
         ]);
 
-        $purchasableClass = $type === 'listings' ? HarvestListing::class : ForwardContract::class;
+        $purchasableClass = ($type === 'listing' || $type === 'listings') ? HarvestListing::class : ForwardContract::class;
         $purchasable = $purchasableClass::findOrFail($id);
 
         if (! $purchasable->is_purchasable) {
@@ -104,15 +106,12 @@ final class PurchaseController extends Controller
             if (! $inner->is_purchasable || $quantityKg > (float) $inner->quantity_kg) {
                 return null;
             }
-            // If full purchase, reserve. Otherwise partially paid logic applies.
-            // For simplicity in PayMongo flow, we reserve the item or split it later upon verification.
-            // Wait, to reserve the quantity properly before payment, we should split it now.
-            // But if checkout cancels, we'd have to merge it back. That's complex.
-            // For now, if we don't split, concurrent checkout to the exact same contract could over-reserve.
-            // Actually, we can just let VerifyPurchaseAction do the splitting, and here we just mark status.
-            $inner->update(['status' => ContractStatus::RESERVED]);
 
-            return $inner;
+            $splitItem = $this->splitPurchasableAction->execute($inner, $quantityKg);
+            $splitItem->status = ContractStatus::RESERVED;
+            $splitItem->save();
+
+            return $splitItem;
         });
 
         if (! $lockedPurchasable) {

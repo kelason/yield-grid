@@ -14,7 +14,7 @@ vi.mock('@/composables/useApi', () => {
       post: postMock,
       defaults: {
         baseURL: 'http://localhost:3000/api/v1',
-      }
+      },
     }),
   }
 })

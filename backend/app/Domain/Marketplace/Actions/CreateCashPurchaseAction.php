@@ -45,7 +45,7 @@ final class CreateCashPurchaseAction
             }
 
             $splitItem = $this->splitPurchasableAction->execute($lockedItem, $quantityKg);
-            $splitItem->status = ContractStatus::PARTIALLY_PAID;
+            $splitItem->status = ContractStatus::RESERVED;
             $splitItem->save();
 
             $totalContractAmount = $splitItem->total_price;

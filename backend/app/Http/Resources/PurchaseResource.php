@@ -7,6 +7,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Domain\Marketplace\Models\Purchase
+ */
 class PurchaseResource extends JsonResource
 {
     /**
@@ -18,10 +21,15 @@ class PurchaseResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'buyer' => $this->buyer ? [
+                'id' => $this->buyer->id,
+                'name' => $this->buyer->name,
+            ] : null,
             'contract' => $this->contract ? new MarketplaceItemResource($this->contract) : ($this->harvestListing ? new MarketplaceItemResource($this->harvestListing) : null),
             'amount_paid' => (float) $this->amount_paid,
             'currency' => $this->currency,
             'payment_status' => $this->payment_status->value,
+            'payment_method' => $this->payment_method?->value,
             'cash_payment_status' => $this->cash_payment_status?->value,
             'cash_amount_confirmed' => (float) $this->cash_amount_confirmed,
             'is_downpayment' => (bool) $this->is_downpayment,

@@ -14,7 +14,8 @@ defineProps({
     <template v-if="!collapsed">
       <span :class="['text-2xl font-bold tracking-tight', dark ? 'text-moss-400' : 'text-moss-600']"
         >Yield</span
-      ><span :class="['text-2xl font-bold tracking-tight', dark ? 'text-stone-100' : 'text-soil-600']"
+      ><span
+        :class="['text-2xl font-bold tracking-tight', dark ? 'text-stone-100' : 'text-soil-600']"
         >Grid</span
       >
     </template>
