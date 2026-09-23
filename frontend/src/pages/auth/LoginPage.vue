@@ -1,11 +1,17 @@
 <script setup>
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import LoginForm from '../../components/organisms/LoginForm.vue'
 
 const router = useRouter()
+const route = useRoute()
 
 function onLoginSuccess() {
-  router.push('/dashboard')
+  const redirect = route.query.redirect
+  if (redirect) {
+    router.push(redirect)
+  } else {
+    router.push('/dashboard')
+  }
 }
 </script>
 

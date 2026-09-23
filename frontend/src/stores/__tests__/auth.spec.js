@@ -12,6 +12,9 @@ vi.mock('@/composables/useApi', () => {
     useApi: () => ({
       get: getMock,
       post: postMock,
+      defaults: {
+        baseURL: 'http://localhost:3000/api/v1',
+      }
     }),
   }
 })
@@ -49,17 +52,29 @@ describe('Auth Store', () => {
     const token = 'fake-token'
     store.token = token // necessary for fetchUser to proceed
 
-    const url = 'http://localhost:3000/api/email/verify/1/hash?signature=xyz'
+    const url = 'http://localhost:8000/api/email/verify/1/hash?signature=xyz'
 
     const result = await store.verifyEmail(url)
 
     expect(api.get).toHaveBeenNthCalledWith(
       1,
-      'http://localhost:3000/api/email/verify/1/hash?signature=xyz',
+      'http://localhost:8000/api/email/verify/1/hash?signature=xyz',
     )
     expect(api.get).toHaveBeenNthCalledWith(2, '/user')
     expect(result).toEqual({ message: 'Verified' })
     expect(store.user.email_verified_at).not.toBeNull()
+  })
+
+  it('verifyEmail throws on invalid path', async () => {
+    const store = useAuthStore()
+    const url = 'http://localhost:8000/api/some-other-route'
+    await expect(store.verifyEmail(url)).rejects.toThrow('Invalid verification URL.')
+  })
+
+  it('verifyEmail throws on invalid origin', async () => {
+    const store = useAuthStore()
+    const url = 'http://malicious.com/api/email/verify/1/hash?signature=xyz'
+    await expect(store.verifyEmail(url)).rejects.toThrow('Invalid verification URL origin.')
   })
 
   it('manages resend cooldown correctly', async () => {

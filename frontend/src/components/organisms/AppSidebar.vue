@@ -1,11 +1,12 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AppLogo from '../atoms/AppLogo.vue'
 
 const authStore = useAuthStore()
 const route = useRoute()
+const isCollapsed = ref(false)
 
 const farmerNavigation = [
   {
@@ -31,6 +32,18 @@ const farmerNavigation = [
     to: { name: 'farmer-contracts' },
     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
     emoji: '📝',
+  },
+  {
+    name: 'Post Harvest',
+    to: { name: 'farmer-new-listing' },
+    icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6',
+    emoji: '➕',
+  },
+  {
+    name: 'Cash Approvals',
+    to: { name: 'farmer-cash-approvals' },
+    icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+    emoji: '💵',
   },
 ]
 
@@ -81,23 +94,33 @@ function getInitials(name) {
 </script>
 
 <template>
-  <div class="hidden md:flex md:flex-shrink-0">
-    <div class="flex flex-col w-64">
+  <div class="hidden md:flex md:flex-shrink-0 relative">
+    <div :class="['flex flex-col transition-all duration-300 ease-in-out', isCollapsed ? 'w-20' : 'w-64']">
       <div
-        class="flex flex-col h-0 flex-1 border-r border-stone-200 bg-gradient-to-b from-white via-white to-stone-50"
+        class="flex flex-col h-0 flex-1 border-r border-stone-200 bg-gradient-to-b from-white via-white to-stone-50 relative"
       >
+        <!-- Toggle button -->
+        <button 
+          @click="isCollapsed = !isCollapsed" 
+          class="absolute -right-3 top-5 bg-white border border-stone-200 rounded-full p-1 text-stone-400 hover:text-stone-600 shadow-sm z-10 transition-transform duration-300" 
+          :class="isCollapsed ? 'rotate-180' : ''"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+
         <!-- Logo area -->
-        <div class="flex items-center flex-shrink-0 px-5 border-b border-stone-100 h-16">
-          <AppLogo />
+        <div :class="['flex items-center flex-shrink-0 border-b border-stone-100 h-16', isCollapsed ? 'justify-center px-0' : 'px-5']">
+          <AppLogo :collapsed="isCollapsed" />
         </div>
 
         <!-- Nav section label -->
-        <div class="px-4 pt-5 pb-2">
-          <p class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Navigation</p>
+        <div class="pt-5 pb-2 transition-all duration-300" :class="isCollapsed ? 'px-0 text-center' : 'px-4'">
+          <p v-if="!isCollapsed" class="text-[10px] font-bold text-stone-400 uppercase tracking-widest whitespace-nowrap">Navigation</p>
+          <div v-else class="h-[15px]"></div>
         </div>
 
         <!-- Nav links -->
-        <nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+        <nav class="flex-1 px-3 space-y-1 overflow-y-auto overflow-x-hidden">
           <RouterLink
             v-for="item in navigation"
             :key="item.name"
@@ -106,13 +129,16 @@ function getInitials(name) {
               isActive(item.to)
                 ? 'bg-moss-50 text-moss-700 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
                 : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900 border-l-[3px] border-transparent pl-2',
-              'group flex items-center pr-2 py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
+              'group flex items-center py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
+              isCollapsed ? 'justify-center pr-2' : 'pr-2'
             ]"
+            :title="isCollapsed ? item.name : ''"
           >
             <svg
               :class="[
                 isActive(item.to) ? 'text-moss-600' : 'text-stone-400 group-hover:text-stone-500',
-                'mr-2 flex-shrink-0 h-5 w-5',
+                'flex-shrink-0 h-5 w-5',
+                isCollapsed ? '' : 'mr-3'
               ]"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -127,24 +153,25 @@ function getInitials(name) {
                 :d="item.icon"
               />
             </svg>
-            {{ item.name }}
+            <span v-if="!isCollapsed" class="truncate">{{ item.name }}</span>
           </RouterLink>
         </nav>
 
         <!-- User footer -->
-        <div class="flex-shrink-0 border-t border-stone-200 p-4 bg-white">
-          <div class="flex items-center gap-3">
+        <div class="flex-shrink-0 border-t border-stone-200 p-4 bg-white transition-all duration-300">
+          <div :class="['flex items-center', isCollapsed ? 'justify-center' : 'gap-3']">
             <!-- Organic avatar -->
             <div
-              class="w-9 h-9 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0"
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0 cursor-pointer"
+              :title="isCollapsed ? authStore.user?.name : ''"
             >
               {{ getInitials(authStore.user?.name) }}
             </div>
-            <div class="min-w-0">
+            <div v-if="!isCollapsed" class="min-w-0 overflow-hidden">
               <p class="text-sm font-semibold text-stone-800 truncate">
                 {{ authStore.user?.name }}
               </p>
-              <p class="text-xs font-medium text-stone-400 capitalize">
+              <p class="text-xs font-medium text-stone-400 capitalize truncate">
                 {{ authStore.userRole }}
               </p>
             </div>

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class EmailVerificationController extends Controller
 {
-    public function verify(EmailVerificationRequest $request, VerifyEmailAction $action): JsonResponse
+    public function verify(Request $request, VerifyEmailAction $action): JsonResponse
     {
         $action($request);
 

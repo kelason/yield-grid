@@ -1,0 +1,3 @@
+export const PAYMENT_CONSTANTS = {
+  DOWNPAYMENT_PERCENTAGE: 0.1,
+}

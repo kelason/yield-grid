@@ -20,15 +20,23 @@ defineEmits(['view-details', 'purchase'])
     <div class="h-1.5 bg-gradient-to-r from-moss-500 to-moss-600 w-full"></div>
 
     <div class="p-5 flex-grow flex flex-col">
-      <div class="flex justify-between items-start mb-4">
-        <div>
+      <div class="flex justify-between items-start mb-4 gap-3">
+        <div class="min-w-0 flex-1">
           <h3
-            class="text-lg font-bold text-stone-900 leading-tight mb-1 line-clamp-2 font-serif"
+            class="text-lg font-bold text-stone-900 leading-tight mb-1 truncate font-serif"
             :title="contract.title"
           >
             {{ contract.title }}
           </h3>
-          <p class="text-sm font-semibold text-moss-600">{{ contract.crop_name }}</p>
+          <div class="flex items-center gap-2 mb-2 flex-wrap sm:flex-nowrap">
+            <p class="text-sm font-semibold text-moss-600 truncate">{{ contract.crop_name }}</p>
+          </div>
+          <div v-if="contract.is_harvest_available" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-moss-100 text-moss-800">
+            🟢 Harvest Available
+          </div>
+          <div v-else class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-harvest-100 text-harvest-800">
+            🕐 Incoming Harvest
+          </div>
         </div>
         <StatusBadge :status="contract.status" size="sm" class="ml-2 flex-shrink-0" />
       </div>

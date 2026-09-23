@@ -34,19 +34,32 @@ const handleViewContract = async (contract) => {
   showCheckoutPanel.value = true
 }
 
-const handleConfirmCheckout = async () => {
+const handleConfirmCheckout = async (checkoutData) => {
   if (authStore.isAuthenticated && !authStore.isEmailVerified) {
     notificationStore.warning('Please verify your email address to purchase contracts.')
     return
   }
-  if (marketStore.activeContract) {
+  
+  if (checkoutData.paymentOption === 'cash') {
     try {
-      await startCheckout(marketStore.activeContract.id)
+      await startCheckout(checkoutData.contractId, checkoutData.type, checkoutData.quantityKg, 'cash')
+      notificationStore.success('Cash payment request sent! Waiting for farmer approval.')
+      showCheckoutPanel.value = false
+      marketStore.fetchMarketContracts(marketStore.pagination.currentPage)
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || err.message || 'Failed to initialize checkout session'
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to request cash payment'
       notificationStore.error(errorMessage)
     }
+    return
+  }
+
+  // PayMongo Flow
+  try {
+    await startCheckout(checkoutData.contractId, checkoutData.type, checkoutData.quantityKg, 'paymongo')
+  } catch (err) {
+    const errorMessage =
+      err.response?.data?.message || err.message || 'Failed to initialize checkout session'
+    notificationStore.error(errorMessage)
   }
 }
 </script>

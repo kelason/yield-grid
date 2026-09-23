@@ -2,11 +2,15 @@
 
 use App\Constants\PaymentConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Domain\Marketplace\Enums\CashPaymentStatus;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
+use App\Domain\Marketplace\Events\CashPaymentApproved;
+use App\Domain\Marketplace\Events\CashPaymentRequested;
 use App\Domain\Marketplace\Events\ContractPurchased;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
@@ -131,7 +135,10 @@ it('allows a buyer to create a checkout session', function () {
 
     $this->app->instance(PayMongoService::class, $mockService);
 
-    $response = $this->actingAs($buyer)->postJson("/api/v1/market/contracts/{$contract->id}/checkout");
+    $response = $this->actingAs($buyer)->postJson("/api/v1/market/contracts/{$contract->id}/checkout", [
+        'quantity_kg' => $contract->quantity_kg,
+        'payment_option' => 'paymongo',
+    ]);
 
     $response->assertOk();
     $response->assertJsonPath('checkout_url', 'https://paymongo.com/checkout/test');
@@ -314,4 +321,109 @@ it('allows a buyer to list their own purchases', function () {
         ],
         'meta' => ['current_page', 'last_page', 'per_page', 'total'],
     ]);
+});
+
+it('allows a farmer to create a manual harvest listing', function () {
+    $farmer = User::factory()->farmer()->create();
+
+    $response = $this->actingAs($farmer)->postJson('/api/v1/farmer/listings', [
+        'title' => 'Manual Rice',
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 45.5,
+        'estimated_harvest_date' => now()->addDays(20)->format('Y-m-d'),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+
+    $response->assertCreated();
+    $response->assertJsonPath('listing.title', 'Manual Rice');
+
+    $this->assertDatabaseHas('harvest_listings', [
+        'farmer_id' => $farmer->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 45.50,
+    ]);
+});
+
+it('allows a buyer to create a cash checkout session', function () {
+    $buyer = User::factory()->buyer()->create();
+    $farmer = User::factory()->farmer()->create();
+
+    $listing = HarvestListing::create([
+        'title' => 'Test Listing',
+        'farmer_id' => $farmer->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 50,
+        'total_price' => 50000,
+        'estimated_harvest_date' => now()->addDays(20),
+        'expiry_date' => now()->addDays(30),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+
+    Event::fake([CashPaymentRequested::class]);
+
+    $response = $this->actingAs($buyer)->postJson("/api/v1/market/listings/{$listing->id}/checkout", [
+        'quantity_kg' => 100,
+        'payment_option' => 'cash',
+    ]);
+
+    $response->assertOk();
+    $response->assertJsonPath('message', 'Cash purchase request created. Please wait for farmer approval.');
+
+    $this->assertDatabaseHas('purchases', [
+        'buyer_id' => $buyer->id,
+        'payment_status' => PaymentStatus::PENDING->value,
+        'cash_payment_status' => CashPaymentStatus::PENDING_APPROVAL->value,
+    ]);
+
+    Event::assertDispatched(CashPaymentRequested::class);
+});
+
+it('allows a farmer to approve a partial cash payment', function () {
+    $farmer = User::factory()->farmer()->create();
+    $buyer = User::factory()->buyer()->create();
+
+    $listing = HarvestListing::create([
+        'title' => 'Test Listing',
+        'farmer_id' => $farmer->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 50,
+        'total_price' => 50000,
+        'estimated_harvest_date' => now()->addDays(20),
+        'expiry_date' => now()->addDays(30),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+
+    $purchase = Purchase::factory()->create([
+        'harvest_listing_id' => $listing->id,
+        'forward_contract_id' => null,
+        'buyer_id' => $buyer->id,
+        'payment_status' => PaymentStatus::PENDING,
+        'cash_payment_status' => CashPaymentStatus::PENDING_APPROVAL,
+        'total_contract_amount' => 5000,
+        'is_downpayment' => true,
+    ]);
+
+    Event::fake([CashPaymentApproved::class]);
+
+    $response = $this->actingAs($farmer)->postJson("/api/v1/farmer/purchases/{$purchase->id}/approve", [
+        'type' => 'partial',
+        'amount' => 500,
+    ]);
+
+    $response->assertOk();
+
+    $this->assertDatabaseHas('purchases', [
+        'id' => $purchase->id,
+        'cash_payment_status' => CashPaymentStatus::PARTIALLY_PAID->value,
+        'cash_amount_confirmed' => 500,
+    ]);
+
+    Event::assertDispatched(CashPaymentApproved::class);
 });

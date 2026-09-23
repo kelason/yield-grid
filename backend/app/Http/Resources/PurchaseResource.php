@@ -18,12 +18,14 @@ class PurchaseResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'session_id' => $this->paymongo_checkout_id,
-            'contract' => new ForwardContractResource($this->whenLoaded('contract')),
-            'payment_method' => $this->payment_method?->value,
+            'contract' => $this->contract ? new MarketplaceItemResource($this->contract) : ($this->harvestListing ? new MarketplaceItemResource($this->harvestListing) : null),
             'amount_paid' => (float) $this->amount_paid,
             'currency' => $this->currency,
             'payment_status' => $this->payment_status->value,
+            'cash_payment_status' => $this->cash_payment_status?->value,
+            'cash_amount_confirmed' => (float) $this->cash_amount_confirmed,
+            'is_downpayment' => (bool) $this->is_downpayment,
+            'total_contract_amount' => (float) $this->total_contract_amount,
             'purchased_at' => $this->purchased_at?->toIso8601String(),
             'created_at' => $this->created_at->toIso8601String(),
         ];

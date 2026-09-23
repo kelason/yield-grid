@@ -12,14 +12,18 @@ use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Exceptions\ContractPublishingException;
 use App\Domain\Marketplace\Exceptions\UnauthorizedContractPublishingException;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublishContractRequest;
 use App\Http\Resources\ForwardContractResource;
+use App\Http\Resources\MarketplaceItemResource;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 final class ForwardContractController extends Controller
 {
@@ -31,15 +35,27 @@ final class ForwardContractController extends Controller
     {
         $this->authorize('viewAny', ForwardContract::class);
 
-        $query = ForwardContract::byFarmer($request->user()->id)->latest();
+        $contractsQuery = ForwardContract::byFarmer($request->user()->id)->with(['farmer.farms', 'recommendation']);
+        $listingsQuery = HarvestListing::byFarmer($request->user()->id)->with(['farmer.farms']);
 
         if ($request->has('status')) {
-            $query->where('status', $request->query('status'));
+            $contractsQuery->where('status', $request->query('status'));
+            $listingsQuery->where('status', $request->query('status'));
         }
+
+        $contracts = $contractsQuery->get();
+        $listings = $listingsQuery->get();
+        $all = $contracts->concat($listings)->sortByDesc('created_at')->values();
 
         $perPage = (int) $request->query('per_page', PaginationConstants::DEFAULT_PER_PAGE);
 
-        return ForwardContractResource::collection($query->paginate($perPage));
+        $page = Paginator::resolveCurrentPage() ?: 1;
+        $items = $all->slice(($page - 1) * $perPage, $perPage)->values();
+        $paginator = new LengthAwarePaginator($items, $all->count(), $perPage, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+        ]);
+
+        return MarketplaceItemResource::collection($paginator);
     }
 
     public function stats(Request $request): JsonResponse

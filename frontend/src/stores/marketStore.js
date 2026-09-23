@@ -15,6 +15,7 @@ export const useMarketStore = defineStore('market', () => {
     total_revenue: 0,
   })
   const buyerPurchases = ref([])
+  const farmerPurchases = ref([])
   const activeContract = ref(null)
 
   const filters = ref({
@@ -76,6 +77,11 @@ export const useMarketStore = defineStore('market', () => {
       if (filters.value.crop) queryParams.append('crop', filters.value.crop)
       if (filters.value.minPrice) queryParams.append('min_price', filters.value.minPrice)
       if (filters.value.maxPrice) queryParams.append('max_price', filters.value.maxPrice)
+      if (filters.value.harvestBefore) queryParams.append('harvest_before', filters.value.harvestBefore)
+      if (filters.value.harvestAfter) queryParams.append('harvest_after', filters.value.harvestAfter)
+      if (filters.value.availability && filters.value.availability !== 'all') {
+        queryParams.append('availability', filters.value.availability)
+      }
       if (filters.value.sort) queryParams.append('sort', filters.value.sort)
 
       const { data, meta } = (await api.get(`/market/contracts?${queryParams.toString()}`)).data
@@ -97,10 +103,10 @@ export const useMarketStore = defineStore('market', () => {
     }
   }
 
-  async function fetchContractDetail(id) {
+  async function fetchContractDetail(id, type = 'contract') {
     loading.value.details = true
     try {
-      const { data } = await api.get(`/market/contracts/${id}`)
+      const { data } = await api.get(`/market/items/${type}/${id}`)
       activeContract.value = data.data || data
       return data
     } catch (error) {
@@ -159,19 +165,36 @@ export const useMarketStore = defineStore('market', () => {
     }
   }
 
-  async function cancelContract(contractId) {
+  async function createManualListing(formData) {
+    loading.value.publish = true
+    try {
+      const response = await api.post('/farmer/listings', formData)
+      return response.data
+    } catch (error) {
+      console.error('Error creating manual listing:', error)
+      throw error
+    } finally {
+      loading.value.publish = false
+    }
+  }
+
+  async function cancelContract(id, type = 'contract') {
     loading.value.cancel = true
     try {
-      const response = await api.patch(`/farmer/contracts/${contractId}/cancel`)
+      const endpoint = type === 'listing' 
+        ? `/farmer/listings/${id}/cancel` 
+        : `/farmer/contracts/${id}/cancel`
+        
+      const response = await api.patch(endpoint)
       const updatedData = response.data.data || response.data
 
-      const index = farmerContracts.value.findIndex((c) => c.id === contractId)
+      const index = farmerContracts.value.findIndex((c) => c.id === id && (c.type || 'contract') === type)
       if (index !== -1) {
         farmerContracts.value[index] = updatedData
       }
       return updatedData
     } catch (error) {
-      console.error('Error cancelling contract:', error)
+      console.error('Error cancelling item:', error)
       throw error
     } finally {
       loading.value.cancel = false
@@ -208,6 +231,47 @@ export const useMarketStore = defineStore('market', () => {
     }
   }
 
+  async function fetchFarmerPurchases(page = 1) {
+    loading.value.purchases = true
+    try {
+      const response = await api.get(`/farmer/purchases?page=${page}`)
+      farmerPurchases.value = response.data.data || response.data
+      
+      const meta = response.data.meta
+      if (meta) {
+        farmerPagination.value = {
+          currentPage: meta.current_page,
+          lastPage: meta.last_page,
+          total: meta.total,
+          perPage: meta.per_page,
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching farmer purchases:', error)
+    } finally {
+      loading.value.purchases = false
+    }
+  }
+
+  async function approveCashPayment(purchaseId, type, amount = null) {
+    try {
+      const response = await api.post(`/farmer/purchases/${purchaseId}/approve`, {
+        type,
+        amount
+      })
+      
+      // Update local state
+      const index = farmerPurchases.value.findIndex(p => p.id === purchaseId)
+      if (index !== -1) {
+        farmerPurchases.value[index] = response.data.data || response.data
+      }
+      return response.data
+    } catch (error) {
+      console.error('Error approving cash payment:', error)
+      throw error
+    }
+  }
+
   function handleContractPurchased(eventData) {
     // Update local state if needed
     const contract = farmerContracts.value.find((c) => c.id === eventData.contract_id)
@@ -222,6 +286,7 @@ export const useMarketStore = defineStore('market', () => {
     farmerStats,
     farmerPagination,
     buyerPurchases,
+    farmerPurchases,
     buyerPurchasesFilters,
     buyerPurchasesPagination,
     activeContract,
@@ -235,8 +300,11 @@ export const useMarketStore = defineStore('market', () => {
     fetchFarmerContracts,
     fetchFarmerContractsStats,
     publishContract,
+    createManualListing,
     cancelContract,
     fetchBuyerPurchases,
+    fetchFarmerPurchases,
+    approveCashPayment,
     handleContractPurchased,
   }
 })

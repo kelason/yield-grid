@@ -31,16 +31,17 @@ onUnmounted(() => {
 })
 
 const handleCancel = (contract) => {
+  const itemTypeLabel = contract.type === 'listing' ? 'Manual Listing' : 'Forward Contract'
   confirm(
     {
-      title: 'Cancel Forward Contract',
+      title: `Cancel ${itemTypeLabel}`,
       message: `Are you sure you want to cancel the listing for '${contract.title}'? This action cannot be undone.`,
       type: 'danger',
-      confirmText: 'Cancel Contract',
+      confirmText: 'Cancel Listing',
       cancelText: 'Keep Listing',
     },
     async () => {
-      await marketStore.cancelContract(contract.id)
+      await marketStore.cancelContract(contract.id, contract.type)
       await marketStore.fetchFarmerContractsStats()
     },
   )

@@ -10,6 +10,29 @@ import { useApi } from '../../composables/useApi'
 import booleanIntersects from '@turf/boolean-intersects'
 import { polygon as turfPolygon } from '@turf/helpers'
 
+const MAP_CONSTANTS = {
+  DEFAULT_CENTER: [12.8797, 121.774], // Philippines
+  DEFAULT_ZOOM: 6,
+  PADDING_SMALL: [30, 30],
+  PADDING_LARGE: [60, 60],
+  MAX_ZOOM_FIT_PLOTS: 17,
+  MAX_ZOOM_ZOOM_TO_PLOT: 18,
+  BOUNDS_PAD_RATIO: 0.4,
+}
+
+const OVERPASS_CONSTANTS = {
+  TIMEOUT_SEC: 8,
+  MAX_SIZE_BYTES: 262144, // 256KB
+  FETCH_TIMEOUT_MS: 10000,
+}
+
+const GEOMETRY_CONSTANTS = {
+  COORD_PRECISION: 6,
+  MIN_LINE_POINTS: 2,
+  MIN_RING_POINTS: 3,
+  MIN_POLYGON_POINTS: 4,
+}
+
 const props = defineProps({
   existingPlots: { type: Object, default: () => ({ type: 'FeatureCollection', features: [] }) },
   farm: { type: Object, default: () => ({}) },
@@ -36,27 +59,29 @@ const RESTRICTED_TYPE_LABELS = {
 }
 
 /**
- * Queries Overpass for OSM features ONLY within the drawn polygon's tiny bounding box.
- * This keeps requests small and fast (< 200ms typical for a farm-sized polygon).
+ * Queries Overpass for OSM features ONLY within the drawn polygon's bounding box.
+ * Roads/waterways in OSM are LineString ways — we use booleanIntersects with a line geometry.
+ * Buildings are closed rings — we use polygon intersection for those.
  * Returns the first conflicting feature found, or null if clear.
  */
 async function queryOsmForPolygon(drawnGeoJson) {
   const coords = drawnGeoJson.geometry.coordinates[0]
   const lats = coords.map((c) => c[1])
   const lngs = coords.map((c) => c[0])
-  // Expand bbox very slightly to catch adjacent features touching the edge
-  const south = (Math.min(...lats) - 0.0001).toFixed(6)
-  const west = (Math.min(...lngs) - 0.0001).toFixed(6)
-  const north = (Math.max(...lats) + 0.0001).toFixed(6)
-  const east = (Math.max(...lngs) + 0.0001).toFixed(6)
+  // No bbox expansion — tight bounds prevent picking up adjacent-but-not-overlapping roads
+  const south = Math.min(...lats).toFixed(GEOMETRY_CONSTANTS.COORD_PRECISION)
+  const west = Math.min(...lngs).toFixed(GEOMETRY_CONSTANTS.COORD_PRECISION)
+  const north = Math.max(...lats).toFixed(GEOMETRY_CONSTANTS.COORD_PRECISION)
+  const east = Math.max(...lngs).toFixed(GEOMETRY_CONSTANTS.COORD_PRECISION)
 
   const bbox = `${south},${west},${north},${east}`
 
-  // maxsize:262144 = 256KB cap keeps response fast and prevents timeout
-  const query = `[out:json][timeout:8][maxsize:262144];
+  // Only check significant roads (not footpaths, tracks, or pedestrian paths)
+  // "track" and "path" are typically dirt farm/forest paths, not real roads
+  const query = `[out:json][timeout:${OVERPASS_CONSTANTS.TIMEOUT_SEC}][maxsize:${OVERPASS_CONSTANTS.MAX_SIZE_BYTES}];
 (
   way["building"](${bbox});
-  way["highway"~"^(residential|primary|secondary|tertiary|trunk|motorway|service|unclassified|living_street)$"](${bbox});
+  way["highway"~"^(residential|primary|secondary|tertiary|trunk|motorway|service|unclassified|living_street|road)$"](${bbox});
   way["waterway"~"^(river|stream|canal|drain)$"](${bbox});
 );
 out geom;`
@@ -73,32 +98,49 @@ out geom;`
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'data=' + encodeURIComponent(query),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(OVERPASS_CONSTANTS.FETCH_TIMEOUT_MS),
       })
       if (!res.ok) continue
 
       const contentType = res.headers.get('content-type') || ''
-      if (!contentType.includes('json')) continue // skip HTML error pages
+      if (!contentType.includes('json')) continue
 
       const data = await res.json()
-      if (!data?.elements?.length) return null // no features in this tiny area = clear land
+      if (!data?.elements?.length) return null
 
       const drawnPoly = turfPolygon(drawnGeoJson.geometry.coordinates)
 
       for (const el of data.elements) {
-        if (!el.geometry || el.geometry.length < 3) continue
-        const ring = el.geometry.map((pt) => [pt.lon, pt.lat])
-        if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
-          ring.push(ring[0])
-        }
+        if (!el.geometry || el.geometry.length < GEOMETRY_CONSTANTS.MIN_LINE_POINTS) continue
+
+        const osmType = el.tags?.building
+          ? 'building'
+          : el.tags?.highway
+            ? 'highway'
+            : 'waterway'
+
         try {
-          const osmPoly = turfPolygon([ring])
-          if (booleanIntersects(drawnPoly, osmPoly)) {
-            const osmType = el.tags?.building
-              ? 'building'
-              : el.tags?.highway
-                ? 'highway'
-                : 'waterway'
+          let osmFeature
+
+          if (osmType === 'building') {
+            // Buildings are closed polygons in OSM
+            const ring = el.geometry.map((pt) => [pt.lon, pt.lat])
+            if (ring.length < GEOMETRY_CONSTANTS.MIN_RING_POINTS) continue
+            // Close the ring if needed
+            if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
+              ring.push(ring[0])
+            }
+            if (ring.length < GEOMETRY_CONSTANTS.MIN_POLYGON_POINTS) continue // need at least 4 points for a valid polygon
+            osmFeature = turfPolygon([ring])
+          } else {
+            // Roads and waterways are LineStrings in OSM — treat them as lines, NOT polygons
+            // This prevents false positives from roads adjacent to (but not intersecting) the plot
+            const line = el.geometry.map((pt) => [pt.lon, pt.lat])
+            if (line.length < GEOMETRY_CONSTANTS.MIN_LINE_POINTS) continue
+            osmFeature = { type: 'Feature', geometry: { type: 'LineString', coordinates: line } }
+          }
+
+          if (booleanIntersects(drawnPoly, osmFeature)) {
             return {
               type: RESTRICTED_TYPE_LABELS[osmType] || 'restricted area',
               name:
@@ -109,7 +151,7 @@ out geom;`
             }
           }
         } catch {
-          /* skip malformed */
+          /* skip malformed geometries */
         }
       }
 
@@ -220,11 +262,11 @@ async function focusFarmCity() {
 
       // If no existing plots, fit directly to city bounds
       if (!props.existingPlots?.features?.length) {
-        map.fitBounds(bounds, { padding: [30, 30] })
+        map.fitBounds(bounds, { padding: MAP_CONSTANTS.PADDING_SMALL })
       }
 
       // Restrict panning so user stays in the farm's region
-      map.setMaxBounds(bounds.pad(0.4))
+      map.setMaxBounds(bounds.pad(MAP_CONSTANTS.BOUNDS_PAD_RATIO))
     }
   } catch (err) {
     console.warn('Failed to geocode farm city boundary:', err)
@@ -235,7 +277,7 @@ async function focusFarmCity() {
 
 onMounted(() => {
   // Initialize map centered on the Philippines
-  map = L.map(mapContainer.value).setView([12.8797, 121.774], 6)
+  map = L.map(mapContainer.value).setView(MAP_CONSTANTS.DEFAULT_CENTER, MAP_CONSTANTS.DEFAULT_ZOOM)
 
   // Add OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -423,15 +465,15 @@ function loadExistingPlots() {
     try {
       const bounds = window._plotsLayer.getBounds()
       if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 17 })
+        map.fitBounds(bounds, { padding: MAP_CONSTANTS.PADDING_LARGE, maxZoom: MAP_CONSTANTS.MAX_ZOOM_FIT_PLOTS })
       }
     } catch {
       if (allowedCityBounds.value) {
-        map.fitBounds(allowedCityBounds.value, { padding: [30, 30] })
+        map.fitBounds(allowedCityBounds.value, { padding: MAP_CONSTANTS.PADDING_SMALL })
       }
     }
   } else if (allowedCityBounds.value) {
-    map.fitBounds(allowedCityBounds.value, { padding: [30, 30] })
+    map.fitBounds(allowedCityBounds.value, { padding: MAP_CONSTANTS.PADDING_SMALL })
   }
 }
 
@@ -451,7 +493,7 @@ defineExpose({
         }
       })
       if (targetLayer) {
-        map.fitBounds(targetLayer.getBounds(), { padding: [60, 60], maxZoom: 18 })
+        map.fitBounds(targetLayer.getBounds(), { padding: MAP_CONSTANTS.PADDING_LARGE, maxZoom: MAP_CONSTANTS.MAX_ZOOM_ZOOM_TO_PLOT })
         targetLayer.openPopup()
       }
     }

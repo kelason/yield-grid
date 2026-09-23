@@ -53,6 +53,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+const REDIRECT_DELAY_MS = 2000
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -62,7 +64,7 @@ const success = ref(false)
 const errorMessage = ref('')
 
 onMounted(async () => {
-  const verifyUrl = route.query.verify_url
+  let verifyUrl = route.query.verify_url
 
   if (!verifyUrl) {
     loading.value = false
@@ -70,17 +72,43 @@ onMounted(async () => {
     return
   }
 
+  // If the email client decoded the URL, Vue Router might split the query parameters
+  // We need to reconstruct the full verification URL
+  try {
+    const urlObj = new URL(verifyUrl)
+    for (const key in route.query) {
+      if (key !== 'verify_url' && !urlObj.searchParams.has(key)) {
+        urlObj.searchParams.append(key, route.query[key])
+      }
+    }
+    verifyUrl = urlObj.toString()
+
+    // Check if the link is expired before requiring authentication
+    const expires = urlObj.searchParams.get('expires')
+    if (expires && Date.now() / 1000 > parseInt(expires)) {
+      loading.value = false
+      errorMessage.value = 'The link expired please click resend.'
+      return
+    }
+  } catch {
+    // Ignore invalid URLs here, it will error in the store validation
+  }
+
   try {
     await authStore.verifyEmail(verifyUrl)
     success.value = true
 
-    // Redirect to dashboard after 2 seconds
+    // Redirect to dashboard (or login if not yet authenticated) after delay
     setTimeout(() => {
-      router.push({ path: '/dashboard' }) // Layout handles role-based redirect
-    }, 2000)
+      if (authStore.isAuthenticated) {
+        router.push({ path: '/dashboard' })
+      } else {
+        router.push({ name: 'login' })
+      }
+    }, REDIRECT_DELAY_MS)
   } catch (error) {
     loading.value = false
-    errorMessage.value = error.response?.data?.message || error.message || 'Verification failed.'
+    errorMessage.value = 'The link expired please click resend.'
   }
 })
 </script>
