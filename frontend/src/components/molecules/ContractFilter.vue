@@ -35,6 +35,11 @@ function applyFilters() {
   emit('update:modelValue', localFilters.value)
   emit('search')
 }
+
+function setAvailability(availability) {
+  localFilters.value.availability = availability
+  applyFilters()
+}
 </script>
 
 <template>
@@ -45,10 +50,7 @@ function applyFilters() {
     >
       <button
         type="button"
-        @click="
-          localFilters.availability = 'all'
-          applyFilters()
-        "
+        @click="setAvailability('all')"
         :class="[
           localFilters.availability === 'all'
             ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
@@ -60,10 +62,7 @@ function applyFilters() {
       </button>
       <button
         type="button"
-        @click="
-          localFilters.availability = 'available'
-          applyFilters()
-        "
+        @click="setAvailability('available')"
         :class="[
           localFilters.availability === 'available'
             ? 'bg-white text-moss-700 shadow-sm ring-1 ring-stone-900/5'
@@ -76,10 +75,7 @@ function applyFilters() {
       </button>
       <button
         type="button"
-        @click="
-          localFilters.availability = 'incoming'
-          applyFilters()
-        "
+        @click="setAvailability('incoming')"
         :class="[
           localFilters.availability === 'incoming'
             ? 'bg-white text-harvest-700 shadow-sm ring-1 ring-stone-900/5'
