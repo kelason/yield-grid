@@ -10,6 +10,8 @@ final class PaymentConstants
 
     public const CENTAVO_MULTIPLIER = 100;
 
+    public const DOWNPAYMENT_PERCENTAGE = 0.10;
+
     public const CHECKOUT_EXPIRY_MINUTES = 30;
 
     public const WEBHOOK_TOLERANCE_SECONDS = 300;

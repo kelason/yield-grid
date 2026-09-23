@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Infrastructure\Marketplace\Services;
 
 use App\Constants\PaymentConstants;
-use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Services\PaymentGatewayInterface;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -31,12 +31,14 @@ class PayMongoService implements PaymentGatewayInterface
      * @return array{checkout_url: string, checkout_id: string}
      */
     public function createCheckoutSession(
-        ForwardContract $contract,
+        Model $contract,
         string $successUrl,
         string $cancelUrl,
-        int $buyerId
+        int $buyerId,
+        ?float $customAmount = null
     ): array {
-        $amountInCentavos = (int) round((float) $contract->total_price * PaymentConstants::CENTAVO_MULTIPLIER);
+        $price = $customAmount ?? (float) $contract->total_price;
+        $amountInCentavos = (int) round($price * PaymentConstants::CENTAVO_MULTIPLIER);
 
         $payload = [
             'data' => [
@@ -54,7 +56,8 @@ class PayMongoService implements PaymentGatewayInterface
                     'cancel_url' => $cancelUrl,
                     'description' => 'Forward Contract Purchase - YieldGrid',
                     'metadata' => [
-                        'forward_contract_id' => (string) $contract->id,
+                        'purchasable_id' => (string) $contract->id,
+                        'purchasable_type' => get_class($contract),
                         'buyer_id' => (string) $buyerId,
                     ],
                 ],

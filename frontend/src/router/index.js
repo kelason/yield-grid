@@ -52,7 +52,6 @@ const router = createRouter({
           path: 'verify-email',
           name: 'verify-email',
           component: () => import('../pages/auth/EmailVerificationCallback.vue'),
-          meta: { requiresAuth: true },
         },
         {
           path: 'forgot-password',
@@ -112,6 +111,18 @@ const router = createRouter({
           path: 'contracts',
           name: 'farmer-contracts',
           component: () => import('@/pages/dashboard/farmer/MyContractsPage.vue'),
+          meta: { role: 'farmer' },
+        },
+        {
+          path: 'contracts/new-listing',
+          name: 'farmer-new-listing',
+          component: () => import('@/pages/dashboard/farmer/ManualListingPage.vue'),
+          meta: { role: 'farmer' },
+        },
+        {
+          path: 'cash-approvals',
+          name: 'farmer-cash-approvals',
+          component: () => import('@/pages/dashboard/farmer/CashPaymentApprovalsPage.vue'),
           meta: { role: 'farmer' },
         },
         {

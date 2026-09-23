@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Domain\Marketplace\Models\Purchase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Purchase
+ */
 class PurchaseResource extends JsonResource
 {
     /**
@@ -18,12 +22,19 @@ class PurchaseResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'session_id' => $this->paymongo_checkout_id,
-            'contract' => new ForwardContractResource($this->whenLoaded('contract')),
-            'payment_method' => $this->payment_method?->value,
+            'buyer' => $this->buyer ? [
+                'id' => $this->buyer->id,
+                'name' => $this->buyer->name,
+            ] : null,
+            'contract' => $this->contract ? new MarketplaceItemResource($this->contract) : ($this->harvestListing ? new MarketplaceItemResource($this->harvestListing) : null),
             'amount_paid' => (float) $this->amount_paid,
             'currency' => $this->currency,
             'payment_status' => $this->payment_status->value,
+            'payment_method' => $this->payment_method?->value,
+            'cash_payment_status' => $this->cash_payment_status?->value,
+            'cash_amount_confirmed' => (float) $this->cash_amount_confirmed,
+            'is_downpayment' => (bool) $this->is_downpayment,
+            'total_contract_amount' => (float) $this->total_contract_amount,
             'purchased_at' => $this->purchased_at?->toIso8601String(),
             'created_at' => $this->created_at->toIso8601String(),
         ];

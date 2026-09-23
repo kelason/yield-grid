@@ -187,6 +187,84 @@ parameters:
 			path: app/Domain/Farming/Models/RestrictedZone.php
 
 		-
+			message: '#^Property App\\Domain\\Marketplace\\Actions\\CancelCheckoutAction\:\:\$contractRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Domain/Marketplace/Actions/CancelCheckoutAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$currency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$price_per_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
+
+		-
+			message: '#^Cannot call static method where\(\) on class\-string\<App\\Domain\\Marketplace\\Models\\ForwardContract\>\|class\-string\<App\\Domain\\Marketplace\\Models\\HarvestListing\>\|false\.$#'
+			identifier: staticMethod.nonObject
+			count: 1
+			path: app/Domain/Marketplace/Actions/VerifyPurchaseAction.php
+
+		-
+			message: '#^Property App\\Domain\\Marketplace\\Actions\\VerifyPurchaseAction\:\:\$contractRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Domain/Marketplace/Actions/VerifyPurchaseAction.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Events\\CashPaymentApproved\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Domain/Marketplace/Events/CashPaymentApproved.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Events\\CashPaymentRequested\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Domain/Marketplace/Events/CashPaymentRequested.php
+
+		-
 			message: '#^Method App\\Domain\\Marketplace\\Events\\ContractExpired\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -245,6 +323,42 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Domain/Marketplace/Models/ForwardContract.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Models\\HarvestListing\:\:scopeAvailable\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Domain/Marketplace/Models/HarvestListing.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Models\\HarvestListing\:\:scopeAvailable\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Domain/Marketplace/Models/HarvestListing.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Models\\HarvestListing\:\:scopeByFarmer\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Domain/Marketplace/Models/HarvestListing.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Models\\HarvestListing\:\:scopeByFarmer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Domain/Marketplace/Models/HarvestListing.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Models\\HarvestListing\:\:scopeExpired\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Domain/Marketplace/Models/HarvestListing.php
+
+		-
+			message: '#^Method App\\Domain\\Marketplace\\Models\\HarvestListing\:\:scopeExpired\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Domain/Marketplace/Models/HarvestListing.php
 
 		-
 			message: '#^Class App\\Domain\\Marketplace\\Models\\Purchase uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -499,6 +613,36 @@ parameters:
 			path: app/Http/Controllers/Api/V1/PayMongoWebhookController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$currency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/PurchaseController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/PurchaseController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_harvest_available\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/PurchaseController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$price_per_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/PurchaseController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Api/V1/PurchaseController.php
+
+		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\CropRecommendationResource\:\:\$confidence_score\.$#'
 			identifier: property.notFound
 			count: 1
@@ -649,52 +793,112 @@ parameters:
 			path: app/Http/Resources/ForwardContractResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$amount_paid\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$created_at\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$crop_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$currency\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$currency\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$description\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$payment_method\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$estimated_harvest_date\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$payment_status\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$expiry_date\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$paymongo_checkout_id\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$farmer\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			count: 4
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PurchaseResource\:\:\$purchased_at\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PurchaseResource.php
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$is_harvest_available\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$is_purchasable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$price_per_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$quantity_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\MarketplaceItemResource\:\:\$total_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Method App\\Http\\Resources\\MarketplaceItemResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>city" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Resources/MarketplaceItemResource.php
 
 		-
 			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentForwardContractRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -727,8 +931,26 @@ parameters:
 			path: app/Infrastructure/Marketplace/Repositories/EloquentPurchaseRepository.php
 
 		-
-			message: '#^Method App\\Infrastructure\\Marketplace\\Services\\PayMongoService\:\:parseWebhookEvent\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$crop_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
 

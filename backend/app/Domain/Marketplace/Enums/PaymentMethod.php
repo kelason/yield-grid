@@ -6,6 +6,7 @@ namespace App\Domain\Marketplace\Enums;
 
 enum PaymentMethod: string
 {
+    case CASH = 'cash';
     case GCASH = 'gcash';
     case MAYA = 'paymaya';
     case CARD = 'card';
