@@ -2,9 +2,12 @@
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useChatStore } from '../../stores/chatStore'
 import AppLogo from '../atoms/AppLogo.vue'
+import UnreadBadge from '../atoms/UnreadBadge.vue'
 
 const authStore = useAuthStore()
+const chatStore = useChatStore()
 const route = useRoute()
 const isCollapsed = ref(false)
 
@@ -45,6 +48,18 @@ const farmerNavigation = [
     icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
     emoji: '💵',
   },
+  {
+    name: 'Community',
+    to: { name: 'community-forum' },
+    icon: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',
+    emoji: '🤝',
+  },
+  {
+    name: 'Chat',
+    to: { name: 'chat' },
+    icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+    emoji: '💬',
+  },
 ]
 
 const buyerNavigation = [
@@ -66,10 +81,30 @@ const buyerNavigation = [
     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
     emoji: '📦',
   },
+  {
+    name: 'Community',
+    to: { name: 'community-forum' },
+    icon: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',
+    emoji: '🤝',
+  },
+  {
+    name: 'Chat',
+    to: { name: 'chat' },
+    icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+    emoji: '💬',
+  },
 ]
 
 const navigation = computed(() => {
-  return authStore.userRole === 'buyer' ? buyerNavigation : farmerNavigation
+  const baseNav = authStore.userRole === 'buyer' ? buyerNavigation : farmerNavigation
+
+  // Disable specific features for unverified users
+  if (!authStore.isEmailVerified) {
+    const restrictedFeatures = ['Chat', 'Community', 'Cash Approvals', 'Post Harvest']
+    return baseNav.filter((item) => !restrictedFeatures.includes(item.name))
+  }
+
+  return baseNav
 })
 
 function isActive(to) {
@@ -178,7 +213,11 @@ function getInitials(name) {
                 :d="item.icon"
               />
             </svg>
-            <span v-if="!isCollapsed" class="truncate">{{ item.name }}</span>
+            <span v-if="!isCollapsed" class="truncate flex-1">{{ item.name }}</span>
+            <UnreadBadge
+              v-if="item.name === 'Chat' && chatStore.totalUnread > 0 && !isCollapsed"
+              :count="chatStore.totalUnread"
+            />
           </RouterLink>
         </nav>
 

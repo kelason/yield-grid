@@ -38,7 +38,9 @@ defineEmits(['load-more', 'view-contract'])
           <div class="h-3 bg-gray-200 rounded w-full"></div>
           <div class="h-3 bg-gray-200 rounded w-5/6"></div>
         </div>
-        <div class="mt-auto flex justify-between items-end pt-4 border-t border-gray-50">
+        <div
+          class="mt-auto flex justify-between items-end pt-4 border-t border-gray-50 shadow-soft border-stone-300"
+        >
           <div class="h-6 bg-gray-200 rounded w-1/3"></div>
           <div class="h-8 bg-gray-200 rounded w-24"></div>
         </div>
@@ -46,10 +48,7 @@ defineEmits(['load-more', 'view-contract'])
     </div>
 
     <!-- Empty State -->
-    <div
-      v-else-if="contracts.length === 0"
-      class="text-center py-16 bg-white rounded-lg border border-gray-100 border-dashed"
-    >
+    <div v-else-if="contracts.length === 0" class="text-center py-16 bg-white rounded-lg border">
       <InboxIcon class="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
       <h3 class="mt-2 text-sm font-semibold text-gray-900">No contracts found</h3>
       <p class="mt-1 text-sm text-gray-500">
