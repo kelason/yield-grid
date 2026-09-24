@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
+import SearchInput from './SearchInput.vue'
+import SortSelect from './SortSelect.vue'
 
 const props = defineProps({
   modelValue: {
@@ -90,20 +91,13 @@ function setAvailability(availability) {
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
       <!-- Search -->
-      <div class="md:col-span-4">
-        <label for="search" class="block text-xs font-medium text-gray-700 mb-1">Search Crop</label>
-        <div class="relative rounded-md shadow-sm">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
-          </div>
-          <input
-            type="text"
-            id="search"
-            v-model="localFilters.crop"
-            class="focus:ring-farm-500 focus:border-farm-500 block w-full pl-9 sm:text-sm border-gray-300 rounded-md"
-            placeholder="e.g. Rice, Corn..."
-          />
-        </div>
+      <div class="md:col-span-4 flex flex-col">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Search Crop</label>
+        <SearchInput
+          v-model="localFilters.crop"
+          placeholder="e.g. Rice, Corn..."
+          class="flex-grow w-full"
+        />
       </div>
 
       <!-- Price Range -->
@@ -112,16 +106,16 @@ function setAvailability(availability) {
           <label for="min_price" class="block text-xs font-medium text-gray-700 mb-1"
             >Min Price</label
           >
-          <div class="relative rounded-md shadow-sm">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 sm:text-sm">₱</span>
+          <div class="relative rounded-full shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span class="text-stone-400 font-medium">₱</span>
             </div>
             <input
               type="number"
               id="min_price"
               v-model="localFilters.minPrice"
               @change="applyFilters"
-              class="focus:ring-farm-500 focus:border-farm-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
               placeholder="0"
             />
           </div>
@@ -130,16 +124,16 @@ function setAvailability(availability) {
           <label for="max_price" class="block text-xs font-medium text-gray-700 mb-1"
             >Max Price</label
           >
-          <div class="relative rounded-md shadow-sm">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 sm:text-sm">₱</span>
+          <div class="relative rounded-full shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span class="text-stone-400 font-medium">₱</span>
             </div>
             <input
               type="number"
               id="max_price"
               v-model="localFilters.maxPrice"
               @change="applyFilters"
-              class="focus:ring-farm-500 focus:border-farm-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
               placeholder="Any"
             />
           </div>
@@ -147,21 +141,25 @@ function setAvailability(availability) {
       </div>
 
       <!-- Sort -->
-      <div class="md:col-span-4">
-        <label for="sort" class="block text-xs font-medium text-gray-700 mb-1">Sort By</label>
-        <select
-          id="sort"
+      <div class="md:col-span-4 flex flex-col">
+        <label class="block text-xs font-medium text-gray-700 mb-1">Sort By</label>
+        <SortSelect
           v-model="localFilters.sort"
-          @change="applyFilters"
-          class="focus:ring-farm-500 focus:border-farm-500 block w-full sm:text-sm border-gray-300 rounded-md"
-        >
-          <option value="newest">Newest Listed</option>
-          <option value="harvest_available">Harvest Available First</option>
-          <option value="incoming_harvest">Incoming Harvest First</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
-          <option value="harvest_soonest">Harvesting Soonest</option>
-        </select>
+          @update:modelValue="
+            (val) => {
+              localFilters.sort = val
+              applyFilters()
+            }
+          "
+          :options="[
+            { value: 'newest', label: 'Newest Listed' },
+            { value: 'harvest_available', label: 'Harvest Available First' },
+            { value: 'incoming_harvest', label: 'Incoming Harvest First' },
+            { value: 'price_asc', label: 'Price: Low to High' },
+            { value: 'price_desc', label: 'Price: High to Low' },
+            { value: 'harvest_soonest', label: 'Harvesting Soonest' },
+          ]"
+        />
       </div>
     </div>
   </div>

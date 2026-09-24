@@ -2,6 +2,8 @@
 
 namespace Domain\Users\Models;
 
+use App\Domain\Chat\Models\ChatParticipant;
+use App\Domain\Community\Models\ForumThread;
 use Database\Factories\UserFactory;
 use Domain\Farming\Models\Farm;
 use Domain\Users\Enums\UserRole;
@@ -67,5 +69,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function farms(): HasMany
     {
         return $this->hasMany(Farm::class);
+    }
+
+    /**
+     * @return HasMany<ForumThread, $this>
+     */
+    public function forumThreads(): HasMany
+    {
+        return $this->hasMany(ForumThread::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<ChatParticipant, $this>
+     */
+    public function chatParticipations(): HasMany
+    {
+        return $this->hasMany(ChatParticipant::class, 'user_id');
     }
 }

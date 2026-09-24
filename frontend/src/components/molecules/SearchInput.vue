@@ -16,7 +16,7 @@ defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="relative w-full sm:w-96">
+  <div class="relative w-full">
     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
       <MagnifyingGlassIcon class="h-4 w-4 text-stone-400" aria-hidden="true" />
     </div>

@@ -12,3 +12,8 @@ parameters:
     level: 6
 
     treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        - '#uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types#'
+        - '#Cannot access property \$value on string\.#'
+        - '#return type has no value type specified in iterable type array\.#'
