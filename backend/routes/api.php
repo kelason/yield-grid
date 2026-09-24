@@ -4,6 +4,15 @@ use App\Auth\Controllers\EmailVerificationController;
 use App\Auth\Controllers\LoginController;
 use App\Auth\Controllers\PasswordResetController;
 use App\Auth\Controllers\RegisterController;
+use App\Chat\Controllers\ChatConversationController;
+use App\Chat\Controllers\ChatMessageController;
+use App\Community\Controllers\ForumAttachmentController;
+use App\Community\Controllers\ForumCategoryController;
+use App\Community\Controllers\ForumReplyController;
+use App\Community\Controllers\ForumReportController;
+use App\Community\Controllers\ForumTagController;
+use App\Community\Controllers\ForumThreadController;
+use App\Community\Controllers\ForumVoteController;
 use App\Contact\Controllers\ContactController;
 use App\Farming\Controllers\FarmController;
 use App\Farming\Controllers\PlotController;
@@ -86,6 +95,39 @@ Route::prefix('v1')->group(function () {
             Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout']);
             Route::get('/buyer/purchases', [PurchaseController::class, 'index']);
             Route::get('/buyer/purchases/{purchase}', [PurchaseController::class, 'show']);
+        });
+
+        // Community Forum (all authenticated users)
+        Route::prefix('forum')->group(function () {
+            Route::get('/categories', [ForumCategoryController::class, 'index']);
+            Route::get('/tags', [ForumTagController::class, 'index']);
+            Route::get('/threads', [ForumThreadController::class, 'index']);
+            Route::get('/threads/{thread}', [ForumThreadController::class, 'show']);
+
+            Route::middleware('verified')->group(function () {
+                Route::post('/threads', [ForumThreadController::class, 'store']);
+                Route::put('/threads/{thread}', [ForumThreadController::class, 'update']);
+                Route::delete('/threads/{thread}', [ForumThreadController::class, 'destroy']);
+
+                Route::post('/threads/{thread}/replies', [ForumReplyController::class, 'store']);
+                Route::put('/replies/{reply}', [ForumReplyController::class, 'update']);
+                Route::delete('/replies/{reply}', [ForumReplyController::class, 'destroy']);
+                Route::post('/replies/{reply}/accept', [ForumReplyController::class, 'accept']);
+
+                Route::post('/threads/{thread}/vote', [ForumVoteController::class, 'storeThreadVote']);
+                Route::post('/replies/{reply}/vote', [ForumVoteController::class, 'storeReplyVote']);
+
+                Route::post('/reports', [ForumReportController::class, 'store']);
+                Route::post('/attachments', [ForumAttachmentController::class, 'store']);
+            });
+        });
+
+        // Chat (all authenticated users)
+        Route::prefix('chat')->middleware('verified')->group(function () {
+            Route::get('/conversations', [ChatConversationController::class, 'index']);
+            Route::post('/conversations', [ChatConversationController::class, 'store']);
+            Route::get('/conversations/{conversation}', [ChatConversationController::class, 'show']);
+            Route::post('/conversations/{conversation}/messages', [ChatMessageController::class, 'store']);
         });
     });
 });

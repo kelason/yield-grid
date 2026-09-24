@@ -10,6 +10,8 @@ class HttpCode
 
     public const ACCEPTED = 202;
 
+    public const NO_CONTENT = 204;
+
     public const BAD_REQUEST = 400;
 
     public const UNAUTHORIZED = 401;

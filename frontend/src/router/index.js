@@ -117,13 +117,13 @@ const router = createRouter({
           path: 'contracts/new-listing',
           name: 'farmer-new-listing',
           component: () => import('@/pages/dashboard/farmer/ManualListingPage.vue'),
-          meta: { role: 'farmer' },
+          meta: { role: 'farmer', requiresVerification: true },
         },
         {
           path: 'cash-approvals',
           name: 'farmer-cash-approvals',
           component: () => import('@/pages/dashboard/farmer/CashPaymentApprovalsPage.vue'),
-          meta: { role: 'farmer' },
+          meta: { role: 'farmer', requiresVerification: true },
         },
         {
           path: 'buyer',
@@ -142,6 +142,24 @@ const router = createRouter({
           name: 'buyer-marketplace',
           component: () => import('@/pages/public/MarketplacePage.vue'),
           meta: { role: 'buyer' },
+        },
+        {
+          path: 'community',
+          name: 'community-forum',
+          component: () => import('@/pages/dashboard/shared/ForumPage.vue'),
+          meta: { requiresVerification: true },
+        },
+        {
+          path: 'community/thread/:id',
+          name: 'forum-thread',
+          component: () => import('@/pages/dashboard/shared/ThreadPage.vue'),
+          meta: { requiresVerification: true },
+        },
+        {
+          path: 'chat',
+          name: 'chat',
+          component: () => import('@/pages/dashboard/shared/ChatPage.vue'),
+          meta: { requiresVerification: true },
         },
       ],
     },
@@ -169,6 +187,21 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login' }
   } else if ((to.name === 'home' || to.meta.requiresGuest) && authStore.isAuthenticated) {
+    if (authStore.userRole === 'buyer') {
+      return { name: 'buyer-dashboard' }
+    } else {
+      return { name: 'farmer-dashboard' }
+    }
+  }
+
+  // Prevent access to features that require email verification
+  if (to.meta.requiresVerification && !authStore.isEmailVerified) {
+    import('../stores/notificationStore').then(({ useNotificationStore }) => {
+      const notificationStore = useNotificationStore()
+      notificationStore.warning('Please verify your email to access this feature.')
+    })
+
+    // Redirect to their default dashboard
     if (authStore.userRole === 'buyer') {
       return { name: 'buyer-dashboard' }
     } else {

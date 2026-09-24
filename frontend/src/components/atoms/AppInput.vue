@@ -26,7 +26,7 @@ defineEmits(['update:modelValue'])
       'focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white',
       error
         ? 'border-red-300 text-red-900 focus:ring-red-400 focus:border-red-400 bg-red-50'
-        : 'border-stone-300 text-stone-900 hover:border-stone-400',
+        : 'border-stone-300 text-soil-700 hover:border-stone-400',
       { 'bg-stone-200 cursor-not-allowed opacity-60 border-stone-200': disabled },
     ]"
   />
