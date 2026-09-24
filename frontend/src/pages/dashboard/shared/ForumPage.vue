@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '../../../stores/forumStore'
 import { THREAD_SORT_OPTIONS } from '../../../constants/forum'
+import { PAGINATION_DIRECTION } from '../../../constants/pagination'
 import ThreadCard from '../../../components/molecules/ThreadCard.vue'
 import CategoryCard from '../../../components/molecules/CategoryCard.vue'
 import ThreadComposer from '../../../components/molecules/ThreadComposer.vue'
@@ -80,6 +81,14 @@ const clearFilters = () => {
   selectedCategory.value = ''
   currentSort.value = 'latest'
   searchQuery.value = ''
+}
+
+const changePage = async (delta) => {
+  const { currentPage, lastPage } = forumStore.pagination
+  const nextPage = currentPage + delta
+  if (nextPage < 1 || nextPage > lastPage) return
+  forumStore.pagination.currentPage = nextPage
+  await fetchThreads()
 }
 </script>
 
@@ -221,20 +230,14 @@ const clearFilters = () => {
               <AppButton
                 variant="outline"
                 :disabled="forumStore.pagination.currentPage === 1"
-                @click="
-                  forumStore.pagination.currentPage--
-                  fetchThreads()
-                "
+                @click="changePage(PAGINATION_DIRECTION.PREVIOUS)"
               >
                 Previous
               </AppButton>
               <AppButton
                 variant="outline"
                 :disabled="forumStore.pagination.currentPage === forumStore.pagination.lastPage"
-                @click="
-                  forumStore.pagination.currentPage++
-                  fetchThreads()
-                "
+                @click="changePage(PAGINATION_DIRECTION.NEXT)"
               >
                 Next
               </AppButton>
