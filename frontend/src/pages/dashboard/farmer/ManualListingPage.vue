@@ -64,7 +64,7 @@ const TITLE_MAX_LENGTH = 50
 const DESCRIPTION_MAX_WORDS = 500
 
 const descriptionWordCount = computed(() => {
-  const trimmed = form.value.description.trim()
+  const trimmed = (form.value.description || '').trim()
   return trimmed === '' ? 0 : trimmed.split(/\s+/).length
 })
 const isTitleOverLimit = computed(() => form.value.title.length > TITLE_MAX_LENGTH)
