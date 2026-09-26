@@ -19,7 +19,7 @@ defineProps({
 <template>
   <div
     :class="[
-      'overflow-hidden rounded-2xl border transition-all duration-300',
+      'overflow-hidden rounded-2xl border transition-all duration-300 motion-reduce:transition-none motion-reduce:transform-none',
       variant === 'default' &&
         'bg-white shadow-soft border-stone-300 ' +
           (hover

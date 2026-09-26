@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <div v-if="loading" class="flex flex-col items-center justify-center space-y-4">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-farm-600"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       <h2 class="text-xl font-semibold text-gray-900">Verifying your email...</h2>
       <p class="text-gray-500">Please wait while we confirm your email address.</p>
     </div>
@@ -40,7 +40,7 @@
       </p>
       <button
         @click="router.push({ path: '/dashboard' })"
-        class="mt-4 w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-farm-600 hover:bg-farm-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-600 transition-all active:scale-[0.98]"
+        class="mt-4 w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 transition-all active:scale-[0.98]"
       >
         Go to Dashboard
       </button>

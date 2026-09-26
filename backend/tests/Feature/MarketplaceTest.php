@@ -347,6 +347,24 @@ it('allows a farmer to create a manual harvest listing', function () {
     ]);
 });
 
+it('rejects a manual harvest listing with description over 5000 characters', function () {
+    $farmer = User::factory()->farmer()->create();
+
+    $response = $this->actingAs($farmer)->postJson('/api/v1/farmer/listings', [
+        'title' => 'Manual Rice',
+        'description' => str_repeat('a', 5001),
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 45.5,
+        'estimated_harvest_date' => now()->addDays(20)->format('Y-m-d'),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseCount('harvest_listings', 0);
+});
+
 it('allows a buyer to create a cash checkout session', function () {
     $buyer = User::factory()->buyer()->create();
     $farmer = User::factory()->farmer()->create();
@@ -381,6 +399,32 @@ it('allows a buyer to create a cash checkout session', function () {
     ]);
 
     Event::assertDispatched(CashPaymentRequested::class);
+});
+
+it('rejects a checkout with quantity over 6 digits', function () {
+    $buyer = User::factory()->buyer()->create();
+    $farmer = User::factory()->farmer()->create();
+
+    $listing = HarvestListing::create([
+        'title' => 'Test Listing',
+        'farmer_id' => $farmer->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 50,
+        'total_price' => 50000,
+        'estimated_harvest_date' => now()->addDays(20),
+        'expiry_date' => now()->addDays(30),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+
+    $response = $this->actingAs($buyer)->postJson("/api/v1/market/listings/{$listing->id}/checkout", [
+        'quantity_kg' => 1000000,
+        'payment_option' => 'cash',
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseCount('purchases', 0);
 });
 
 it('allows a farmer to approve a partial cash payment', function () {
@@ -426,4 +470,43 @@ it('allows a farmer to approve a partial cash payment', function () {
     ]);
 
     Event::assertDispatched(CashPaymentApproved::class);
+});
+
+it('rejects a cash approval with amount over 8 digits', function () {
+    $farmer = User::factory()->farmer()->create();
+    $buyer = User::factory()->buyer()->create();
+
+    $listing = HarvestListing::create([
+        'title' => 'Test Listing',
+        'farmer_id' => $farmer->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 50,
+        'total_price' => 50000,
+        'estimated_harvest_date' => now()->addDays(20),
+        'expiry_date' => now()->addDays(30),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+
+    $purchase = Purchase::factory()->create([
+        'harvest_listing_id' => $listing->id,
+        'forward_contract_id' => null,
+        'buyer_id' => $buyer->id,
+        'payment_status' => PaymentStatus::PENDING,
+        'cash_payment_status' => CashPaymentStatus::PENDING_APPROVAL,
+        'total_contract_amount' => 5000,
+        'is_downpayment' => true,
+    ]);
+
+    $response = $this->actingAs($farmer)->postJson("/api/v1/farmer/purchases/{$purchase->id}/approve", [
+        'type' => 'partial',
+        'amount' => 100000000,
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseHas('purchases', [
+        'id' => $purchase->id,
+        'cash_payment_status' => CashPaymentStatus::PENDING_APPROVAL->value,
+    ]);
 });

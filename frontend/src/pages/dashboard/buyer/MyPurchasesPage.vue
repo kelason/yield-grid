@@ -11,11 +11,17 @@ import PurchaseCard from '@/components/molecules/PurchaseCard.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { useApi } from '@/composables/useApi'
 import { useConfirmModal } from '@/composables/useConfirmModal'
+import { useChatEntry } from '@/composables/useChatEntry'
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
 const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { openChat } = useChatEntry()
+
+const messageFarmer = (purchase) => {
+  openChat(purchase.contract?.farmer?.id)
+}
 
 onMounted(() => {
   marketStore.fetchBuyerPurchases()
@@ -79,11 +85,11 @@ const cancelPurchase = (purchase) => {
 <template>
   <div class="space-y-6">
     <!-- Page Header -->
-    <div class="rounded-2xl bg-gradient-to-r from-farm-600 to-farm-800 p-6 text-white shadow-lg">
+    <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-800 p-6 text-white shadow-lg">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 class="text-2xl font-bold">Purchase History</h1>
-          <p class="text-farm-200 text-sm mt-1">All your forward contracts and payment records.</p>
+          <p class="text-green-200 text-sm mt-1">All your forward contracts and payment records.</p>
         </div>
         <router-link
           :to="{ name: 'buyer-marketplace' }"
@@ -104,7 +110,7 @@ const cancelPurchase = (purchase) => {
             📦
           </div>
           <div>
-            <dt class="text-xs font-medium text-farm-100">Total Orders</dt>
+            <dt class="text-xs font-medium text-green-100">Total Orders</dt>
             <dd class="text-3xl font-bold text-white mt-0.5">
               {{ totalOrders }}
             </dd>
@@ -129,7 +135,7 @@ const cancelPurchase = (purchase) => {
       <AppCard>
         <div class="flex items-center gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-earth-50 flex items-center justify-center text-xl flex-shrink-0"
+            class="w-11 h-11 rounded-xl bg-stone-50 flex items-center justify-center text-xl flex-shrink-0"
           >
             💰
           </div>
@@ -188,7 +194,7 @@ const cancelPurchase = (purchase) => {
         </p>
         <router-link
           :to="{ name: 'buyer-marketplace' }"
-          class="inline-flex items-center gap-1.5 bg-farm-600 hover:bg-farm-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+          class="inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
         >
           <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
         </router-link>
@@ -202,6 +208,7 @@ const cancelPurchase = (purchase) => {
         :key="purchase.id"
         :purchase="purchase"
         @cancel="cancelPurchase"
+        @message="messageFarmer"
       />
     </div>
 

@@ -14,7 +14,7 @@ const emit = defineEmits(['dismiss'])
 <template>
   <div
     :class="[
-      'rounded-2xl p-4 border-l-[3px] flex items-start gap-3',
+      'rounded-2xl p-4 border-l-[3px] flex items-start gap-3 shadow-sm motion-reduce:transition-none',
       type === 'success' && 'bg-moss-50 text-moss-800 border-moss-500',
       type === 'error' && 'bg-red-50 text-red-800 border-red-500',
       type === 'warning' && 'bg-harvest-50 text-harvest-800 border-harvest-500',
@@ -37,7 +37,7 @@ const emit = defineEmits(['dismiss'])
     <button
       v-if="dismissible"
       @click="emit('dismiss')"
-      class="ml-2 -mr-1 -mt-1 opacity-50 hover:opacity-100 transition-opacity text-lg leading-none focus:outline-none focus:ring-2 focus:ring-moss-400 rounded"
+      class="ml-2 -mr-1 -mt-1 opacity-50 hover:opacity-100 transition-opacity motion-reduce:transition-none text-lg leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-400 rounded"
       aria-label="Dismiss alert"
     >
       ✕

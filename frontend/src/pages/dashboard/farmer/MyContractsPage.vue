@@ -143,18 +143,18 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-r from-farm-500 to-farm-600 overflow-hidden shadow rounded-lg text-white"
+        class="bg-gradient-to-r from-green-500 to-green-600 overflow-hidden shadow rounded-lg text-white"
       >
         <div class="p-5">
           <div class="flex items-center">
-            <div class="flex-shrink-0 bg-white/20 rounded-md p-3">
-              <BanknotesIcon class="h-6 w-6 text-white" aria-hidden="true" />
+            <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+              <BanknotesIcon class="h-6 w-6 text-red-600" aria-hidden="true" />
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-white/80 truncate">Total Revenue</dt>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
                 <dd>
-                  <div class="text-2xl font-semibold text-white">
+                  <div class="text-2xl font-semibold text-gray-900">
                     ₱{{ parseFloat(marketStore.farmerStats.total_revenue || 0).toLocaleString() }}
                   </div>
                 </dd>

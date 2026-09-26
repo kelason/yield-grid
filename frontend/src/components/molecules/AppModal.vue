@@ -22,21 +22,21 @@ defineEmits(['close'])
       <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
         <!-- Backdrop -->
         <div
-          class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+          class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none"
           @click="$emit('close')"
           aria-hidden="true"
         ></div>
 
         <!-- Modal Panel -->
         <div
-          class="relative w-full max-w-2xl bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all border border-stone-100 max-h-[90vh] flex flex-col"
+          class="relative w-full max-w-2xl bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all motion-reduce:transition-none motion-reduce:transform-none border border-stone-100 max-h-[90vh] flex flex-col"
         >
           <!-- Organic top accent strip -->
           <div class="h-1.5 w-full bg-gradient-to-r from-moss-500 to-moss-600 shrink-0"></div>
 
           <button
             @click="$emit('close')"
-            class="absolute top-5 right-5 text-stone-400 hover:text-stone-600 focus:outline-none bg-stone-100 hover:bg-stone-200 rounded-full p-1.5 z-10 transition-colors"
+            class="absolute top-5 right-5 text-stone-400 hover:text-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 bg-stone-100 hover:bg-stone-200 rounded-full p-1.5 z-10 transition-colors motion-reduce:transition-none"
           >
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path

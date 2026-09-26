@@ -19,7 +19,9 @@ final class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quantity_kg' => 'required|numeric|min:1',
+            // 6 digits max (mirrors the CheckoutSummary 6-char cap; max_digits
+            // cannot be used since it rejects decimal points).
+            'quantity_kg' => 'required|numeric|min:1|max:9999',
             'payment_option' => 'required|in:cash,paymongo',
         ];
     }

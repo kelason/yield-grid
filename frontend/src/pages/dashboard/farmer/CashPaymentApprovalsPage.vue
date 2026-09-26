@@ -2,12 +2,18 @@
 import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
+import { useChatEntry } from '@/composables/useChatEntry'
 import PriceTag from '@/components/atoms/PriceTag.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
+const { openChat } = useChatEntry()
+
+const messageBuyer = (purchase) => {
+  openChat(purchase.buyer?.id)
+}
 
 onMounted(() => {
   marketStore.fetchFarmerPurchases()
@@ -38,6 +44,18 @@ const openApproveModal = (purchase, type) => {
 
 const closeApproveModal = () => {
   promptModal.value.isOpen = false
+}
+
+const AMOUNT_MAX_LENGTH = 8
+
+// Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
+const clampAmount = (event) => {
+  const value = event.target.value
+  if (value.length > AMOUNT_MAX_LENGTH) {
+    const sliced = value.slice(0, AMOUNT_MAX_LENGTH)
+    event.target.value = sliced
+    promptModal.value.amount = sliced
+  }
 }
 
 const confirmApprove = async () => {
@@ -184,6 +202,16 @@ function getConfirmedPaid(purchase) {
               </div>
             </div>
 
+            <!-- Message buyer (transaction partner) -->
+            <div v-if="purchase.buyer?.id" class="flex w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
+              <button
+                @click="messageBuyer(purchase)"
+                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm w-full sm:w-auto text-center"
+              >
+                Message buyer
+              </button>
+            </div>
+
             <!-- Actions -->
             <div
               class="flex flex-wrap sm:flex-col gap-2.5 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0"
@@ -268,6 +296,8 @@ function getConfirmedPaid(purchase) {
                   class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-moss-500 focus:border-moss-500 text-stone-900 font-medium text-lg transition-shadow bg-stone-50 focus:bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
                   min="1"
                   step="0.01"
+                  :maxlength="AMOUNT_MAX_LENGTH"
+                  @input="clampAmount"
                   :disabled="promptModal.type === 'full'"
                   @keyup.enter="promptModal.type !== 'full' ? confirmApprove() : null"
                 />

@@ -16,7 +16,7 @@ defineEmits(['select'])
 <template>
   <button
     @click="$emit('select', category.slug)"
-    class="flex items-center gap-3 w-full text-left p-3 rounded-xl transition-all duration-200"
+    class="flex items-center gap-3 w-full text-left p-3 rounded-xl transition-all duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
     :class="
       isSelected
         ? 'bg-moss-50 text-moss-900 shadow-inner border border-moss-200'

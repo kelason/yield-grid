@@ -14,11 +14,11 @@ final class ForumConstants
 
     public const int TITLE_MIN_LENGTH = 10;
 
-    public const int TITLE_MAX_LENGTH = 255;
+    public const int TITLE_MAX_LENGTH = 100;
 
     public const int BODY_MIN_LENGTH = 20;
 
-    public const int BODY_MAX_LENGTH = 10000;
+    public const int BODY_MAX_LENGTH = 5000;
 
     public const int REPLY_MIN_LENGTH = 5;
 

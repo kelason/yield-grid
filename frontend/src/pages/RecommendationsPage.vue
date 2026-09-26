@@ -5,7 +5,7 @@
       <div class="flex items-center gap-4">
         <router-link
           :to="{ name: 'farm-manager' }"
-          class="inline-flex items-center gap-1.5 text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors duration-200 group"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700 transition-colors duration-200 group"
         >
           <svg
             class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200"
@@ -45,7 +45,7 @@
             id="plot-selector"
             :value="activePlotId"
             @change="handlePlotChange(Number($event.target.value))"
-            class="block w-full rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-800 shadow-sm focus:border-farm-500 focus:outline-none focus:ring-1 focus:ring-farm-500 transition-all cursor-pointer"
+            class="block w-full rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-800 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all cursor-pointer"
           >
             <option v-for="p in farmingStore.allPlots" :key="p.id" :value="p.id">
               {{ p.name }} ({{ p.farm_name || 'Farm' }}) —
@@ -59,7 +59,7 @@
     <!-- Empty State: No Plots in Account -->
     <div
       v-if="!isLoadingPlots && farmingStore.allPlots.length === 0"
-      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-farm-300 transition-colors duration-200 shadow-sm"
+      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200 shadow-sm"
     >
       <div class="text-5xl mb-4">🌾</div>
       <h3 class="text-xl font-bold text-gray-900 mb-2">No plots registered yet</h3>
@@ -69,7 +69,7 @@
       </p>
       <router-link
         :to="{ name: 'farm-manager' }"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-farm-500 to-farm-600 hover:from-farm-600 hover:to-farm-700 text-white font-semibold rounded-full shadow-sm hover:shadow transition-all duration-200"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-full shadow-sm hover:shadow transition-all duration-200"
       >
         <span>🏡</span>
         <span>Go to My Farms</span>
@@ -88,18 +88,18 @@
           <!-- Meta badges -->
           <div class="flex flex-wrap items-center gap-2">
             <span
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-50 text-stone-700 rounded-full text-xs font-semibold border border-stone-200"
             >
               📐 <span>{{ plotArea }} ha</span>
             </span>
             <span
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-50 text-earth-700 rounded-full text-xs font-semibold border border-earth-200 capitalize"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-50 text-stone-700 rounded-full text-xs font-semibold border border-stone-200 capitalize"
             >
               🌱 <span>{{ plotSoilType }}</span>
             </span>
             <span
               v-if="locationLabel"
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-farm-50 text-farm-700 rounded-full text-xs font-semibold border border-farm-200"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200"
             >
               📍 {{ locationLabel }}
             </span>
@@ -144,7 +144,7 @@
         <!-- Empty state -->
         <div
           v-else-if="!store.isLoading"
-          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-farm-300 transition-colors duration-200"
+          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200"
         >
           <div class="text-5xl mb-4">🌾</div>
           <h3 class="text-lg font-bold text-gray-900 mb-2">No recommendations yet</h3>

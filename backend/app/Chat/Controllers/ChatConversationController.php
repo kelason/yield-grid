@@ -12,9 +12,11 @@ use App\Constants\HttpCode;
 use App\Domain\Chat\Actions\FindOrCreateConversationAction;
 use App\Domain\Chat\Actions\MarkConversationReadAction;
 use App\Domain\Chat\Models\ChatConversation;
+use App\Policies\ConversationPolicy;
 use Domain\Users\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 class ChatConversationController
 {
@@ -47,6 +49,9 @@ class ChatConversationController
 
     public function store(StartConversationRequest $request, FindOrCreateConversationAction $action): ChatConversationResource
     {
+        // Chat is only available between users sharing a live transaction.
+        Gate::authorize(ConversationPolicy::CREATE_ABILITY, (int) $request->validated('recipient_id'));
+
         $conversation = $action->execute(
             $request->user()->id,
             (int) $request->validated('recipient_id')

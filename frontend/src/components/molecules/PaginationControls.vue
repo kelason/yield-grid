@@ -28,14 +28,14 @@ defineEmits(['page-change'])
       <button
         @click="$emit('page-change', currentPage - 1)"
         :disabled="currentPage === 1"
-        class="relative inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="relative inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 transition-colors motion-reduce:transition-none"
       >
         Previous
       </button>
       <button
         @click="$emit('page-change', currentPage + 1)"
         :disabled="currentPage === lastPage"
-        class="relative ml-3 inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="relative ml-3 inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 transition-colors motion-reduce:transition-none"
       >
         Next
       </button>
@@ -53,7 +53,7 @@ defineEmits(['page-change'])
           <button
             @click="$emit('page-change', currentPage - 1)"
             :disabled="currentPage === 1"
-            class="relative inline-flex items-center rounded-full p-2 text-stone-500 hover:bg-moss-50 hover:text-moss-600 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 border border-stone-200"
+            class="relative inline-flex items-center rounded-full p-2 text-stone-500 hover:bg-moss-50 hover:text-moss-600 focus:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 motion-reduce:transition-none border border-stone-200"
           >
             <span class="sr-only">Previous</span>
             <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
@@ -62,7 +62,7 @@ defineEmits(['page-change'])
           <button
             @click="$emit('page-change', currentPage + 1)"
             :disabled="currentPage === lastPage"
-            class="relative inline-flex items-center rounded-full p-2 text-stone-500 hover:bg-moss-50 hover:text-moss-600 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 border border-stone-200"
+            class="relative inline-flex items-center rounded-full p-2 text-stone-500 hover:bg-moss-50 hover:text-moss-600 focus:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 motion-reduce:transition-none border border-stone-200"
           >
             <span class="sr-only">Next</span>
             <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />

@@ -158,7 +158,7 @@ function getInitials(name) {
         <!-- Logo area -->
         <div
           :class="[
-            'flex items-center flex-shrink-0 border-b border-stone-100 h-16',
+            'flex items-center flex-shrink-0 border-b border-stone-300 h-16',
             isCollapsed ? 'justify-center px-0' : 'px-5',
           ]"
         >

@@ -17,7 +17,11 @@ class SendMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => ['required', 'string', 'max:'.ChatConstants::MESSAGE_MAX_LENGTH],
+            'body' => [
+                'required',
+                'string',
+                'max:'.ChatConstants::MESSAGE_MAX_LENGTH,
+            ],
         ];
     }
 }

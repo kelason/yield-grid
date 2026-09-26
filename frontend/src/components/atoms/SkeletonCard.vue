@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white overflow-hidden shadow-soft rounded-2xl border border-stone-200 p-6">
-    <div class="animate-pulse flex space-x-4">
+    <div class="animate-pulse motion-reduce:animate-none flex space-x-4">
       <!-- Icon/Avatar skeleton -->
       <div v-if="withAvatar" class="rounded-full bg-stone-200 h-10 w-10 flex-shrink-0"></div>
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Marketplace\Events;
 
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -18,7 +19,7 @@ final class ContractPurchased implements ShouldBroadcast
 
     public function __construct(
         public readonly Purchase $purchase,
-        public readonly ForwardContract $contract,
+        public readonly ForwardContract|HarvestListing $contract,
     ) {}
 
     public function broadcastOn(): PrivateChannel

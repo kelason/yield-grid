@@ -31,7 +31,7 @@ async function resendVerificationEmail() {
 <template>
   <div class="text-center py-6">
     <svg
-      class="mx-auto h-12 w-12 text-farm-500"
+      class="mx-auto h-12 w-12 text-green-500"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
