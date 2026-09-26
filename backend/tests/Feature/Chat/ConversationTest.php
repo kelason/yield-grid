@@ -140,7 +140,7 @@ it('allows starting a conversation while payment is still pending', function () 
     $response->assertStatus(201);
 });
 
-it('rejects a message over 500 words', function () {
+it('accepts a message over 500 words within the character limit', function () {
     $user1 = User::factory()->create();
     $user2 = User::factory()->create();
 
@@ -151,8 +151,29 @@ it('rejects a message over 500 words', function () {
     ]);
 
     Sanctum::actingAs($user1, ['*']);
+    // 501 words but only ~1,001 chars: word limit removed, char limit applies.
     $response = $this->postJson("/api/v1/chat/conversations/{$conversation->id}/messages", [
-        'body' => str_repeat('word ', 501),
+        'body' => trim(str_repeat('a ', 501)),
+    ]);
+
+    $response->assertStatus(201);
+    $this->assertDatabaseCount('chat_messages', 1);
+});
+
+it('rejects a message over 5000 characters', function () {
+    $user1 = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    $conversation = ChatConversation::create();
+    $conversation->participants()->createMany([
+        ['user_id' => $user1->id],
+        ['user_id' => $user2->id],
+    ]);
+
+    Sanctum::actingAs($user1, ['*']);
+    // Single word: passes the word-count check but must fail the char limit.
+    $response = $this->postJson("/api/v1/chat/conversations/{$conversation->id}/messages", [
+        'body' => str_repeat('a', 5001),
     ]);
 
     $response->assertStatus(422);

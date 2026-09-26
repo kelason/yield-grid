@@ -42,6 +42,21 @@ watch(
   },
 )
 
+const QUANTITY_MAX_LENGTH = 6
+
+// Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
+// Writing back to both the element and the ref keeps display and v-model in
+// sync regardless of listener order.
+const clampQuantity = (event) => {
+  const value = event.target.value
+  if (value.length > QUANTITY_MAX_LENGTH) {
+    const sliced = value.slice(0, QUANTITY_MAX_LENGTH)
+    event.target.value = sliced
+    const parsed = parseFloat(sliced)
+    quantityKg.value = Number.isNaN(parsed) ? sliced : parsed
+  }
+}
+
 const totalPriceForQuantity = computed(() => quantityKg.value * pricePerKg.value)
 
 const isDownpayment = computed(() => {
@@ -144,6 +159,8 @@ const handleConfirm = () => {
               v-model.number="quantityKg"
               min="1"
               :max="contract.quantity_kg"
+              :maxlength="QUANTITY_MAX_LENGTH"
+              @input="clampQuantity"
               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm pr-8"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

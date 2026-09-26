@@ -20,7 +20,8 @@ final class ApproveCashPaymentRequest extends FormRequest
     {
         return [
             'type' => 'required|in:partial,full',
-            'amount' => 'nullable|numeric|min:0.01',
+            // 8 digits max (mirrors the approval modal 8-char cap).
+            'amount' => 'nullable|numeric|min:0.01|max:99999999',
         ];
     }
 }

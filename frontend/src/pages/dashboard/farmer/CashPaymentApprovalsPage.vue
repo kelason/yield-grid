@@ -46,6 +46,18 @@ const closeApproveModal = () => {
   promptModal.value.isOpen = false
 }
 
+const AMOUNT_MAX_LENGTH = 8
+
+// Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
+const clampAmount = (event) => {
+  const value = event.target.value
+  if (value.length > AMOUNT_MAX_LENGTH) {
+    const sliced = value.slice(0, AMOUNT_MAX_LENGTH)
+    event.target.value = sliced
+    promptModal.value.amount = sliced
+  }
+}
+
 const confirmApprove = async () => {
   const { purchaseId, type, amount } = promptModal.value
   const parsedAmount = parseFloat(amount)
@@ -284,6 +296,8 @@ function getConfirmedPaid(purchase) {
                   class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-moss-500 focus:border-moss-500 text-stone-900 font-medium text-lg transition-shadow bg-stone-50 focus:bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
                   min="1"
                   step="0.01"
+                  :maxlength="AMOUNT_MAX_LENGTH"
+                  @input="clampAmount"
                   :disabled="promptModal.type === 'full'"
                   @keyup.enter="promptModal.type !== 'full' ? confirmApprove() : null"
                 />

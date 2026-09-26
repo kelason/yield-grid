@@ -24,7 +24,7 @@ final class HarvestListingController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:5000',
             'crop_name' => 'required|string|max:100',
             'quantity_kg' => 'required|numeric|min:1',
             'price_per_kg' => 'required|numeric|min:0.01',

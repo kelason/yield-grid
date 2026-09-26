@@ -34,22 +34,28 @@ describe('ChatComposer.vue', () => {
     expect(textarea.element.value).toBe('')
   })
 
-  it('shows the live word count', async () => {
+  it('shows the live character count', async () => {
     const wrapper = mount(ChatComposer)
 
     await wrapper.find('textarea').setValue('one two three')
 
-    expect(wrapper.text()).toContain('3/500 words')
+    expect(wrapper.text()).toContain('13/5000')
   })
 
-  it('does not emit send when the message exceeds 500 words', async () => {
+  it('caps input at the server-side character limit', () => {
     const wrapper = mount(ChatComposer)
 
-    await wrapper.find('textarea').setValue(`${'word '.repeat(501).trim()}`)
+    expect(wrapper.find('textarea').attributes('maxlength')).toBe('5000')
+  })
+
+  it('does not emit send when the message exceeds 5000 characters', async () => {
+    const wrapper = mount(ChatComposer)
+
+    await wrapper.find('textarea').setValue('a'.repeat(5001))
 
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(wrapper.emitted()).not.toHaveProperty('send')
-    expect(wrapper.text()).toContain('501/500 words')
+    expect(wrapper.text()).toContain('5001/5000')
   })
 })

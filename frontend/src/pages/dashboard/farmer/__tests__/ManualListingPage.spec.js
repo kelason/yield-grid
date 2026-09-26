@@ -36,7 +36,7 @@ describe('ManualListingPage.vue limits', () => {
     const wrapper = mountPage()
 
     expect(wrapper.text()).toContain('0/50')
-    expect(wrapper.text()).toContain('0/500 words')
+    expect(wrapper.text()).toContain('0/5000')
   })
 
   it('caps the title at 50 characters on submit', async () => {
@@ -83,15 +83,15 @@ describe('ManualListingPage.vue limits', () => {
     expect(wrapper.text()).not.toContain('/8')
   })
 
-  it('blocks submit when the description exceeds 500 words', async () => {
+  it('blocks submit when the description exceeds 5000 characters', async () => {
     const wrapper = mountPage()
 
-    await wrapper.find('textarea').setValue('word '.repeat(501).trim())
-    expect(wrapper.text()).toContain('501/500 words')
+    await wrapper.find('textarea').setValue('a'.repeat(5001))
+    expect(wrapper.text()).toContain('5001/5000')
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(mockPost).not.toHaveBeenCalled()
     const notificationStore = useNotificationStore()
-    expect(notificationStore.notifications.at(-1).message).toMatch(/500 words/)
+    expect(notificationStore.notifications.at(-1).message).toMatch(/5000 characters/)
   })
 })

@@ -54,6 +54,50 @@ it('can create a thread', function () {
     ]);
 });
 
+it('rejects a thread with title over 100 characters', function () {
+    $user = User::factory()->create();
+    $category = ForumCategory::create([
+        'name' => 'Test',
+        'slug' => 'test-title-limit',
+        'description' => 'Test',
+        'icon_emoji' => '🤔',
+        'sort_order' => 1,
+    ]);
+
+    Sanctum::actingAs($user, ['*']);
+    $response = $this->postJson('/api/v1/forum/threads', [
+        'title' => str_repeat('a', 101),
+        'body' => 'This is a valid body that exceeds the minimum length of 20 characters.',
+        'category_id' => $category->id,
+        'is_anonymous' => false,
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseCount('forum_threads', 0);
+});
+
+it('rejects a thread with body over 5000 characters', function () {
+    $user = User::factory()->create();
+    $category = ForumCategory::create([
+        'name' => 'Test',
+        'slug' => 'test-body-limit',
+        'description' => 'Test',
+        'icon_emoji' => '🤔',
+        'sort_order' => 1,
+    ]);
+
+    Sanctum::actingAs($user, ['*']);
+    $response = $this->postJson('/api/v1/forum/threads', [
+        'title' => 'This is a valid thread title',
+        'body' => str_repeat('a', 5001),
+        'category_id' => $category->id,
+        'is_anonymous' => false,
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseCount('forum_threads', 0);
+});
+
 it('can post a reply', function () {
     $user = User::factory()->create();
     $category = ForumCategory::create([
@@ -84,4 +128,31 @@ it('can post a reply', function () {
         'thread_id' => $thread->id,
         'body' => 'This is a reply to the thread.',
     ]);
+});
+
+it('rejects a reply with body over 5000 characters', function () {
+    $user = User::factory()->create();
+    $category = ForumCategory::create([
+        'name' => 'Test',
+        'slug' => 'test-reply-limit',
+        'description' => 'Test',
+        'icon_emoji' => '🤔',
+        'sort_order' => 1,
+    ]);
+
+    $thread = ForumThread::create([
+        'user_id' => $user->id,
+        'category_id' => $category->id,
+        'title' => 'This is a test thread title',
+        'body' => 'This is a test body for a thread.',
+        'last_activity_at' => now(),
+    ]);
+
+    Sanctum::actingAs($user, ['*']);
+    $response = $this->postJson("/api/v1/forum/threads/{$thread->id}/replies", [
+        'body' => str_repeat('a', 5001),
+    ]);
+
+    $response->assertStatus(422);
+    $this->assertDatabaseCount('forum_replies', 0);
 });

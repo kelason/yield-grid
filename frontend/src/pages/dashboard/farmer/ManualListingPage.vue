@@ -61,14 +61,11 @@ watch(
 const isSubmitting = ref(false)
 
 const TITLE_MAX_LENGTH = 50
-const DESCRIPTION_MAX_WORDS = 500
+const DESCRIPTION_MAX_LENGTH = 5000
 
-const descriptionWordCount = computed(() => {
-  const trimmed = (form.value.description || '').trim()
-  return trimmed === '' ? 0 : trimmed.split(/\s+/).length
-})
-const isTitleOverLimit = computed(() => form.value.title.length > TITLE_MAX_LENGTH)
-const isDescriptionOverLimit = computed(() => descriptionWordCount.value > DESCRIPTION_MAX_WORDS)
+const descriptionLength = computed(() => (form.value.description || '').length)
+const isTitleOverLimit = computed(() => (form.value.title || '').length > TITLE_MAX_LENGTH)
+const isDescriptionOverLimit = computed(() => descriptionLength.value > DESCRIPTION_MAX_LENGTH)
 
 const handleSubmit = async () => {
   if (isTitleOverLimit.value) {
@@ -76,7 +73,7 @@ const handleSubmit = async () => {
     return
   }
   if (isDescriptionOverLimit.value) {
-    notificationStore.error(`Description must be ${DESCRIPTION_MAX_WORDS} words or less.`)
+    notificationStore.error(`Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`)
     return
   }
 
@@ -186,7 +183,7 @@ const handleSubmit = async () => {
                 class="text-[11px]"
                 :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
               >
-                {{ form.title.length }}/{{ TITLE_MAX_LENGTH }}
+                {{ (form.title || '').length }}/{{ TITLE_MAX_LENGTH }}
               </span>
             </div>
             <AppInput
@@ -204,12 +201,13 @@ const handleSubmit = async () => {
                 class="text-[11px]"
                 :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
               >
-                {{ descriptionWordCount }}/{{ DESCRIPTION_MAX_WORDS }} words
+                {{ descriptionLength }}/{{ DESCRIPTION_MAX_LENGTH }}
               </span>
             </div>
             <textarea
               v-model="form.description"
               rows="3"
+              :maxlength="DESCRIPTION_MAX_LENGTH"
               class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
             ></textarea>
           </div>

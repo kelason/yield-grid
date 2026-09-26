@@ -7,12 +7,9 @@ const emit = defineEmits(['send'])
 const message = ref('')
 const isSending = ref(false)
 
-const wordCount = computed(() => {
-  const words = message.value.trim().split(/\s+/)
-  return message.value.trim() === '' ? 0 : words.length
-})
+const messageLength = computed(() => message.value.length)
 
-const isOverLimit = computed(() => wordCount.value > CHAT_CONSTANTS.MESSAGE_MAX_WORDS)
+const isOverLimit = computed(() => messageLength.value > CHAT_CONSTANTS.MESSAGE_MAX_LENGTH)
 
 const send = () => {
   if (!message.value.trim() || isOverLimit.value || isSending.value) return
@@ -30,6 +27,7 @@ const send = () => {
         <textarea
           v-model="message"
           rows="3"
+          :maxlength="CHAT_CONSTANTS.MESSAGE_MAX_LENGTH"
           class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-4 text-sm min-h-24 max-h-48 overflow-y-auto"
           placeholder="Type a message..."
           @keydown.enter.prevent="send"
@@ -51,7 +49,7 @@ const send = () => {
       class="text-right text-[10px] mt-1 mr-14"
       :class="isOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
     >
-      {{ wordCount }}/{{ CHAT_CONSTANTS.MESSAGE_MAX_WORDS }} words
+      {{ messageLength }}/{{ CHAT_CONSTANTS.MESSAGE_MAX_LENGTH }}
     </div>
   </div>
 </template>

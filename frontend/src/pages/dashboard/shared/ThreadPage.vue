@@ -7,6 +7,7 @@ import { useForumWebSocket } from '../../../composables/useForumWebSocket'
 import ThreadCard from '../../../components/molecules/ThreadCard.vue'
 import ReplyCard from '../../../components/molecules/ReplyCard.vue'
 import AppButton from '../../../components/atoms/AppButton.vue'
+import { FORUM_CONSTANTS } from '../../../constants/forum'
 
 const forumStore = useForumStore()
 const authStore = useAuthStore()
@@ -55,8 +56,11 @@ onUnmounted(() => {
   leaveThread(threadId)
 })
 
+const replyBodyLength = computed(() => (replyBody.value || '').length)
+const isReplyOverLimit = computed(() => replyBodyLength.value > FORUM_CONSTANTS.REPLY_MAX_LENGTH)
+
 const handleReply = async () => {
-  if (!replyBody.value.trim() || isSubmitting.value) return
+  if (!replyBody.value.trim() || isSubmitting.value || isReplyOverLimit.value) return
   isSubmitting.value = true
   try {
     const payload = { body: replyBody.value, is_anonymous: isAnonymous.value }
@@ -139,10 +143,23 @@ const goBack = () => router.push({ name: 'community-forum' })
                 </svg>
               </button>
             </div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="reply-body" class="block text-sm font-medium text-soil-700"
+                >Your Reply</label
+              >
+              <span
+                class="text-[11px]"
+                :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+              >
+                {{ replyBodyLength }}/{{ FORUM_CONSTANTS.REPLY_MAX_LENGTH }}
+              </span>
+            </div>
             <textarea
+              id="reply-body"
               v-model="replyBody"
               rows="4"
-              class="w-full p-4 rounded-xl border-stone-300 shadow-inner focus:ring-moss-500 focus:border-moss-500 transition-shadow mb-3 resize-y"
+              :maxlength="FORUM_CONSTANTS.REPLY_MAX_LENGTH"
+              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white resize-y mb-3"
               placeholder="Add your knowledge or ask for clarification..."
               required
             ></textarea>
@@ -160,7 +177,7 @@ const goBack = () => router.push({ name: 'community-forum' })
               </div>
               <AppButton
                 type="submit"
-                :disabled="isSubmitting || !replyBody.trim()"
+                :disabled="isSubmitting || !replyBody.trim() || isReplyOverLimit"
                 class="bg-gradient-to-br from-moss-500 to-moss-600 text-white shadow-soft"
               >
                 Post Reply
