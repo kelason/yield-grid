@@ -11,14 +11,14 @@
       <div v-if="isOpen" class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
         <!-- Backdrop -->
         <div
-          class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+          class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none"
           @click="handleCancel"
           aria-hidden="true"
         ></div>
 
         <!-- Modal Panel -->
         <div
-          class="relative w-full max-w-md bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all border border-stone-100"
+          class="relative w-full max-w-md bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all motion-reduce:transition-none motion-reduce:transform-none border border-stone-100"
         >
           <!-- Organic top accent strip -->
           <div
@@ -51,7 +51,7 @@
               <button
                 type="button"
                 @click="handleCancel"
-                class="w-full sm:w-auto rounded-xl bg-stone-100 px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]"
+                class="w-full sm:w-auto rounded-xl bg-stone-100 px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99]"
               >
                 {{ cancelText }}
               </button>
@@ -60,7 +60,7 @@
                 type="button"
                 @click="handleConfirm"
                 :class="[
-                  'w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]',
+                  'w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99]',
                   type === 'danger'
                     ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus-visible:outline-red-600'
                     : 'bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 shadow-soft hover:shadow-organic focus-visible:outline-moss-600',

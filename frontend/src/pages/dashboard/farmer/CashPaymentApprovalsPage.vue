@@ -2,12 +2,18 @@
 import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
+import { useChatEntry } from '@/composables/useChatEntry'
 import PriceTag from '@/components/atoms/PriceTag.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
+const { openChat } = useChatEntry()
+
+const messageBuyer = (purchase) => {
+  openChat(purchase.buyer?.id)
+}
 
 onMounted(() => {
   marketStore.fetchFarmerPurchases()
@@ -182,6 +188,16 @@ function getConfirmedPaid(purchase) {
                   class="text-[15px] font-extrabold text-moss-600 leading-none"
                 />
               </div>
+            </div>
+
+            <!-- Message buyer (transaction partner) -->
+            <div v-if="purchase.buyer?.id" class="flex w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
+              <button
+                @click="messageBuyer(purchase)"
+                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm w-full sm:w-auto text-center"
+              >
+                Message buyer
+              </button>
             </div>
 
             <!-- Actions -->

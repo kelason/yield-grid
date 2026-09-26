@@ -22,7 +22,7 @@ const emit = defineEmits(['vote', 'accept', 'replyTo'])
 
 <template>
   <div
-    class="bg-white rounded-2xl p-5 shadow-soft border border-stone-200"
+    class="bg-white rounded-2xl p-5 shadow-soft border border-stone-200 transition-all duration-300 motion-reduce:transition-none"
     :class="{ 'border-moss-200 ring-1 ring-moss-200': reply.is_accepted }"
   >
     <div class="flex gap-4">
@@ -36,7 +36,7 @@ const emit = defineEmits(['vote', 'accept', 'replyTo'])
         <button
           v-if="isThreadAuthor || reply.is_accepted"
           @click="emit('accept', reply.id)"
-          class="focus:outline-none transition-transform hover:scale-110"
+          class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-full transition-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-110"
           :class="{ 'cursor-default': !isThreadAuthor && reply.is_accepted }"
           :disabled="!isThreadAuthor"
           title="Accept Answer"
@@ -102,7 +102,7 @@ const emit = defineEmits(['vote', 'accept', 'replyTo'])
         <div class="flex gap-4 border-t border-stone-100 pt-3">
           <button
             @click="emit('replyTo', reply.id)"
-            class="text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors"
+            class="text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
           >
             Reply
           </button>

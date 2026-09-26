@@ -107,16 +107,16 @@ const goBack = () => router.push({ name: 'community-forum' })
 
       <!-- Replies Section -->
       <div class="space-y-6">
-        <h2 class="font-serif text-2xl font-bold text-stone-900 border-b border-stone-200 pb-2">
+        <h2 class="font-serif text-2xl font-bold text-stone-900 border-b border-stone-300 pb-2">
           {{ thread.reply_count }} Replies
         </h2>
 
         <!-- Reply Composer -->
-        <div id="reply-composer" class="bg-stone-50 rounded-2xl p-4 sm:p-6 border border-stone-200">
+        <div id="reply-composer" class="bg-stone-50 rounded-2xl p-4 sm:p-6 border border-stone-300">
           <form @submit.prevent="handleReply">
             <div
               v-if="replyingToReply"
-              class="mb-3 flex items-center justify-between bg-stone-100 p-3 rounded-lg border border-stone-200"
+              class="mb-3 flex items-center justify-between bg-stone-100 p-3 rounded-lg border border-stone-300"
             >
               <div class="text-sm text-stone-600 truncate flex-grow mr-4">
                 <span class="font-medium text-stone-900"

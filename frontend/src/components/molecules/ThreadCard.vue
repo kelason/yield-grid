@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import AppCard from '../atoms/AppCard.vue'
 import ForumTag from '../atoms/ForumTag.vue'
 import VoteBadge from '../atoms/VoteBadge.vue'
 import AcceptedBadge from '../atoms/AcceptedBadge.vue'
@@ -19,9 +20,7 @@ const emit = defineEmits(['vote'])
 </script>
 
 <template>
-  <div
-    class="bg-white rounded-2xl p-5 shadow-soft border border-stone-200 hover:shadow-organic hover:-translate-y-1 transition-all duration-300"
-  >
+  <AppCard variant="default" :hover="true" padding="p-5">
     <div class="flex gap-4">
       <div class="flex-shrink-0 flex flex-col items-center gap-3">
         <VoteBadge
@@ -38,7 +37,7 @@ const emit = defineEmits(['vote'])
         <div class="flex justify-between items-start mb-2">
           <RouterLink
             :to="{ name: 'forum-thread', params: { id: thread.id } }"
-            class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors line-clamp-2 pr-4"
+            class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
           >
             {{ thread.title }}
           </RouterLink>
@@ -92,5 +91,5 @@ const emit = defineEmits(['vote'])
         </div>
       </div>
     </div>
-  </div>
+  </AppCard>
 </template>

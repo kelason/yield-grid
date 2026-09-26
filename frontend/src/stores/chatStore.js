@@ -57,7 +57,8 @@ export const useChatStore = defineStore('chat', () => {
   async function startConversation(recipientId) {
     try {
       const response = await api.post('/chat/conversations', { recipient_id: recipientId })
-      const newConv = response.data
+      // Single API resources arrive wrapped in a data envelope
+      const newConv = response.data?.data ?? response.data
 
       // Add to list if not exists
       const exists = conversations.value.find((c) => c.id === newConv.id)
@@ -76,23 +77,25 @@ export const useChatStore = defineStore('chat', () => {
     try {
       // Optimistic update could go here
       const response = await api.post(`/chat/conversations/${conversationId}/messages`, { body })
+      // Single API resources arrive wrapped in a data envelope
+      const sentMessage = response.data?.data ?? response.data
 
       // Add to current view if active
       if (activeConversation.value && activeConversation.value.id === conversationId) {
-        messages.value.push(response.data)
+        messages.value.push(sentMessage)
       }
 
       // Update conversation list
       const conv = conversations.value.find((c) => c.id === conversationId)
       if (conv) {
-        conv.latest_message = response.data
-        conv.last_message_at = response.data.created_at
+        conv.latest_message = sentMessage
+        conv.last_message_at = sentMessage.created_at
 
         // Move to top
         conversations.value = [conv, ...conversations.value.filter((c) => c.id !== conversationId)]
       }
 
-      return response.data
+      return sentMessage
     } catch (error) {
       console.error('Failed to send message:', error)
       throw error

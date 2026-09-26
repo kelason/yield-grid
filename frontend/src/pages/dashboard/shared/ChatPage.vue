@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { useChatStore } from '../../../stores/chatStore'
 import { useChatWebSocket } from '../../../composables/useChatWebSocket'
 import ConversationItem from '../../../components/molecules/ConversationItem.vue'
@@ -8,14 +9,19 @@ import ChatBubble from '../../../components/atoms/ChatBubble.vue'
 
 const chatStore = useChatStore()
 const { listenToConversation, leaveConversation } = useChatWebSocket()
+const route = useRoute()
 
 const messagesContainer = ref(null)
 const selectedConversationId = ref(null)
 
 onMounted(async () => {
   await chatStore.fetchConversations()
-  if (chatStore.conversations.length > 0) {
-    selectConversation(chatStore.conversations[0].id)
+  const requestedId = Number(route.query.conversation)
+  const target = chatStore.conversations.some((c) => c.id === requestedId)
+    ? requestedId
+    : chatStore.conversations[0]?.id
+  if (target) {
+    selectConversation(target)
   }
 })
 
@@ -62,15 +68,15 @@ const scrollToBottom = () => {
 
 <template>
   <div
-    class="h-[calc(100vh-12rem)] min-h-[600px] flex overflow-hidden shadow-soft rounded-2xl border border-stone-200"
+    class="h-[calc(100vh-12rem)] min-h-[600px] flex overflow-hidden shadow-soft rounded-2xl border border-stone-300"
   >
     <!-- Left Sidebar: Conversations -->
     <div
-      class="w-full md:w-80 flex-shrink-0 flex flex-col bg-white border-r md:border border-stone-200 md:rounded-l-2xl shadow-soft"
+      class="w-full md:w-80 flex-shrink-0 flex flex-col bg-white border-r md:border border-stone-300 md:rounded-l-2xl shadow-soft"
       :class="{ 'hidden md:flex': selectedConversationId }"
     >
       <div
-        class="p-4 border-b border-stone-200 flex justify-between items-center bg-stone-50 md:rounded-tl-2xl"
+        class="p-4 border-b border-stone-300 flex justify-between items-center bg-stone-50 md:rounded-tl-2xl"
       >
         <h2 class="font-serif text-xl font-bold text-stone-900">Messages</h2>
         <!-- New Message Button could go here -->
@@ -102,13 +108,13 @@ const scrollToBottom = () => {
 
     <!-- Right Area: Chat Window -->
     <div
-      class="flex-1 flex flex-col bg-stone-100 md:border-y md:border-r border-stone-200 md:rounded-r-2xl"
+      class="flex-1 flex flex-col bg-stone-100 md:border-y md:border-r border-stone-300 md:rounded-r-2xl"
       :class="{ 'hidden md:flex': !selectedConversationId }"
     >
       <template v-if="activeConversation">
         <!-- Header -->
         <div
-          class="p-4 bg-white border-b border-stone-200 flex items-center gap-3 md:rounded-tr-2xl shadow-sm z-10"
+          class="p-4 bg-white border-b border-stone-300 flex items-center gap-3 md:rounded-tr-2xl shadow-sm z-10"
         >
           <button
             @click="selectedConversationId = null"
@@ -146,7 +152,10 @@ const scrollToBottom = () => {
         </div>
 
         <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4" ref="messagesContainer">
+        <div
+          class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 flex flex-col"
+          ref="messagesContainer"
+        >
           <div
             v-if="chatStore.isLoading && chatStore.messages.length === 0"
             class="flex justify-center py-4"

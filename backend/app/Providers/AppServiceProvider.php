@@ -16,6 +16,7 @@ use App\Infrastructure\Marketplace\Repositories\EloquentPurchaseRepository;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
+use App\Policies\ConversationPolicy;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;
@@ -73,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Plot::class, PlotPolicy::class);
         Gate::policy(CropRecommendation::class, CropRecommendationPolicy::class);
         Gate::policy(ForwardContract::class, ForwardContractPolicy::class);
+        Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route
         require base_path('routes/channels.php');

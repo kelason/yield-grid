@@ -9,7 +9,7 @@
   >
     <div
       v-if="show"
-      class="max-w-sm w-full bg-white shadow-organic rounded-2xl pointer-events-auto ring-1 ring-stone-200 overflow-hidden border border-stone-100"
+      class="max-w-sm w-full bg-white shadow-organic rounded-2xl pointer-events-auto ring-1 ring-stone-200 overflow-hidden border border-stone-100 motion-reduce:transition-none motion-reduce:transform-none"
     >
       <div class="p-4">
         <div class="flex items-start">
@@ -83,7 +83,7 @@
           <div class="ml-4 flex-shrink-0 flex">
             <button
               @click="close"
-              class="bg-white rounded-xl inline-flex text-stone-400 hover:text-stone-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 transition-colors duration-150"
+              class="bg-white rounded-xl inline-flex text-stone-400 hover:text-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-moss-500 transition-colors duration-150 motion-reduce:transition-none"
             >
               <span class="sr-only">Close</span>
               <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

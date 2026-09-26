@@ -13,7 +13,9 @@ defineEmits(['view-plots', 'view-recommendations'])
 </script>
 
 <template>
-  <div class="group transform hover:-translate-y-1 transition-all duration-300">
+  <div
+    class="group transform hover:-translate-y-1 transition-all duration-300 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:translate-y-0"
+  >
     <AppCard class="h-full flex flex-col" padding="p-5" :hover="false">
       <!-- Card Header -->
       <div class="flex items-start justify-between gap-3 mb-4">

@@ -62,7 +62,7 @@ async function handleRegister() {
             type="radio"
             value="buyer"
             v-model="form.role"
-            class="focus:ring-farm-500 h-4 w-4 text-farm-600 border-gray-300"
+            class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300"
           />
           <label for="role_buyer" class="ml-3 block text-sm font-medium text-gray-700">Buyer</label>
         </div>
@@ -72,7 +72,7 @@ async function handleRegister() {
             type="radio"
             value="farmer"
             v-model="form.role"
-            class="focus:ring-farm-500 h-4 w-4 text-farm-600 border-gray-300"
+            class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300"
           />
           <label for="role_farmer" class="ml-3 block text-sm font-medium text-gray-700"
             >Farmer</label

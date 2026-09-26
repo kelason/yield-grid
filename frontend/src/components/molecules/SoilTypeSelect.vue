@@ -151,8 +151,8 @@ onUnmounted(() => {
         class="group relative flex items-center justify-between px-3 py-3 rounded-xl border transition-all duration-200 cursor-pointer hover:z-40"
         :class="[
           modelValue === soil.value
-            ? 'border-farm-500 bg-farm-50/90 ring-1 ring-farm-500 shadow-sm'
-            : 'border-gray-200 bg-white hover:border-farm-300 hover:bg-farm-50/40 shadow-xs',
+            ? 'border-green-500 bg-green-50/90 ring-1 ring-green-500 shadow-sm'
+            : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/40 shadow-xs',
           activeTooltip === soil.value ? 'z-50' : 'z-10',
         ]"
         role="radio"
@@ -184,7 +184,7 @@ onUnmounted(() => {
                   @mouseenter="showTooltip(soil.value, $event)"
                   @mouseleave="hideTooltip(soil.value)"
                   @click.stop="toggleTooltip(soil.value, $event)"
-                  class="w-5 h-5 rounded-full bg-gray-100 hover:bg-farm-100 text-gray-500 hover:text-farm-700 flex items-center justify-center text-[11px] font-bold transition-colors cursor-help"
+                  class="w-5 h-5 rounded-full bg-gray-100 hover:bg-green-100 text-gray-500 hover:text-green-700 flex items-center justify-center text-[11px] font-bold transition-colors cursor-help"
                   aria-label="Soil details"
                 >
                   ?
@@ -203,7 +203,7 @@ onUnmounted(() => {
         <div class="ml-2 flex-shrink-0">
           <div
             v-if="modelValue === soil.value"
-            class="w-5 h-5 rounded-full bg-farm-600 text-white flex items-center justify-center text-xs shadow-xs"
+            class="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs shadow-xs"
           >
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -216,7 +216,7 @@ onUnmounted(() => {
           </div>
           <div
             v-else
-            class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-farm-400 transition-colors"
+            class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-green-400 transition-colors"
           ></div>
         </div>
 
@@ -240,9 +240,9 @@ onUnmounted(() => {
             <div class="relative space-y-2">
               <div class="flex items-center justify-between pb-2 border-b border-gray-800">
                 <div class="flex items-center gap-2.5">
-                  <span class="font-bold text-farm-300 text-sm">{{ soil.label }} Soil</span>
+                  <span class="font-bold text-green-300 text-sm">{{ soil.label }} Soil</span>
                   <span
-                    class="text-[11px] px-2 py-0.5 rounded-full bg-farm-900/70 text-farm-300 font-semibold border border-farm-700/60"
+                    class="text-[11px] px-2 py-0.5 rounded-full bg-green-900/70 text-green-300 font-semibold border border-green-700/60"
                   >
                     {{ soil.badge }}
                   </span>

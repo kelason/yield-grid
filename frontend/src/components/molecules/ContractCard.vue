@@ -1,4 +1,6 @@
 <script setup>
+import AppButton from '../atoms/AppButton.vue'
+import AppCard from '../atoms/AppCard.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 import { CalendarIcon, MapPinIcon, UserIcon } from '@heroicons/vue/24/outline'
@@ -14,9 +16,7 @@ defineEmits(['view-details', 'purchase'])
 </script>
 
 <template>
-  <div
-    class="bg-white overflow-hidden shadow-soft rounded-2xl border border-stone-200 hover:shadow-organic hover:border-stone-300 transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full"
-  >
+  <AppCard variant="default" :hover="true" padding="p-0" class="flex flex-col h-full">
     <div class="h-1.5 bg-gradient-to-r from-moss-500 to-moss-600 w-full"></div>
 
     <div class="p-5 flex-grow flex flex-col">
@@ -77,13 +77,10 @@ defineEmits(['view-details', 'purchase'])
           <PriceTag :amount="contract.total_price" :currency="contract.currency" size="md" />
         </div>
 
-        <button
-          @click="$emit('view-details', contract)"
-          class="inline-flex items-center px-4 py-2 border border-moss-200 rounded-xl shadow-sm text-sm font-medium text-moss-700 bg-white hover:bg-moss-50 hover:border-moss-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 transition-all duration-200 hover:scale-[1.02]"
-        >
+        <AppButton variant="outline" size="sm" @click="$emit('view-details', contract)">
           View Details
-        </button>
+        </AppButton>
       </div>
     </div>
-  </div>
+  </AppCard>
 </template>

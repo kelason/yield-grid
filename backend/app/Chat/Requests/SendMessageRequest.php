@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Chat\Requests;
 
 use App\Constants\ChatConstants;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SendMessageRequest extends FormRequest
@@ -17,7 +18,16 @@ class SendMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => ['required', 'string', 'max:'.ChatConstants::MESSAGE_MAX_LENGTH],
+            'body' => [
+                'required',
+                'string',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $words = preg_split('/\s+/', trim((string) $value)) ?: [];
+                    if (count($words) > ChatConstants::MESSAGE_MAX_WORDS) {
+                        $fail('The '.$attribute.' may not be greater than '.ChatConstants::MESSAGE_MAX_WORDS.' words.');
+                    }
+                },
+            ],
         ];
     }
 }

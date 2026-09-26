@@ -103,12 +103,12 @@ async function savePlot() {
     <div class="w-full md:w-80 flex flex-col gap-4">
       <!-- Farm info card -->
       <AppCard variant="muted" padding="p-0">
-        <div class="px-4 py-4 border-b border-earth-100">
+        <div class="px-4 py-4 border-b border-stone-300">
           <div class="flex items-center gap-2 mb-1">
             <span class="text-lg">🌾</span>
-            <h3 class="text-base font-bold text-farm-900">{{ farmName }}</h3>
+            <h3 class="text-base font-bold text-green-900">{{ farmName }}</h3>
           </div>
-          <p class="text-xs text-farm-700 leading-relaxed">
+          <p class="text-xs text-green-700 leading-relaxed">
             Use the polygon tool on the map to draw the boundaries of a new plot.
           </p>
         </div>
@@ -117,7 +117,7 @@ async function savePlot() {
           <span class="text-sm leading-none mt-0.5">📍</span>
           <div class="text-xs">
             <div class="text-gray-500">Restricted Plotting Area:</div>
-            <strong class="font-semibold text-farm-900">
+            <strong class="font-semibold text-green-900">
               {{ farmingStore.activeFarm.city
               }}<span v-if="farmingStore.activeFarm.country"
                 >, {{ farmingStore.activeFarm.country }}</span
@@ -164,7 +164,7 @@ async function savePlot() {
       <!-- Plot list (when not drawing) -->
       <AppCard v-else padding="p-0" class="flex-1 overflow-hidden flex flex-col min-h-0">
         <div
-          class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-earth-50 to-white flex items-center justify-between"
+          class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-stone-50 to-white flex items-center justify-between"
         >
           <h4 class="text-sm font-bold text-gray-900">Existing Plots</h4>
           <span class="text-xs font-medium text-gray-400">
@@ -187,7 +187,7 @@ async function savePlot() {
               v-for="feature in farmingStore.plots.features"
               :key="feature.properties.id"
               @click="plotDrawerRef?.zoomToPlot(feature.properties.id)"
-              class="p-3 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-farm-200 cursor-pointer transition-all duration-150"
+              class="p-3 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-green-200 cursor-pointer transition-all duration-150"
             >
               <div class="flex items-center justify-between gap-2">
                 <div class="min-w-0">
@@ -199,7 +199,7 @@ async function savePlot() {
                       feature.properties.soil_type || 'Unknown soil'
                     }}</span>
                     <span>•</span>
-                    <span class="font-bold text-farm-600">
+                    <span class="font-bold text-green-600">
                       {{
                         feature.properties.calculated_area
                           ? Number(feature.properties.calculated_area).toFixed(2)
@@ -211,7 +211,7 @@ async function savePlot() {
                 </div>
                 <router-link
                   :to="{ name: 'crop-recommendations', params: { id: feature.properties.id } }"
-                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-farm-50 hover:bg-farm-100 text-farm-700 text-xs font-semibold transition-colors duration-150 flex-shrink-0"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 text-xs font-semibold transition-colors duration-150 flex-shrink-0"
                 >
                   <span>🤖</span>
                   <span>Recommendations</span>

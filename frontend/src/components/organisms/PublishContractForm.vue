@@ -98,7 +98,7 @@ function submit() {
               id="title"
               v-model="form.title"
               required
-              class="shadow-sm focus:ring-farm-500 focus:border-farm-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
               :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.title }"
             />
           </div>
@@ -114,7 +114,7 @@ function submit() {
               id="description"
               v-model="form.description"
               rows="3"
-              class="shadow-sm focus:ring-farm-500 focus:border-farm-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
               :class="{
                 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.description,
               }"
@@ -139,7 +139,7 @@ function submit() {
                 required
                 min="1"
                 step="0.1"
-                class="focus:ring-farm-500 focus:border-farm-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"
+                class="focus:ring-green-500 focus:border-green-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.quantity_kg,
                 }"
@@ -171,7 +171,7 @@ function submit() {
                 required
                 min="0.01"
                 step="0.01"
-                class="focus:ring-farm-500 focus:border-farm-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md"
+                class="focus:ring-green-500 focus:border-green-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.price_per_kg,
                 }"
@@ -187,7 +187,7 @@ function submit() {
           class="bg-gray-50 p-4 rounded-md border border-gray-100 flex justify-between items-center"
         >
           <span class="text-sm font-medium text-gray-700">Total Contract Value:</span>
-          <span class="text-xl font-bold text-farm-700">{{ formattedTotalPrice }}</span>
+          <span class="text-xl font-bold text-green-700">{{ formattedTotalPrice }}</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -201,7 +201,7 @@ function submit() {
                 id="harvest"
                 v-model="form.estimated_harvest_date"
                 required
-                class="shadow-sm focus:ring-farm-500 focus:border-farm-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500':
                     errors.estimated_harvest_date,
@@ -223,7 +223,7 @@ function submit() {
                 id="expiry"
                 v-model="form.expiry_date"
                 required
-                class="shadow-sm focus:ring-farm-500 focus:border-farm-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.expiry_date,
                 }"
@@ -243,14 +243,14 @@ function submit() {
             type="button"
             @click="$emit('cancel')"
             :disabled="loading"
-            class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 disabled:opacity-50"
+            class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             :disabled="loading"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-farm-600 to-farm-700 hover:from-farm-700 hover:to-farm-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 disabled:opacity-50"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
           >
             <svg
               v-if="loading"
