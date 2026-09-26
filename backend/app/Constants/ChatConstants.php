@@ -8,5 +8,5 @@ final class ChatConstants
 {
     public const int MESSAGES_PER_PAGE = 50;
 
-    public const int MESSAGE_MAX_LENGTH = 2000;
+    public const int MESSAGE_MAX_WORDS = 500;
 }

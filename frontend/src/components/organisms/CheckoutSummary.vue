@@ -81,7 +81,7 @@ const handleConfirm = () => {
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm">
         <div class="flex items-start">
-          <CheckCircleIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+          <CheckCircleIcon class="h-5 w-5 mr-2 text-green-500 flex-shrink-0" />
           <div>
             <span class="block font-medium text-gray-900">Crop</span>
             <span class="text-gray-600"
@@ -91,7 +91,7 @@ const handleConfirm = () => {
         </div>
 
         <div class="flex items-start">
-          <CalendarIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+          <CalendarIcon class="h-5 w-5 mr-2 text-green-500 flex-shrink-0" />
           <div>
             <span class="block font-medium text-gray-900">Est. Harvest</span>
             <span class="text-gray-600">{{ contract.estimated_harvest_date }}</span>
@@ -99,7 +99,7 @@ const handleConfirm = () => {
         </div>
 
         <div class="flex items-start">
-          <UserIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+          <UserIcon class="h-5 w-5 mr-2 text-green-500 flex-shrink-0" />
           <div>
             <span class="block font-medium text-gray-900">Farmer</span>
             <span class="text-gray-600">{{ contract.farmer?.name }}</span>
@@ -107,7 +107,7 @@ const handleConfirm = () => {
         </div>
 
         <div class="flex items-start">
-          <MapPinIcon class="h-5 w-5 mr-2 text-farm-500 flex-shrink-0" />
+          <MapPinIcon class="h-5 w-5 mr-2 text-green-500 flex-shrink-0" />
           <div>
             <span class="block font-medium text-gray-900">Location</span>
             <span class="text-gray-600">{{
@@ -135,7 +135,7 @@ const handleConfirm = () => {
             v-model.number="quantityKg"
             min="1"
             :max="contract.quantity_kg"
-            class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-farm-600"
+            class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
           />
           <div class="relative w-24">
             <input
@@ -144,7 +144,7 @@ const handleConfirm = () => {
               v-model.number="quantityKg"
               min="1"
               :max="contract.quantity_kg"
-              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-farm-500 focus:ring-farm-500 sm:text-sm pr-8"
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm pr-8"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">kg</span>
@@ -160,7 +160,7 @@ const handleConfirm = () => {
             class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
             :class="
               paymentOption === 'paymongo'
-                ? 'border-farm-500 ring-1 ring-farm-500'
+                ? 'border-green-500 ring-1 ring-green-500'
                 : 'border-gray-300'
             "
           >
@@ -172,14 +172,16 @@ const handleConfirm = () => {
                   <p class="text-gray-500">Card, GCash, Maya</p>
                 </div>
               </div>
-              <CheckCircleIcon v-if="paymentOption === 'paymongo'" class="h-5 w-5 text-farm-600" />
+              <CheckCircleIcon v-if="paymentOption === 'paymongo'" class="h-5 w-5 text-green-600" />
             </div>
           </label>
 
           <label
             class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
             :class="
-              paymentOption === 'cash' ? 'border-farm-500 ring-1 ring-farm-500' : 'border-gray-300'
+              paymentOption === 'cash'
+                ? 'border-green-500 ring-1 ring-green-500'
+                : 'border-gray-300'
             "
           >
             <input type="radio" v-model="paymentOption" value="cash" class="sr-only" />
@@ -190,7 +192,7 @@ const handleConfirm = () => {
                   <p class="text-gray-500">Pay directly to farmer</p>
                 </div>
               </div>
-              <CheckCircleIcon v-if="paymentOption === 'cash'" class="h-5 w-5 text-farm-600" />
+              <CheckCircleIcon v-if="paymentOption === 'cash'" class="h-5 w-5 text-green-600" />
             </div>
           </label>
         </div>
@@ -220,7 +222,7 @@ const handleConfirm = () => {
           :amount="amountToPay"
           :currency="contract.currency"
           size="lg"
-          class="text-farm-700"
+          class="text-green-700"
         />
       </div>
     </div>
@@ -241,14 +243,14 @@ const handleConfirm = () => {
       <button
         @click="$emit('cancel')"
         :disabled="loading"
-        class="px-5 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 transition-colors w-full sm:w-auto text-center disabled:opacity-50"
+        class="px-5 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors w-full sm:w-auto text-center disabled:opacity-50"
       >
         Cancel
       </button>
       <button
         @click="handleConfirm"
         :disabled="loading || !authStore.isEmailVerified"
-        class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-farm-600 to-farm-700 hover:from-farm-700 hover:to-farm-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-farm-500 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto text-center flex justify-center items-center disabled:opacity-50 disabled:transform-none"
+        class="px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto text-center flex justify-center items-center disabled:opacity-50 disabled:transform-none"
       >
         <svg
           v-if="loading"

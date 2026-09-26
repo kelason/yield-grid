@@ -38,7 +38,7 @@ defineEmits(['update:modelValue'])
         @change="$emit('update:modelValue', $event.target.value)"
         :required="required"
         :disabled="disabled"
-        class="appearance-none block w-full px-4 py-2.5 pr-9 border rounded-xl shadow-sm bg-stone-50 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 hover:border-stone-400"
+        class="appearance-none block w-full px-4 py-2.5 pr-9 border rounded-xl shadow-sm bg-stone-50 text-stone-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 motion-reduce:transition-none hover:border-stone-400"
         :class="[
           error
             ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500'

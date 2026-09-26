@@ -22,8 +22,8 @@ const variantClasses = {
     'text-moss-700 border-2 border-moss-300 bg-transparent hover:bg-moss-50 hover:border-moss-500 hover:scale-[1.02] active:scale-[0.99]',
   danger:
     'text-white bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.99]',
-  ghost: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg',
-  'ghost-dark': 'text-stone-300 hover:text-white hover:bg-white/10 rounded-lg',
+  ghost: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100',
+  'ghost-dark': 'text-stone-300 hover:text-white hover:bg-white/10',
   harvest:
     'text-white bg-gradient-to-br from-harvest-500 to-harvest-600 hover:from-harvest-600 hover:to-harvest-700 shadow-harvest-glow hover:scale-[1.02] active:scale-[0.99]',
 }
@@ -46,7 +46,7 @@ const roundedClasses = {
     :type="type"
     :disabled="disabled || loading"
     :class="[
-      'inline-flex items-center justify-center font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500',
+      'inline-flex items-center justify-center font-medium transition-all duration-300 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-moss-500',
       sizeClasses[size],
       roundedClasses[rounded],
       variantClasses[variant],

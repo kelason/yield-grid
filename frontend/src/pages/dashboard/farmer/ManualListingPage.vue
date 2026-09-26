@@ -60,7 +60,26 @@ watch(
 
 const isSubmitting = ref(false)
 
+const TITLE_MAX_LENGTH = 50
+const DESCRIPTION_MAX_WORDS = 500
+
+const descriptionWordCount = computed(() => {
+  const trimmed = (form.value.description || '').trim()
+  return trimmed === '' ? 0 : trimmed.split(/\s+/).length
+})
+const isTitleOverLimit = computed(() => form.value.title.length > TITLE_MAX_LENGTH)
+const isDescriptionOverLimit = computed(() => descriptionWordCount.value > DESCRIPTION_MAX_WORDS)
+
 const handleSubmit = async () => {
+  if (isTitleOverLimit.value) {
+    notificationStore.error(`Title must be ${TITLE_MAX_LENGTH} characters or less.`)
+    return
+  }
+  if (isDescriptionOverLimit.value) {
+    notificationStore.error(`Description must be ${DESCRIPTION_MAX_WORDS} words or less.`)
+    return
+  }
+
   const needsDate = !form.value.is_harvest_available
   if (
     !finalCropName.value ||
@@ -110,7 +129,7 @@ const handleSubmit = async () => {
     <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="space-y-4">
-          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-100 pb-2">
+          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
             Crop Details
           </h3>
 
@@ -128,7 +147,12 @@ const handleSubmit = async () => {
             </div>
             <div v-if="isCustomCrop">
               <label class="block text-sm font-medium text-soil-700 mb-1">Custom Crop Name</label>
-              <AppInput v-model="form.custom_crop_name" placeholder="e.g. Cabbage" required />
+              <AppInput
+                id="custom_crop_name"
+                v-model="form.custom_crop_name"
+                placeholder="e.g. Cabbage"
+                required
+              />
             </div>
           </div>
 
@@ -138,25 +162,51 @@ const handleSubmit = async () => {
               <p class="text-xs text-stone-500 mb-2">
                 Pre-populated from catalog, but you can edit it.
               </p>
-              <AppInput type="number" v-model="form.shelf_life_days" min="1" required />
+              <AppInput
+                id="shelf_life_days"
+                type="number"
+                v-model="form.shelf_life_days"
+                maxlength="4"
+                min="1"
+                required
+              />
             </div>
           </div>
         </div>
 
         <div class="space-y-4">
-          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-100 pb-2">
+          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
             Listing Details
           </h3>
 
           <div>
-            <label class="block text-sm font-medium text-soil-700 mb-1">Title (Optional)</label>
-            <AppInput v-model="form.title" placeholder="e.g. Premium Grade Rice Harvest" />
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-sm font-medium text-soil-700">Title (Optional)</label>
+              <span
+                class="text-[11px]"
+                :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+              >
+                {{ form.title.length }}/{{ TITLE_MAX_LENGTH }}
+              </span>
+            </div>
+            <AppInput
+              id="title"
+              v-model="form.title"
+              placeholder="e.g. Premium Grade Rice Harvest"
+              maxlength="50"
+            />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-soil-700 mb-1"
-              >Description (Optional)</label
-            >
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-sm font-medium text-soil-700">Description (Optional)</label>
+              <span
+                class="text-[11px]"
+                :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+              >
+                {{ descriptionWordCount }}/{{ DESCRIPTION_MAX_WORDS }} words
+              </span>
+            </div>
             <textarea
               v-model="form.description"
               rows="3"
@@ -167,17 +217,33 @@ const handleSubmit = async () => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-soil-700 mb-1">Quantity (kg)</label>
-              <AppInput type="number" v-model="form.quantity_kg" min="1" step="0.1" required />
+              <AppInput
+                id="quantity_kg"
+                type="number"
+                v-model="form.quantity_kg"
+                maxlength="6"
+                min="1"
+                step="0.1"
+                required
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-soil-700 mb-1">Price per kg (₱)</label>
-              <AppInput type="number" v-model="form.price_per_kg" min="0.01" step="0.01" required />
+              <AppInput
+                id="price_per_kg"
+                type="number"
+                v-model="form.price_per_kg"
+                maxlength="8"
+                min="0.01"
+                step="0.01"
+                required
+              />
             </div>
           </div>
         </div>
 
         <div class="space-y-4">
-          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-100 pb-2">
+          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
             Availability
           </h3>
 
@@ -187,6 +253,7 @@ const handleSubmit = async () => {
                 >Estimated Harvest Date</label
               >
               <AppInput
+                id="estimated_harvest_date"
                 type="date"
                 v-model="form.estimated_harvest_date"
                 :required="!form.is_harvest_available"

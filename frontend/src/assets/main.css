@@ -4,6 +4,42 @@
 
 @layer base {
   body {
-    @apply antialiased text-gray-800 bg-earth-50 m-0 p-0;
+    @apply antialiased text-stone-800 bg-stone-100 m-0 p-0;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-moss-500 ring-offset-2 ring-offset-stone-100;
+  }
+
+  ::selection {
+    @apply bg-moss-200 text-moss-900;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-stone-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-stone-300 rounded-full border-2 border-solid border-stone-100;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-stone-400;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

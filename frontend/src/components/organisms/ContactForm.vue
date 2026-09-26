@@ -52,7 +52,7 @@ async function submitContact() {
           v-model="form.message"
           rows="4"
           required
-          class="py-3 px-4 block w-full shadow-sm focus:ring-farm-500 focus:border-farm-500 border-gray-300 rounded-md border sm:text-sm"
+          class="py-3 px-4 block w-full shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300 rounded-md border sm:text-sm"
         ></textarea>
       </div>
     </div>

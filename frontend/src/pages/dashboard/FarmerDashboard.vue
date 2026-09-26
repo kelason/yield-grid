@@ -27,7 +27,7 @@ onMounted(() => {
             🏡
           </div>
           <div>
-            <dt class="text-sm font-medium text-farm-100">Total Farms</dt>
+            <dt class="text-sm font-medium text-green-100">Total Farms</dt>
             <dd class="text-4xl font-bold text-white mt-1">{{ farmingStore.farms.length }}</dd>
           </div>
         </div>
@@ -51,17 +51,17 @@ onMounted(() => {
       <!-- AI Recommendations -->
       <router-link :to="{ name: 'recommendations' }" class="block group">
         <AppCard
-          class="transition-all duration-200 group-hover:border-farm-200 group-hover:shadow-md"
+          class="transition-all duration-200 group-hover:border-green-200 group-hover:shadow-md"
         >
           <div class="flex items-center gap-4">
             <div
-              class="w-12 h-12 rounded-xl bg-earth-50 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
+              class="w-12 h-12 rounded-xl bg-stone-50 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
             >
               🤖
             </div>
             <div>
               <dt class="text-sm font-medium text-gray-500">AI Advisor</dt>
-              <dd class="text-sm font-semibold text-farm-600 mt-1">View Recommendations →</dd>
+              <dd class="text-sm font-semibold text-green-600 mt-1">View Recommendations →</dd>
               <dd class="text-xs text-gray-400">Crop advisor insights</dd>
             </div>
           </div>
@@ -94,7 +94,7 @@ onMounted(() => {
             Go to
             <router-link
               :to="{ name: 'farm-manager' }"
-              class="text-farm-600 hover:text-farm-700 font-medium transition-colors"
+              class="text-green-600 hover:text-green-700 font-medium transition-colors"
             >
               My Farms
             </router-link>

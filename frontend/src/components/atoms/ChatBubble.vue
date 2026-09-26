@@ -17,11 +17,11 @@ defineProps({
 
 <template>
   <div
-    class="flex flex-col max-w-[80%] min-w-[3rem]"
-    :class="isOwn ? 'items-end self-end' : 'items-start self-start'"
+    class="flex flex-col w-fit max-w-[80%] min-w-[3rem]"
+    :class="isOwn ? 'items-end self-end ml-auto' : 'items-start self-start mr-auto'"
   >
     <div
-      class="px-4 py-2 text-sm shadow-soft"
+      class="px-4 py-2.5 text-sm shadow-soft"
       :class="
         isOwn
           ? 'bg-moss-100 text-stone-800 rounded-2xl rounded-br-sm'

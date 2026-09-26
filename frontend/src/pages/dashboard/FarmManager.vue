@@ -130,7 +130,7 @@ function handleViewRecommendations(farmId) {
     <!-- Empty state -->
     <div
       v-else-if="!farmingStore.farms.length && !showCreateForm"
-      class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-farm-300 transition-colors duration-200"
+      class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200"
     >
       <div class="text-5xl mb-4">🌾</div>
       <h3 class="text-base font-semibold text-gray-900 mb-1">No farms yet</h3>

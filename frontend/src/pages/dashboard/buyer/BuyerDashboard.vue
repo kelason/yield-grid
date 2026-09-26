@@ -56,12 +56,12 @@ const cancelPurchase = (purchase) => {
 <template>
   <div class="space-y-8">
     <!-- Welcome Banner -->
-    <div class="rounded-2xl bg-gradient-to-r from-farm-600 to-farm-800 p-6 text-white shadow-lg">
+    <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-800 p-6 text-white shadow-lg">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p class="text-farm-200 text-sm font-medium mb-1">Welcome back,</p>
+          <p class="text-green-200 text-sm font-medium mb-1">Welcome back,</p>
           <h2 class="text-2xl font-bold">{{ authStore.user?.name }}</h2>
-          <p class="text-farm-300 text-sm mt-1">
+          <p class="text-green-300 text-sm mt-1">
             Browse fresh forward contracts from Filipino farmers.
           </p>
         </div>
@@ -85,7 +85,7 @@ const cancelPurchase = (purchase) => {
             📦
           </div>
           <div>
-            <dt class="text-xs font-medium text-farm-100">Total Purchases</dt>
+            <dt class="text-xs font-medium text-green-100">Total Purchases</dt>
             <dd class="text-3xl font-bold text-white mt-0.5">
               {{ marketStore.buyerPurchases.length }}
             </dd>
@@ -112,7 +112,7 @@ const cancelPurchase = (purchase) => {
       <AppCard>
         <div class="flex items-center gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-earth-50 flex items-center justify-center text-xl flex-shrink-0"
+            class="w-11 h-11 rounded-xl bg-stone-50 flex items-center justify-center text-xl flex-shrink-0"
           >
             💰
           </div>
@@ -131,7 +131,7 @@ const cancelPurchase = (purchase) => {
         <div class="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent"></div>
         <router-link
           :to="{ name: 'buyer-purchases' }"
-          class="text-sm font-medium text-farm-600 hover:text-farm-700 transition-colors"
+          class="text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
         >
           View all →
         </router-link>
@@ -156,7 +156,7 @@ const cancelPurchase = (purchase) => {
           </p>
           <router-link
             :to="{ name: 'buyer-marketplace' }"
-            class="inline-flex items-center gap-1.5 bg-farm-600 hover:bg-farm-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            class="inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
             <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
           </router-link>

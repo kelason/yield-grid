@@ -52,13 +52,13 @@ async function handleLogin() {
           id="remember-me"
           type="checkbox"
           v-model="form.remember"
-          class="h-4 w-4 text-farm-600 focus:ring-farm-500 border-gray-300 rounded"
+          class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
         />
         <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
       </div>
       <router-link
         :to="{ name: 'forgot-password' }"
-        class="text-sm font-medium text-farm-600 hover:text-farm-500"
+        class="text-sm font-medium text-green-600 hover:text-green-500"
       >
         Forgot your password?
       </router-link>

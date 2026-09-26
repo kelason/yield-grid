@@ -24,7 +24,7 @@ async function handleLogout() {
       <div class="flex flex-col w-0 flex-1 overflow-hidden">
         <!-- Mobile header -->
         <div
-          class="md:hidden pl-3 pt-3 pr-3 pb-2 flex justify-between items-center bg-white border-b border-stone-200 shadow-soft"
+          class="md:hidden pl-3 pt-3 pr-3 pb-2 flex justify-between items-center bg-white border-stone-300 shadow-soft"
         >
           <div class="flex items-center gap-2">
             <span class="text-xl">🌾</span>
@@ -38,7 +38,7 @@ async function handleLogout() {
         <!-- Main scrollable area -->
         <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <!-- Page header strip -->
-          <div class="bg-white border-b border-stone-200 h-16 flex items-center shadow-soft">
+          <div class="bg-white border-stone-300 h-16 flex items-center shadow-soft">
             <div
               class="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex justify-between items-center"
             >
