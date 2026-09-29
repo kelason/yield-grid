@@ -8,6 +8,8 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
   error: { type: String, default: '' },
   maxlength: { type: [Number, String], default: null },
+  min: { type: [Number, String], default: null },
+  max: { type: [Number, String], default: null },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -35,6 +37,8 @@ const onInput = (event) => {
     :required="required"
     :disabled="disabled"
     :maxlength="maxlength"
+    :min="min"
+    :max="max"
     @input="onInput"
     :class="[
       'block w-full px-4 py-2.5 border rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 motion-reduce:transition-none sm:text-sm bg-stone-50',

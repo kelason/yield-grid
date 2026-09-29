@@ -153,6 +153,7 @@ function setAvailability(availability) {
           "
           :options="[
             { value: 'newest', label: 'Newest Listed' },
+            { value: 'nearest', label: 'Nearest First' },
             { value: 'harvest_available', label: 'Harvest Available First' },
             { value: 'incoming_harvest', label: 'Incoming Harvest First' },
             { value: 'price_asc', label: 'Price: Low to High' },

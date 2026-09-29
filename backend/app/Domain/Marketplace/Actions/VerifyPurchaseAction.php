@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Marketplace\Actions;
 
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\ContractPurchased;
+use App\Domain\Marketplace\Events\DemandOfferPaid;
+use App\Domain\Marketplace\Models\CropDemandOffer;
+use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
@@ -70,9 +75,17 @@ final class VerifyPurchaseAction
 
             if ($isPaid && $purchase->payment_status === PaymentStatus::PENDING) {
                 $purchasable = $this->transactionManager->run(function () use ($purchase, $paymentIntentId, $paymentMethodString) {
-                    $purchasable = $purchase->contract ?? $purchase->harvestListing;
-                    $purchasableClass = get_class($purchasable);
-                    $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
+                    $purchasable = $purchase->contract ?? $purchase->harvestListing ?? $purchase->demandOffer;
+
+                    if ($purchasable === null) {
+                        throw new Exception('Purchase has no purchasable item.');
+                    }
+
+                    $lockedPurchasable = match (true) {
+                        $purchasable instanceof CropDemandOffer => CropDemandOffer::where('id', $purchasable->id)->lockForUpdate()->firstOrFail(),
+                        $purchasable instanceof HarvestListing => HarvestListing::where('id', $purchasable->id)->lockForUpdate()->firstOrFail(),
+                        default => ForwardContract::where('id', $purchasable->id)->lockForUpdate()->firstOrFail(),
+                    };
 
                     $paymentMethod = PaymentMethod::tryFrom($paymentMethodString) ?? PaymentMethod::CARD;
 
@@ -83,14 +96,25 @@ final class VerifyPurchaseAction
                         'purchased_at' => new \DateTimeImmutable,
                     ]);
 
-                    $newStatus = $purchase->is_downpayment ? ContractStatus::PARTIALLY_PAID : ContractStatus::SOLD;
-                    $lockedPurchasable->update(['status' => $newStatus]);
+                    if ($lockedPurchasable instanceof CropDemandOffer) {
+                        $lockedPurchasable->update([
+                            'status' => $purchase->is_downpayment ? DemandOfferStatus::PARTIALLY_PAID : DemandOfferStatus::PAID,
+                            'paid_at' => new \DateTimeImmutable,
+                        ]);
+                    } else {
+                        $newStatus = $purchase->is_downpayment ? ContractStatus::PARTIALLY_PAID : ContractStatus::SOLD;
+                        $lockedPurchasable->update(['status' => $newStatus]);
+                    }
 
                     return $lockedPurchasable;
                 });
 
                 // Dispatch event outside transaction so Reverb connection errors don't rollback the database changes
-                $this->eventDispatcher->dispatch(new ContractPurchased($purchase, $purchasable));
+                if ($purchasable instanceof CropDemandOffer) {
+                    $this->eventDispatcher->dispatch(new DemandOfferPaid($purchase, $purchasable));
+                } else {
+                    $this->eventDispatcher->dispatch(new ContractPurchased($purchase, $purchasable));
+                }
             }
         } catch (Exception $e) {
             $this->logger->error('Failed to verify purchase: '.$e->getMessage());

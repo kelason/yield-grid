@@ -1,15 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import { useChatStore } from '../../stores/chatStore'
 import AppLogo from '../atoms/AppLogo.vue'
-import UnreadBadge from '../atoms/UnreadBadge.vue'
+import SidebarNavLink from '../molecules/SidebarNavLink.vue'
 
 const authStore = useAuthStore()
-const chatStore = useChatStore()
 const route = useRoute()
 const isCollapsed = ref(false)
+const openGroups = ref({})
 
 const farmerNavigation = [
   {
@@ -19,34 +18,67 @@ const farmerNavigation = [
     emoji: '📊',
   },
   {
-    name: 'My Farms',
-    to: { name: 'farm-manager' },
+    name: 'Farm',
     icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
     emoji: '🌾',
+    children: [
+      {
+        name: 'My Farms',
+        to: { name: 'farm-manager' },
+        icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
+        emoji: '🌾',
+      },
+      {
+        name: 'Recommendations',
+        to: { name: 'recommendations' },
+        icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+        emoji: '🤖',
+      },
+    ],
   },
   {
-    name: 'Recommendations',
-    to: { name: 'recommendations' },
-    icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
-    emoji: '🤖',
+    name: 'Sell Harvest',
+    icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
+    emoji: '🏷️',
+    children: [
+      {
+        name: 'My Contracts',
+        to: { name: 'farmer-contracts' },
+        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+        emoji: '📝',
+      },
+      {
+        name: 'Post Harvest',
+        to: { name: 'farmer-new-listing' },
+        icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6',
+        emoji: '➕',
+      },
+      {
+        name: 'Cash Approvals',
+        to: { name: 'farmer-cash-approvals' },
+        icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+        emoji: '💵',
+      },
+    ],
   },
   {
-    name: 'My Contracts',
-    to: { name: 'farmer-contracts' },
-    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-    emoji: '📝',
-  },
-  {
-    name: 'Post Harvest',
-    to: { name: 'farmer-new-listing' },
-    icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6',
-    emoji: '➕',
-  },
-  {
-    name: 'Cash Approvals',
-    to: { name: 'farmer-cash-approvals' },
-    icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
-    emoji: '💵',
+    name: 'Buyer Demands',
+    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+    emoji: '📋',
+    children: [
+      {
+        name: 'Crop Demands',
+        to: { name: 'farmer-browse-demands' },
+        icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+        emoji: '📋',
+      },
+      {
+        name: 'My Offers',
+        to: { name: 'farmer-offers' },
+        icon: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7',
+        emoji: '🤝',
+      },
+    ],
   },
   {
     name: 'Community',
@@ -70,16 +102,42 @@ const buyerNavigation = [
     emoji: '📊',
   },
   {
-    name: 'Browse Market',
-    to: { name: 'buyer-marketplace' },
+    name: 'Market',
     icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
     emoji: '🛒',
+    children: [
+      {
+        name: 'Browse Market',
+        to: { name: 'buyer-marketplace' },
+        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
+        emoji: '🛒',
+      },
+      {
+        name: 'My Purchases',
+        to: { name: 'buyer-purchases' },
+        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+        emoji: '📦',
+      },
+    ],
   },
   {
-    name: 'My Purchases',
-    to: { name: 'buyer-purchases' },
-    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-    emoji: '📦',
+    name: 'Demands',
+    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+    emoji: '📋',
+    children: [
+      {
+        name: 'My Demands',
+        to: { name: 'buyer-demands' },
+        icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+        emoji: '📋',
+      },
+      {
+        name: 'Post Demand',
+        to: { name: 'buyer-post-demand' },
+        icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6',
+        emoji: '➕',
+      },
+    ],
   },
   {
     name: 'Community',
@@ -95,13 +153,30 @@ const buyerNavigation = [
   },
 ]
 
+const RESTRICTED_FEATURES = [
+  'Chat',
+  'Community',
+  'Cash Approvals',
+  'Post Harvest',
+  'My Offers',
+  'My Demands',
+  'Post Demand',
+]
+
 const navigation = computed(() => {
   const baseNav = authStore.userRole === 'buyer' ? buyerNavigation : farmerNavigation
 
   // Disable specific features for unverified users
   if (!authStore.isEmailVerified) {
-    const restrictedFeatures = ['Chat', 'Community', 'Cash Approvals', 'Post Harvest']
-    return baseNav.filter((item) => !restrictedFeatures.includes(item.name))
+    return baseNav
+      .map((entry) => {
+        if (!entry.children) {
+          return RESTRICTED_FEATURES.includes(entry.name) ? null : entry
+        }
+        const children = entry.children.filter((child) => !RESTRICTED_FEATURES.includes(child.name))
+        return children.length > 0 ? { ...entry, children } : null
+      })
+      .filter(Boolean)
   }
 
   return baseNav
@@ -116,6 +191,33 @@ function isActive(to) {
   }
   return route.name === to.name || route.path.startsWith(to.path || '/not-a-path')
 }
+
+function isGroupActive(group) {
+  return group.children.some((child) => isActive(child.to))
+}
+
+function isGroupOpen(group) {
+  if (openGroups.value[group.name] !== undefined) {
+    return openGroups.value[group.name]
+  }
+  return isGroupActive(group)
+}
+
+function toggleGroup(group) {
+  openGroups.value[group.name] = !isGroupOpen(group)
+}
+
+// When navigating to a page inside a collapsed group, expand it automatically.
+watch(
+  () => route.name,
+  () => {
+    navigation.value.forEach((entry) => {
+      if (entry.children && isGroupActive(entry)) {
+        openGroups.value[entry.name] = true
+      }
+    })
+  },
+)
 
 function getInitials(name) {
   if (!name) return '?'
@@ -181,44 +283,75 @@ function getInitials(name) {
 
         <!-- Nav links -->
         <nav class="flex-1 px-3 space-y-1 overflow-y-auto overflow-x-hidden">
-          <RouterLink
-            v-for="item in navigation"
-            :key="item.name"
-            :to="item.to"
-            :class="[
-              isActive(item.to)
-                ? 'bg-moss-50 text-moss-700 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
-                : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900 border-l-[3px] border-transparent pl-2',
-              'group flex items-center py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
-              isCollapsed ? 'justify-center pr-2' : 'pr-2',
-            ]"
-            :title="isCollapsed ? item.name : ''"
-          >
-            <svg
-              :class="[
-                isActive(item.to) ? 'text-moss-600' : 'text-stone-400 group-hover:text-stone-500',
-                'flex-shrink-0 h-5 w-5',
-                isCollapsed ? '' : 'mr-3',
-              ]"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                :d="item.icon"
+          <template v-for="entry in navigation" :key="entry.name">
+            <SidebarNavLink v-if="!entry.children" :item="entry" :collapsed="isCollapsed" />
+            <template v-if="entry.children && isCollapsed">
+              <SidebarNavLink
+                v-for="child in entry.children"
+                :key="child.name"
+                :item="child"
+                :collapsed="true"
               />
-            </svg>
-            <span v-if="!isCollapsed" class="truncate flex-1">{{ item.name }}</span>
-            <UnreadBadge
-              v-if="item.name === 'Chat' && chatStore.totalUnread > 0 && !isCollapsed"
-              :count="chatStore.totalUnread"
-            />
-          </RouterLink>
+            </template>
+            <div v-if="entry.children && !isCollapsed">
+              <button
+                type="button"
+                @click="toggleGroup(entry)"
+                :aria-expanded="isGroupOpen(entry)"
+                :class="[
+                  isGroupActive(entry)
+                    ? 'bg-moss-50 text-moss-700'
+                    : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900',
+                  'group flex items-center w-full px-2 pr-2 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500',
+                ]"
+              >
+                <svg
+                  :class="[
+                    isGroupActive(entry)
+                      ? 'text-moss-600'
+                      : 'text-stone-400 group-hover:text-stone-500',
+                    'flex-shrink-0 h-5 w-5 mr-3',
+                  ]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    :d="entry.icon"
+                  />
+                </svg>
+                <span class="truncate flex-1 text-left">{{ entry.name }}</span>
+                <svg
+                  class="h-4 w-4 flex-shrink-0 text-stone-400 transition-transform duration-200"
+                  :class="{ 'rotate-180': isGroupOpen(entry) }"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div v-show="isGroupOpen(entry)" class="ml-5 mt-1 space-y-1">
+                <SidebarNavLink
+                  v-for="child in entry.children"
+                  :key="child.name"
+                  :item="child"
+                  :collapsed="false"
+                />
+              </div>
+            </div>
+          </template>
         </nav>
 
         <!-- User footer -->

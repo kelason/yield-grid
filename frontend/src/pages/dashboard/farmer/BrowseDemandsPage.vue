@@ -1,0 +1,230 @@
+<script setup>
+import { onMounted, ref } from 'vue'
+import { useDemandStore } from '@/stores/demandStore'
+import { useAddressStore } from '@/stores/addressStore'
+import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notificationStore'
+import DemandFilter from '@/components/molecules/DemandFilter.vue'
+import DemandCard from '@/components/molecules/DemandCard.vue'
+import PaginationControls from '@/components/molecules/PaginationControls.vue'
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import AppModal from '@/components/molecules/AppModal.vue'
+import FormField from '@/components/molecules/FormField.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import AppAlert from '@/components/atoms/AppAlert.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import { GEO_CONSTANTS } from '@/constants/geo'
+
+const OFFER_QTY_MIN_KG = 0.01
+const OFFER_PRICE_MAX_DIGITS = 8
+const OFFER_PRICE_MAX = 99999999
+const OFFER_MESSAGE_MAX_LENGTH = 1000
+const OFFER_TOTAL_MAX = 9999999999.99
+
+const demandStore = useDemandStore()
+const addressStore = useAddressStore()
+const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
+
+const showOfferModal = ref(false)
+const offerForm = ref({ quantity_kg: '', price_per_kg: '', message: '' })
+const offerError = ref('')
+const submitting = ref(false)
+
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    try {
+      await addressStore.fetchAddresses()
+      const fallback = addressStore.defaultAddress
+      if (fallback?.latitude != null && fallback?.longitude != null) {
+        demandStore.viewerLocation = {
+          lat: parseFloat(fallback.latitude),
+          lng: parseFloat(fallback.longitude),
+        }
+      }
+    } catch {
+      // Browsing still works without a saved address.
+    }
+  }
+  demandStore.fetchDemands()
+})
+
+function handleSearch() {
+  demandStore.fetchDemands(1)
+}
+
+function handlePageChange(page) {
+  demandStore.fetchDemands(page)
+}
+
+async function openOfferModal(demand) {
+  await demandStore.fetchDemandDetail(demand.id)
+  offerForm.value = {
+    quantity_kg: demand.remaining_quantity_kg,
+    price_per_kg: demand.target_price_per_kg,
+    message: '',
+  }
+  offerError.value = ''
+  showOfferModal.value = true
+}
+
+async function handleSubmitOffer() {
+  offerError.value = ''
+  const remaining = parseFloat(demandStore.activeDemand?.remaining_quantity_kg ?? 0)
+  const qty = parseFloat(offerForm.value.quantity_kg)
+  const price = parseFloat(offerForm.value.price_per_kg)
+  const message = (offerForm.value.message || '').trim()
+  if (!qty || qty <= 0) {
+    offerError.value = 'Please enter a quantity greater than zero.'
+    return
+  }
+  if (qty > remaining) {
+    offerError.value = `Quantity cannot exceed the ${remaining} kg still needed.`
+    return
+  }
+  if (!price || price <= 0) {
+    offerError.value = 'Please enter a price greater than zero.'
+    return
+  }
+  if (price > OFFER_PRICE_MAX) {
+    offerError.value = `Price cannot exceed ${OFFER_PRICE_MAX_DIGITS} digits (₱${OFFER_PRICE_MAX.toLocaleString()}).`
+    return
+  }
+  if (message.length > OFFER_MESSAGE_MAX_LENGTH) {
+    offerError.value = `Message cannot exceed ${OFFER_MESSAGE_MAX_LENGTH} characters.`
+    return
+  }
+  if (qty * price > OFFER_TOTAL_MAX) {
+    offerError.value = 'The combined quantity and price exceed the maximum order total.'
+    return
+  }
+  submitting.value = true
+  try {
+    await demandStore.submitOffer(demandStore.activeDemand.id, {
+      quantity_kg: qty,
+      price_per_kg: price,
+      message: message || null,
+    })
+    notificationStore.success('Offer sent! The buyer will review it soon.')
+    showOfferModal.value = false
+    demandStore.fetchDemands(demandStore.pagination.currentPage)
+  } catch (err) {
+    if (err.response?.data?.error_code === GEO_CONSTANTS.ERROR_ADDRESS_REQUIRED) {
+      offerError.value = 'Please add an address in your profile before submitting offers.'
+    } else {
+      offerError.value = err.response?.data?.message || 'Failed to submit offer.'
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-6">
+    <div class="rounded-2xl bg-gradient-to-r from-soil-800 to-soil-900 p-6 text-white shadow-soft">
+      <h1 class="font-serif text-2xl font-bold">Buyer Demands</h1>
+      <p class="text-stone-300 text-sm mt-1">
+        Browse what buyers are looking for and send your best offer.
+      </p>
+    </div>
+
+    <DemandFilter v-model="demandStore.filters" @search="handleSearch" />
+
+    <div v-if="demandStore.loading.demands" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <SkeletonCard v-for="n in 4" :key="n" />
+    </div>
+
+    <EmptyState
+      v-else-if="demandStore.demands.length === 0"
+      title="No demands right now"
+      description="Check back later — new buyer requests appear here."
+    />
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <DemandCard
+        v-for="demand in demandStore.demands"
+        :key="demand.id"
+        :demand="demand"
+        @view="openOfferModal"
+      />
+    </div>
+
+    <PaginationControls
+      v-if="!demandStore.loading.demands && demandStore.demands.length > 0"
+      :current-page="demandStore.pagination.currentPage"
+      :last-page="demandStore.pagination.lastPage"
+      :total="demandStore.pagination.total"
+      @page-change="handlePageChange"
+      class="mt-6"
+    />
+
+    <AppModal :is-open="showOfferModal" @close="showOfferModal = false">
+      <div v-if="demandStore.activeDemand" class="space-y-5">
+        <div>
+          <h2 class="font-serif text-2xl font-bold text-stone-900">
+            {{ demandStore.activeDemand.title }}
+          </h2>
+          <p class="text-stone-600 text-sm mt-1">
+            {{ demandStore.activeDemand.crop_name }} ·
+            {{ demandStore.activeDemand.remaining_quantity_kg }} kg still needed · target ₱{{
+              demandStore.activeDemand.target_price_per_kg
+            }}/kg
+          </p>
+          <p
+            v-if="demandStore.activeDemand.description"
+            class="text-stone-600 text-sm mt-2 leading-relaxed"
+          >
+            {{ demandStore.activeDemand.description }}
+          </p>
+        </div>
+
+        <AppAlert v-if="offerError" type="error">{{ offerError }}</AppAlert>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            id="offer-qty"
+            :label="`Your quantity in kg (max ${demandStore.activeDemand.remaining_quantity_kg})`"
+            type="number"
+            v-model="offerForm.quantity_kg"
+            :required="true"
+            :min="OFFER_QTY_MIN_KG"
+            :max="demandStore.activeDemand.remaining_quantity_kg"
+          />
+          <FormField
+            id="offer-price"
+            label="Your price per kg (₱, max 8 digits)"
+            type="number"
+            v-model="offerForm.price_per_kg"
+            :required="true"
+            :min="OFFER_QTY_MIN_KG"
+            :maxlength="OFFER_PRICE_MAX_DIGITS"
+          />
+        </div>
+        <div>
+          <label for="offer-message" class="block text-sm font-medium text-soil-700 mb-1">
+            Message to buyer (optional)
+          </label>
+          <textarea
+            id="offer-message"
+            v-model="offerForm.message"
+            rows="3"
+            :maxlength="OFFER_MESSAGE_MAX_LENGTH"
+            placeholder="e.g. Fresh harvest, can deliver this week"
+            class="block w-full px-4 py-2.5 border rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 motion-reduce:transition-none sm:text-sm bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white border-stone-300 text-soil-700 hover:border-stone-400"
+          />
+          <p class="text-xs text-stone-500 mt-1 text-right">
+            {{ (offerForm.message || '').length }} / {{ OFFER_MESSAGE_MAX_LENGTH }}
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <AppButton variant="ghost" @click="showOfferModal = false">Cancel</AppButton>
+          <AppButton variant="primary" :loading="submitting" @click="handleSubmitOffer">
+            Send offer
+          </AppButton>
+        </div>
+      </div>
+    </AppModal>
+  </div>
+</template>

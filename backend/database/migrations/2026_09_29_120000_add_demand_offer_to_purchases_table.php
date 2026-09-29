@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('purchases', function (Blueprint $table): void {
+            $table->foreignId('crop_demand_offer_id')->nullable()->after('harvest_listing_id')
+                ->constrained('crop_demand_offers')->cascadeOnDelete();
+
+            $table->index('crop_demand_offer_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('purchases', function (Blueprint $table): void {
+            $table->dropForeign(['crop_demand_offer_id']);
+            $table->dropIndex(['crop_demand_offer_id']);
+            $table->dropColumn('crop_demand_offer_id');
+        });
+    }
+};

@@ -50,4 +50,12 @@ return [
         'base_url' => env('PAYMONGO_BASE_URL', 'https://api.paymongo.com/v1'),
     ],
 
+    'psgc' => [
+        'base_url' => env('PSGC_BASE_URL', 'https://psgc.gitlab.io/api'),
+    ],
+
+    'nominatim' => [
+        'base_url' => env('NOMINATIM_BASE_URL', 'https://nominatim.openstreetmap.org'),
+    ],
+
 ];

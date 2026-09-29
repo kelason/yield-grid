@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
+use App\Domain\Marketplace\Models\CropDemand;
+use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
@@ -17,10 +19,14 @@ use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
 use App\Policies\ConversationPolicy;
+use App\Policies\CropDemandOfferPolicy;
+use App\Policies\CropDemandPolicy;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\ForwardContractPolicy;
 use App\Policies\PlotPolicy;
+use App\Policies\UserAddressPolicy;
 use Domain\Farming\Models\Plot;
+use Domain\Users\Models\UserAddress;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -74,6 +80,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Plot::class, PlotPolicy::class);
         Gate::policy(CropRecommendation::class, CropRecommendationPolicy::class);
         Gate::policy(ForwardContract::class, ForwardContractPolicy::class);
+        Gate::policy(UserAddress::class, UserAddressPolicy::class);
+        Gate::policy(CropDemand::class, CropDemandPolicy::class);
+        Gate::policy(CropDemandOffer::class, CropDemandOfferPolicy::class);
         Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route

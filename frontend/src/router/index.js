@@ -126,6 +126,18 @@ const router = createRouter({
           meta: { role: 'farmer', requiresVerification: true },
         },
         {
+          path: 'demands/browse',
+          name: 'farmer-browse-demands',
+          component: () => import('@/pages/dashboard/farmer/BrowseDemandsPage.vue'),
+          meta: { role: 'farmer' },
+        },
+        {
+          path: 'farmer/offers',
+          name: 'farmer-offers',
+          component: () => import('@/pages/dashboard/farmer/MyOffersPage.vue'),
+          meta: { role: 'farmer', requiresVerification: true },
+        },
+        {
           path: 'buyer',
           name: 'buyer-dashboard',
           component: () => import('@/pages/dashboard/buyer/BuyerDashboard.vue'),
@@ -142,6 +154,18 @@ const router = createRouter({
           name: 'buyer-marketplace',
           component: () => import('@/pages/public/MarketplacePage.vue'),
           meta: { role: 'buyer' },
+        },
+        {
+          path: 'buyer/demands',
+          name: 'buyer-demands',
+          component: () => import('@/pages/dashboard/buyer/MyDemandsPage.vue'),
+          meta: { role: 'buyer', requiresVerification: true },
+        },
+        {
+          path: 'buyer/demands/new',
+          name: 'buyer-post-demand',
+          component: () => import('@/pages/dashboard/buyer/PostDemandPage.vue'),
+          meta: { role: 'buyer', requiresVerification: true },
         },
         {
           path: 'community',

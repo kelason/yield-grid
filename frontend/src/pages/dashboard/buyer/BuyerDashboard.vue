@@ -37,12 +37,12 @@ const cancelPurchase = (purchase) => {
     {
       title: 'Cancel Purchase',
       message:
-        'Are you sure you want to cancel this pending purchase? This will release the forward contract.',
+        'Are you sure you want to cancel this pending purchase? The pending payment will be voided.',
       type: 'danger',
     },
     async () => {
       try {
-        await api.post(`/checkout/${purchase.session_id}/cancel`)
+        await api.post(`/checkout/${purchase.id}/cancel`)
         marketStore.fetchBuyerPurchases() // Refresh list
       } catch (err) {
         console.error('Failed to cancel purchase:', err)

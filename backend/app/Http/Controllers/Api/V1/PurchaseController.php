@@ -10,11 +10,15 @@ use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Actions\ApproveCashPaymentAction;
 use App\Domain\Marketplace\Actions\CancelCheckoutAction;
 use App\Domain\Marketplace\Actions\CreateCashPurchaseAction;
+use App\Domain\Marketplace\Actions\CreateOfferCashPurchaseAction;
 use App\Domain\Marketplace\Actions\SplitPurchasableAction;
 use App\Domain\Marketplace\Actions\VerifyPurchaseAction;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Enums\DemandOfferStatus;
+use App\Domain\Marketplace\Enums\DemandStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
+use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
@@ -24,6 +28,7 @@ use App\Http\Resources\PurchaseResource;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Marketplace\Requests\ApproveCashPaymentRequest;
 use App\Marketplace\Requests\CheckoutRequest;
+use App\Marketplace\Requests\OfferCheckoutRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -37,6 +42,7 @@ final class PurchaseController extends Controller
         private readonly CancelCheckoutAction $cancelCheckoutAction,
         private readonly PayMongoService $payMongoService,
         private readonly CreateCashPurchaseAction $createCashPurchaseAction,
+        private readonly CreateOfferCashPurchaseAction $createOfferCashPurchaseAction,
         private readonly ApproveCashPaymentAction $approveCashPaymentAction,
         private readonly SplitPurchasableAction $splitPurchasableAction
     ) {}
@@ -46,6 +52,7 @@ final class PurchaseController extends Controller
         $filters = [
             'search' => $request->query('search'),
             'sort' => $request->query('sort'),
+            'status' => $request->query('status'),
         ];
 
         $perPage = (int) $request->query('per_page', PaginationConstants::PURCHASES_PER_PAGE);
@@ -68,9 +75,104 @@ final class PurchaseController extends Controller
             abort(HttpCode::FORBIDDEN, 'You do not own this purchase.');
         }
 
-        $purchase->load('contract.farmer.farms');
+        $purchase->load(['contract.farmer.farms', 'harvestListing.farmer.farms', 'demandOffer.demand', 'demandOffer.farmer']);
 
         return new PurchaseResource($purchase);
+    }
+
+    /**
+     * Checkout an accepted demand offer (reverse marketplace).
+     */
+    public function checkoutOffer(OfferCheckoutRequest $request, CropDemandOffer $offer): JsonResponse
+    {
+        $this->authorize('pay', $offer);
+
+        $validated = $request->validated();
+
+        $offer->loadMissing('demand');
+
+        if ($offer->status !== DemandOfferStatus::ACCEPTED) {
+            return response()->json(['message' => 'This offer is no longer payable.'], HttpCode::CONFLICT);
+        }
+
+        if (! in_array($offer->demand->status, [DemandStatus::OPEN, DemandStatus::FULLY_ALLOCATED], true)) {
+            return response()->json(['message' => 'The parent demand is no longer active.'], HttpCode::CONFLICT);
+        }
+
+        if ($validated['payment_option'] === 'cash') {
+            try {
+                $purchase = $this->createOfferCashPurchaseAction->execute($offer, $request->user()->id);
+
+                return response()->json([
+                    'message' => 'Cash purchase request created. Please wait for farmer approval.',
+                    'purchase_id' => $purchase->id,
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['message' => $e->getMessage()], HttpCode::UNPROCESSABLE_ENTITY);
+            }
+        }
+
+        // PayMongo flow (mirrors forward checkout; offer quantity is fixed, no split needed)
+        $lockedOffer = DB::transaction(function () use ($offer) {
+            $inner = CropDemandOffer::where('id', $offer->id)->lockForUpdate()->firstOrFail();
+
+            if ($inner->status !== DemandOfferStatus::ACCEPTED) {
+                return null;
+            }
+
+            $hasActivePurchase = Purchase::where('crop_demand_offer_id', $inner->id)
+                ->whereIn('payment_status', [PaymentStatus::PENDING, PaymentStatus::COMPLETED])
+                ->exists();
+
+            return $hasActivePurchase ? null : $inner;
+        });
+
+        if (! $lockedOffer) {
+            return response()->json(['message' => 'This offer is no longer payable or already has an active payment.'], HttpCode::CONFLICT);
+        }
+
+        $lockedOffer->loadMissing('demand');
+
+        $totalContractAmount = (float) $lockedOffer->total_price;
+        $isDownpayment = $lockedOffer->demand->needed_by_date->isFuture();
+        $amountPaid = $isDownpayment ? $totalContractAmount * PaymentConstants::DOWNPAYMENT_PERCENTAGE : $totalContractAmount;
+
+        $purchase = Purchase::create([
+            'buyer_id' => $request->user()->id,
+            'crop_demand_offer_id' => $lockedOffer->id,
+            'quantity_kg' => $lockedOffer->quantity_kg,
+            'amount_paid' => $amountPaid,
+            'currency' => $lockedOffer->currency,
+            'payment_status' => PaymentStatus::PENDING,
+            'payment_method' => PaymentMethod::GCASH,
+            'is_downpayment' => $isDownpayment,
+            'total_contract_amount' => $totalContractAmount,
+        ]);
+
+        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
+        $successUrl = $frontendUrl.'/checkout/success?session_id='.$purchase->id;
+        $cancelUrl = $frontendUrl.'/checkout/cancel?session_id='.$purchase->id;
+
+        try {
+            $checkoutData = $this->payMongoService->createCheckoutSession(
+                contract: $lockedOffer,
+                successUrl: $successUrl,
+                cancelUrl: $cancelUrl,
+                buyerId: $request->user()->id,
+                customAmount: $amountPaid
+            );
+        } catch (\Exception $e) {
+            $purchase->delete();
+
+            return response()->json(['message' => 'Payment gateway error.'], HttpCode::INTERNAL_SERVER_ERROR);
+        }
+
+        $purchase->update(['paymongo_checkout_id' => $checkoutData['checkout_id']]);
+
+        return response()->json([
+            'checkout_url' => $checkoutData['checkout_url'],
+            'checkout_id' => $checkoutData['checkout_id'],
+        ]);
     }
 
     public function checkout(CheckoutRequest $request, string $type, int $id): JsonResponse
@@ -187,9 +289,11 @@ final class PurchaseController extends Controller
             $purchase = $this->purchaseRepository->findPendingByCheckoutId($sessionId, $request->user()->id);
         }
 
-        if ($purchase) {
-            $this->cancelCheckoutAction->execute($purchase);
+        if (! $purchase) {
+            return response()->json(['message' => 'No pending checkout found.'], HttpCode::NOT_FOUND);
         }
+
+        $this->cancelCheckoutAction->execute($purchase);
 
         return response()->json(['message' => 'Checkout cancelled successfully.']);
     }
@@ -212,10 +316,14 @@ final class PurchaseController extends Controller
     public function farmerPurchases(Request $request): AnonymousResourceCollection
     {
         $perPage = (int) $request->query('per_page', PaginationConstants::PURCHASES_PER_PAGE);
+        $farmerId = $request->user()->id;
 
-        $purchases = Purchase::with(['buyer', 'contract', 'harvestListing'])
-            ->whereHas('contract', fn ($q) => $q->where('farmer_id', $request->user()->id))
-            ->orWhereHas('harvestListing', fn ($q) => $q->where('farmer_id', $request->user()->id))
+        $purchases = Purchase::with(['buyer', 'contract', 'harvestListing', 'demandOffer.demand'])
+            ->where(function ($query) use ($farmerId) {
+                $query->whereHas('contract', fn ($q) => $q->where('farmer_id', $farmerId))
+                    ->orWhereHas('harvestListing', fn ($q) => $q->where('farmer_id', $farmerId))
+                    ->orWhereHas('demandOffer', fn ($q) => $q->where('farmer_id', $farmerId));
+            })
             ->latest('created_at')
             ->paginate($perPage);
 
@@ -226,8 +334,8 @@ final class PurchaseController extends Controller
     {
         $validated = $request->validated();
 
-        // Authorize farmer owns the contract/listing
-        $purchasable = $purchase->contract ?? $purchase->harvestListing;
+        // Authorize farmer owns the contract/listing/offer
+        $purchasable = $purchase->contract ?? $purchase->harvestListing ?? $purchase->demandOffer;
         if (! $purchasable || $purchasable->farmer_id !== $request->user()->id) {
             abort(HttpCode::FORBIDDEN, 'You do not own this purchase.');
         }
