@@ -1,11 +1,19 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import { useChatStore } from '../../../stores/chatStore'
 import { useChatWebSocket } from '../../../composables/useChatWebSocket'
 import ConversationItem from '../../../components/molecules/ConversationItem.vue'
 import ChatComposer from '../../../components/molecules/ChatComposer.vue'
 import ChatBubble from '../../../components/atoms/ChatBubble.vue'
+
+const CONVERSATION_SKELETON_COUNT = 5
+const MESSAGE_SKELETON_STYLES = [
+  'self-start w-3/4 rounded-bl-sm',
+  'self-end w-2/3 rounded-br-sm',
+  'self-start w-1/2 rounded-bl-sm',
+  'self-end w-3/4 rounded-br-sm',
+]
 
 const chatStore = useChatStore()
 const { listenToConversation, leaveConversation } = useChatWebSocket()
@@ -85,9 +93,23 @@ const scrollToBottom = () => {
       <div class="flex-1 overflow-y-auto p-2 space-y-1">
         <div
           v-if="chatStore.isLoading && chatStore.conversations.length === 0"
-          class="text-center py-8 text-stone-400 text-sm"
+          class="space-y-1"
+          role="status"
+          aria-label="Loading conversations"
         >
-          Loading...
+          <div
+            v-for="n in CONVERSATION_SKELETON_COUNT"
+            :key="n"
+            class="animate-pulse motion-reduce:animate-none flex items-center gap-3 p-3"
+            aria-hidden="true"
+          >
+            <div class="rounded-full bg-stone-200 h-12 w-12 flex-shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-stone-200 rounded-lg w-2/3"></div>
+              <div class="h-3 bg-stone-200 rounded-lg w-full"></div>
+            </div>
+          </div>
+          <span class="sr-only">Loading conversations...</span>
         </div>
         <div
           v-else-if="chatStore.conversations.length === 0"
@@ -130,25 +152,36 @@ const scrollToBottom = () => {
             </svg>
           </button>
 
-          <img
-            v-if="activeConversation.other_participant?.avatar_url"
-            :src="activeConversation.other_participant.avatar_url"
-            class="w-10 h-10 rounded-full object-cover bg-stone-200"
-          />
-          <div
-            v-else
-            class="w-10 h-10 rounded-full bg-soil-200 flex items-center justify-center text-soil-700 font-bold"
+          <RouterLink
+            v-if="activeConversation.other_participant?.id"
+            :to="{
+              name: 'user-profile',
+              params: { userId: activeConversation.other_participant.id },
+            }"
+            class="flex items-center gap-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
           >
-            {{ activeConversation.other_participant?.name.charAt(0).toUpperCase() || '?' }}
-          </div>
-          <div>
-            <div class="font-bold text-stone-900 font-sans">
-              {{ activeConversation.other_participant?.name || 'Unknown' }}
+            <img
+              v-if="activeConversation.other_participant?.avatar_url"
+              :src="activeConversation.other_participant.avatar_url"
+              class="w-10 h-10 rounded-full object-cover bg-stone-200"
+            />
+            <div
+              v-else
+              class="w-10 h-10 rounded-full bg-soil-200 flex items-center justify-center text-soil-700 font-bold"
+            >
+              {{ activeConversation.other_participant?.name.charAt(0).toUpperCase() || '?' }}
             </div>
-            <div class="text-xs text-stone-500 capitalize">
-              {{ activeConversation.other_participant?.role || '' }}
+            <div>
+              <div
+                class="font-bold text-stone-900 font-sans hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
+              >
+                {{ activeConversation.other_participant?.name || 'Unknown' }}
+              </div>
+              <div class="text-xs text-stone-500 capitalize">
+                {{ activeConversation.other_participant?.role || '' }}
+              </div>
             </div>
-          </div>
+          </RouterLink>
         </div>
 
         <!-- Messages Area -->
@@ -158,13 +191,18 @@ const scrollToBottom = () => {
         >
           <div
             v-if="chatStore.isLoading && chatStore.messages.length === 0"
-            class="flex justify-center py-4"
+            class="flex flex-col gap-3"
+            role="status"
+            aria-label="Loading messages"
           >
-            <div class="animate-pulse flex gap-1">
-              <div class="w-2 h-2 bg-moss-400 rounded-full"></div>
-              <div class="w-2 h-2 bg-moss-400 rounded-full animation-delay-200"></div>
-              <div class="w-2 h-2 bg-moss-400 rounded-full animation-delay-400"></div>
-            </div>
+            <div
+              v-for="(style, index) in MESSAGE_SKELETON_STYLES"
+              :key="index"
+              class="animate-pulse motion-reduce:animate-none h-12 bg-stone-200 rounded-2xl"
+              :class="style"
+              aria-hidden="true"
+            ></div>
+            <span class="sr-only">Loading messages...</span>
           </div>
 
           <div

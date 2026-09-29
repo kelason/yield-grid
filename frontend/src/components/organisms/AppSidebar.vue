@@ -225,7 +225,12 @@ function getInitials(name) {
         <div
           class="flex-shrink-0 border-t border-stone-200 p-4 bg-white transition-all duration-300"
         >
-          <div :class="['flex items-center', isCollapsed ? 'justify-center' : 'gap-3']">
+          <RouterLink
+            v-if="authStore.user?.id"
+            :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"
+            :class="['flex items-center rounded-xl', isCollapsed ? 'justify-center' : 'gap-3']"
+            class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+          >
             <!-- Organic avatar -->
             <div
               class="w-9 h-9 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0 cursor-pointer"
@@ -234,14 +239,16 @@ function getInitials(name) {
               {{ getInitials(authStore.user?.name) }}
             </div>
             <div v-if="!isCollapsed" class="min-w-0 overflow-hidden">
-              <p class="text-sm font-semibold text-stone-800 truncate">
+              <p
+                class="text-sm font-semibold text-stone-800 truncate hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
+              >
                 {{ authStore.user?.name }}
               </p>
               <p class="text-xs font-medium text-stone-400 capitalize truncate">
                 {{ authStore.userRole }}
               </p>
             </div>
-          </div>
+          </RouterLink>
         </div>
       </div>
     </div>

@@ -57,4 +57,15 @@ final class EloquentPurchaseRepository implements PurchaseRepositoryInterface
             ->where('payment_status', PaymentStatus::PENDING)
             ->first();
     }
+
+    public function getBuyerStats(int $buyerId): array
+    {
+        $completed = Purchase::where('buyer_id', $buyerId)
+            ->where('payment_status', PaymentStatus::COMPLETED);
+
+        return [
+            'total_purchases' => (clone $completed)->count(),
+            'total_spent' => (float) $completed->sum('amount_paid'),
+        ];
+    }
 }
