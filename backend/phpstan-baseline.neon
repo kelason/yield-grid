@@ -241,12 +241,6 @@ parameters:
 			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
 
 		-
-			message: '#^Cannot call static method where\(\) on class\-string\<App\\Domain\\Marketplace\\Models\\ForwardContract\>\|class\-string\<App\\Domain\\Marketplace\\Models\\HarvestListing\>\|false\.$#'
-			identifier: staticMethod.nonObject
-			count: 1
-			path: app/Domain/Marketplace/Actions/VerifyPurchaseAction.php
-
-		-
 			message: '#^Property App\\Domain\\Marketplace\\Actions\\VerifyPurchaseAction\:\:\$contractRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
@@ -929,12 +923,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Infrastructure/Marketplace/Repositories/EloquentPurchaseRepository.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$crop_name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'

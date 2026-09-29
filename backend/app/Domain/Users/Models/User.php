@@ -86,4 +86,24 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ChatParticipant::class, 'user_id');
     }
+
+    /**
+     * @return HasMany<UserAddress, $this>
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(UserAddress::class, 'user_id');
+    }
+
+    public function defaultAddress(): ?UserAddress
+    {
+        /** @var UserAddress|null */
+        return $this->addresses()->where('is_default', true)->first()
+            ?? $this->addresses()->oldest()->first();
+    }
+
+    public function hasMarketplaceAddress(): bool
+    {
+        return $this->addresses()->exists();
+    }
 }

@@ -7,13 +7,18 @@ namespace App\Http\Controllers\Api\V1;
 use App\Constants\HttpCode;
 use App\Constants\PaymentConstants;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\ContractPurchased;
+use App\Domain\Marketplace\Events\DemandOfferPaid;
+use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Http\Controllers\Controller;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +68,7 @@ final class PayMongoWebhookController extends Controller
             return response('Missing checkout ID', HttpCode::OK); // Return 200 to prevent retries
         }
 
-        $result = DB::transaction(function () use ($checkoutId, $paymentIntentId, $paymentMethod, &$purchase, &$contract) {
+        $result = DB::transaction(function () use ($checkoutId, $paymentIntentId, $paymentMethod, &$purchase, &$purchasable) {
             $purchase = Purchase::where('paymongo_checkout_id', $checkoutId)->lockForUpdate()->first();
 
             if (! $purchase) {
@@ -76,7 +81,13 @@ final class PayMongoWebhookController extends Controller
                 return response('Already processed', HttpCode::OK);
             }
 
-            $contract = ForwardContract::lockForUpdate()->findOrFail($purchase->forward_contract_id);
+            $purchasable = $this->lockPurchasable($purchase);
+
+            if (! $purchasable) {
+                Log::warning('Purchasable not found for purchase: '.$purchase->id);
+
+                return response('Purchasable not found', HttpCode::OK);
+            }
 
             $purchase->update([
                 'paymongo_payment_id' => $paymentIntentId,
@@ -85,7 +96,14 @@ final class PayMongoWebhookController extends Controller
                 'purchased_at' => now(),
             ]);
 
-            $contract->update(['status' => ContractStatus::SOLD]);
+            if ($purchasable instanceof CropDemandOffer) {
+                $purchasable->update([
+                    'status' => $purchase->is_downpayment ? DemandOfferStatus::PARTIALLY_PAID : DemandOfferStatus::PAID,
+                    'paid_at' => now(),
+                ]);
+            } else {
+                $purchasable->update(['status' => ContractStatus::SOLD]);
+            }
 
             return null; // Signals success
         });
@@ -95,7 +113,11 @@ final class PayMongoWebhookController extends Controller
         }
 
         try {
-            broadcast(new ContractPurchased($purchase, $contract))->toOthers();
+            if ($purchasable instanceof CropDemandOffer) {
+                broadcast(new DemandOfferPaid($purchase, $purchasable->load('demand')))->toOthers();
+            } else {
+                broadcast(new ContractPurchased($purchase, $purchasable))->toOthers();
+            }
         } catch (\Exception $e) {
             Log::error('Webhook broadcast failed: '.$e->getMessage());
         }
@@ -114,8 +136,7 @@ final class PayMongoWebhookController extends Controller
         if ($purchase && $purchase->payment_status === PaymentStatus::PENDING) {
             DB::transaction(function () use ($purchase): void {
                 $purchase->update(['payment_status' => PaymentStatus::FAILED]);
-                ForwardContract::where('id', $purchase->forward_contract_id)
-                    ->update(['status' => ContractStatus::AVAILABLE]);
+                $this->releasePurchasable($purchase);
             });
         }
 
@@ -133,11 +154,43 @@ final class PayMongoWebhookController extends Controller
         if ($purchase && $purchase->payment_status === PaymentStatus::PENDING) {
             DB::transaction(function () use ($purchase): void {
                 $purchase->update(['payment_status' => PaymentStatus::EXPIRED]);
-                ForwardContract::where('id', $purchase->forward_contract_id)
-                    ->update(['status' => ContractStatus::AVAILABLE]);
+                $this->releasePurchasable($purchase);
             });
         }
 
         return response('OK', HttpCode::OK);
+    }
+
+    /**
+     * Lock and return the purchased item, regardless of its type.
+     */
+    private function lockPurchasable(Purchase $purchase): ForwardContract|HarvestListing|CropDemandOffer|null
+    {
+        if ($purchase->forward_contract_id !== null) {
+            return ForwardContract::lockForUpdate()->find($purchase->forward_contract_id);
+        }
+
+        if ($purchase->harvest_listing_id !== null) {
+            return HarvestListing::lockForUpdate()->find($purchase->harvest_listing_id);
+        }
+
+        if ($purchase->crop_demand_offer_id !== null) {
+            return CropDemandOffer::lockForUpdate()->find($purchase->crop_demand_offer_id);
+        }
+
+        return null;
+    }
+
+    /**
+     * Release a reserved contract/listing back to available. Demand offers
+     * stay accepted so the buyer can retry payment or cancel the offer.
+     */
+    private function releasePurchasable(Purchase $purchase): void
+    {
+        $purchasable = $this->lockPurchasable($purchase);
+
+        if ($purchasable instanceof Model && ! $purchasable instanceof CropDemandOffer) {
+            $purchasable->update(['status' => ContractStatus::AVAILABLE]);
+        }
     }
 }

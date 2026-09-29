@@ -26,6 +26,7 @@ export const useMarketStore = defineStore('market', () => {
     harvestAfter: '',
     sort: 'newest',
   })
+  const viewerLocation = ref(null)
 
   const pagination = ref({
     currentPage: 1,
@@ -44,6 +45,7 @@ export const useMarketStore = defineStore('market', () => {
   const buyerPurchasesFilters = ref({
     search: '',
     sort: 'newest',
+    status: null,
   })
 
   const buyerPurchasesPagination = ref({
@@ -85,6 +87,14 @@ export const useMarketStore = defineStore('market', () => {
         queryParams.append('availability', filters.value.availability)
       }
       if (filters.value.sort) queryParams.append('sort', filters.value.sort)
+      if (
+        filters.value.sort === 'nearest' &&
+        viewerLocation.value?.lat != null &&
+        viewerLocation.value?.lng != null
+      ) {
+        queryParams.append('lat', viewerLocation.value.lat)
+        queryParams.append('lng', viewerLocation.value.lng)
+      }
 
       const { data, meta } = (await api.get(`/market/contracts?${queryParams.toString()}`)).data
 
@@ -214,6 +224,8 @@ export const useMarketStore = defineStore('market', () => {
         queryParams.append('search', buyerPurchasesFilters.value.search)
       if (buyerPurchasesFilters.value.sort)
         queryParams.append('sort', buyerPurchasesFilters.value.sort)
+      if (buyerPurchasesFilters.value.status)
+        queryParams.append('status', buyerPurchasesFilters.value.status)
 
       const response = await api.get(`/buyer/purchases?${queryParams.toString()}`)
       buyerPurchases.value = response.data.data || response.data
@@ -294,6 +306,7 @@ export const useMarketStore = defineStore('market', () => {
     buyerPurchasesPagination,
     activeContract,
     filters,
+    viewerLocation,
     pagination,
     loading,
     availableContracts,

@@ -1,5 +1,6 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import { useApi } from '@/composables/useApi'
 import ProfilePage from '../ProfilePage.vue'
 
@@ -43,6 +44,7 @@ describe('ProfilePage.vue', () => {
   }
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     routeParams.userId = '7'
     useApi.mockReturnValue({
       get: vi.fn().mockResolvedValue({ data: { data: farmerProfile } }),

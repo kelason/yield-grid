@@ -36,6 +36,7 @@ class MarketplaceItemResource extends JsonResource
                 'location' => $this->farmer->farms->first()?->city ?? 'Unknown',
             ],
             'recommendation' => $isContract ? new CropRecommendationResource($this->whenLoaded('recommendation')) : null,
+            'distance_m' => $this->resource->distance_m !== null ? (int) round((float) $this->resource->distance_m) : null,
             'created_at' => $this->created_at->toIso8601String(),
         ];
     }

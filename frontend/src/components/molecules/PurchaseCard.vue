@@ -23,7 +23,12 @@ const statusStyles = {
 const displayStatus = computed(() => {
   const p = props.purchase
   if (p.payment_status === 'completed') {
-    return p.is_downpayment ? 'partially paid' : 'paid'
+    const total = parseFloat(p.total_contract_amount)
+    const paid = parseFloat(p.amount_paid)
+    if (p.is_downpayment && (Number.isNaN(total) || paid < total)) {
+      return 'partially paid'
+    }
+    return 'paid'
   }
   if (p.cash_payment_status === 'partially_paid') {
     return 'partially paid'
@@ -72,14 +77,19 @@ function formatDate(dateStr) {
         </div>
         <div class="min-w-0">
           <h3 class="font-bold text-stone-900 text-[17px] leading-tight truncate">
-            {{ purchase.contract?.crop_name || 'Forward Contract' }}
+            {{
+              purchase.contract?.crop_name || purchase.demand_offer?.crop_name || 'Forward Contract'
+            }}
           </h3>
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-stone-500 mt-1">
             <span class="font-medium text-stone-700"
-              >{{ purchase.contract?.quantity_kg ?? '—' }} kg</span
+              >{{
+                purchase.contract?.quantity_kg ?? purchase.demand_offer?.quantity_kg ?? '—'
+              }}
+              kg</span
             >
-            <span class="text-stone-300 hidden sm:inline">•</span>
-            <span>Harvest {{ formatDate(purchase.contract?.estimated_harvest_date) }}</span>
+            <span v-if="purchase.demand_offer" class="text-moss-700 font-medium">Demand offer</span>
+            <span v-else>Harvest {{ formatDate(purchase.contract?.estimated_harvest_date) }}</span>
             <span class="text-stone-300 hidden sm:inline">•</span>
             <span>Purchased {{ formatDate(purchase.created_at) }}</span>
           </div>
@@ -111,7 +121,7 @@ function formatDate(dateStr) {
         <!-- Actions (icon buttons in a horizontal row) -->
         <div class="flex flex-row items-center justify-end gap-2 flex-shrink-0">
           <button
-            v-if="purchase.contract?.farmer?.id"
+            v-if="purchase.contract?.farmer?.id || purchase.demand_offer?.farmer?.id"
             @click="$emit('message', purchase)"
             title="Message farmer"
             aria-label="Message farmer"

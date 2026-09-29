@@ -26,6 +26,7 @@ class Purchase extends Model
         'buyer_id',
         'forward_contract_id',
         'harvest_listing_id',
+        'crop_demand_offer_id',
         'quantity_kg',
         'paymongo_payment_id',
         'paymongo_checkout_id',
@@ -76,5 +77,21 @@ class Purchase extends Model
     public function harvestListing(): BelongsTo
     {
         return $this->belongsTo(HarvestListing::class, 'harvest_listing_id');
+    }
+
+    /**
+     * @return BelongsTo<CropDemandOffer, $this>
+     */
+    public function demandOffer(): BelongsTo
+    {
+        return $this->belongsTo(CropDemandOffer::class, 'crop_demand_offer_id');
+    }
+
+    /**
+     * The purchased item: forward contract, harvest listing, or demand offer.
+     */
+    public function purchasable(): ForwardContract|HarvestListing|CropDemandOffer|null
+    {
+        return $this->contract ?? $this->harvestListing ?? $this->demandOffer;
     }
 }

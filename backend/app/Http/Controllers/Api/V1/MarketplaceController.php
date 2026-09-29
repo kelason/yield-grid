@@ -4,22 +4,31 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Constants\GeoConstants;
 use App\Constants\PaginationConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MarketplaceItemResource;
+use App\Infrastructure\Services\PsgcService;
+use Domain\Users\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 final class MarketplaceController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $contractsQuery = ForwardContract::available()->with(['farmer.farms', 'recommendation']);
-        $listingsQuery = HarvestListing::available()->with(['farmer.farms']);
+        $sort = $request->query('sort', 'newest');
+        $withFarmer = $sort === 'nearest'
+            ? ['farmer.farms', 'farmer.addresses' => fn ($q) => $q->where('is_default', true)]
+            : ['farmer.farms'];
+
+        $contractsQuery = ForwardContract::available()->with(array_merge($withFarmer, ['recommendation']));
+        $listingsQuery = HarvestListing::available()->with($withFarmer);
 
         // Apply filters to both queries
         $queries = [$contractsQuery, $listingsQuery];
@@ -56,13 +65,13 @@ final class MarketplaceController extends Controller
         $listings = $listingsQuery->get();
         $all = $contracts->concat($listings);
 
-        $sort = $request->query('sort', 'newest');
         $all = match ($sort) {
             'price_asc' => $all->sortBy('total_price'),
             'price_desc' => $all->sortByDesc('total_price'),
             'harvest_soonest' => $all->sortBy('estimated_harvest_date'),
             'harvest_available' => $all->sortByDesc(fn ($item) => $item instanceof HarvestListing ? $item->is_harvest_available : false)->values(),
             'incoming_harvest' => $all->sortBy(fn ($item) => $item instanceof HarvestListing ? $item->is_harvest_available : false)->values(),
+            'nearest' => $this->sortNearest($request, $all),
             default => $all->sortByDesc('created_at'),
         };
 
@@ -76,6 +85,48 @@ final class MarketplaceController extends Controller
         ]);
 
         return MarketplaceItemResource::collection($paginator);
+    }
+
+    /**
+     * Nearest-first ordering by farmer default-address coordinates. Items
+     * without coordinates sort last. Falls back to newest when the viewer
+     * location is unknown.
+     *
+     * @param  Collection<int, ForwardContract|HarvestListing>  $items
+     * @return Collection<int, ForwardContract|HarvestListing>
+     */
+    private function sortNearest(Request $request, Collection $items): Collection
+    {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+
+        if (! is_numeric($lat) || ! is_numeric($lng)) {
+            $viewerAddress = $request->user()?->defaultAddress();
+            if (! $viewerAddress instanceof UserAddress || $viewerAddress->latitude === null || $viewerAddress->longitude === null) {
+                return $items->sortByDesc('created_at')->values();
+            }
+            $lat = (float) $viewerAddress->latitude;
+            $lng = (float) $viewerAddress->longitude;
+        }
+
+        $lat = (float) $lat;
+        $lng = (float) $lng;
+
+        return $items
+            ->map(function (ForwardContract|HarvestListing $item) use ($lat, $lng) {
+                $address = $item->farmer->addresses->first();
+                if (! $address instanceof UserAddress || $address->latitude === null || $address->longitude === null) {
+                    $item->setAttribute('distance_m', null);
+                } else {
+                    $item->setAttribute('distance_m', PsgcService::haversineKm(
+                        $lat, $lng, (float) $address->latitude, (float) $address->longitude
+                    ) * GeoConstants::METERS_PER_KM);
+                }
+
+                return $item;
+            })
+            ->sortBy(fn (ForwardContract|HarvestListing $item) => $item->getAttribute('distance_m') ?? PHP_FLOAT_MAX)
+            ->values();
     }
 
     public function show(Request $request, string $type, int $id): MarketplaceItemResource

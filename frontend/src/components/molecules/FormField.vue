@@ -10,6 +10,9 @@ defineProps({
   placeholder: { type: String, default: '' },
   required: { type: Boolean, default: false },
   error: { type: String, default: '' },
+  maxlength: { type: [Number, String], default: null },
+  min: { type: [Number, String], default: null },
+  max: { type: [Number, String], default: null },
 })
 
 defineEmits(['update:modelValue'])
@@ -27,6 +30,9 @@ defineEmits(['update:modelValue'])
         :placeholder="placeholder"
         :required="required"
         :error="error"
+        :maxlength="maxlength"
+        :min="min"
+        :max="max"
       />
     </div>
     <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
