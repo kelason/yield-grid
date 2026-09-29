@@ -145,8 +145,14 @@ function getConfirmedPaid(purchase) {
             </div>
             <div class="min-w-0">
               <h3 class="font-bold text-stone-900 text-[17px] leading-tight truncate font-serif">
-                {{ purchase.contract?.title || 'Unknown Item' }}
+                {{
+                  purchase.contract?.title || purchase.demand_offer?.demand_title || 'Unknown Item'
+                }}
               </h3>
+              <p v-if="purchase.demand_offer" class="text-xs font-medium text-moss-700 mt-0.5">
+                Demand offer · {{ purchase.demand_offer.quantity_kg }} kg of
+                {{ purchase.demand_offer.crop_name }}
+              </p>
 
               <div
                 class="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-stone-500 mt-1.5"

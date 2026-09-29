@@ -56,6 +56,42 @@ const statusConfig = computed(() => {
       label: 'Completed',
     },
     failed: { classes: 'bg-red-100 text-red-800 border border-red-200', label: 'Failed' },
+    fully_paid: {
+      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+      label: 'Fully Paid',
+    },
+    open: {
+      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+      label: 'Open',
+    },
+    fully_allocated: {
+      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+      label: 'Fully Allocated',
+    },
+    fulfilled: {
+      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+      label: 'Fulfilled',
+    },
+    accepted: {
+      classes: 'bg-dew-100 text-dew-800 border border-dew-200',
+      label: 'Accepted',
+    },
+    rejected: {
+      classes: 'bg-stone-100 text-stone-600 border border-stone-200',
+      label: 'Rejected',
+    },
+    withdrawn: {
+      classes: 'bg-stone-100 text-stone-600 border border-stone-200',
+      label: 'Withdrawn',
+    },
+    paid: {
+      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+      label: 'Paid',
+    },
+    delivered: {
+      classes: 'bg-dew-100 text-dew-800 border border-dew-200',
+      label: 'Delivered',
+    },
   }
 
   return (

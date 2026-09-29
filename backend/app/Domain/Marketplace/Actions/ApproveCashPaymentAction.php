@@ -6,8 +6,11 @@ namespace App\Domain\Marketplace\Actions;
 
 use App\Domain\Marketplace\Enums\CashPaymentStatus;
 use App\Domain\Marketplace\Enums\ContractStatus;
+use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\CashPaymentApproved;
+use App\Domain\Marketplace\Events\DemandOfferPaid;
+use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use Carbon\Carbon;
@@ -34,9 +37,11 @@ final class ApproveCashPaymentAction
                 }
                 $purchase->cash_payment_status = CashPaymentStatus::PARTIALLY_PAID;
                 $purchase->cash_amount_confirmed += $amount;
+                $purchase->amount_paid = $purchase->cash_amount_confirmed;
             } elseif ($type === 'full') {
                 $purchase->cash_payment_status = CashPaymentStatus::FULLY_PAID;
                 $purchase->cash_amount_confirmed = (float) $purchase->total_contract_amount;
+                $purchase->amount_paid = (float) $purchase->total_contract_amount;
                 $purchase->payment_status = PaymentStatus::COMPLETED;
                 $purchase->purchased_at = Carbon::now();
             }
@@ -44,23 +49,40 @@ final class ApproveCashPaymentAction
             $purchase->farmer_confirmed_at = Carbon::now();
             $purchase->save();
 
-            // Update contract/listing status to reflect payment state
-            $purchasable = $purchase->contract ?? $purchase->harvestListing;
+            // Update contract/listing/offer status to reflect payment state
+            $purchasable = $purchase->contract ?? $purchase->harvestListing ?? $purchase->demandOffer;
             if ($purchasable) {
                 $purchasableClass = get_class($purchasable);
                 $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
-                $lockedPurchasable->status = $type === 'full'
-                    ? ContractStatus::SOLD
-                    : ContractStatus::PARTIALLY_PAID;
-                $lockedPurchasable->save();
-            }
 
-            // Here we would dispatch CashPaymentApproved event (Phase 7)
+                if ($lockedPurchasable instanceof CropDemandOffer) {
+                    if ($type === 'full') {
+                        $lockedPurchasable->status = DemandOfferStatus::PAID;
+                        $lockedPurchasable->paid_at = Carbon::now();
+                        $lockedPurchasable->save();
+                    } else {
+                        $lockedPurchasable->status = DemandOfferStatus::PARTIALLY_PAID;
+                        $lockedPurchasable->save();
+                    }
+                } else {
+                    $lockedPurchasable->status = $type === 'full'
+                        ? ContractStatus::SOLD
+                        : ContractStatus::PARTIALLY_PAID;
+                    $lockedPurchasable->save();
+                }
+            }
 
             return $purchase;
         });
 
         CashPaymentApproved::dispatch($purchase);
+
+        if ($purchase->demandOffer !== null && $purchase->payment_status === PaymentStatus::COMPLETED) {
+            try {
+                broadcast(new DemandOfferPaid($purchase, $purchase->demandOffer->load('demand')))->toOthers();
+            } catch (\Throwable) {
+            }
+        }
 
         return $purchase;
     }

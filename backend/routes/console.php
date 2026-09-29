@@ -8,3 +8,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('marketplace:expire-contracts')->dailyAt('00:00');
+Schedule::command('marketplace:expire-demands')->dailyAt('00:05');

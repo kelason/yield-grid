@@ -17,7 +17,8 @@ final class ConversationPolicy
 
     /**
      * A conversation may only be started with a user on the other side of a
-     * live transaction (buyer buys from farmer).
+     * live transaction (buyer buys from farmer, or a buyer-accepted demand
+     * offer links the pair).
      */
     public function create(User $user, int $recipientId): bool
     {

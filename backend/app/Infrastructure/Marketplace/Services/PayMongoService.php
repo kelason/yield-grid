@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Marketplace\Services;
 
 use App\Constants\PaymentConstants;
+use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
@@ -26,7 +27,8 @@ class PayMongoService implements PaymentGatewayInterface
     }
 
     /**
-     * Create a PayMongo Checkout Session for a forward contract purchase.
+     * Create a PayMongo Checkout Session for a forward contract, harvest
+     * listing, or crop demand offer purchase.
      *
      * @return array{checkout_url: string, checkout_id: string}
      */
@@ -40,12 +42,16 @@ class PayMongoService implements PaymentGatewayInterface
         $price = $customAmount ?? (float) $contract->total_price;
         $amountInCentavos = (int) round($price * PaymentConstants::CENTAVO_MULTIPLIER);
 
+        $isDemandOffer = $contract instanceof CropDemandOffer;
+        $cropName = $contract->crop_name ?? $contract->demand->crop_name ?? 'Crop';
+        $itemLabel = $isDemandOffer ? 'Crop Demand Offer' : 'Forward Contract';
+
         $payload = [
             'data' => [
                 'attributes' => [
                     'line_items' => [
                         [
-                            'name' => "Forward Contract: {$contract->quantity_kg}kg {$contract->crop_name}",
+                            'name' => "{$itemLabel}: {$contract->quantity_kg}kg {$cropName}",
                             'quantity' => 1,
                             'amount' => $amountInCentavos,
                             'currency' => PaymentConstants::DEFAULT_CURRENCY,
@@ -54,7 +60,7 @@ class PayMongoService implements PaymentGatewayInterface
                     'payment_method_types' => ['card', 'paymaya', 'gcash', 'qrph'],
                     'success_url' => $successUrl,
                     'cancel_url' => $cancelUrl,
-                    'description' => 'Forward Contract Purchase - YieldGrid',
+                    'description' => "{$itemLabel} Purchase - YieldGrid",
                     'metadata' => [
                         'purchasable_id' => (string) $contract->id,
                         'purchasable_type' => get_class($contract),

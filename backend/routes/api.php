@@ -23,7 +23,13 @@ use App\Http\Controllers\Api\V1\HarvestListingController;
 use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\PayMongoWebhookController;
 use App\Http\Controllers\Api\V1\PurchaseController;
+use App\Marketplace\Controllers\CropDemandController;
+use App\Marketplace\Controllers\DemandOfferController;
+use App\Shared\Middleware\AuthenticateIfTokenPresent;
+use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use App\Shared\Middleware\EnsureUserHasRole;
+use App\Users\Controllers\GeoController;
+use App\Users\Controllers\UserAddressController;
 use App\Users\Controllers\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -40,8 +46,19 @@ Route::prefix('v1')->group(function () {
     Route::post('/contact', ContactController::class)->middleware('throttle:10,1,contact');
 
     // Public Marketplace
-    Route::get('/market/contracts', [MarketplaceController::class, 'index']); // Kept name for backwards compatibility
+    Route::get('/market/contracts', [MarketplaceController::class, 'index'])->middleware(AuthenticateIfTokenPresent::class); // Kept name for backwards compatibility
     Route::get('/market/items/{type}/{id}', [MarketplaceController::class, 'show']);
+
+    // Public reverse marketplace (buyer demands)
+    Route::get('/market/demands', [CropDemandController::class, 'index'])->middleware(AuthenticateIfTokenPresent::class);
+    Route::get('/market/demands/{demand}', [CropDemandController::class, 'show'])->middleware(AuthenticateIfTokenPresent::class);
+
+    // Public PSGC geo cascade (registration needs it before login)
+    Route::get('/geo/regions', [GeoController::class, 'regions']);
+    Route::get('/geo/provinces', [GeoController::class, 'provinces']);
+    Route::get('/geo/cities-municipalities', [GeoController::class, 'citiesMunicipalities']);
+    Route::get('/geo/barangays', [GeoController::class, 'barangays']);
+    Route::get('/geo/center', [GeoController::class, 'center']);
 
     // PayMongo Webhooks
     Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle']);
@@ -58,6 +75,12 @@ Route::prefix('v1')->group(function () {
 
         // Public user profiles (all authenticated users)
         Route::get('/users/{user}', [UserProfileController::class, 'show']);
+
+        // Own addresses (all authenticated users)
+        Route::get('/user/addresses', [UserAddressController::class, 'index']);
+        Route::post('/user/addresses', [UserAddressController::class, 'store'])->middleware('verified');
+        Route::put('/user/addresses/{address}', [UserAddressController::class, 'update'])->middleware('verified');
+        Route::delete('/user/addresses/{address}', [UserAddressController::class, 'destroy'])->middleware('verified');
 
         // Email Verification
         Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
@@ -90,6 +113,15 @@ Route::prefix('v1')->group(function () {
             Route::patch('/farmer/listings/{listing}/cancel', [HarvestListingController::class, 'cancel'])->middleware('verified');
             Route::get('/farmer/purchases', [PurchaseController::class, 'farmerPurchases']);
             Route::post('/farmer/purchases/{purchase}/approve', [PurchaseController::class, 'approveCashPayment'])->middleware('verified');
+
+            // Reverse marketplace: competing offers on buyer demands
+            Route::post('/demands/{demand}/offers', [DemandOfferController::class, 'store'])
+                ->middleware(['verified', EnsureUserHasMarketplaceAddress::class]);
+            Route::get('/farmer/offers', [DemandOfferController::class, 'myOffers']);
+            Route::post('/farmer/offers/{offer}/withdraw', [DemandOfferController::class, 'withdraw'])->middleware('verified');
+            Route::post('/farmer/offers/{offer}/cancel', [DemandOfferController::class, 'cancel'])->middleware('verified');
+            Route::post('/farmer/offers/{offer}/mark-delivered', [DemandOfferController::class, 'markDelivered'])->middleware('verified');
+            Route::post('/farmer/offers/{offer}/settle-balance', [DemandOfferController::class, 'settleBalance'])->middleware('verified');
         });
 
         // Buyer Routes
@@ -99,7 +131,23 @@ Route::prefix('v1')->group(function () {
             Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout'])->middleware('throttle:10,1,verify-checkout');
             Route::get('/buyer/purchases', [PurchaseController::class, 'index']);
             Route::get('/buyer/purchases/{purchase}', [PurchaseController::class, 'show']);
+
+            // Reverse marketplace: buyer demands + offer decisions
+            Route::post('/buyer/demands', [CropDemandController::class, 'store'])
+                ->middleware(['throttle:10,1', 'verified', EnsureUserHasMarketplaceAddress::class]);
+            Route::get('/buyer/demands', [CropDemandController::class, 'myDemands']);
+            Route::patch('/buyer/demands/{demand}/cancel', [CropDemandController::class, 'cancel'])->middleware('verified');
+            Route::get('/buyer/demands/{demand}/offers', [DemandOfferController::class, 'indexForDemand']);
+            Route::post('/buyer/offers/{offer}/accept', [DemandOfferController::class, 'accept'])->middleware('verified');
+            Route::post('/buyer/offers/{offer}/checkout', [PurchaseController::class, 'checkoutOffer'])
+                ->middleware(['throttle:10,1', 'verified', EnsureUserHasMarketplaceAddress::class]);
+            Route::post('/buyer/offers/{offer}/reject', [DemandOfferController::class, 'reject'])->middleware('verified');
+            Route::post('/buyer/offers/{offer}/cancel', [DemandOfferController::class, 'cancel'])->middleware('verified');
+            Route::post('/buyer/offers/{offer}/confirm-completed', [DemandOfferController::class, 'confirmCompleted'])->middleware('verified');
         });
+
+        // Offer detail (buyer of the demand or offering farmer, enforced by policy)
+        Route::get('/offers/{offer}', [DemandOfferController::class, 'show']);
 
         // Community Forum (all authenticated users)
         Route::prefix('forum')->group(function () {

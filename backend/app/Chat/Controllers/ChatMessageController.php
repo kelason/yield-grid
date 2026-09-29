@@ -9,10 +9,11 @@ use App\Chat\Resources\ChatMessageResource;
 use App\Constants\HttpCode;
 use App\Domain\Chat\Actions\SendMessageAction;
 use App\Domain\Chat\Models\ChatConversation;
+use Illuminate\Http\JsonResponse;
 
 class ChatMessageController
 {
-    public function store(SendMessageRequest $request, ChatConversation $conversation, SendMessageAction $action): ChatMessageResource
+    public function store(SendMessageRequest $request, ChatConversation $conversation, SendMessageAction $action): JsonResponse
     {
         if (! $conversation->participants()->where('user_id', $request->user()->id)->exists()) {
             abort(HttpCode::FORBIDDEN, 'Unauthorized.');
@@ -26,6 +27,6 @@ class ChatMessageController
 
         $message->load(['sender', 'attachments']);
 
-        return collect([new ChatMessageResource($message)])->first();
+        return (new ChatMessageResource($message))->response()->setStatusCode(HttpCode::CREATED);
     }
 }

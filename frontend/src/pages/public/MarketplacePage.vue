@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
+import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notificationStore'
 import ContractFilter from '@/components/molecules/ContractFilter.vue'
@@ -11,13 +12,28 @@ import { usePayment } from '@/composables/usePayment'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 const marketStore = useMarketStore()
+const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const { startCheckout, loading: checkoutLoading } = usePayment()
 
 const showCheckoutPanel = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    try {
+      await addressStore.fetchAddresses()
+      const fallback = addressStore.defaultAddress
+      if (fallback?.latitude != null && fallback?.longitude != null) {
+        marketStore.viewerLocation = {
+          lat: parseFloat(fallback.latitude),
+          lng: parseFloat(fallback.longitude),
+        }
+      }
+    } catch {
+      // Browsing still works without a saved address.
+    }
+  }
   marketStore.fetchMarketContracts()
 })
 

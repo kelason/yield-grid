@@ -46,10 +46,43 @@ export function usePayment() {
     }
   }
 
+  async function startOfferCheckout(offerId, paymentOption = 'paymongo') {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await request(`/buyer/offers/${offerId}/checkout`, {
+        method: 'POST',
+        data: {
+          payment_option: paymentOption,
+        },
+      })
+
+      if (paymentOption === 'cash') {
+        return response.data
+      }
+
+      if (response.data && response.data.checkout_url) {
+        checkoutUrl.value = response.data.checkout_url
+        window.location.href = response.data.checkout_url
+      } else {
+        throw new Error('No checkout URL returned from server')
+      }
+    } catch (err) {
+      console.error('Offer checkout error:', err)
+      error.value =
+        err.response?.data?.message || err.message || 'Failed to initialize checkout session'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     loading,
     error,
     checkoutUrl,
     startCheckout,
+    startOfferCheckout,
   }
 }

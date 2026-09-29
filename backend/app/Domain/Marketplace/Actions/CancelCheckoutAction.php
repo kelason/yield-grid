@@ -6,6 +6,7 @@ namespace App\Domain\Marketplace\Actions;
 
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
+use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
@@ -29,8 +30,8 @@ final class CancelCheckoutAction
                 'payment_status' => PaymentStatus::FAILED,
             ]);
 
-            $purchasable = $purchase->contract ?? $purchase->harvestListing;
-            if ($purchasable) {
+            $purchasable = $purchase->contract ?? $purchase->harvestListing ?? $purchase->demandOffer;
+            if ($purchasable && ! $purchasable instanceof CropDemandOffer) {
                 $purchasableClass = get_class($purchasable);
                 $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
                 $lockedPurchasable->update([
