@@ -9,6 +9,7 @@ use Domain\Users\Actions\LoginUserAction;
 use Domain\Users\DTOs\LoginUserDTO;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class LoginController extends Controller
 {
@@ -25,7 +26,11 @@ class LoginController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken) {
+            $token->delete();
+        }
 
         return response()->json(['message' => 'Logged out successfully']);
     }

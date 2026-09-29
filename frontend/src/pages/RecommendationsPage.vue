@@ -76,6 +76,20 @@
       </router-link>
     </div>
 
+    <!-- Loading plots -->
+    <div v-else-if="isLoadingPlots" class="space-y-6" role="status" aria-label="Loading plots">
+      <div class="animate-pulse motion-reduce:animate-none space-y-4" aria-hidden="true">
+        <div class="h-9 bg-stone-200 rounded-lg w-64"></div>
+        <div class="flex gap-2">
+          <div class="h-7 bg-stone-200 rounded-full w-24"></div>
+          <div class="h-7 bg-stone-200 rounded-full w-28"></div>
+          <div class="h-7 bg-stone-200 rounded-full w-20"></div>
+        </div>
+      </div>
+      <SkeletonCard v-for="n in RECOMMENDATION_SKELETON_COUNT" :key="n" withAvatar withAction />
+      <span class="sr-only">Loading plots...</span>
+    </div>
+
     <!-- Active Plot View -->
     <div v-else>
       <!-- Header -->
@@ -131,7 +145,17 @@
 
       <!-- Recommendations -->
       <div v-else>
-        <div v-if="store.recommendations.length > 0" class="space-y-5">
+        <div
+          v-if="store.isLoading"
+          class="space-y-5"
+          role="status"
+          aria-label="Loading recommendations"
+        >
+          <SkeletonCard v-for="n in RECOMMENDATION_SKELETON_COUNT" :key="n" withAvatar withAction />
+          <span class="sr-only">Loading recommendations...</span>
+        </div>
+
+        <div v-else-if="store.recommendations.length > 0" class="space-y-5">
           <RecommendationCard
             v-for="rec in store.recommendations"
             :key="rec.id"
@@ -143,7 +167,7 @@
 
         <!-- Empty state -->
         <div
-          v-else-if="!store.isLoading"
+          v-else
           class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200"
         >
           <div class="text-5xl mb-4">🌾</div>
@@ -218,6 +242,7 @@ import { useRecommendationStore } from '../stores/recommendationStore'
 import { useFarmingStore } from '../stores/farming'
 import { useWebSocket } from '../composables/useWebSocket'
 import AnalysisProgress from '../components/atoms/AnalysisProgress.vue'
+import SkeletonCard from '../components/atoms/SkeletonCard.vue'
 import RecommendationCard from '../components/molecules/RecommendationCard.vue'
 import PublishContractForm from '../components/organisms/PublishContractForm.vue'
 import AppButton from '../components/atoms/AppButton.vue'
@@ -236,6 +261,8 @@ const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 
 const selectedPlotId = ref(null)
 const isLoadingPlots = ref(true)
+
+const RECOMMENDATION_SKELETON_COUNT = 3
 
 const showPublishModal = ref(false)
 const selectedRecommendation = ref(null)

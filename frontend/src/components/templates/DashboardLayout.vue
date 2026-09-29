@@ -1,5 +1,5 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
 import AppSidebar from '../organisms/AppSidebar.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
@@ -52,7 +52,13 @@ async function handleLogout() {
               </div>
               <div class="hidden md:flex items-center gap-3">
                 <div class="text-right hidden lg:block">
-                  <p class="text-sm font-semibold text-stone-900">{{ authStore.user?.name }}</p>
+                  <RouterLink
+                    v-if="authStore.user?.id"
+                    :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"
+                    class="block text-sm font-semibold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+                  >
+                    {{ authStore.user?.name }}
+                  </RouterLink>
                   <p class="text-xs text-stone-500 capitalize">{{ authStore.userRole }}</p>
                 </div>
                 <AppButton variant="ghost" size="sm" @click="handleLogout">Logout</AppButton>

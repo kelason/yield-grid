@@ -24,19 +24,20 @@ use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\PayMongoWebhookController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Shared\Middleware\EnsureUserHasRole;
+use App\Users\Controllers\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // Public Auth
-    Route::post('/register', RegisterController::class);
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/register', RegisterController::class)->middleware('throttle:10,1,register');
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1,login');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->middleware('throttle:6,1')->name('password.email');
     Route::post('/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:6,1')->name('password.update');
 
     // Public Contact
-    Route::post('/contact', ContactController::class);
+    Route::post('/contact', ContactController::class)->middleware('throttle:10,1,contact');
 
     // Public Marketplace
     Route::get('/market/contracts', [MarketplaceController::class, 'index']); // Kept name for backwards compatibility
@@ -54,6 +55,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/logout', [LoginController::class, 'logout']);
         Route::get('/user', [LoginController::class, 'user']);
+
+        // Public user profiles (all authenticated users)
+        Route::get('/users/{user}', [UserProfileController::class, 'show']);
 
         // Email Verification
         Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
@@ -92,7 +96,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware(EnsureUserHasRole::class.':buyer')->group(function () {
             Route::post('/market/{type}/{id}/checkout', [PurchaseController::class, 'checkout'])->middleware(['throttle:10,1', 'verified']);
             Route::post('/checkout/{session_id}/cancel', [PurchaseController::class, 'cancelCheckout']);
-            Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout']);
+            Route::get('/checkout/{session_id}/verify', [PurchaseController::class, 'verifyCheckout'])->middleware('throttle:10,1,verify-checkout');
             Route::get('/buyer/purchases', [PurchaseController::class, 'index']);
             Route::get('/buyer/purchases/{purchase}', [PurchaseController::class, 'show']);
         });

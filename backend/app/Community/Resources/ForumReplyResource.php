@@ -16,6 +16,7 @@ class ForumReplyResource extends JsonResource
     public function toArray(Request $request): array
     {
         $userId = $request->user()?->id;
+        $hideIdentity = $this->is_anonymous && $this->user_id !== $userId;
 
         return [
             'id' => $this->id,
@@ -23,7 +24,7 @@ class ForumReplyResource extends JsonResource
             'vote_score' => $this->vote_score,
             'is_accepted' => $this->is_accepted,
             'parent_id' => $this->parent_id,
-            'author' => $this->is_anonymous ? [
+            'author' => $hideIdentity ? [
                 'name' => 'Anonymous Farmer',
                 'avatar_url' => null,
                 'role' => 'farmer',

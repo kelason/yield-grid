@@ -9,6 +9,9 @@ import CategoryCard from '../../../components/molecules/CategoryCard.vue'
 import ThreadComposer from '../../../components/molecules/ThreadComposer.vue'
 import AppButton from '../../../components/atoms/AppButton.vue'
 import AppModal from '../../../components/molecules/AppModal.vue'
+import SkeletonCard from '../../../components/atoms/SkeletonCard.vue'
+
+const THREAD_SKELETON_COUNT = 5
 
 const forumStore = useForumStore()
 const route = useRoute()
@@ -194,28 +197,14 @@ const changePage = async (delta) => {
       <main class="flex-grow min-w-0">
         <!-- Thread List -->
         <div class="space-y-4">
-          <div v-if="forumStore.isLoading" class="text-center py-12 text-stone-500">
-            <svg
-              class="animate-spin h-8 w-8 mx-auto text-moss-500 mb-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Loading discussions...
+          <div
+            v-if="forumStore.isLoading"
+            class="space-y-4"
+            role="status"
+            aria-label="Loading discussions"
+          >
+            <SkeletonCard v-for="n in THREAD_SKELETON_COUNT" :key="n" withAvatar />
+            <span class="sr-only">Loading discussions...</span>
           </div>
           <template v-else-if="forumStore.threads.length > 0">
             <ThreadCard

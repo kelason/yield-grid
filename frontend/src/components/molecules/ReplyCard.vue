@@ -1,4 +1,5 @@
 <script setup>
+import { RouterLink } from 'vue-router'
 import VoteBadge from '../atoms/VoteBadge.vue'
 import AcceptedBadge from '../atoms/AcceptedBadge.vue'
 import { formatDistanceToNow } from 'date-fns'
@@ -18,6 +19,12 @@ defineProps({
 })
 
 const emit = defineEmits(['vote', 'accept', 'replyTo'])
+
+const ANONYMOUS_ROUTE_PARAM = 'anonymous'
+
+function profileLink(author) {
+  return { name: 'user-profile', params: { userId: author.id ?? ANONYMOUS_ROUTE_PARAM } }
+}
 </script>
 
 <template>
@@ -61,7 +68,10 @@ const emit = defineEmits(['vote', 'accept', 'replyTo'])
 
       <div class="flex-grow min-w-0">
         <div class="flex justify-between items-start mb-3">
-          <div class="flex items-center gap-3">
+          <RouterLink
+            :to="profileLink(reply.author)"
+            class="flex items-center gap-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+          >
             <img
               v-if="reply.author.avatar_url"
               :src="reply.author.avatar_url"
@@ -74,10 +84,14 @@ const emit = defineEmits(['vote', 'accept', 'replyTo'])
               {{ reply.author.name.charAt(0).toUpperCase() }}
             </div>
             <div>
-              <div class="font-medium text-stone-900">{{ reply.author.name }}</div>
+              <div
+                class="font-medium text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
+              >
+                {{ reply.author.name }}
+              </div>
               <div class="text-xs text-stone-500 capitalize">{{ reply.author.role }}</div>
             </div>
-          </div>
+          </RouterLink>
           <div class="text-xs text-stone-400">
             {{ formatDistanceToNow(new Date(reply.created_at), { addSuffix: true }) }}
           </div>

@@ -11,4 +11,6 @@ final class PaginationConstants
     public const MARKETPLACE_PER_PAGE = 12;
 
     public const PURCHASES_PER_PAGE = 10;
+
+    public const PROFILE_POSTS_LIMIT = 10;
 }
