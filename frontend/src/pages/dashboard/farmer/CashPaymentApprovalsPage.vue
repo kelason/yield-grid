@@ -6,6 +6,9 @@ import { useChatEntry } from '@/composables/useChatEntry'
 import PriceTag from '@/components/atoms/PriceTag.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+
+const PURCHASE_SKELETON_COUNT = 4
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
@@ -108,8 +111,14 @@ function getConfirmedPaid(purchase) {
       </div>
     </div>
 
-    <div v-if="marketStore.loading.purchases" class="flex justify-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-moss-600"></div>
+    <div
+      v-if="marketStore.loading.purchases"
+      class="space-y-4"
+      role="status"
+      aria-label="Loading purchases"
+    >
+      <SkeletonCard v-for="n in PURCHASE_SKELETON_COUNT" :key="n" withAvatar withAction />
+      <span class="sr-only">Loading purchases...</span>
     </div>
 
     <div

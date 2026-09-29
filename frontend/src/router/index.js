@@ -161,6 +161,11 @@ const router = createRouter({
           component: () => import('@/pages/dashboard/shared/ChatPage.vue'),
           meta: { requiresVerification: true },
         },
+        {
+          path: 'users/:userId',
+          name: 'user-profile',
+          component: () => import('@/pages/dashboard/shared/ProfilePage.vue'),
+        },
       ],
     },
     {

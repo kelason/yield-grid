@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\PayMongoWebhookController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Shared\Middleware\EnsureUserHasRole;
+use App\Users\Controllers\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/logout', [LoginController::class, 'logout']);
         Route::get('/user', [LoginController::class, 'user']);
+
+        // Public user profiles (all authenticated users)
+        Route::get('/users/{user}', [UserProfileController::class, 'show']);
 
         // Email Verification
         Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])

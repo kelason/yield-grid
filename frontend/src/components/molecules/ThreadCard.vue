@@ -17,6 +17,12 @@ defineProps({
 })
 
 const emit = defineEmits(['vote'])
+
+const ANONYMOUS_ROUTE_PARAM = 'anonymous'
+
+function profileLink(author) {
+  return { name: 'user-profile', params: { userId: author.id ?? ANONYMOUS_ROUTE_PARAM } }
+}
 </script>
 
 <template>
@@ -61,7 +67,10 @@ const emit = defineEmits(['vote'])
               <span class="font-medium">{{ thread.category?.name }}</span>
             </div>
 
-            <div class="flex items-center gap-2 border-l border-stone-200 pl-4">
+            <RouterLink
+              :to="profileLink(thread.author)"
+              class="flex items-center gap-2 border-l border-stone-200 pl-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+            >
               <img
                 v-if="thread.author.avatar_url"
                 :src="thread.author.avatar_url"
@@ -73,8 +82,11 @@ const emit = defineEmits(['vote'])
               >
                 {{ thread.author.name.charAt(0).toUpperCase() }}
               </div>
-              <span class="truncate max-w-[120px]">{{ thread.author.name }}</span>
-            </div>
+              <span
+                class="truncate max-w-[120px] hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
+                >{{ thread.author.name }}</span
+              >
+            </RouterLink>
 
             <div class="flex items-center gap-1.5 border-l border-stone-200 pl-4" title="Replies">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -16,6 +16,7 @@ class ForumThreadResource extends JsonResource
     public function toArray(Request $request): array
     {
         $userId = $request->user()?->id;
+        $hideIdentity = $this->is_anonymous && $this->user_id !== $userId;
 
         return [
             'id' => $this->id,
@@ -26,7 +27,7 @@ class ForumThreadResource extends JsonResource
             'is_pinned' => $this->is_pinned,
             'is_locked' => $this->is_locked,
             'has_accepted_reply' => $this->accepted_reply_id !== null,
-            'author' => $this->is_anonymous ? [
+            'author' => $hideIdentity ? [
                 'name' => 'Anonymous Farmer',
                 'avatar_url' => null,
                 'role' => 'farmer',

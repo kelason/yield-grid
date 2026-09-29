@@ -4,6 +4,7 @@
 
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -48,24 +49,28 @@ it('rejects expired tokens', function () {
 
 it('revokes the token on logout', function () {
     $user = User::factory()->create();
-
-    $token = $this->postJson('/api/v1/login', [
-        'email' => $user->email,
-        'password' => 'password',
-    ])->assertOk()->json('token');
+    $token = $user->createToken('auth_token')->plainTextToken;
 
     $this->withToken($token)->postJson('/api/v1/logout')->assertOk();
+
+    // Guard instances (and their resolved users) are cached on the shared
+    // app container for the whole test — drop them so the next request
+    // re-resolves auth instead of reusing the pre-logout user.
+    Auth::forgetGuards();
 
     $this->withToken($token)->getJson('/api/v1/user')->assertUnauthorized();
 });
 
 it('throttles rapid password-reset requests', function () {
-    $user = User::factory()->create();
+    // Distinct users: Laravel's broker throttles repeat sends per email,
+    // so sharing one address would trip the broker (422) before the route
+    // limiter (429) this test targets.
+    $users = User::factory()->count(7)->create();
 
-    for ($attempt = 1; $attempt <= 6; $attempt++) {
+    foreach ($users->take(6) as $user) {
         $this->postJson('/api/v1/forgot-password', ['email' => $user->email])->assertOk();
     }
 
-    $this->postJson('/api/v1/forgot-password', ['email' => $user->email])
-        ->assertStatus(429);
+    $this->postJson('/api/v1/forgot-password', ['email' => $users->last()->email])
+        ->assertTooManyRequests();
 });

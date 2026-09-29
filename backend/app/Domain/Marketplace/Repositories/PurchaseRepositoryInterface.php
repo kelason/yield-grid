@@ -21,4 +21,11 @@ interface PurchaseRepositoryInterface
     public function findByCheckoutId(string $checkoutId, int $buyerId): Purchase;
 
     public function findPendingByCheckoutId(string $checkoutId, int $buyerId): ?Purchase;
+
+    /**
+     * Get completed-purchase stats for a specific buyer.
+     *
+     * @return array{total_purchases: int, total_spent: float}
+     */
+    public function getBuyerStats(int $buyerId): array;
 }
