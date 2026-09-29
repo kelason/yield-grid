@@ -39,5 +39,5 @@ final class GeoConstants
 
     public const METERS_PER_KM = 1000;
 
-    public const CODE_LENGTH = 10;
+    public const CODE_LENGTH = 12;
 }

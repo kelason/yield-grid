@@ -14,6 +14,7 @@ use App\Domain\Chat\Actions\MarkConversationReadAction;
 use App\Domain\Chat\Models\ChatConversation;
 use App\Policies\ConversationPolicy;
 use Domain\Users\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
@@ -47,7 +48,7 @@ class ChatConversationController
         return ChatMessageResource::collection($messages);
     }
 
-    public function store(StartConversationRequest $request, FindOrCreateConversationAction $action): ChatConversationResource
+    public function store(StartConversationRequest $request, FindOrCreateConversationAction $action): JsonResponse
     {
         // Chat is only available between users sharing a live transaction.
         Gate::authorize(ConversationPolicy::CREATE_ABILITY, (int) $request->validated('recipient_id'));
@@ -59,7 +60,7 @@ class ChatConversationController
 
         $conversation->load(['participants.user', 'latestMessage']);
 
-        return collect([new ChatConversationResource($conversation)])->first();
+        return (new ChatConversationResource($conversation))->response()->setStatusCode(HttpCode::CREATED);
     }
 
     private function authorizeAccess(User $user, ChatConversation $conversation): void

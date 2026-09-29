@@ -28,7 +28,7 @@ it('allows a farmer with an address to submit a partial offer', function () {
 
     $response->assertCreated();
     $response->assertJsonPath('data.status', DemandOfferStatus::PENDING->value);
-    $response->assertJsonPath('data.total_price', 6600.0);
+    expect((float) $response->json('data.total_price'))->toBe(6600.0);
     // Regression: the nested demand serializes without an eager-loaded
     // delivery address and must not leak the buyer's address to the farmer.
     $response->assertJsonPath('data.demand.id', $demand->id);

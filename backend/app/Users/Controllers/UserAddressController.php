@@ -31,11 +31,11 @@ final class UserAddressController extends Controller
         return UserAddressResource::collection($addresses);
     }
 
-    public function store(StoreUserAddressRequest $request, CreateUserAddressAction $action): UserAddressResource
+    public function store(StoreUserAddressRequest $request, CreateUserAddressAction $action): JsonResponse
     {
         $address = $action(UpsertUserAddressDTO::fromRequest($request->user()->id, $request->validated()));
 
-        return new UserAddressResource($address);
+        return (new UserAddressResource($address))->response()->setStatusCode(HttpCode::CREATED);
     }
 
     public function update(UpdateUserAddressRequest $request, UserAddress $address, UpdateUserAddressAction $action): UserAddressResource

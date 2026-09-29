@@ -31,7 +31,7 @@ it('allows a buyer with an address to post a demand', function () {
 
     $response->assertCreated();
     $response->assertJsonPath('data.status', DemandStatus::OPEN->value);
-    $response->assertJsonPath('data.remaining_quantity_kg', 600.0);
+    expect((float) $response->json('data.remaining_quantity_kg'))->toBe(600.0);
     $response->assertJsonPath('data.delivery_address.formatted_address', $response->json('data.delivery_address.formatted_address'));
 
     $this->assertDatabaseHas('crop_demands', [
