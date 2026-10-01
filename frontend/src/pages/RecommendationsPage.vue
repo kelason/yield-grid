@@ -248,6 +248,7 @@ import PublishContractForm from '../components/organisms/PublishContractForm.vue
 import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
 import ConfirmModal from '../components/molecules/ConfirmModal.vue'
+import { HTTP_STATUS } from '../constants/http'
 import { useMarketStore } from '../stores/marketStore'
 import { useConfirmModal } from '../composables/useConfirmModal'
 
@@ -396,7 +397,7 @@ const handlePublishContract = async (formData) => {
       closePublishModal()
       router.push({ name: 'farmer-contracts' })
     } catch (error) {
-      if (error.response?.status === 422) {
+      if (error.response?.status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
         publishErrors.value = error.response.data.errors || {}
       } else {
         store.errorMessage = 'An unexpected error occurred while publishing the contract.'

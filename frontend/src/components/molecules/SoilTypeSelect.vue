@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 
+const TOOLTIP_HIDE_DELAY_MS = 150
+
 defineProps({
   modelValue: {
     type: String,
@@ -114,7 +116,7 @@ function hideTooltip(value, immediate = false) {
     if (activeTooltip.value === value) {
       activeTooltip.value = null
     }
-  }, 150)
+  }, TOOLTIP_HIDE_DELAY_MS)
 }
 
 function toggleTooltip(value, e) {

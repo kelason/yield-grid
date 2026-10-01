@@ -16,6 +16,7 @@ import { useChatEntry } from '@/composables/useChatEntry'
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
+const SEARCH_DEBOUNCE_MS = 300
 const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
 const { openChat } = useChatEntry()
 
@@ -65,7 +66,7 @@ watch(
     clearTimeout(searchTimeout)
     searchTimeout = setTimeout(() => {
       marketStore.fetchBuyerPurchases(1)
-    }, 300)
+    }, SEARCH_DEBOUNCE_MS)
   },
 )
 

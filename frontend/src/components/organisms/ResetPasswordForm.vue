@@ -5,6 +5,9 @@ import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import { useAuthStore } from '../../stores/auth'
+import { HTTP_STATUS } from '../../constants/http'
+
+const REDIRECT_DELAY_MS = 2000
 
 const authStore = useAuthStore()
 const route = useRoute()
@@ -35,9 +38,9 @@ async function handleResetPassword() {
     success.value = response.message || 'Password reset successful. You can now login.'
     setTimeout(() => {
       router.push({ name: 'login' })
-    }, 2000)
+    }, REDIRECT_DELAY_MS)
   } catch (e) {
-    if (e.response?.status === 422 && e.response?.data?.errors) {
+    if (e.response?.status === HTTP_STATUS.UNPROCESSABLE_ENTITY && e.response?.data?.errors) {
       error.value = Object.values(e.response.data.errors).flat().join(' ')
     } else {
       error.value = e.response?.data?.message || 'Failed to reset password.'

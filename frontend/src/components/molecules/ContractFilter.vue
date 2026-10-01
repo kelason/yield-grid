@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import SearchInput from './SearchInput.vue'
 import SortSelect from './SortSelect.vue'
 
+const SEARCH_DEBOUNCE_MS = 300
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -27,7 +29,7 @@ watch(
       searchTimeout = setTimeout(() => {
         emit('update:modelValue', localFilters.value)
         emit('search')
-      }, 300)
+      }, SEARCH_DEBOUNCE_MS)
     }
   },
 )

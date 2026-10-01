@@ -115,6 +115,8 @@ const props = defineProps({
 const show = ref(false)
 const notificationStore = useNotificationStore()
 
+const CLOSE_DELAY_MS = 300
+
 onMounted(() => {
   show.value = true
 })
@@ -123,6 +125,6 @@ function close() {
   show.value = false
   setTimeout(() => {
     notificationStore.removeNotification(props.notification.id)
-  }, 300) // Match transition duration
+  }, CLOSE_DELAY_MS) // Match transition duration
 }
 </script>
