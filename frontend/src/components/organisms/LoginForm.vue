@@ -5,6 +5,8 @@ import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import { useAuthStore } from '../../stores/auth'
 
+const AUTH_EMAIL_MAX_LENGTH = 255
+
 const authStore = useAuthStore()
 
 const form = ref({ email: '', password: '', remember: false })
@@ -15,6 +17,18 @@ const emit = defineEmits(['success'])
 
 async function handleLogin() {
   error.value = ''
+  if (!form.value.email.trim()) {
+    error.value = 'Please enter your email address.'
+    return
+  }
+  if (form.value.email.length > AUTH_EMAIL_MAX_LENGTH) {
+    error.value = `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
+    return
+  }
+  if (!form.value.password) {
+    error.value = 'Please enter your password.'
+    return
+  }
   loading.value = true
   try {
     await authStore.login(form.value)
@@ -37,6 +51,7 @@ async function handleLogin() {
       type="email"
       v-model="form.email"
       :required="true"
+      :maxlength="AUTH_EMAIL_MAX_LENGTH"
     />
     <FormField
       id="login-password"

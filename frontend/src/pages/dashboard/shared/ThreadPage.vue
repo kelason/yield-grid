@@ -7,6 +7,7 @@ import { useForumWebSocket } from '../../../composables/useForumWebSocket'
 import ThreadCard from '../../../components/molecules/ThreadCard.vue'
 import ReplyCard from '../../../components/molecules/ReplyCard.vue'
 import AppButton from '../../../components/atoms/AppButton.vue'
+import ConfirmModal from '../../../components/molecules/ConfirmModal.vue'
 import { FORUM_CONSTANTS } from '../../../constants/forum'
 
 const forumStore = useForumStore()
@@ -77,7 +78,26 @@ const handleReply = async () => {
 
 const handleVote = (id, val) => forumStore.voteThread(id, val)
 const handleReplyVote = (id, val) => forumStore.voteReply(id, val)
-const handleAccept = (id) => forumStore.acceptReply(id)
+
+const pendingAcceptId = ref(null)
+
+const acceptConfig = computed(() => ({
+  title: 'Accept this answer?',
+  message:
+    'This reply will be marked as the accepted answer for your thread. The thread will be flagged as resolved.',
+  confirmText: 'Accept answer',
+  type: 'primary',
+}))
+
+const handleAccept = (id) => {
+  pendingAcceptId.value = id
+}
+
+const confirmAccept = async () => {
+  const id = pendingAcceptId.value
+  pendingAcceptId.value = null
+  if (id !== null) await forumStore.acceptReply(id)
+}
 
 const goBack = () => router.push({ name: 'community-forum' })
 </script>
@@ -200,5 +220,15 @@ const goBack = () => router.push({ name: 'community-forum' })
         </div>
       </div>
     </template>
+
+    <ConfirmModal
+      :is-open="pendingAcceptId !== null"
+      :title="acceptConfig.title"
+      :message="acceptConfig.message"
+      :confirm-text="acceptConfig.confirmText"
+      :type="acceptConfig.type"
+      @confirm="confirmAccept"
+      @cancel="pendingAcceptId = null"
+    />
   </div>
 </template>

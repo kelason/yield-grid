@@ -2,6 +2,7 @@
 
 namespace App\Auth\Requests;
 
+use App\Constants\AuthConstants;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -18,7 +19,7 @@ class ForgotPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'max:'.AuthConstants::EMAIL_MAX_LENGTH],
         ];
     }
 }

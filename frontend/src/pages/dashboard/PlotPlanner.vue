@@ -8,7 +8,10 @@ import AppCard from '../../components/atoms/AppCard.vue'
 import FormField from '../../components/molecules/FormField.vue'
 import SoilTypeSelect from '../../components/molecules/SoilTypeSelect.vue'
 import AppAlert from '../../components/atoms/AppAlert.vue'
+import ConfirmModal from '../../components/molecules/ConfirmModal.vue'
 import PlotDrawer from '../../components/organisms/PlotDrawer.vue'
+
+const PLOT_NAME_MAX_LENGTH = 255
 
 const route = useRoute()
 const router = useRouter()
@@ -27,6 +30,14 @@ const form = ref({
 
 const activeLayer = ref(null)
 const plotDrawerRef = ref(null)
+const pendingConfirm = ref(false)
+
+const confirmConfig = computed(() => ({
+  title: 'Save this plot?',
+  message: `Save "${form.value.name}" to ${farmName.value}? The drawn boundary will be stored as a new plot.`,
+  confirmText: 'Save plot',
+  type: 'primary',
+}))
 
 onMounted(async () => {
   if (!farmingStore.activeFarm || farmingStore.activeFarm.id !== farmId) {
@@ -69,7 +80,23 @@ function cancelDrawing() {
   error.value = ''
 }
 
+function validatePlot() {
+  if (!form.value.name.trim()) return 'Please enter a plot name.'
+  if (form.value.name.length > PLOT_NAME_MAX_LENGTH)
+    return `Plot name must be at most ${PLOT_NAME_MAX_LENGTH} characters.`
+  if (!form.value.soil_type) return 'Please select a soil type.'
+  if (!form.value.coordinates.length) return 'Please draw the plot boundary on the map.'
+  return ''
+}
+
+function requestSavePlot() {
+  error.value = validatePlot()
+  if (error.value) return
+  pendingConfirm.value = true
+}
+
 async function savePlot() {
+  pendingConfirm.value = false
   isSaving.value = true
   error.value = ''
   try {
@@ -140,8 +167,14 @@ async function savePlot() {
         </div>
         <AppAlert v-if="error" type="error" class="mb-4">{{ error }}</AppAlert>
 
-        <form @submit.prevent="savePlot" class="space-y-4">
-          <FormField id="plot-name" label="Plot Name" v-model="form.name" required />
+        <form @submit.prevent="requestSavePlot" class="space-y-4">
+          <FormField
+            id="plot-name"
+            label="Plot Name"
+            v-model="form.name"
+            required
+            :maxlength="PLOT_NAME_MAX_LENGTH"
+          />
           <SoilTypeSelect id="plot-soil" label="Soil Type" v-model="form.soil_type" required />
 
           <div class="flex flex-col gap-2 pt-2">
@@ -222,5 +255,15 @@ async function savePlot() {
         </div>
       </AppCard>
     </div>
+
+    <ConfirmModal
+      :is-open="pendingConfirm"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :type="confirmConfig.type"
+      @confirm="savePlot"
+      @cancel="pendingConfirm = false"
+    />
   </div>
 </template>

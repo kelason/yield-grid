@@ -6,6 +6,11 @@ import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import { useAuthStore } from '../../stores/auth'
 
+const AUTH_NAME_MAX_LENGTH = 255
+const AUTH_EMAIL_MAX_LENGTH = 255
+const AUTH_PASSWORD_MIN_LENGTH = 8
+const AUTH_PASSWORD_MAX_LENGTH = 255
+
 const authStore = useAuthStore()
 
 const form = ref({
@@ -37,6 +42,42 @@ async function handleRegister() {
   error.value = ''
   addressErrors.value = {}
   loading.value = true
+
+  if (!form.value.name.trim()) {
+    error.value = 'Please enter your name.'
+    loading.value = false
+    return
+  }
+
+  if (form.value.name.length > AUTH_NAME_MAX_LENGTH) {
+    error.value = `Name must be at most ${AUTH_NAME_MAX_LENGTH} characters.`
+    loading.value = false
+    return
+  }
+
+  if (!form.value.email.trim()) {
+    error.value = 'Please enter your email address.'
+    loading.value = false
+    return
+  }
+
+  if (form.value.email.length > AUTH_EMAIL_MAX_LENGTH) {
+    error.value = `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
+    loading.value = false
+    return
+  }
+
+  if (form.value.password.length < AUTH_PASSWORD_MIN_LENGTH) {
+    error.value = `Password must be at least ${AUTH_PASSWORD_MIN_LENGTH} characters.`
+    loading.value = false
+    return
+  }
+
+  if (form.value.password.length > AUTH_PASSWORD_MAX_LENGTH) {
+    error.value = `Password must be at most ${AUTH_PASSWORD_MAX_LENGTH} characters.`
+    loading.value = false
+    return
+  }
 
   if (form.value.password !== form.value.password_confirmation) {
     error.value = 'Passwords do not match.'
@@ -78,13 +119,20 @@ async function handleRegister() {
   <form class="space-y-6" @submit.prevent="handleRegister">
     <AppAlert v-if="error" type="error">{{ error }}</AppAlert>
 
-    <FormField id="reg-name" label="Full Name" v-model="form.name" :required="true" />
+    <FormField
+      id="reg-name"
+      label="Full Name"
+      v-model="form.name"
+      :required="true"
+      :maxlength="AUTH_NAME_MAX_LENGTH"
+    />
     <FormField
       id="reg-email"
       label="Email address"
       type="email"
       v-model="form.email"
       :required="true"
+      :maxlength="AUTH_EMAIL_MAX_LENGTH"
     />
 
     <div>
@@ -121,6 +169,7 @@ async function handleRegister() {
       type="password"
       v-model="form.password"
       :required="true"
+      :maxlength="AUTH_PASSWORD_MAX_LENGTH"
     />
     <FormField
       id="reg-password-confirm"
@@ -128,6 +177,7 @@ async function handleRegister() {
       type="password"
       v-model="form.password_confirmation"
       :required="true"
+      :maxlength="AUTH_PASSWORD_MAX_LENGTH"
     />
 
     <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">

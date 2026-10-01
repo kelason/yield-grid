@@ -8,6 +8,8 @@ import { useAuthStore } from '../../stores/auth'
 import { HTTP_STATUS } from '../../constants/http'
 
 const REDIRECT_DELAY_MS = 2000
+const AUTH_PASSWORD_MIN_LENGTH = 8
+const AUTH_PASSWORD_MAX_LENGTH = 255
 
 const authStore = useAuthStore()
 const route = useRoute()
@@ -32,6 +34,18 @@ onMounted(() => {
 async function handleResetPassword() {
   error.value = ''
   success.value = ''
+  if (form.value.password.length < AUTH_PASSWORD_MIN_LENGTH) {
+    error.value = `Password must be at least ${AUTH_PASSWORD_MIN_LENGTH} characters.`
+    return
+  }
+  if (form.value.password.length > AUTH_PASSWORD_MAX_LENGTH) {
+    error.value = `Password must be at most ${AUTH_PASSWORD_MAX_LENGTH} characters.`
+    return
+  }
+  if (form.value.password !== form.value.password_confirmation) {
+    error.value = 'Passwords do not match.'
+    return
+  }
   loading.value = true
   try {
     const response = await authStore.resetPassword(form.value)
@@ -71,6 +85,7 @@ async function handleResetPassword() {
       type="password"
       v-model="form.password"
       :required="true"
+      :maxlength="AUTH_PASSWORD_MAX_LENGTH"
     />
 
     <FormField
@@ -79,6 +94,7 @@ async function handleResetPassword() {
       type="password"
       v-model="form.password_confirmation"
       :required="true"
+      :maxlength="AUTH_PASSWORD_MAX_LENGTH"
     />
 
     <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">

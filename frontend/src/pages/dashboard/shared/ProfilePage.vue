@@ -19,6 +19,8 @@ import { MapPinIcon } from '@heroicons/vue/24/outline'
 
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
 const FARMER_ROLE = 'farmer'
+const ADDRESS_LABEL_MAX_LENGTH = 50
+const ADDRESS_STREET_MAX_LENGTH = 255
 
 const route = useRoute()
 const api = useApi()
@@ -36,7 +38,35 @@ const addressDraft = ref(blankAddress())
 const addressErrors = ref({})
 const pinValid = ref(true)
 const savingAddress = ref(false)
-const deletingId = ref(null)
+const pendingConfirm = ref(null)
+
+const confirmConfig = computed(() => {
+  if (!pendingConfirm.value) return null
+  if (pendingConfirm.value.action === 'delete') {
+    return {
+      title: 'Delete address?',
+      message: 'This address will be removed from your profile. This cannot be undone.',
+      confirmText: 'Delete',
+      type: 'danger',
+    }
+  }
+  if (pendingConfirm.value.action === 'default') {
+    return {
+      title: 'Set default address?',
+      message: `Use "${pendingConfirm.value.label || 'this address'}" as your default address?`,
+      confirmText: 'Set default',
+      type: 'primary',
+    }
+  }
+  return {
+    title: editingAddress.value ? 'Save address changes?' : 'Add this address?',
+    message: editingAddress.value
+      ? 'Your address will be updated with these details.'
+      : 'This address will be added to your profile.',
+    confirmText: editingAddress.value ? 'Save changes' : 'Add address',
+    type: 'primary',
+  }
+})
 
 const userId = computed(() => route.params.userId)
 const isAnonymous = computed(() => userId.value === ANONYMOUS_ROUTE_PARAM)
@@ -93,12 +123,46 @@ function cleanDraft() {
   return payload
 }
 
-async function saveAddress() {
+function validateAddressDraft() {
+  const draft = addressDraft.value
+  if ((draft.label || '').length > ADDRESS_LABEL_MAX_LENGTH)
+    return `Label must be at most ${ADDRESS_LABEL_MAX_LENGTH} characters.`
+  if ((draft.street || '').length > ADDRESS_STREET_MAX_LENGTH)
+    return `Street must be at most ${ADDRESS_STREET_MAX_LENGTH} characters.`
+  if (!draft.region_code || !draft.city_municipality_code || !draft.barangay_code)
+    return 'Please select your region, city/municipality, and barangay.'
+  return ''
+}
+
+function requestSaveAddress() {
   addressErrors.value = {}
   if (!pinValid.value) {
     notificationStore.error('Please place your pin within the selected area.')
     return
   }
+  const validationMessage = validateAddressDraft()
+  if (validationMessage) {
+    notificationStore.error(validationMessage)
+    return
+  }
+  pendingConfirm.value = { action: 'save' }
+}
+
+async function confirmPending() {
+  const pending = pendingConfirm.value
+  pendingConfirm.value = null
+  if (!pending) return
+  if (pending.action === 'delete') {
+    await deleteAddress(pending.id)
+  } else if (pending.action === 'default') {
+    await setDefaultAddress(pending.address)
+  } else {
+    await saveAddress()
+  }
+}
+
+async function saveAddress() {
+  addressErrors.value = {}
   savingAddress.value = true
   try {
     if (editingAddress.value) {
@@ -123,15 +187,13 @@ async function saveAddress() {
   }
 }
 
-async function confirmDeleteAddress() {
+async function deleteAddress(id) {
   try {
-    await addressStore.deleteAddress(deletingId.value)
+    await addressStore.deleteAddress(id)
     notificationStore.success('Address deleted.')
     fetchProfile()
   } catch (err) {
     notificationStore.error(err.response?.data?.message || 'Failed to delete address.')
-  } finally {
-    deletingId.value = null
   }
 }
 
@@ -291,7 +353,7 @@ watch(userId, fetchProfile, { immediate: true })
                 <button
                   v-if="!address.is_default"
                   type="button"
-                  @click="setDefaultAddress(address)"
+                  @click="pendingConfirm = { action: 'default', address, label: address.label }"
                   class="text-xs font-medium text-moss-700 hover:text-moss-800 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
                 >
                   Set default
@@ -305,7 +367,7 @@ watch(userId, fetchProfile, { immediate: true })
                 </button>
                 <button
                   type="button"
-                  @click="deletingId = address.id"
+                  @click="pendingConfirm = { action: 'delete', id: address.id }"
                   class="text-xs font-medium text-red-600 hover:text-red-700 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded-xl"
                 >
                   Delete
@@ -382,7 +444,7 @@ watch(userId, fetchProfile, { immediate: true })
         </label>
         <div class="flex justify-end gap-3">
           <AppButton variant="ghost" @click="showAddressModal = false">Cancel</AppButton>
-          <AppButton variant="primary" :loading="savingAddress" @click="saveAddress">
+          <AppButton variant="primary" :loading="savingAddress" @click="requestSaveAddress">
             {{ editingAddress ? 'Save changes' : 'Add address' }}
           </AppButton>
         </div>
@@ -390,13 +452,14 @@ watch(userId, fetchProfile, { immediate: true })
     </AppModal>
 
     <ConfirmModal
-      :is-open="deletingId !== null"
-      title="Delete address?"
-      message="This address will be removed from your profile. This cannot be undone."
-      confirm-text="Delete"
-      type="danger"
-      @confirm="confirmDeleteAddress"
-      @cancel="deletingId = null"
+      v-if="confirmConfig"
+      :is-open="pendingConfirm !== null"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :type="confirmConfig.type"
+      @confirm="confirmPending"
+      @cancel="pendingConfirm = null"
     />
   </div>
 </template>

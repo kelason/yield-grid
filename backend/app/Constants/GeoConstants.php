@@ -40,4 +40,12 @@ final class GeoConstants
     public const METERS_PER_KM = 1000;
 
     public const CODE_LENGTH = 12;
+
+    public const int LATITUDE_MIN = -90;
+
+    public const int LATITUDE_MAX = 90;
+
+    public const int LONGITUDE_MIN = -180;
+
+    public const int LONGITUDE_MAX = 180;
 }
