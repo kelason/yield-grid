@@ -28,5 +28,7 @@ class HttpCode
 
     public const CONFLICT = 409;
 
+    public const GONE = 410;
+
     public const PAYMENT_REQUIRED = 402;
 }

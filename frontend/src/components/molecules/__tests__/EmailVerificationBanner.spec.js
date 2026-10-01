@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import EmailVerificationBanner from './EmailVerificationBanner.vue'
+import EmailVerificationBanner from '../EmailVerificationBanner.vue'
 import { useAuthStore } from '@/stores/auth'
 
 describe('EmailVerificationBanner.vue', () => {
