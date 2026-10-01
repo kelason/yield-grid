@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { PAYMENT_OPTION } from '@/constants/payment'
 import { useApi } from './useApi'
 
 export function usePayment() {
@@ -11,7 +12,7 @@ export function usePayment() {
     contractId,
     type = 'contracts',
     quantityKg = null,
-    paymentOption = 'paymongo',
+    paymentOption = PAYMENT_OPTION.PAYMONGO,
   ) {
     loading.value = true
     error.value = null
@@ -25,7 +26,7 @@ export function usePayment() {
         },
       })
 
-      if (paymentOption === 'cash') {
+      if (paymentOption === PAYMENT_OPTION.CASH) {
         return response.data
       }
 
@@ -46,7 +47,7 @@ export function usePayment() {
     }
   }
 
-  async function startOfferCheckout(offerId, paymentOption = 'paymongo') {
+  async function startOfferCheckout(offerId, paymentOption = PAYMENT_OPTION.PAYMONGO) {
     loading.value = true
     error.value = null
 
@@ -58,7 +59,7 @@ export function usePayment() {
         },
       })
 
-      if (paymentOption === 'cash') {
+      if (paymentOption === PAYMENT_OPTION.CASH) {
         return response.data
       }
 

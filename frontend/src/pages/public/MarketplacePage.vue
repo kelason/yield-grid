@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { PAYMENT_OPTION } from '@/constants/payment'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
@@ -23,7 +24,7 @@ const pendingConfirm = ref(null)
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
-  const cash = pendingConfirm.value.paymentOption === 'cash'
+  const cash = pendingConfirm.value.paymentOption === PAYMENT_OPTION.CASH
   return {
     title: cash ? 'Request cash payment?' : 'Proceed to payment?',
     message: cash
@@ -78,13 +79,13 @@ const handleConfirmCheckout = async () => {
   pendingConfirm.value = null
   if (!checkoutData) return
 
-  if (checkoutData.paymentOption === 'cash') {
+  if (checkoutData.paymentOption === PAYMENT_OPTION.CASH) {
     try {
       await startCheckout(
         checkoutData.contractId,
         checkoutData.type,
         checkoutData.quantityKg,
-        'cash',
+        PAYMENT_OPTION.CASH,
       )
       notificationStore.success('Cash payment request sent! Waiting for farmer approval.')
       showCheckoutPanel.value = false
@@ -103,7 +104,7 @@ const handleConfirmCheckout = async () => {
       checkoutData.contractId,
       checkoutData.type,
       checkoutData.quantityKg,
-      'paymongo',
+      PAYMENT_OPTION.PAYMONGO,
     )
   } catch (err) {
     const errorMessage =

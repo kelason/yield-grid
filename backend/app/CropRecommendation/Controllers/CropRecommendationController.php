@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class CropRecommendationController extends Controller
 {
@@ -67,7 +68,7 @@ class CropRecommendationController extends Controller
         Gate::authorize('update', $recommendation);
 
         $validated = $request->validate([
-            'status' => 'required|in:accepted,rejected',
+            'status' => ['required', Rule::in([RecommendationStatus::ACCEPTED->value, RecommendationStatus::REJECTED->value])],
         ]);
 
         $status = RecommendationStatus::tryFrom($validated['status']);

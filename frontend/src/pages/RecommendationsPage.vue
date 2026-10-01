@@ -69,7 +69,7 @@
       </p>
       <router-link
         :to="{ name: 'farm-manager' }"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 text-white font-semibold rounded-full shadow-soft hover:shadow transition-all duration-200"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 text-white font-semibold rounded-full shadow-soft hover:shadow-organic transition-all duration-200"
       >
         <span>🏡</span>
         <span>Go to My Farms</span>
@@ -295,10 +295,20 @@ const locationLabel = computed(() => {
   return parts.join(', ')
 })
 
-const triggerAnalysis = async () => {
-  if (activePlotId.value) {
-    await store.analyzePlot(activePlotId.value)
-  }
+const triggerAnalysis = () => {
+  if (!activePlotId.value) return
+  confirm(
+    {
+      title: 'Run AI analysis?',
+      message:
+        'Run the AI advisor on this plot? Analysis consumes one of your limited hourly runs and takes a few minutes.',
+      confirmText: 'Run analysis',
+      type: 'primary',
+    },
+    async () => {
+      await store.analyzePlot(activePlotId.value)
+    },
+  )
 }
 
 const loadPlotData = async (id) => {

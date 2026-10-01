@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Marketplace\Actions;
 
 use App\Domain\Marketplace\Enums\CashPaymentStatus;
+use App\Domain\Marketplace\Enums\CashPaymentType;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
@@ -31,7 +32,7 @@ final class ApproveCashPaymentAction
                 throw new LogicException('Purchase is already fully paid.');
             }
 
-            if ($type === 'partial') {
+            if ($type === CashPaymentType::PARTIAL->value) {
                 if ($amount === null || $amount <= 0) {
                     throw new LogicException('Amount is required for partial payment.');
                 }
@@ -42,7 +43,7 @@ final class ApproveCashPaymentAction
                 $purchase->cash_payment_status = CashPaymentStatus::PARTIALLY_PAID;
                 $purchase->cash_amount_confirmed += $amount;
                 $purchase->amount_paid = $purchase->cash_amount_confirmed;
-            } elseif ($type === 'full') {
+            } elseif ($type === CashPaymentType::FULL->value) {
                 $purchase->cash_payment_status = CashPaymentStatus::FULLY_PAID;
                 $purchase->cash_amount_confirmed = (float) $purchase->total_contract_amount;
                 $purchase->amount_paid = (float) $purchase->total_contract_amount;
@@ -60,7 +61,7 @@ final class ApproveCashPaymentAction
                 $lockedPurchasable = $purchasableClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
 
                 if ($lockedPurchasable instanceof CropDemandOffer) {
-                    if ($type === 'full') {
+                    if ($type === CashPaymentType::FULL->value) {
                         $lockedPurchasable->status = DemandOfferStatus::PAID;
                         $lockedPurchasable->paid_at = Carbon::now();
                         $lockedPurchasable->save();
@@ -69,7 +70,7 @@ final class ApproveCashPaymentAction
                         $lockedPurchasable->save();
                     }
                 } else {
-                    $lockedPurchasable->status = $type === 'full'
+                    $lockedPurchasable->status = $type === CashPaymentType::FULL->value
                         ? ContractStatus::SOLD
                         : ContractStatus::PARTIALLY_PAID;
                     $lockedPurchasable->save();

@@ -10,7 +10,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
-import { PAYMENT_CONSTANTS } from '@/constants/payment'
+import { PAYMENT_CONSTANTS, PAYMENT_OPTION } from '@/constants/payment'
 
 const props = defineProps({
   contract: {
@@ -32,14 +32,14 @@ const pricePerKg = computed(() => {
 })
 
 const quantityKg = ref(props.contract.quantity_kg)
-const paymentOption = ref('paymongo')
+const paymentOption = ref(PAYMENT_OPTION.PAYMONGO)
 
 // Reset if contract changes
 watch(
   () => props.contract.id,
   () => {
     quantityKg.value = props.contract.quantity_kg
-    paymentOption.value = 'paymongo'
+    paymentOption.value = PAYMENT_OPTION.PAYMONGO
   },
 )
 
@@ -197,12 +197,17 @@ const handleConfirm = () => {
           <label
             class="relative flex cursor-pointer rounded-2xl border bg-white p-4 shadow-soft focus:outline-none"
             :class="
-              paymentOption === 'paymongo'
+              paymentOption === PAYMENT_OPTION.PAYMONGO
                 ? 'border-moss-500 ring-1 ring-moss-500'
                 : 'border-stone-300'
             "
           >
-            <input type="radio" v-model="paymentOption" value="paymongo" class="sr-only" />
+            <input
+              type="radio"
+              v-model="paymentOption"
+              :value="PAYMENT_OPTION.PAYMONGO"
+              class="sr-only"
+            />
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
                 <div class="text-sm">
@@ -210,17 +215,27 @@ const handleConfirm = () => {
                   <p class="text-stone-500">Card, GCash, Maya</p>
                 </div>
               </div>
-              <CheckCircleIcon v-if="paymentOption === 'paymongo'" class="h-5 w-5 text-moss-600" />
+              <CheckCircleIcon
+                v-if="paymentOption === PAYMENT_OPTION.PAYMONGO"
+                class="h-5 w-5 text-moss-600"
+              />
             </div>
           </label>
 
           <label
             class="relative flex cursor-pointer rounded-2xl border bg-white p-4 shadow-soft focus:outline-none"
             :class="
-              paymentOption === 'cash' ? 'border-moss-500 ring-1 ring-moss-500' : 'border-stone-300'
+              paymentOption === PAYMENT_OPTION.CASH
+                ? 'border-moss-500 ring-1 ring-moss-500'
+                : 'border-stone-300'
             "
           >
-            <input type="radio" v-model="paymentOption" value="cash" class="sr-only" />
+            <input
+              type="radio"
+              v-model="paymentOption"
+              :value="PAYMENT_OPTION.CASH"
+              class="sr-only"
+            />
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
                 <div class="text-sm">
@@ -228,7 +243,10 @@ const handleConfirm = () => {
                   <p class="text-stone-500">Pay directly to farmer</p>
                 </div>
               </div>
-              <CheckCircleIcon v-if="paymentOption === 'cash'" class="h-5 w-5 text-moss-600" />
+              <CheckCircleIcon
+                v-if="paymentOption === PAYMENT_OPTION.CASH"
+                class="h-5 w-5 text-moss-600"
+              />
             </div>
           </label>
         </div>

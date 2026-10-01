@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useChatEntry } from '@/composables/useChatEntry'
-import { PAYMENT_CONSTANTS } from '@/constants/payment'
+import { PAYMENT_CONSTANTS, PAYMENT_OPTION } from '@/constants/payment'
 import PriceTag from '@/components/atoms/PriceTag.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
@@ -23,6 +23,8 @@ onMounted(() => {
   marketStore.fetchFarmerPurchases()
 })
 
+const CASH_PAYMENT_TYPE = { PARTIAL: 'partial', FULL: 'full' }
+
 const isApproving = ref({})
 
 const promptModal = ref({
@@ -35,7 +37,7 @@ const promptModal = ref({
 
 const openApproveModal = (purchase, type) => {
   const suggestedAmount =
-    type === 'partial'
+    type === CASH_PAYMENT_TYPE.PARTIAL
       ? purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE
       : purchase.total_contract_amount
 
@@ -44,7 +46,7 @@ const openApproveModal = (purchase, type) => {
     purchaseId: purchase.id,
     type,
     amount: suggestedAmount,
-    title: `Approve ${type === 'partial' ? 'Partial (10%)' : 'Full'} Payment`,
+    title: `Approve ${type === CASH_PAYMENT_TYPE.PARTIAL ? 'Partial (10%)' : 'Full'} Payment`,
   }
 }
 
@@ -104,7 +106,7 @@ function formatDate(dateStr) {
 }
 
 function getConfirmedPaid(purchase) {
-  if (purchase.payment_method !== 'cash' && purchase.payment_status === 'completed') {
+  if (purchase.payment_method !== PAYMENT_OPTION.CASH && purchase.payment_status === 'completed') {
     return purchase.amount_paid || 0
   }
   return purchase.cash_amount_confirmed || 0
@@ -248,7 +250,7 @@ function getConfirmedPaid(purchase) {
               "
             >
               <button
-                @click="openApproveModal(purchase, 'partial')"
+                @click="openApproveModal(purchase, CASH_PAYMENT_TYPE.PARTIAL)"
                 :disabled="isApproving[purchase.id]"
                 v-if="purchase.cash_payment_status !== 'partially_paid'"
                 class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
@@ -256,7 +258,7 @@ function getConfirmedPaid(purchase) {
                 Approve 10%
               </button>
               <button
-                @click="openApproveModal(purchase, 'full')"
+                @click="openApproveModal(purchase, CASH_PAYMENT_TYPE.FULL)"
                 :disabled="isApproving[purchase.id]"
                 class="px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft hover:shadow-organic focus-visible:outline-moss-600 w-full sm:w-auto text-center"
               >
@@ -325,10 +327,15 @@ function getConfirmedPaid(purchase) {
                   step="0.01"
                   :maxlength="AMOUNT_MAX_LENGTH"
                   @input="clampAmount"
-                  :disabled="promptModal.type === 'full'"
-                  @keyup.enter="promptModal.type !== 'full' ? confirmApprove() : null"
+                  :disabled="promptModal.type === CASH_PAYMENT_TYPE.FULL"
+                  @keyup.enter="
+                    promptModal.type !== CASH_PAYMENT_TYPE.FULL ? confirmApprove() : null
+                  "
                 />
-                <p v-if="promptModal.type === 'full'" class="mt-2 text-xs text-stone-500">
+                <p
+                  v-if="promptModal.type === CASH_PAYMENT_TYPE.FULL"
+                  class="mt-2 text-xs text-stone-500"
+                >
                   The amount is locked for full payments to ensure the contract total is met
                   exactly.
                 </p>

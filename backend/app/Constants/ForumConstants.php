@@ -35,4 +35,11 @@ final class ForumConstants
 
     /** @var list<string> */
     public const array ATTACHABLE_TYPES = ['thread', 'reply'];
+
+    public const int VOTE_UP = 1;
+
+    public const int VOTE_DOWN = -1;
+
+    /** @var list<int> */
+    public const array VOTE_VALUES = [self::VOTE_UP, self::VOTE_DOWN];
 }

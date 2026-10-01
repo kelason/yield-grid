@@ -41,6 +41,8 @@ final class GeoConstants
 
     public const CODE_LENGTH = 12;
 
+    public const int PLACE_NAME_MAX_LENGTH = 255;
+
     public const int LATITUDE_MIN = -90;
 
     public const int LATITUDE_MAX = 90;
