@@ -1,12 +1,12 @@
 <template>
   <div
-    class="bg-gradient-to-r from-harvest-400 to-harvest-500 px-4 py-3 sm:px-6 lg:px-8 relative z-50 shadow-md border-b border-harvest-500"
+    class="bg-gradient-to-r from-harvest-400 to-harvest-500 px-4 py-3 sm:px-6 lg:px-8 relative z-50 shadow-soft border-b border-harvest-500"
   >
     <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
       <div class="flex flex-1 items-center gap-x-3">
-        <span class="flex p-2 rounded-lg bg-white/20 backdrop-blur-sm shadow-inner">
+        <span class="flex p-2 rounded-xl bg-white/20 backdrop-blur-sm shadow-inner">
           <svg
-            class="h-5 w-5 text-white drop-shadow-sm"
+            class="h-5 w-5 text-white drop-shadow-soft"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="2"
@@ -20,7 +20,7 @@
             />
           </svg>
         </span>
-        <p class="text-sm leading-6 text-white drop-shadow-sm">
+        <p class="text-sm leading-6 text-white drop-shadow-soft">
           <strong class="font-semibold text-white">Action Required:</strong>
           Please verify your email address. You will not be able to use the marketplace or manage
           plots until your email is verified.
@@ -31,7 +31,7 @@
           type="button"
           @click="handleResend"
           :disabled="isSending || authStore.resendCooldown > 0"
-          class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-harvest-800 shadow-sm hover:bg-harvest-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-95 min-w-[180px]"
+          class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-harvest-800 shadow-soft hover:bg-harvest-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white hover:scale-[1.02] transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-95 min-w-[180px]"
         >
           <span v-if="isSending">Sending...</span>
           <span v-else-if="authStore.resendCooldown > 0"

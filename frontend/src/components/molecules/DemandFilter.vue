@@ -45,7 +45,7 @@ function applyFilters() {
           <label for="demand-min-budget" class="block text-xs font-medium text-soil-700 mb-1">
             Min Budget
           </label>
-          <div class="relative rounded-full shadow-sm">
+          <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
@@ -54,7 +54,7 @@ function applyFilters() {
               id="demand-min-budget"
               v-model="localFilters.minBudget"
               @change="applyFilters"
-              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="0"
             />
           </div>
@@ -63,7 +63,7 @@ function applyFilters() {
           <label for="demand-max-budget" class="block text-xs font-medium text-soil-700 mb-1">
             Max Budget
           </label>
-          <div class="relative rounded-full shadow-sm">
+          <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
@@ -72,7 +72,7 @@ function applyFilters() {
               id="demand-max-budget"
               v-model="localFilters.maxBudget"
               @change="applyFilters"
-              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="Any"
             />
           </div>

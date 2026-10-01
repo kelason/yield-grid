@@ -109,7 +109,7 @@ function profileLink(author) {
             v-for="att in reply.attachments"
             :key="att.id"
             :src="att.file_path"
-            class="max-h-48 rounded-xl object-cover border border-stone-200 shadow-sm"
+            class="max-h-48 rounded-xl object-cover border border-stone-200 shadow-soft"
           />
         </div>
 
