@@ -5,6 +5,9 @@ import FormField from './FormField.vue'
 import LeafletPinPicker from '../organisms/LeafletPinPicker.vue'
 import { useGeo } from '@/composables/useGeo'
 
+const ADDRESS_LABEL_MAX_LENGTH = 50
+const ADDRESS_STREET_MAX_LENGTH = 255
+
 const props = defineProps({
   modelValue: { type: Object, required: true },
   idPrefix: { type: String, default: 'addr' },
@@ -131,6 +134,7 @@ loadRegions().then(initCascade)
         :id="`${idPrefix}-label`"
         label="Label"
         placeholder="e.g. Home, Farm gate"
+        :maxlength="ADDRESS_LABEL_MAX_LENGTH"
         :model-value="modelValue.label || ''"
         :error="errors.label || ''"
         @update:model-value="patch({ label: $event })"
@@ -139,6 +143,7 @@ loadRegions().then(initCascade)
         :id="`${idPrefix}-street`"
         label="Street / House No."
         placeholder="e.g. 123 Sampaguita St."
+        :maxlength="ADDRESS_STREET_MAX_LENGTH"
         :model-value="modelValue.street || ''"
         :error="errors.street || ''"
         :class="{ 'sm:col-span-2': !showLabel }"

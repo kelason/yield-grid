@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Marketplace\Controllers;
 
 use App\Constants\HttpCode;
 use App\Constants\PaginationConstants;
@@ -23,16 +23,17 @@ use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\PurchaseResource;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Marketplace\Requests\ApproveCashPaymentRequest;
 use App\Marketplace\Requests\CheckoutRequest;
 use App\Marketplace\Requests\OfferCheckoutRequest;
+use App\Marketplace\Resources\PurchaseResource;
+use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 
 final class PurchaseController extends Controller
 {
@@ -194,6 +195,8 @@ final class PurchaseController extends Controller
                     'message' => 'Cash purchase request created. Please wait for farmer approval.',
                     'purchase_id' => $purchase->id,
                 ]);
+            } catch (LogicException $e) {
+                return response()->json(['message' => $e->getMessage()], HttpCode::CONFLICT);
             } catch (\Exception $e) {
                 return response()->json(['message' => $e->getMessage()], HttpCode::UNPROCESSABLE_ENTITY);
             }
@@ -330,7 +333,7 @@ final class PurchaseController extends Controller
         return PurchaseResource::collection($purchases);
     }
 
-    public function approveCashPayment(ApproveCashPaymentRequest $request, Purchase $purchase): PurchaseResource
+    public function approveCashPayment(ApproveCashPaymentRequest $request, Purchase $purchase): PurchaseResource|JsonResponse
     {
         $validated = $request->validated();
 
@@ -340,11 +343,15 @@ final class PurchaseController extends Controller
             abort(HttpCode::FORBIDDEN, 'You do not own this purchase.');
         }
 
-        $purchase = $this->approveCashPaymentAction->execute(
-            $purchase,
-            $validated['type'],
-            isset($validated['amount']) ? (float) $validated['amount'] : null
-        );
+        try {
+            $purchase = $this->approveCashPaymentAction->execute(
+                $purchase,
+                $validated['type'],
+                isset($validated['amount']) ? (float) $validated['amount'] : null
+            );
+        } catch (LogicException $e) {
+            return response()->json(['message' => $e->getMessage()], HttpCode::CONFLICT);
+        }
 
         return new PurchaseResource($purchase);
     }

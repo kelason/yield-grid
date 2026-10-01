@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class CropAdvisorService
 {
+    private const REQUEST_TIMEOUT_SECONDS = 12;
+
+    private const RATE_LIMIT_DECAY_SECONDS = 60;
+
     private const SCORE_BASE = 50;
 
     private const SCORE_SOIL_MATCH = 40;
@@ -71,10 +75,10 @@ class CropAdvisorService
             return $this->getMockRecommendations($plot, $location);
         }
 
-        RateLimiter::hit($rateKey, 60);
+        RateLimiter::hit($rateKey, self::RATE_LIMIT_DECAY_SECONDS);
 
         try {
-            $response = Http::timeout(12)->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
+            $response = Http::timeout(self::REQUEST_TIMEOUT_SECONDS)->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]],
                 ],

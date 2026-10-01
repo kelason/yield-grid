@@ -33,13 +33,13 @@ defineEmits(['view-details', 'purchase'])
           </div>
           <div
             v-if="contract.is_harvest_available"
-            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-moss-100 text-moss-800"
+            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-moss-100 text-moss-800"
           >
             🟢 Harvest Available
           </div>
           <div
             v-else
-            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-harvest-100 text-harvest-800"
+            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-harvest-100 text-harvest-800"
           >
             🕐 Incoming Harvest
           </div>

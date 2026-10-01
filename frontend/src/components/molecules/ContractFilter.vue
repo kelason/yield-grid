@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import SearchInput from './SearchInput.vue'
 import SortSelect from './SortSelect.vue'
 
+const SEARCH_DEBOUNCE_MS = 300
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -27,7 +29,7 @@ watch(
       searchTimeout = setTimeout(() => {
         emit('update:modelValue', localFilters.value)
         emit('search')
-      }, 300)
+      }, SEARCH_DEBOUNCE_MS)
     }
   },
 )
@@ -44,19 +46,21 @@ function setAvailability(availability) {
 </script>
 
 <template>
-  <div class="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-lg p-4 mb-6">
+  <div
+    class="bg-white/80 backdrop-blur-sm border border-stone-200 shadow-soft rounded-2xl p-4 mb-6"
+  >
     <!-- Availability Tabs -->
     <div
-      class="flex space-x-1 bg-stone-100/50 p-1 rounded-lg mb-5 w-fit border border-stone-200/50"
+      class="flex space-x-1 bg-stone-100/50 p-1 rounded-xl mb-5 w-fit border border-stone-200/50"
     >
       <button
         type="button"
         @click="setAvailability('all')"
         :class="[
           localFilters.availability === 'all'
-            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
+            ? 'bg-white text-stone-900 shadow-soft ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-md transition-all',
+          'px-4 py-1.5 text-sm font-medium rounded-xl transition-all',
         ]"
       >
         All Markets
@@ -66,9 +70,9 @@ function setAvailability(availability) {
         @click="setAvailability('available')"
         :class="[
           localFilters.availability === 'available'
-            ? 'bg-white text-moss-700 shadow-sm ring-1 ring-stone-900/5'
+            ? 'bg-white text-moss-700 shadow-soft ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5',
+          'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-1.5',
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-moss-500"></span>
@@ -79,9 +83,9 @@ function setAvailability(availability) {
         @click="setAvailability('incoming')"
         :class="[
           localFilters.availability === 'incoming'
-            ? 'bg-white text-harvest-700 shadow-sm ring-1 ring-stone-900/5'
+            ? 'bg-white text-harvest-700 shadow-soft ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5',
+          'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-1.5',
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-harvest-500"></span>
@@ -92,7 +96,7 @@ function setAvailability(availability) {
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
       <!-- Search -->
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-gray-700 mb-1">Search Crop</label>
+        <label class="block text-xs font-medium text-soil-700 mb-1">Search Crop</label>
         <SearchInput
           v-model="localFilters.crop"
           placeholder="e.g. Rice, Corn..."
@@ -103,10 +107,10 @@ function setAvailability(availability) {
       <!-- Price Range -->
       <div class="md:col-span-4 flex space-x-2">
         <div class="w-1/2">
-          <label for="min_price" class="block text-xs font-medium text-gray-700 mb-1"
+          <label for="min_price" class="block text-xs font-medium text-soil-700 mb-1"
             >Min Price</label
           >
-          <div class="relative rounded-full shadow-sm">
+          <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
@@ -115,16 +119,16 @@ function setAvailability(availability) {
               id="min_price"
               v-model="localFilters.minPrice"
               @change="applyFilters"
-              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="0"
             />
           </div>
         </div>
         <div class="w-1/2">
-          <label for="max_price" class="block text-xs font-medium text-gray-700 mb-1"
+          <label for="max_price" class="block text-xs font-medium text-soil-700 mb-1"
             >Max Price</label
           >
-          <div class="relative rounded-full shadow-sm">
+          <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
@@ -133,7 +137,7 @@ function setAvailability(availability) {
               id="max_price"
               v-model="localFilters.maxPrice"
               @change="applyFilters"
-              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-sm hover:border-stone-400"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="Any"
             />
           </div>
@@ -142,7 +146,7 @@ function setAvailability(availability) {
 
       <!-- Sort -->
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-gray-700 mb-1">Sort By</label>
+        <label class="block text-xs font-medium text-soil-700 mb-1">Sort By</label>
         <SortSelect
           v-model="localFilters.sort"
           @update:modelValue="

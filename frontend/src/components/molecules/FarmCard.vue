@@ -21,7 +21,7 @@ defineEmits(['view-plots', 'view-recommendations'])
       <div class="flex items-start justify-between gap-3 mb-4">
         <div class="flex items-start gap-3 min-w-0 flex-1">
           <div
-            class="w-11 h-11 rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 border border-stone-200 flex items-center justify-center text-xl shadow-sm flex-shrink-0 mt-0.5"
+            class="w-11 h-11 rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 border border-stone-200 flex items-center justify-center text-xl shadow-soft flex-shrink-0 mt-0.5"
           >
             🌾
           </div>

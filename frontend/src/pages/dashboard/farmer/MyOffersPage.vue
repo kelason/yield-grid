@@ -249,7 +249,7 @@ function handleMessage(offer) {
               :aria-label="
                 isAddressExpanded(offer) ? 'Hide delivery address' : 'Show delivery address'
               "
-              class="inline-flex items-center gap-1.5 text-sm font-medium text-moss-700 hover:text-moss-800 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-lg"
+              class="inline-flex items-center gap-1.5 text-sm font-medium text-moss-700 hover:text-moss-800 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
             >
               <ChevronDownIcon
                 class="h-4 w-4 transition-transform duration-300"

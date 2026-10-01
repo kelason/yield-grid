@@ -199,7 +199,7 @@ async function fetchAndRenderRestrictedZones() {
         const name = feature.properties?.name || 'Restricted Area'
         const type = feature.properties?.type || 'restricted'
         layer.bindTooltip(
-          `<span class="font-semibold">${style.label} ${name}</span><br><span class="text-xs text-gray-400">Type: ${type} — No plotting allowed</span>`,
+          `<span class="font-semibold">${style.label} ${name}</span><br><span class="text-xs text-stone-400">Type: ${type} — No plotting allowed</span>`,
           { sticky: true, className: 'restricted-zone-tooltip' },
         )
       },
@@ -251,7 +251,7 @@ async function focusFarmCity() {
 
       // Draw dashed emerald boundary overlay for the allowed city
       boundaryLayer = L.rectangle(bounds, {
-        color: '#059669', // emerald
+        color: '#3a7033', // emerald
         weight: 2,
         dashArray: '8, 8',
         fillColor: '#10b981',
@@ -304,7 +304,7 @@ onMounted(() => {
           message: '<strong>Error:</strong> shape edges cannot cross!',
         },
         shapeOptions: {
-          color: '#059669', // green-600
+          color: '#3a7033', // moss-600
           fillOpacity: 0.4,
         },
       },
@@ -422,7 +422,7 @@ function loadExistingPlots() {
   ) {
     window._plotsLayer = L.geoJSON(props.existingPlots, {
       style: {
-        color: '#059669',
+        color: '#3a7033',
         weight: 2,
         fillColor: '#10b981',
         fillOpacity: 0.25,
@@ -442,7 +442,7 @@ function loadExistingPlots() {
         container.appendChild(document.createElement('br'))
 
         const areaEl = document.createElement('span')
-        areaEl.className = 'text-gray-600'
+        areaEl.className = 'text-stone-600'
         areaEl.textContent = `Area: ${area}`
         container.appendChild(areaEl)
         container.appendChild(document.createElement('br'))
@@ -451,7 +451,7 @@ function loadExistingPlots() {
         const link = document.createElement('a')
         link.href = `/dashboard/plots/${plotId}/recommendations`
         link.className =
-          'inline-block mt-3 px-4 py-1.5 bg-green-600 !text-white rounded-md text-sm font-semibold hover:bg-green-700 transition-colors'
+          'inline-block mt-3 px-4 py-1.5 bg-moss-600 !text-white rounded-xl text-sm font-semibold hover:bg-moss-700 transition-colors'
         link.style.cssText = 'text-decoration: none; color: white !important;'
         link.textContent = '✨ View Recommendations'
         container.appendChild(link)
@@ -510,7 +510,7 @@ defineExpose({
   <div class="relative w-full h-full">
     <div
       ref="mapContainer"
-      class="w-full h-full z-0 rounded-md shadow-sm border border-gray-300"
+      class="w-full h-full z-0 rounded-2xl shadow-soft border border-stone-300"
     ></div>
 
     <!-- Overpass validation loading indicator -->
@@ -524,10 +524,10 @@ defineExpose({
     >
       <div
         v-if="isCheckingZone"
-        class="absolute inset-0 z-[500] bg-black/20 backdrop-blur-[1px] rounded-md flex items-center justify-center"
+        class="absolute inset-0 z-[500] bg-black/20 backdrop-blur-[1px] rounded-2xl flex items-center justify-center"
       >
         <div
-          class="bg-white rounded-xl shadow-xl px-5 py-4 flex items-center gap-3 border border-gray-200"
+          class="bg-white rounded-2xl shadow-organic px-5 py-4 flex items-center gap-3 border border-stone-200"
         >
           <svg class="w-5 h-5 text-amber-500 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle
@@ -541,8 +541,8 @@ defineExpose({
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
           <div>
-            <p class="text-sm font-bold text-gray-900">Checking zone...</p>
-            <p class="text-xs text-gray-500">Verifying no buildings or roads overlap</p>
+            <p class="text-sm font-bold text-stone-900">Checking zone...</p>
+            <p class="text-xs text-stone-500">Verifying no buildings or roads overlap</p>
           </div>
         </div>
       </div>
@@ -551,15 +551,15 @@ defineExpose({
     <!-- Active City Zone Indicator Overlay -->
     <div
       v-if="farm?.city"
-      class="absolute bottom-3 left-3 z-[400] bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md border border-emerald-300 text-xs font-semibold text-emerald-800 flex items-center gap-2 max-w-[calc(100%-1.5rem)]"
+      class="absolute bottom-3 left-3 z-[400] bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-soft border border-moss-300 text-xs font-semibold text-moss-800 flex items-center gap-2 max-w-[calc(100%-1.5rem)]"
     >
       <span
-        class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"
+        class="inline-block w-2 h-2 rounded-full bg-moss-500 animate-pulse flex-shrink-0"
       ></span>
       <div class="truncate">
-        <span class="text-gray-500 font-normal">Zone: </span>
-        <strong class="text-emerald-900">{{ farm.city }}</strong>
-        <span v-if="farm.country" class="text-gray-500 font-normal">, {{ farm.country }}</span>
+        <span class="text-stone-500 font-normal">Zone: </span>
+        <strong class="text-moss-900">{{ farm.city }}</strong>
+        <span v-if="farm.country" class="text-stone-500 font-normal">, {{ farm.country }}</span>
       </div>
     </div>
   </div>

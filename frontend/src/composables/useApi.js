@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { HTTP_STATUS } from '../constants/http'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
@@ -33,16 +34,16 @@ api.interceptors.response.use(
       const status = error.response.status
       const data = error.response.data
 
-      if (status === 401) {
+      if (status === HTTP_STATUS.UNAUTHORIZED) {
         localStorage.removeItem('auth_token')
         sessionStorage.removeItem('auth_token')
         notificationStore.warning('Your session has expired. Please log in again.')
         // Redirect to login handled via router guards or specific logic elsewhere
-      } else if (status === 403) {
+      } else if (status === HTTP_STATUS.FORBIDDEN) {
         notificationStore.error(
           data.message || 'You do not have permission to perform this action.',
         )
-      } else if (status === 422) {
+      } else if (status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
         // Validation errors are typically handled locally by forms,
         // but we can provide a generic toast if needed.
         // notificationStore.error('Please check your input for validation errors.')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Users\Requests;
 
+use App\Constants\AddressConstants;
 use App\Constants\GeoConstants;
 use App\Infrastructure\Services\PsgcService;
 use Illuminate\Validation\Validator;
@@ -22,14 +23,14 @@ final class UserAddressRules
         $required = ($optionalParent && $prefix !== '') ? "required_with:{$prefix}" : 'required';
 
         return [
-            $key('label') => ['nullable', 'string', 'max:50'],
+            $key('label') => ['nullable', 'string', 'max:'.AddressConstants::LABEL_MAX_LENGTH],
             $key('region_code') => [$required, 'string', 'max:'.GeoConstants::CODE_LENGTH],
             $key('province_code') => ['nullable', 'string', 'max:'.GeoConstants::CODE_LENGTH],
             $key('city_municipality_code') => [$required, 'string', 'max:'.GeoConstants::CODE_LENGTH],
             $key('barangay_code') => [$required, 'string', 'max:'.GeoConstants::CODE_LENGTH],
-            $key('street') => ['nullable', 'string', 'max:255'],
-            $key('latitude') => ['nullable', 'numeric', 'between:-90,90', 'required_with:'.$key('longitude')],
-            $key('longitude') => ['nullable', 'numeric', 'between:-180,180', 'required_with:'.$key('latitude')],
+            $key('street') => ['nullable', 'string', 'max:'.AddressConstants::STREET_MAX_LENGTH],
+            $key('latitude') => ['nullable', 'numeric', 'between:'.GeoConstants::LATITUDE_MIN.','.GeoConstants::LATITUDE_MAX, 'required_with:'.$key('longitude')],
+            $key('longitude') => ['nullable', 'numeric', 'between:'.GeoConstants::LONGITUDE_MIN.','.GeoConstants::LONGITUDE_MAX, 'required_with:'.$key('latitude')],
             $key('is_default') => ['sometimes', 'boolean'],
         ];
     }

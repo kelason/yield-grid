@@ -2,26 +2,26 @@
   <div class="bg-white">
     <!-- Hero -->
     <div
-      class="relative bg-gradient-to-br from-stone-50 via-white to-green-50 py-20 overflow-hidden"
+      class="relative bg-gradient-to-br from-stone-50 via-white to-moss-50 py-20 overflow-hidden"
     >
       <div
-        class="absolute top-0 right-0 w-96 h-96 bg-green-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"
+        class="absolute top-0 right-0 w-96 h-96 bg-moss-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"
         aria-hidden="true"
       ></div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <span
-          class="inline-flex items-center gap-1.5 bg-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-200 mb-6"
+          class="inline-flex items-center gap-1.5 bg-moss-100 text-moss-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-moss-200 mb-6"
         >
-          <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-moss-500 animate-pulse"></span>
           Our Story
         </span>
-        <h1 class="text-5xl font-extrabold text-gray-900 tracking-tight mb-6">
+        <h1 class="font-serif text-5xl font-extrabold text-stone-900 tracking-tight mb-6">
           Empowering the<br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-700"
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-moss-500 to-moss-700"
             >Modern Farmer</span
           >
         </h1>
-        <p class="text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
+        <p class="text-lg text-stone-600 font-light max-w-2xl mx-auto leading-relaxed">
           YieldGrid was founded with a single mission: to bring cutting-edge AI and market analytics
           to farmers of all sizes. By bridging the gap between local growers and high-demand buyers,
           we help create sustainable, profitable agricultural ecosystems.
@@ -30,12 +30,12 @@
     </div>
 
     <!-- Stats strip -->
-    <div class="bg-green-600 text-white">
+    <div class="bg-moss-600 text-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div v-for="stat in stats" :key="stat.label">
             <div class="text-3xl font-extrabold mb-1">{{ stat.value }}</div>
-            <div class="text-sm text-green-200">{{ stat.label }}</div>
+            <div class="text-sm text-moss-200">{{ stat.label }}</div>
           </div>
         </div>
       </div>
@@ -44,10 +44,10 @@
     <!-- Features grid -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div class="text-center mb-14">
-        <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+        <h2 class="font-serif text-3xl font-extrabold text-stone-900 tracking-tight mb-3">
           Built for every stage of farming
         </h2>
-        <p class="text-gray-500 max-w-xl mx-auto text-base">
+        <p class="text-stone-500 max-w-xl mx-auto text-base">
           From planning to harvest, YieldGrid gives you the tools to work smarter.
         </p>
       </div>
@@ -56,15 +56,15 @@
         <div
           v-for="feature in features"
           :key="feature.title"
-          class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-green-200 transition-all duration-200"
+          class="bg-white border border-stone-100 rounded-2xl p-6 shadow-soft hover:shadow-soft hover:-translate-y-1 hover:border-moss-200 transition-all duration-200"
         >
           <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center text-2xl mb-4 border border-green-100"
+            class="w-12 h-12 rounded-xl bg-gradient-to-br from-moss-50 to-moss-100 flex items-center justify-center text-2xl mb-4 border border-moss-100"
           >
             {{ feature.icon }}
           </div>
-          <h3 class="text-base font-bold text-gray-900 mb-2">{{ feature.title }}</h3>
-          <p class="text-sm text-gray-500 leading-relaxed">{{ feature.description }}</p>
+          <h3 class="font-serif text-base font-bold text-stone-900 mb-2">{{ feature.title }}</h3>
+          <p class="text-sm text-stone-500 leading-relaxed">{{ feature.description }}</p>
         </div>
       </div>
     </div>

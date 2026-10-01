@@ -5,6 +5,8 @@ import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import { useAuthStore } from '../../stores/auth'
 
+const AUTH_EMAIL_MAX_LENGTH = 255
+
 const authStore = useAuthStore()
 
 const email = ref('')
@@ -15,6 +17,14 @@ const loading = ref(false)
 async function handleForgotPassword() {
   error.value = ''
   success.value = ''
+  if (!email.value.trim()) {
+    error.value = 'Please enter your email address.'
+    return
+  }
+  if (email.value.length > AUTH_EMAIL_MAX_LENGTH) {
+    error.value = `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
+    return
+  }
   loading.value = true
   try {
     const response = await authStore.sendPasswordResetLink(email.value)
@@ -38,6 +48,7 @@ async function handleForgotPassword() {
       type="email"
       v-model="email"
       :required="true"
+      :maxlength="AUTH_EMAIL_MAX_LENGTH"
     />
 
     <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">

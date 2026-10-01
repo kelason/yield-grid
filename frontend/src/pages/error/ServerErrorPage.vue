@@ -6,11 +6,13 @@
       <main class="sm:flex">
         <p class="text-4xl font-extrabold text-red-600 sm:text-5xl">500</p>
         <div class="sm:ml-6">
-          <div class="sm:border-l sm:border-gray-200 sm:pl-6">
-            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+          <div class="sm:border-l sm:border-stone-200 sm:pl-6">
+            <h1
+              class="font-serif text-4xl font-extrabold text-stone-900 tracking-tight sm:text-5xl"
+            >
               Server Error
             </h1>
-            <p class="mt-1 text-base text-gray-500">
+            <p class="mt-1 text-base text-stone-500">
               Something went wrong on our end. Please try again later.
             </p>
           </div>

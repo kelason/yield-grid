@@ -5,6 +5,7 @@ import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppInput from '@/components/atoms/AppInput.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 
 const router = useRouter()
 const marketStore = useMarketStore()
@@ -62,33 +63,86 @@ const isSubmitting = ref(false)
 
 const TITLE_MAX_LENGTH = 50
 const DESCRIPTION_MAX_LENGTH = 5000
+const CROP_NAME_MAX_LENGTH = 100
+const QUANTITY_MIN_KG = 1
+const QUANTITY_MAX_KG = 999999
+const QUANTITY_MAX_DIGITS = 6
+const PRICE_MIN = 0.01
+const PRICE_MAX = 99999999
+const PRICE_MAX_DIGITS = 8
+const SHELF_MIN_DAYS = 1
+const SHELF_MAX_DAYS = 9999
+const SHELF_MAX_DIGITS = 4
+
+const pendingConfirm = ref(null)
+
+const confirmConfig = computed(() => {
+  if (!pendingConfirm.value) return null
+  return {
+    title: 'Post this listing?',
+    message: `List ${pendingConfirm.value.quantity_kg} kg of ${pendingConfirm.value.crop_name} at ₱${pendingConfirm.value.price_per_kg}/kg on the marketplace?`,
+    confirmText: 'Post listing',
+    type: 'primary',
+  }
+})
 
 const descriptionLength = computed(() => (form.value.description || '').length)
 const isTitleOverLimit = computed(() => (form.value.title || '').length > TITLE_MAX_LENGTH)
 const isDescriptionOverLimit = computed(() => descriptionLength.value > DESCRIPTION_MAX_LENGTH)
 
-const handleSubmit = async () => {
+const validateListingForm = () => {
   if (isTitleOverLimit.value) {
-    notificationStore.error(`Title must be ${TITLE_MAX_LENGTH} characters or less.`)
-    return
+    return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
   }
   if (isDescriptionOverLimit.value) {
-    notificationStore.error(`Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`)
-    return
+    return `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`
   }
-
+  if ((form.value.custom_crop_name || '').length > CROP_NAME_MAX_LENGTH) {
+    return `Crop name cannot exceed ${CROP_NAME_MAX_LENGTH} characters.`
+  }
+  const qty = parseFloat(form.value.quantity_kg)
+  if (!qty || qty < QUANTITY_MIN_KG) {
+    return 'Please enter a quantity greater than zero.'
+  }
+  if (qty > QUANTITY_MAX_KG) {
+    return `Quantity cannot exceed ${QUANTITY_MAX_KG.toLocaleString()} kg.`
+  }
+  const price = parseFloat(form.value.price_per_kg)
+  if (!price || price < PRICE_MIN) {
+    return 'Please enter a price greater than zero.'
+  }
+  if (price > PRICE_MAX) {
+    return `Price cannot exceed ${PRICE_MAX_DIGITS} digits (₱${PRICE_MAX.toLocaleString()}).`
+  }
+  const shelf = parseInt(form.value.shelf_life_days)
+  if (!shelf || shelf < SHELF_MIN_DAYS) {
+    return 'Please enter a shelf life of at least 1 day.'
+  }
+  if (shelf > SHELF_MAX_DAYS) {
+    return `Shelf life cannot exceed ${SHELF_MAX_DAYS.toLocaleString()} days.`
+  }
   const needsDate = !form.value.is_harvest_available
-  if (
-    !finalCropName.value ||
-    !form.value.quantity_kg ||
-    !form.value.price_per_kg ||
-    (needsDate && !form.value.estimated_harvest_date) ||
-    !form.value.shelf_life_days
-  ) {
-    notificationStore.error('Please fill in all required fields.')
+  if (!finalCropName.value || (needsDate && !form.value.estimated_harvest_date)) {
+    return 'Please fill in all required fields.'
+  }
+  return null
+}
+
+const askListingConfirm = () => {
+  const error = validateListingForm()
+  if (error) {
+    notificationStore.error(error)
     return
   }
+  pendingConfirm.value = {
+    crop_name: finalCropName.value,
+    quantity_kg: form.value.quantity_kg,
+    price_per_kg: form.value.price_per_kg,
+  }
+}
 
+const handleSubmit = async () => {
+  pendingConfirm.value = null
   isSubmitting.value = true
   try {
     const payload = {
@@ -124,7 +178,7 @@ const handleSubmit = async () => {
     </div>
 
     <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
-      <form @submit.prevent="handleSubmit" class="space-y-6">
+      <form @submit.prevent="askListingConfirm" class="space-y-6">
         <div class="space-y-4">
           <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
             Crop Details
@@ -135,7 +189,7 @@ const handleSubmit = async () => {
               <label class="block text-sm font-medium text-soil-700 mb-1">Crop Type</label>
               <select
                 v-model="form.crop_name"
-                class="block w-full pl-4 pr-10 py-2.5 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%20stroke%3D%22%236b7280%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22M6%208l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_1rem_center] bg-no-repeat border border-stone-300 rounded-xl shadow-sm bg-stone-50 text-soil-700 transition-all duration-200 sm:text-sm hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
+                class="block w-full pl-4 pr-10 py-2.5 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%20stroke%3D%22%23918880%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22M6%208l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_1rem_center] bg-no-repeat border border-stone-300 rounded-xl shadow-soft bg-stone-50 text-soil-700 transition-all duration-200 sm:text-sm hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
               >
                 <option v-for="crop in cropCatalog" :key="crop.name" :value="crop.name">
                   {{ crop.name }}
@@ -148,6 +202,7 @@ const handleSubmit = async () => {
                 id="custom_crop_name"
                 v-model="form.custom_crop_name"
                 placeholder="e.g. Cabbage"
+                :maxlength="CROP_NAME_MAX_LENGTH"
                 required
               />
             </div>
@@ -163,8 +218,9 @@ const handleSubmit = async () => {
                 id="shelf_life_days"
                 type="number"
                 v-model="form.shelf_life_days"
-                maxlength="4"
-                min="1"
+                :maxlength="SHELF_MAX_DIGITS"
+                :min="SHELF_MIN_DAYS"
+                :max="SHELF_MAX_DAYS"
                 required
               />
             </div>
@@ -190,7 +246,7 @@ const handleSubmit = async () => {
               id="title"
               v-model="form.title"
               placeholder="e.g. Premium Grade Rice Harvest"
-              maxlength="50"
+              :maxlength="TITLE_MAX_LENGTH"
             />
           </div>
 
@@ -208,7 +264,7 @@ const handleSubmit = async () => {
               v-model="form.description"
               rows="3"
               :maxlength="DESCRIPTION_MAX_LENGTH"
-              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
+              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
             ></textarea>
           </div>
 
@@ -219,8 +275,9 @@ const handleSubmit = async () => {
                 id="quantity_kg"
                 type="number"
                 v-model="form.quantity_kg"
-                maxlength="6"
-                min="1"
+                :maxlength="QUANTITY_MAX_DIGITS"
+                :min="QUANTITY_MIN_KG"
+                :max="QUANTITY_MAX_KG"
                 step="0.1"
                 required
               />
@@ -231,8 +288,9 @@ const handleSubmit = async () => {
                 id="price_per_kg"
                 type="number"
                 v-model="form.price_per_kg"
-                maxlength="8"
-                min="0.01"
+                :maxlength="PRICE_MAX_DIGITS"
+                :min="PRICE_MIN"
+                :max="PRICE_MAX"
                 step="0.01"
                 required
               />
@@ -264,9 +322,9 @@ const handleSubmit = async () => {
                 type="checkbox"
                 id="harvest_available"
                 v-model="form.is_harvest_available"
-                class="h-4 w-4 text-moss-600 focus:ring-moss-500 border-gray-300 rounded"
+                class="h-4 w-4 text-moss-600 focus:ring-moss-500 border-stone-300 rounded-xl"
               />
-              <label for="harvest_available" class="ml-2 block text-sm font-medium text-stone-700">
+              <label for="harvest_available" class="ml-2 block text-sm font-medium text-soil-700">
                 Harvest is already available for pickup/delivery
               </label>
             </div>
@@ -284,5 +342,16 @@ const handleSubmit = async () => {
         </div>
       </form>
     </div>
+
+    <ConfirmModal
+      v-if="confirmConfig"
+      :is-open="pendingConfirm !== null"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :type="confirmConfig.type"
+      @confirm="handleSubmit"
+      @cancel="pendingConfirm = null"
+    />
   </div>
 </template>

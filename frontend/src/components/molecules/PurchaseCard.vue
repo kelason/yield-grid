@@ -76,7 +76,7 @@ function formatDate(dateStr) {
           🌱
         </div>
         <div class="min-w-0">
-          <h3 class="font-bold text-stone-900 text-[17px] leading-tight truncate">
+          <h3 class="font-serif font-bold text-stone-900 text-[17px] leading-tight truncate">
             {{
               purchase.contract?.crop_name || purchase.demand_offer?.crop_name || 'Forward Contract'
             }}
@@ -125,7 +125,7 @@ function formatDate(dateStr) {
             @click="$emit('message', purchase)"
             title="Message farmer"
             aria-label="Message farmer"
-            class="p-2 rounded-xl text-moss-700 border border-moss-300 hover:bg-moss-50 hover:border-moss-500 transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 shadow-sm"
+            class="p-2 rounded-xl text-moss-700 border border-moss-300 hover:bg-moss-50 hover:border-moss-500 transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 shadow-soft"
           >
             <ChatBubbleLeftRightIcon class="h-5 w-5" aria-hidden="true" />
           </button>
@@ -137,7 +137,7 @@ function formatDate(dateStr) {
             @click="$emit('cancel', purchase)"
             title="Cancel purchase"
             aria-label="Cancel purchase"
-            class="p-2 rounded-xl text-red-600 border border-red-200 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shadow-sm"
+            class="p-2 rounded-xl text-red-600 border border-red-200 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shadow-soft"
           >
             <XMarkIcon class="h-5 w-5" aria-hidden="true" />
           </button>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Domain\Farming\Models;
 
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
@@ -15,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 class Plot extends Model
 {
     use HasFactory;
+
+    private const GEOCODE_TIMEOUT_SECONDS = 4;
 
     protected $fillable = [
         'farm_id',
@@ -80,7 +84,7 @@ class Plot extends Model
 
         // Provider A: Photon (OpenStreetMap mirror, fast and structured)
         try {
-            $response = Http::timeout(4)
+            $response = Http::timeout(self::GEOCODE_TIMEOUT_SECONDS)
                 ->get('https://photon.komoot.io/reverse', [
                     'lat' => $lat,
                     'lon' => $lon,
@@ -103,7 +107,7 @@ class Plot extends Model
         // Provider B: BigDataCloud free reverse geocoder fallback
         if (empty($geo['city']) && empty($geo['country'])) {
             try {
-                $response = Http::timeout(4)
+                $response = Http::timeout(self::GEOCODE_TIMEOUT_SECONDS)
                     ->get('https://api.bigdatacloud.net/data/reverse-geocode-client', [
                         'latitude' => $lat,
                         'longitude' => $lon,

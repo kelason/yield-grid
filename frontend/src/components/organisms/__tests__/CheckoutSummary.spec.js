@@ -50,13 +50,24 @@ describe('CheckoutSummary.vue quantity cap', () => {
     expect(input.element.value).toBe('123456')
   })
 
-  it('emits the capped quantity on confirm', async () => {
+  it('blocks confirm with an error when quantity exceeds the order max', async () => {
     const wrapper = mountSummary()
 
     await wrapper.find('input#quantity').setValue('1234567')
     const buttons = wrapper.findAll('button')
     await buttons[1].trigger('click')
 
-    expect(wrapper.emitted('confirm')[0][0].quantityKg).toBe(123456)
+    expect(wrapper.emitted('confirm')).toBeUndefined()
+    expect(wrapper.text()).toMatch(/cannot exceed .* kg for this order/)
+  })
+
+  it('emits the quantity on confirm when within bounds', async () => {
+    const wrapper = mountSummary()
+
+    await wrapper.find('input#quantity').setValue('100')
+    const buttons = wrapper.findAll('button')
+    await buttons[1].trigger('click')
+
+    expect(wrapper.emitted('confirm')[0][0].quantityKg).toBe(100)
   })
 })

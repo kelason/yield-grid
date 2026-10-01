@@ -4,13 +4,15 @@
   >
     <div class="max-w-max mx-auto">
       <main class="sm:flex">
-        <p class="text-4xl font-extrabold text-green-600 sm:text-5xl">404</p>
+        <p class="text-4xl font-extrabold text-moss-600 sm:text-5xl">404</p>
         <div class="sm:ml-6">
-          <div class="sm:border-l sm:border-gray-200 sm:pl-6">
-            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+          <div class="sm:border-l sm:border-stone-200 sm:pl-6">
+            <h1
+              class="font-serif text-4xl font-extrabold text-stone-900 tracking-tight sm:text-5xl"
+            >
               Page not found
             </h1>
-            <p class="mt-1 text-base text-gray-500">
+            <p class="mt-1 text-base text-stone-500">
               Please check the URL in the address bar and try again.
             </p>
           </div>

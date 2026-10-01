@@ -1,14 +1,14 @@
 <template>
   <div class="text-center">
     <div v-if="loading" class="flex flex-col items-center justify-center space-y-4">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      <h2 class="text-xl font-semibold text-gray-900">Verifying your email...</h2>
-      <p class="text-gray-500">Please wait while we confirm your email address.</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-moss-600"></div>
+      <h2 class="font-serif text-xl font-semibold text-stone-900">Verifying your email...</h2>
+      <p class="text-stone-500">Please wait while we confirm your email address.</p>
     </div>
 
     <div v-else-if="success" class="flex flex-col items-center justify-center space-y-4">
-      <div class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-        <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="h-16 w-16 bg-moss-100 rounded-full flex items-center justify-center mb-4">
+        <svg class="h-8 w-8 text-moss-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -17,8 +17,8 @@
           />
         </svg>
       </div>
-      <h2 class="text-2xl font-bold text-gray-900">Email Verified!</h2>
-      <p class="text-gray-500">
+      <h2 class="font-serif text-2xl font-bold text-stone-900">Email Verified!</h2>
+      <p class="text-stone-500">
         Thank you for verifying your email address. You will be redirected shortly.
       </p>
     </div>
@@ -34,13 +34,13 @@
           />
         </svg>
       </div>
-      <h2 class="text-2xl font-bold text-gray-900">Verification Failed</h2>
-      <p class="text-gray-500">
+      <h2 class="font-serif text-2xl font-bold text-stone-900">Verification Failed</h2>
+      <p class="text-stone-500">
         {{ errorMessage || 'The verification link is invalid or has expired.' }}
       </p>
       <button
         @click="router.push({ path: '/dashboard' })"
-        class="mt-4 w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 transition-all active:scale-[0.98]"
+        class="mt-4 w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-soft text-sm font-semibold text-white bg-moss-600 hover:bg-moss-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-600 transition-all hover:scale-[1.02] active:scale-[0.98]"
       >
         Go to Dashboard
       </button>

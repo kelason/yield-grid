@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Users\Controllers;
 
 use App\Constants\HttpCode;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use App\Users\Requests\StoreUserAddressRequest;
 use App\Users\Requests\UpdateUserAddressRequest;
 use App\Users\Resources\UserAddressResource;

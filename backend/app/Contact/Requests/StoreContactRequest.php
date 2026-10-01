@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Contact\Requests;
 
+use App\Constants\ContactConstants;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreContactRequest extends FormRequest
@@ -17,10 +20,10 @@ class StoreContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'subject' => 'nullable|string|max:255',
-            'message' => 'required|string',
+            'name' => ['required', 'string', 'max:'.ContactConstants::NAME_MAX_LENGTH],
+            'email' => ['required', 'email', 'max:'.ContactConstants::EMAIL_MAX_LENGTH],
+            'subject' => ['nullable', 'string', 'max:'.ContactConstants::SUBJECT_MAX_LENGTH],
+            'message' => ['required', 'string', 'max:'.ContactConstants::MESSAGE_MAX_LENGTH],
         ];
     }
 }

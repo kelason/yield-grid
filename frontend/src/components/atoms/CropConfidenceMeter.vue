@@ -2,7 +2,7 @@
   <div class="confidence-meter w-24 h-24 relative">
     <Doughnut :data="chartData" :options="chartOptions" />
     <div
-      class="confidence-label absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-800"
+      class="confidence-label absolute inset-0 flex items-center justify-center text-sm font-bold text-stone-800"
     >
       {{ score }}%
     </div>

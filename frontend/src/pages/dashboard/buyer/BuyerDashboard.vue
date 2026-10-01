@@ -56,12 +56,14 @@ const cancelPurchase = (purchase) => {
 <template>
   <div class="space-y-8">
     <!-- Welcome Banner -->
-    <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-800 p-6 text-white shadow-lg">
+    <div
+      class="rounded-2xl bg-gradient-to-r from-moss-600 to-moss-800 p-6 text-white shadow-organic"
+    >
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p class="text-green-200 text-sm font-medium mb-1">Welcome back,</p>
-          <h2 class="text-2xl font-bold">{{ authStore.user?.name }}</h2>
-          <p class="text-green-300 text-sm mt-1">
+          <p class="text-moss-200 text-sm font-medium mb-1">Welcome back,</p>
+          <h2 class="font-serif text-2xl font-bold">{{ authStore.user?.name }}</h2>
+          <p class="text-moss-300 text-sm mt-1">
             Browse fresh forward contracts from Filipino farmers.
           </p>
         </div>
@@ -80,12 +82,12 @@ const cancelPurchase = (purchase) => {
       <AppCard variant="gradient" class="!rounded-2xl">
         <div class="flex items-center gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl flex-shrink-0 shadow-sm"
+            class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl flex-shrink-0 shadow-soft"
           >
             📦
           </div>
           <div>
-            <dt class="text-xs font-medium text-green-100">Total Purchases</dt>
+            <dt class="text-xs font-medium text-moss-100">Total Purchases</dt>
             <dd class="text-3xl font-bold text-white mt-0.5">
               {{ marketStore.buyerPurchases.length }}
             </dd>
@@ -97,13 +99,13 @@ const cancelPurchase = (purchase) => {
       <AppCard>
         <div class="flex items-center gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center text-xl flex-shrink-0"
+            class="w-11 h-11 rounded-xl bg-moss-50 flex items-center justify-center text-xl flex-shrink-0"
           >
             ✅
           </div>
           <div>
-            <dt class="text-xs font-medium text-gray-500">Active Contracts</dt>
-            <dd class="text-3xl font-bold text-gray-900 mt-0.5">{{ activePurchases }}</dd>
+            <dt class="text-xs font-medium text-stone-500">Active Contracts</dt>
+            <dd class="text-3xl font-bold text-stone-900 mt-0.5">{{ activePurchases }}</dd>
           </div>
         </div>
       </AppCard>
@@ -117,8 +119,10 @@ const cancelPurchase = (purchase) => {
             💰
           </div>
           <div>
-            <dt class="text-xs font-medium text-gray-500">Total Spent</dt>
-            <dd class="text-lg font-bold text-gray-900 mt-0.5">{{ formatCurrency(totalSpent) }}</dd>
+            <dt class="text-xs font-medium text-stone-500">Total Spent</dt>
+            <dd class="text-lg font-bold text-stone-900 mt-0.5">
+              {{ formatCurrency(totalSpent) }}
+            </dd>
           </div>
         </div>
       </AppCard>
@@ -127,11 +131,11 @@ const cancelPurchase = (purchase) => {
     <!-- Recent Purchases -->
     <div>
       <div class="flex items-center gap-3 mb-4">
-        <h2 class="text-lg font-bold text-gray-900">Recent Purchases</h2>
-        <div class="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent"></div>
+        <h2 class="font-serif text-lg font-bold text-stone-900">Recent Purchases</h2>
+        <div class="flex-1 h-px bg-gradient-to-r from-stone-200 to-transparent"></div>
         <router-link
           :to="{ name: 'buyer-purchases' }"
-          class="text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
+          class="text-sm font-medium text-moss-600 hover:text-moss-700 transition-colors"
         >
           View all →
         </router-link>
@@ -140,9 +144,9 @@ const cancelPurchase = (purchase) => {
       <!-- Loading -->
       <AppCard v-if="marketStore.loading?.purchases">
         <div class="animate-pulse space-y-3">
-          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
         </div>
       </AppCard>
 
@@ -150,13 +154,13 @@ const cancelPurchase = (purchase) => {
       <AppCard v-else-if="marketStore.buyerPurchases.length === 0">
         <div class="text-center py-10">
           <div class="text-5xl mb-3">🌾</div>
-          <h3 class="text-sm font-semibold text-gray-700 mb-1">No purchases yet</h3>
-          <p class="text-sm text-gray-500 mb-4">
+          <h3 class="font-serif text-sm font-semibold text-stone-700 mb-1">No purchases yet</h3>
+          <p class="text-sm text-stone-500 mb-4">
             Forward contracts let you secure crops before harvest at a fixed price.
           </p>
           <router-link
             :to="{ name: 'buyer-marketplace' }"
-            class="inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            class="inline-flex items-center gap-1.5 bg-moss-600 hover:bg-moss-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
             <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
           </router-link>

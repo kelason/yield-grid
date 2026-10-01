@@ -8,7 +8,7 @@ use App\Constants\PaginationConstants;
 use App\Domain\Community\Models\ForumThread;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use App\Users\Resources\UserProfileResource;
 use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;

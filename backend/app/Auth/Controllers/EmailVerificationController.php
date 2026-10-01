@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Users\Actions\VerifyEmailAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
