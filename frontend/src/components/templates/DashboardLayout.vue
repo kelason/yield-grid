@@ -55,7 +55,7 @@ async function handleLogout() {
                   <RouterLink
                     v-if="authStore.user?.id"
                     :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"
-                    class="block text-sm font-semibold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+                    class="block text-sm font-semibold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
                   >
                     {{ authStore.user?.name }}
                   </RouterLink>

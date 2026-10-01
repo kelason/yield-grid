@@ -132,7 +132,7 @@ onUnmounted(() => {
   <div class="relative w-full">
     <!-- Top Field Label -->
     <div class="flex items-center justify-between mb-2">
-      <label class="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+      <label class="block text-xs font-bold text-soil-700 uppercase tracking-wider">
         {{ label }}
         <span v-if="required" class="text-red-500">*</span>
       </label>
@@ -260,7 +260,7 @@ onUnmounted(() => {
                 {{ soil.description }}
               </p>
               <div class="pt-2 border-t border-stone-800/80 flex items-start gap-1.5 text-xs">
-                <span class="font-bold text-emerald-400 flex-shrink-0">🌱 Best for:</span>
+                <span class="font-bold text-moss-400 flex-shrink-0">🌱 Best for:</span>
                 <span class="text-stone-300">{{ soil.bestFor }}</span>
               </div>
             </div>

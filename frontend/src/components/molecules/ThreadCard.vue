@@ -43,7 +43,7 @@ function profileLink(author) {
         <div class="flex justify-between items-start mb-2">
           <RouterLink
             :to="{ name: 'forum-thread', params: { id: thread.id } }"
-            class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+            class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
           >
             {{ thread.title }}
           </RouterLink>
@@ -69,7 +69,7 @@ function profileLink(author) {
 
             <RouterLink
               :to="profileLink(thread.author)"
-              class="flex items-center gap-2 border-l border-stone-200 pl-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+              class="flex items-center gap-2 border-l border-stone-200 pl-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
             >
               <img
                 v-if="thread.author.avatar_url"

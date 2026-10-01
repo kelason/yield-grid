@@ -131,7 +131,7 @@ const submit = () => {
           v-model="form.is_anonymous"
           type="checkbox"
           id="anon"
-          class="rounded text-moss-600 focus:ring-moss-500 w-4 h-4 border-stone-300"
+          class="rounded-xl text-moss-600 focus:ring-moss-500 w-4 h-4 border-stone-300"
         />
         <label for="anon" class="text-sm text-stone-600 cursor-pointer"
           >Post anonymously (Your name will be hidden)</label

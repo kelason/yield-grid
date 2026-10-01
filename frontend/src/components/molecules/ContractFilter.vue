@@ -94,7 +94,7 @@ function setAvailability(availability) {
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
       <!-- Search -->
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-stone-700 mb-1">Search Crop</label>
+        <label class="block text-xs font-medium text-soil-700 mb-1">Search Crop</label>
         <SearchInput
           v-model="localFilters.crop"
           placeholder="e.g. Rice, Corn..."
@@ -105,7 +105,7 @@ function setAvailability(availability) {
       <!-- Price Range -->
       <div class="md:col-span-4 flex space-x-2">
         <div class="w-1/2">
-          <label for="min_price" class="block text-xs font-medium text-stone-700 mb-1"
+          <label for="min_price" class="block text-xs font-medium text-soil-700 mb-1"
             >Min Price</label
           >
           <div class="relative rounded-full shadow-soft">
@@ -123,7 +123,7 @@ function setAvailability(availability) {
           </div>
         </div>
         <div class="w-1/2">
-          <label for="max_price" class="block text-xs font-medium text-stone-700 mb-1"
+          <label for="max_price" class="block text-xs font-medium text-soil-700 mb-1"
             >Max Price</label
           >
           <div class="relative rounded-full shadow-soft">
@@ -144,7 +144,7 @@ function setAvailability(availability) {
 
       <!-- Sort -->
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-stone-700 mb-1">Sort By</label>
+        <label class="block text-xs font-medium text-soil-700 mb-1">Sort By</label>
         <SortSelect
           v-model="localFilters.sort"
           @update:modelValue="

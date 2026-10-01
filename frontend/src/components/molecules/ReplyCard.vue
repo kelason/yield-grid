@@ -70,7 +70,7 @@ function profileLink(author) {
         <div class="flex justify-between items-start mb-3">
           <RouterLink
             :to="profileLink(reply.author)"
-            class="flex items-center gap-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+            class="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
           >
             <img
               v-if="reply.author.avatar_url"
@@ -116,7 +116,7 @@ function profileLink(author) {
         <div class="flex gap-4 border-t border-stone-100 pt-3">
           <button
             @click="emit('replyTo', reply.id)"
-            class="text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+            class="text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
           >
             Reply
           </button>
