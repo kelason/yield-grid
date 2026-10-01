@@ -5,7 +5,7 @@ namespace App\Farming\Controllers;
 use App\Constants\HttpCode;
 use App\Farming\Requests\StoreFarmRequest;
 use App\Farming\Resources\FarmResource;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Farming\Actions\CreateFarmAction;
 use Domain\Farming\Actions\GetFarmsAction;
 use Domain\Farming\DTOs\CreateFarmDTO;

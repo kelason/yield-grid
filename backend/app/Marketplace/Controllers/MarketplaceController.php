@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Marketplace\Controllers;
 
 use App\Constants\GeoConstants;
 use App\Constants\PaginationConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
-use App\Http\Controllers\Controller;
 use App\Http\Resources\MarketplaceItemResource;
 use App\Infrastructure\Services\PsgcService;
+use App\Shared\Controllers\Controller;
 use Domain\Users\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

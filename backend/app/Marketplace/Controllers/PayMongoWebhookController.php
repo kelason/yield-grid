@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Marketplace\Controllers;
 
 use App\Constants\HttpCode;
 use App\Constants\PaymentConstants;
@@ -16,8 +16,8 @@ use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
-use App\Http\Controllers\Controller;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
+use App\Shared\Controllers\Controller;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

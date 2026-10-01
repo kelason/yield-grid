@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Users\Controllers;
 
 use App\Constants\GeoConstants;
-use App\Http\Controllers\Controller;
 use App\Infrastructure\Services\PsgcService;
+use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

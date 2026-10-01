@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Marketplace\Controllers;
 
 use App\Constants\HttpCode;
 use App\Constants\PaginationConstants;
@@ -23,12 +23,12 @@ use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
-use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseResource;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Marketplace\Requests\ApproveCashPaymentRequest;
 use App\Marketplace\Requests\CheckoutRequest;
 use App\Marketplace\Requests\OfferCheckoutRequest;
+use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

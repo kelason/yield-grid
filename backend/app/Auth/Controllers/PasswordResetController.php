@@ -6,7 +6,7 @@ use App\Auth\Actions\ResetPasswordAction;
 use App\Auth\Actions\SendPasswordResetLinkAction;
 use App\Auth\Requests\ForgotPasswordRequest;
 use App\Auth\Requests\ResetPasswordRequest;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Users\DTOs\ForgotPasswordDTO;
 use Domain\Users\DTOs\ResetPasswordDTO;
 use Illuminate\Http\JsonResponse;

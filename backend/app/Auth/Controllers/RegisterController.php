@@ -4,7 +4,7 @@ namespace App\Auth\Controllers;
 
 use App\Auth\Requests\RegisterRequest;
 use App\Auth\Resources\UserResource;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Users\Actions\RegisterUserAction;
 use Domain\Users\DTOs\RegisterUserDTO;
 use Illuminate\Http\JsonResponse;

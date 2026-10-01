@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Marketplace\Controllers;
 
 use App\Constants\HttpCode;
 use App\Domain\Marketplace\Actions\CreateHarvestListingAction;
 use App\Domain\Marketplace\DTOs\CreateHarvestListingDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Models\HarvestListing;
-use App\Http\Controllers\Controller;
 use App\Http\Resources\MarketplaceItemResource;
+use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

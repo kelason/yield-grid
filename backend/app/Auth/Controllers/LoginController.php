@@ -4,7 +4,7 @@ namespace App\Auth\Controllers;
 
 use App\Auth\Requests\LoginRequest;
 use App\Auth\Resources\UserResource;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Users\Actions\LoginUserAction;
 use Domain\Users\DTOs\LoginUserDTO;
 use Illuminate\Http\JsonResponse;

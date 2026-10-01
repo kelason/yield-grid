@@ -3,7 +3,7 @@
 namespace App\Contact\Controllers;
 
 use App\Contact\Requests\StoreContactRequest;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Contact\Actions\CreateContactMessageAction;
 use Domain\Contact\DTOs\CreateContactMessageDTO;
 use Illuminate\Http\JsonResponse;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Marketplace\Controllers;
 
 use App\Constants\HttpCode;
 use App\Constants\PaginationConstants;
@@ -14,11 +14,11 @@ use App\Domain\Marketplace\Exceptions\UnauthorizedContractPublishingException;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\PublishContractRequest;
 use App\Http\Resources\ForwardContractResource;
 use App\Http\Resources\MarketplaceItemResource;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
+use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
