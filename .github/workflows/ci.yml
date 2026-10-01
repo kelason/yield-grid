@@ -45,12 +45,12 @@ jobs:
       postgres:
         image: postgis/postgis:16-3.4
         env:
-          POSTGRES_DB: yieldgrid_test
+          POSTGRES_DB: yieldgrid_testing
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U test -d yieldgrid_test"
+          --health-cmd "pg_isready -U test -d yieldgrid_testing"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
@@ -78,12 +78,12 @@ jobs:
       - run: php artisan key:generate
       - name: Create parallel test databases
         run: |
-          for database in yieldgrid_test_test_1 yieldgrid_test_test_2 yieldgrid_test_test_3 yieldgrid_test_test_4 yieldgrid_test_test_5; do
+          for database in yieldgrid_testing_test_1 yieldgrid_testing_test_2 yieldgrid_testing_test_3 yieldgrid_testing_test_4 yieldgrid_testing_test_5; do
             PGPASSWORD=test psql \
               --host=127.0.0.1 \
               --port=5432 \
               --username=test \
-              --dbname=yieldgrid_test \
+              --dbname=yieldgrid_testing \
               --command="CREATE DATABASE \"$database\";" \
               2>/dev/null || true
           done

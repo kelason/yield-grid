@@ -8,7 +8,6 @@ use App\Constants\MarketplaceConstants;
 use App\Domain\Marketplace\Enums\PriceSource;
 use App\Domain\Marketplace\Enums\PriceTier;
 use App\Domain\Marketplace\Prompts\CropPriceEstimatePrompt;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -36,12 +35,9 @@ final class AiPriceEstimatorService
 
     private string $apiKey;
 
-    private string $model;
-
     public function __construct()
     {
         $this->apiKey = (string) (config('services.gemini.key') ?? '');
-        $this->model = (string) (config('services.gemini.model', 'gemini-3.5-flash-lite'));
     }
 
     /**
@@ -63,19 +59,23 @@ final class AiPriceEstimatorService
         $startTime = microtime(true);
 
         try {
-            $response = Http::timeout(self::REQUEST_TIMEOUT_SECONDS)
-                ->retry(self::MAX_RETRIES, self::RETRY_DELAY_MS, throw: false)
-                ->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
+            $response = GeminiHttpHelper::postGenerateContent(
+                $this->apiKey,
+                [
                     'contents' => [
                         ['parts' => [['text' => CropPriceEstimatePrompt::render($input)]]],
                     ],
                     'generationConfig' => [
                         'responseMimeType' => 'application/json',
                     ],
-                ]);
+                ],
+                self::REQUEST_TIMEOUT_SECONDS,
+                self::MAX_RETRIES,
+                self::RETRY_DELAY_MS
+            );
 
-            if (! $response->successful()) {
-                Log::error('Crop price AI estimation failed', ['status' => $response->status()]);
+            if ($response === null) {
+                Log::error('Crop price AI estimation failed', ['models' => GeminiHttpHelper::models()]);
 
                 return [];
             }
@@ -95,7 +95,7 @@ final class AiPriceEstimatorService
 
             return $rows;
         } catch (\Throwable $e) {
-            Log::error('Crop price AI estimation exception', ['message' => $e->getMessage()]);
+            Log::error('Crop price AI estimation exception', ['message' => GeminiHttpHelper::redact($e->getMessage(), $this->apiKey)]);
 
             return [];
         }

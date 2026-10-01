@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Infrastructure\Services;
 
 use App\Domain\Marketplace\Prompts\CropNamePrompt;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -29,12 +28,9 @@ final class CropNameAiNormalizer
 
     private string $apiKey;
 
-    private string $model;
-
     public function __construct()
     {
         $this->apiKey = (string) (config('services.gemini.key') ?? '');
-        $this->model = (string) (config('services.gemini.model', 'gemini-3.5-flash-lite'));
     }
 
     /**
@@ -57,19 +53,23 @@ final class CropNameAiNormalizer
         $startTime = microtime(true);
 
         try {
-            $response = Http::timeout(self::REQUEST_TIMEOUT_SECONDS)
-                ->retry(self::MAX_RETRIES, self::RETRY_DELAY_MS, throw: false)
-                ->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
+            $response = GeminiHttpHelper::postGenerateContent(
+                $this->apiKey,
+                [
                     'contents' => [
                         ['parts' => [['text' => CropNamePrompt::render($input, $knownSlugs)]]],
                     ],
                     'generationConfig' => [
                         'responseMimeType' => 'application/json',
                     ],
-                ]);
+                ],
+                self::REQUEST_TIMEOUT_SECONDS,
+                self::MAX_RETRIES,
+                self::RETRY_DELAY_MS
+            );
 
-            if (! $response->successful()) {
-                Log::error('Crop-name AI normalization failed', ['status' => $response->status()]);
+            if ($response === null) {
+                Log::error('Crop-name AI normalization failed', ['models' => GeminiHttpHelper::models()]);
 
                 return ['slug' => null, 'confidence' => 0];
             }
@@ -97,7 +97,7 @@ final class CropNameAiNormalizer
 
             return ['slug' => $slug, 'confidence' => $confidence];
         } catch (\Throwable $e) {
-            Log::error('Crop-name AI normalization exception', ['message' => $e->getMessage()]);
+            Log::error('Crop-name AI normalization exception', ['message' => GeminiHttpHelper::redact($e->getMessage(), $this->apiKey)]);
 
             return ['slug' => null, 'confidence' => 0];
         }
