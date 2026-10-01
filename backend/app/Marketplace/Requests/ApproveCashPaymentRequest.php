@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Marketplace\Requests;
 
+use App\Constants\MarketplaceConstants;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class ApproveCashPaymentRequest extends FormRequest
@@ -21,7 +22,7 @@ final class ApproveCashPaymentRequest extends FormRequest
         return [
             'type' => 'required|in:partial,full',
             // 8 digits max (mirrors the approval modal 8-char cap).
-            'amount' => 'nullable|numeric|min:0.01|max:99999999',
+            'amount' => 'nullable|numeric|min:'.MarketplaceConstants::CASH_APPROVAL_AMOUNT_MIN.'|max:'.MarketplaceConstants::CASH_APPROVAL_AMOUNT_MAX,
         ];
     }
 }

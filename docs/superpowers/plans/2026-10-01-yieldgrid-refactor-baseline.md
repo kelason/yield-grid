@@ -12,3 +12,7 @@ One line per command. Rule: new failures vs this baseline must be zero at every 
 - `frontend: npx playwright test` → SKIP (config webServer cannot `listen` under sandbox, EPERM; 1 test listed, never runs).
 
 Comparator rule: backend gates pass when the Pest failure set is IDENTICAL to the signature file (diff empty) and Unit stays 5/5; frontend gates pass on literal green.
+
+## Task 12 amendment (2026-10-01)
+
+58 new boundary tests added (`tests/Feature/Marketplace/*BoundaryTest.php`). They fail on `SQLSTATE[08006]` like all Feature tests (no DB in sandbox) and were verified loadable via `php -l` + `--list-tests` (58 discovered) but NOT executed. Working comparator for Tasks 13–14 is `.superpowers/sdd/2026-10-01-yieldgrid-refactor/pest-baseline.txt` (222 failed / 1 risky / 5 passed): non-boundary failures must stay identical, all boundary failures must stay `QueryException`.

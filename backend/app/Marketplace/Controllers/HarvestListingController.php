@@ -9,6 +9,7 @@ use App\Domain\Marketplace\Actions\CreateHarvestListingAction;
 use App\Domain\Marketplace\DTOs\CreateHarvestListingDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Models\HarvestListing;
+use App\Marketplace\Requests\StoreHarvestListingRequest;
 use App\Marketplace\Resources\MarketplaceItemResource;
 use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -20,18 +21,9 @@ final class HarvestListingController extends Controller
         private readonly CreateHarvestListingAction $createHarvestListingAction
     ) {}
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreHarvestListingRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:5000',
-            'crop_name' => 'required|string|max:100',
-            'quantity_kg' => 'required|numeric|min:1',
-            'price_per_kg' => 'required|numeric|min:0.01',
-            'estimated_harvest_date' => 'required_if:is_harvest_available,false|nullable|date',
-            'shelf_life_days' => 'required|integer|min:1',
-            'is_harvest_available' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
 
         $dto = new CreateHarvestListingDTO(
             farmerId: $request->user()->id,

@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useChatEntry } from '@/composables/useChatEntry'
+import { PAYMENT_CONSTANTS } from '@/constants/payment'
 import PriceTag from '@/components/atoms/PriceTag.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
@@ -34,7 +35,9 @@ const promptModal = ref({
 
 const openApproveModal = (purchase, type) => {
   const suggestedAmount =
-    type === 'partial' ? purchase.total_contract_amount * 0.1 : purchase.total_contract_amount
+    type === 'partial'
+      ? purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE
+      : purchase.total_contract_amount
 
   promptModal.value = {
     isOpen: true,
@@ -50,6 +53,8 @@ const closeApproveModal = () => {
 }
 
 const AMOUNT_MAX_LENGTH = 8
+const CASH_AMOUNT_MIN = 0.01
+const CASH_AMOUNT_MAX = 99999999
 
 // Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
 const clampAmount = (event) => {
@@ -65,8 +70,14 @@ const confirmApprove = async () => {
   const { purchaseId, type, amount } = promptModal.value
   const parsedAmount = parseFloat(amount)
 
-  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+  if (isNaN(parsedAmount) || parsedAmount < CASH_AMOUNT_MIN) {
     notificationStore.error('Invalid amount entered.')
+    return
+  }
+  if (parsedAmount > CASH_AMOUNT_MAX) {
+    notificationStore.error(
+      `Amount cannot exceed ${AMOUNT_MAX_LENGTH} digits (₱${CASH_AMOUNT_MAX.toLocaleString()}).`,
+    )
     return
   }
 
@@ -309,7 +320,8 @@ function getConfirmedPaid(purchase) {
                   type="number"
                   v-model="promptModal.amount"
                   class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-moss-500 focus:border-moss-500 text-stone-900 font-medium text-lg transition-shadow bg-stone-50 focus:bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
-                  min="1"
+                  :min="CASH_AMOUNT_MIN"
+                  :max="CASH_AMOUNT_MAX"
                   step="0.01"
                   :maxlength="AMOUNT_MAX_LENGTH"
                   @input="clampAmount"

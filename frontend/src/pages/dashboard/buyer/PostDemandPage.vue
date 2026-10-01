@@ -6,6 +6,7 @@ import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notificationStore'
 import FormField from '@/components/molecules/FormField.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
@@ -29,8 +30,26 @@ const form = ref({
 })
 const errors = ref({})
 const submitting = ref(false)
+const pendingConfirm = ref(null)
 
 const DEMAND_TOTAL_MAX = 9999999999.99
+const DEMAND_TITLE_MAX_LENGTH = 255
+const DEMAND_CROP_NAME_MAX_LENGTH = 100
+const DEMAND_QUANTITY_MIN_KG = 0.01
+const DEMAND_QUANTITY_MAX_KG = 1000000
+const DEMAND_PRICE_MIN = 0.01
+const DEMAND_PRICE_MAX = 1000000
+const DEMAND_DESCRIPTION_MAX_LENGTH = 2000
+
+const confirmConfig = computed(() => {
+  if (!pendingConfirm.value) return null
+  return {
+    title: 'Post this demand?',
+    message: `Post "${pendingConfirm.value.title}" (${pendingConfirm.value.quantity_kg} kg of ${pendingConfirm.value.crop_name})? Farmers will be able to send you offers.`,
+    confirmText: 'Post demand',
+    type: 'primary',
+  }
+})
 
 const addressOptions = computed(() =>
   addressStore.addresses.map((a) => ({
@@ -56,15 +75,56 @@ onMounted(async () => {
   }
 })
 
-async function handleSubmit() {
-  errors.value = {}
+function validateDemandForm() {
+  const fieldErrors = {}
+  const title = (form.value.title || '').trim()
+  const crop = (form.value.crop_name || '').trim()
   const qty = parseFloat(form.value.quantity_kg)
   const target = parseFloat(form.value.target_price_per_kg)
-  if (qty > 0 && target > 0 && qty * target > DEMAND_TOTAL_MAX) {
-    errors.value.quantity_kg =
-      'The combined quantity and target price exceed the maximum order total.'
-    return
+  const description = (form.value.description || '').trim()
+  if (title.length > DEMAND_TITLE_MAX_LENGTH) {
+    fieldErrors.title = `Title cannot exceed ${DEMAND_TITLE_MAX_LENGTH} characters.`
   }
+  if (crop.length > DEMAND_CROP_NAME_MAX_LENGTH) {
+    fieldErrors.crop_name = `Crop name cannot exceed ${DEMAND_CROP_NAME_MAX_LENGTH} characters.`
+  }
+  if (!qty || qty < DEMAND_QUANTITY_MIN_KG) {
+    fieldErrors.quantity_kg = 'Please enter a quantity greater than zero.'
+  } else if (qty > DEMAND_QUANTITY_MAX_KG) {
+    fieldErrors.quantity_kg = `Quantity cannot exceed ${DEMAND_QUANTITY_MAX_KG.toLocaleString()} kg.`
+  }
+  if (!target || target < DEMAND_PRICE_MIN) {
+    fieldErrors.target_price_per_kg = 'Please enter a target price greater than zero.'
+  } else if (target > DEMAND_PRICE_MAX) {
+    fieldErrors.target_price_per_kg = `Target price cannot exceed ₱${DEMAND_PRICE_MAX.toLocaleString()} per kg.`
+  }
+  if (description.length > DEMAND_DESCRIPTION_MAX_LENGTH) {
+    fieldErrors.description = `Notes cannot exceed ${DEMAND_DESCRIPTION_MAX_LENGTH} characters.`
+  }
+  if (
+    Object.keys(fieldErrors).length === 0 &&
+    qty > 0 &&
+    target > 0 &&
+    qty * target > DEMAND_TOTAL_MAX
+  ) {
+    fieldErrors.quantity_kg =
+      'The combined quantity and target price exceed the maximum order total.'
+  }
+  return fieldErrors
+}
+
+function askDemandConfirm() {
+  errors.value = validateDemandForm()
+  if (Object.keys(errors.value).length > 0) return
+  pendingConfirm.value = {
+    title: form.value.title,
+    crop_name: form.value.crop_name,
+    quantity_kg: form.value.quantity_kg,
+  }
+}
+
+async function confirmPendingDemand() {
+  pendingConfirm.value = null
   submitting.value = true
   try {
     await demandStore.postDemand({
@@ -114,13 +174,14 @@ async function handleSubmit() {
     </AppAlert>
 
     <AppCard padding="p-6">
-      <form class="space-y-5" @submit.prevent="handleSubmit">
+      <form class="space-y-5" @submit.prevent="askDemandConfirm">
         <FormField
           id="demand-title"
           label="Title"
           placeholder="e.g. 600kg fresh tomatoes for July"
           v-model="form.title"
           :required="true"
+          :maxlength="DEMAND_TITLE_MAX_LENGTH"
           :error="errors.title || ''"
         />
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -130,6 +191,7 @@ async function handleSubmit() {
             placeholder="e.g. Tomato"
             v-model="form.crop_name"
             :required="true"
+            :maxlength="DEMAND_CROP_NAME_MAX_LENGTH"
             :error="errors.crop_name || ''"
           />
           <FormField
@@ -138,6 +200,8 @@ async function handleSubmit() {
             type="number"
             v-model="form.quantity_kg"
             :required="true"
+            :min="DEMAND_QUANTITY_MIN_KG"
+            :max="DEMAND_QUANTITY_MAX_KG"
             :error="errors.quantity_kg || ''"
           />
         </div>
@@ -148,6 +212,8 @@ async function handleSubmit() {
             type="number"
             v-model="form.target_price_per_kg"
             :required="true"
+            :min="DEMAND_PRICE_MIN"
+            :max="DEMAND_PRICE_MAX"
             :error="errors.target_price_per_kg || ''"
           />
           <AppSelect
@@ -203,9 +269,16 @@ async function handleSubmit() {
             id="demand-desc"
             v-model="form.description"
             rows="3"
+            :maxlength="DEMAND_DESCRIPTION_MAX_LENGTH"
             placeholder="Quality requirements, delivery notes…"
             class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
           ></textarea>
+          <p class="text-xs text-stone-500 mt-1 text-right">
+            {{ (form.description || '').length }} / {{ DEMAND_DESCRIPTION_MAX_LENGTH }}
+          </p>
+          <p v-if="errors.description" class="mt-1 text-sm text-red-600">
+            {{ errors.description }}
+          </p>
         </div>
 
         <div class="flex justify-end gap-3">
@@ -221,5 +294,16 @@ async function handleSubmit() {
         </div>
       </form>
     </AppCard>
+
+    <ConfirmModal
+      v-if="confirmConfig"
+      :is-open="pendingConfirm !== null"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :type="confirmConfig.type"
+      @confirm="confirmPendingDemand"
+      @cancel="pendingConfirm = null"
+    />
   </div>
 </template>

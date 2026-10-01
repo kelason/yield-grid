@@ -381,29 +381,82 @@ const closePublishModal = () => {
   publishErrors.value = {}
 }
 
-const handlePublishContract = async (formData) => {
-  if (selectedRecommendation.value) {
-    try {
-      publishErrors.value = {}
-      // The backend now automatically marks it as 'accepted' and 'is_published' when successfully created
-      await marketStore.publishContract(selectedRecommendation.value.id, formData)
+const CONTRACT_TITLE_MAX_LENGTH = 255
+const CONTRACT_DESCRIPTION_MAX_LENGTH = 5000
+const CONTRACT_QUANTITY_MIN_KG = 1
+const CONTRACT_QUANTITY_MAX_KG = 99999999
+const CONTRACT_PRICE_MIN = 0.01
+const CONTRACT_PRICE_MAX = 99999999
+const CONTRACT_TOTAL_MAX = 9999999999.99
 
-      // Update local state so UI updates
-      const index = store.recommendations.findIndex((r) => r.id === selectedRecommendation.value.id)
-      if (index !== -1) {
-        store.recommendations[index].status = 'accepted'
-      }
-
-      closePublishModal()
-      router.push({ name: 'farmer-contracts' })
-    } catch (error) {
-      if (error.response?.status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
-        publishErrors.value = error.response.data.errors || {}
-      } else {
-        store.errorMessage = 'An unexpected error occurred while publishing the contract.'
-      }
-    }
+const validatePublishForm = (formData) => {
+  const fieldErrors = {}
+  if ((formData.title || '').length > CONTRACT_TITLE_MAX_LENGTH) {
+    fieldErrors.title = [`Title cannot exceed ${CONTRACT_TITLE_MAX_LENGTH} characters.`]
   }
+  if ((formData.description || '').length > CONTRACT_DESCRIPTION_MAX_LENGTH) {
+    fieldErrors.description = [
+      `Description cannot exceed ${CONTRACT_DESCRIPTION_MAX_LENGTH} characters.`,
+    ]
+  }
+  const qty = parseFloat(formData.quantity_kg)
+  if (!qty || qty < CONTRACT_QUANTITY_MIN_KG) {
+    fieldErrors.quantity_kg = ['Please enter a quantity greater than zero.']
+  } else if (qty > CONTRACT_QUANTITY_MAX_KG) {
+    fieldErrors.quantity_kg = [
+      `Quantity cannot exceed ${CONTRACT_QUANTITY_MAX_KG.toLocaleString()} kg.`,
+    ]
+  }
+  const price = parseFloat(formData.price_per_kg)
+  if (!price || price < CONTRACT_PRICE_MIN) {
+    fieldErrors.price_per_kg = ['Please enter a price greater than zero.']
+  } else if (price > CONTRACT_PRICE_MAX) {
+    fieldErrors.price_per_kg = [
+      `Price cannot exceed ${CONTRACT_PRICE_MAX.toLocaleString()} per kg.`,
+    ]
+  }
+  if (Object.keys(fieldErrors).length === 0 && qty * price > CONTRACT_TOTAL_MAX) {
+    fieldErrors.quantity_kg = ['The combined quantity and price exceed the maximum order total.']
+  }
+  return fieldErrors
+}
+
+const handlePublishContract = (formData) => {
+  if (!selectedRecommendation.value) return
+  publishErrors.value = validatePublishForm(formData)
+  if (Object.keys(publishErrors.value).length > 0) return
+  confirm(
+    {
+      title: 'Publish this contract?',
+      message: `Publish "${formData.title}" (${formData.quantity_kg} kg at ₱${formData.price_per_kg}/kg) to the marketplace?`,
+      confirmText: 'Publish contract',
+      type: 'primary',
+    },
+    async () => {
+      try {
+        publishErrors.value = {}
+        // The backend now automatically marks it as 'accepted' and 'is_published' when successfully created
+        await marketStore.publishContract(selectedRecommendation.value.id, formData)
+
+        // Update local state so UI updates
+        const index = store.recommendations.findIndex(
+          (r) => r.id === selectedRecommendation.value.id,
+        )
+        if (index !== -1) {
+          store.recommendations[index].status = 'accepted'
+        }
+
+        closePublishModal()
+        router.push({ name: 'farmer-contracts' })
+      } catch (error) {
+        if (error.response?.status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
+          publishErrors.value = error.response.data.errors || {}
+        } else {
+          store.errorMessage = 'An unexpected error occurred while publishing the contract.'
+        }
+      }
+    },
+  )
 }
 
 const handleReject = (id) => {

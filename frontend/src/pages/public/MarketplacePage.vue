@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
@@ -8,6 +8,7 @@ import ContractFilter from '@/components/molecules/ContractFilter.vue'
 import ContractGrid from '@/components/organisms/ContractGrid.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import CheckoutSummary from '@/components/organisms/CheckoutSummary.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { usePayment } from '@/composables/usePayment'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
@@ -18,6 +19,20 @@ const notificationStore = useNotificationStore()
 const { startCheckout, loading: checkoutLoading } = usePayment()
 
 const showCheckoutPanel = ref(false)
+const pendingConfirm = ref(null)
+
+const confirmConfig = computed(() => {
+  if (!pendingConfirm.value) return null
+  const cash = pendingConfirm.value.paymentOption === 'cash'
+  return {
+    title: cash ? 'Request cash payment?' : 'Proceed to payment?',
+    message: cash
+      ? `Request to pay ${pendingConfirm.value.quantityKg} kg in cash? The farmer must approve before the order is confirmed.`
+      : `Pay for ${pendingConfirm.value.quantityKg} kg now via PayMongo? You will be redirected to complete payment.`,
+    confirmText: cash ? 'Request cash payment' : 'Pay now',
+    type: 'primary',
+  }
+})
 
 onMounted(async () => {
   if (authStore.isAuthenticated) {
@@ -50,11 +65,18 @@ const handleViewContract = async (contract) => {
   showCheckoutPanel.value = true
 }
 
-const handleConfirmCheckout = async (checkoutData) => {
+const askCheckoutConfirm = (checkoutData) => {
   if (authStore.isAuthenticated && !authStore.isEmailVerified) {
     notificationStore.warning('Please verify your email address to purchase contracts.')
     return
   }
+  pendingConfirm.value = checkoutData
+}
+
+const handleConfirmCheckout = async () => {
+  const checkoutData = pendingConfirm.value
+  pendingConfirm.value = null
+  if (!checkoutData) return
 
   if (checkoutData.paymentOption === 'cash') {
     try {
@@ -186,7 +208,7 @@ const handleConfirmCheckout = async (checkoutData) => {
               <CheckoutSummary
                 :contract="marketStore.activeContract"
                 :loading="checkoutLoading"
-                @confirm="handleConfirmCheckout"
+                @confirm="askCheckoutConfirm"
                 @cancel="showCheckoutPanel = false"
               />
             </div>
@@ -194,5 +216,16 @@ const handleConfirmCheckout = async (checkoutData) => {
         </div>
       </div>
     </Teleport>
+
+    <ConfirmModal
+      v-if="confirmConfig"
+      :is-open="pendingConfirm !== null"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :type="confirmConfig.type"
+      @confirm="handleConfirmCheckout"
+      @cancel="pendingConfirm = null"
+    />
   </div>
 </template>

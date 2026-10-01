@@ -27,7 +27,7 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow sm:rounded-xl sm:px-10 text-center">
+      <div class="bg-white py-8 px-4 shadow-soft sm:rounded-xl sm:px-10 text-center">
         <template v-if="status === 'verifying'">
           <ClockIcon class="mx-auto h-16 w-16 text-harvest-500 mb-4 animate-pulse" />
           <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Verifying Payment...</h2>

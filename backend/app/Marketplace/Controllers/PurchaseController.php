@@ -33,6 +33,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 
 final class PurchaseController extends Controller
 {
@@ -330,7 +331,7 @@ final class PurchaseController extends Controller
         return PurchaseResource::collection($purchases);
     }
 
-    public function approveCashPayment(ApproveCashPaymentRequest $request, Purchase $purchase): PurchaseResource
+    public function approveCashPayment(ApproveCashPaymentRequest $request, Purchase $purchase): PurchaseResource|JsonResponse
     {
         $validated = $request->validated();
 
@@ -340,11 +341,15 @@ final class PurchaseController extends Controller
             abort(HttpCode::FORBIDDEN, 'You do not own this purchase.');
         }
 
-        $purchase = $this->approveCashPaymentAction->execute(
-            $purchase,
-            $validated['type'],
-            isset($validated['amount']) ? (float) $validated['amount'] : null
-        );
+        try {
+            $purchase = $this->approveCashPaymentAction->execute(
+                $purchase,
+                $validated['type'],
+                isset($validated['amount']) ? (float) $validated['amount'] : null
+            );
+        } catch (LogicException $e) {
+            return response()->json(['message' => $e->getMessage()], HttpCode::CONFLICT);
+        }
 
         return new PurchaseResource($purchase);
     }

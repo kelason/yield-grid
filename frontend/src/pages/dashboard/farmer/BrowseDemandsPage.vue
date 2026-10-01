@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
@@ -9,6 +9,7 @@ import DemandCard from '@/components/molecules/DemandCard.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import AppModal from '@/components/molecules/AppModal.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import FormField from '@/components/molecules/FormField.vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
@@ -16,6 +17,7 @@ import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
 import { GEO_CONSTANTS } from '@/constants/geo'
 
 const OFFER_QTY_MIN_KG = 0.01
+const OFFER_PRICE_MIN = 0.01
 const OFFER_PRICE_MAX_DIGITS = 8
 const OFFER_PRICE_MAX = 99999999
 const OFFER_MESSAGE_MAX_LENGTH = 1000
@@ -30,6 +32,18 @@ const showOfferModal = ref(false)
 const offerForm = ref({ quantity_kg: '', price_per_kg: '', message: '' })
 const offerError = ref('')
 const submitting = ref(false)
+const pendingConfirm = ref(null)
+
+const confirmConfig = computed(() => {
+  if (!pendingConfirm.value) return null
+  const { qty, price } = pendingConfirm.value
+  return {
+    title: 'Send this offer?',
+    message: `Offer ${qty} kg at ₱${price}/kg (₱${(qty * price).toLocaleString('en-PH')} total)? The buyer will review it and can accept or reject.`,
+    confirmText: 'Send offer',
+    type: 'primary',
+  }
+})
 
 onMounted(async () => {
   if (authStore.isAuthenticated) {
@@ -68,42 +82,52 @@ async function openOfferModal(demand) {
   showOfferModal.value = true
 }
 
-async function handleSubmitOffer() {
-  offerError.value = ''
+function validateOfferForm() {
   const remaining = parseFloat(demandStore.activeDemand?.remaining_quantity_kg ?? 0)
   const qty = parseFloat(offerForm.value.quantity_kg)
   const price = parseFloat(offerForm.value.price_per_kg)
   const message = (offerForm.value.message || '').trim()
-  if (!qty || qty <= 0) {
-    offerError.value = 'Please enter a quantity greater than zero.'
-    return
+  if (!qty || qty < OFFER_QTY_MIN_KG) {
+    return 'Please enter a quantity greater than zero.'
   }
   if (qty > remaining) {
-    offerError.value = `Quantity cannot exceed the ${remaining} kg still needed.`
-    return
+    return `Quantity cannot exceed the ${remaining} kg still needed.`
   }
-  if (!price || price <= 0) {
-    offerError.value = 'Please enter a price greater than zero.'
-    return
+  if (!price || price < OFFER_PRICE_MIN) {
+    return 'Please enter a price greater than zero.'
   }
   if (price > OFFER_PRICE_MAX) {
-    offerError.value = `Price cannot exceed ${OFFER_PRICE_MAX_DIGITS} digits (₱${OFFER_PRICE_MAX.toLocaleString()}).`
-    return
+    return `Price cannot exceed ${OFFER_PRICE_MAX_DIGITS} digits (₱${OFFER_PRICE_MAX.toLocaleString()}).`
   }
   if (message.length > OFFER_MESSAGE_MAX_LENGTH) {
-    offerError.value = `Message cannot exceed ${OFFER_MESSAGE_MAX_LENGTH} characters.`
-    return
+    return `Message cannot exceed ${OFFER_MESSAGE_MAX_LENGTH} characters.`
   }
   if (qty * price > OFFER_TOTAL_MAX) {
-    offerError.value = 'The combined quantity and price exceed the maximum order total.'
+    return 'The combined quantity and price exceed the maximum order total.'
+  }
+  return { qty, price, message }
+}
+
+function askOfferConfirm() {
+  offerError.value = ''
+  const validated = validateOfferForm()
+  if (typeof validated === 'string') {
+    offerError.value = validated
     return
   }
+  pendingConfirm.value = validated
+}
+
+async function confirmPendingOffer() {
+  const pending = pendingConfirm.value
+  pendingConfirm.value = null
+  if (!pending) return
   submitting.value = true
   try {
     await demandStore.submitOffer(demandStore.activeDemand.id, {
-      quantity_kg: qty,
-      price_per_kg: price,
-      message: message || null,
+      quantity_kg: pending.qty,
+      price_per_kg: pending.price,
+      message: pending.message || null,
     })
     notificationStore.success('Offer sent! The buyer will review it soon.')
     showOfferModal.value = false
@@ -197,7 +221,7 @@ async function handleSubmitOffer() {
             type="number"
             v-model="offerForm.price_per_kg"
             :required="true"
-            :min="OFFER_QTY_MIN_KG"
+            :min="OFFER_PRICE_MIN"
             :maxlength="OFFER_PRICE_MAX_DIGITS"
           />
         </div>
@@ -220,11 +244,22 @@ async function handleSubmitOffer() {
 
         <div class="flex justify-end gap-3">
           <AppButton variant="ghost" @click="showOfferModal = false">Cancel</AppButton>
-          <AppButton variant="primary" :loading="submitting" @click="handleSubmitOffer">
+          <AppButton variant="primary" :loading="submitting" @click="askOfferConfirm">
             Send offer
           </AppButton>
         </div>
       </div>
     </AppModal>
+
+    <ConfirmModal
+      v-if="confirmConfig"
+      :is-open="pendingConfirm !== null"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :type="confirmConfig.type"
+      @confirm="confirmPendingOffer"
+      @cancel="pendingConfirm = null"
+    />
   </div>
 </template>

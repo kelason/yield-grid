@@ -8,6 +8,14 @@ function getFutureDateStr(daysAhead) {
   return date.toISOString().split('T')[0]
 }
 
+const CONTRACT_TITLE_MAX_LENGTH = 255
+const CONTRACT_DESCRIPTION_MAX_LENGTH = 5000
+const CONTRACT_QUANTITY_MIN_KG = 1
+const CONTRACT_QUANTITY_MAX_KG = 99999999
+const CONTRACT_PRICE_MIN = 0.01
+const CONTRACT_PRICE_MAX = 99999999
+const TODAY_ISO = new Date().toISOString().split('T')[0]
+
 const props = defineProps({
   recommendation: {
     type: Object,
@@ -100,6 +108,7 @@ function submit() {
               id="title"
               v-model="form.title"
               required
+              :maxlength="CONTRACT_TITLE_MAX_LENGTH"
               class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
               :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.title }"
             />
@@ -116,6 +125,7 @@ function submit() {
               id="description"
               v-model="form.description"
               rows="3"
+              :maxlength="CONTRACT_DESCRIPTION_MAX_LENGTH"
               class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
               :class="{
                 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.description,
@@ -123,6 +133,9 @@ function submit() {
               placeholder="Add any details about your farming practices, crop quality, etc."
             ></textarea>
           </div>
+          <p class="text-xs text-stone-500 mt-1 text-right">
+            {{ (form.description || '').length }} / {{ CONTRACT_DESCRIPTION_MAX_LENGTH }}
+          </p>
           <p v-if="errors.description" class="mt-1 text-sm text-red-600">
             {{ errors.description[0] }}
           </p>
@@ -139,7 +152,8 @@ function submit() {
                 id="quantity"
                 v-model="form.quantity_kg"
                 required
-                min="1"
+                :min="CONTRACT_QUANTITY_MIN_KG"
+                :max="CONTRACT_QUANTITY_MAX_KG"
                 step="0.1"
                 class="focus:ring-moss-500 focus:border-moss-500 block w-full pr-12 sm:text-sm border-stone-300 rounded-xl"
                 :class="{
@@ -171,7 +185,8 @@ function submit() {
                 id="price"
                 v-model="form.price_per_kg"
                 required
-                min="0.01"
+                :min="CONTRACT_PRICE_MIN"
+                :max="CONTRACT_PRICE_MAX"
                 step="0.01"
                 class="focus:ring-moss-500 focus:border-moss-500 block w-full pl-7 sm:text-sm border-stone-300 rounded-xl"
                 :class="{
@@ -203,6 +218,7 @@ function submit() {
                 id="harvest"
                 v-model="form.estimated_harvest_date"
                 required
+                :min="TODAY_ISO"
                 class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500':
@@ -225,6 +241,8 @@ function submit() {
                 id="expiry"
                 v-model="form.expiry_date"
                 required
+                :min="TODAY_ISO"
+                :max="form.estimated_harvest_date || undefined"
                 class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.expiry_date,
@@ -245,14 +263,14 @@ function submit() {
             type="button"
             @click="$emit('cancel')"
             :disabled="loading"
-            class="bg-white py-2 px-4 border border-stone-300 rounded-xl shadow-soft text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
+            class="bg-white py-2 px-4 border border-stone-300 rounded-xl shadow-soft text-sm font-medium text-stone-700 hover:bg-stone-50 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             :disabled="loading"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-soft text-sm font-medium rounded-xl text-white bg-gradient-to-r from-moss-600 to-moss-700 hover:from-moss-700 hover:to-moss-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-soft text-sm font-medium rounded-xl text-white bg-gradient-to-r from-moss-600 to-moss-700 hover:from-moss-700 hover:to-moss-800 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
           >
             <svg
               v-if="loading"

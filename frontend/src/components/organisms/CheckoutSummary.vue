@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import PriceTag from '../atoms/PriceTag.vue'
+import AppAlert from '../atoms/AppAlert.vue'
 import {
   CalendarIcon,
   MapPinIcon,
@@ -43,6 +44,13 @@ watch(
 )
 
 const QUANTITY_MAX_LENGTH = 6
+const CHECKOUT_QTY_MIN_KG = 1
+const CHECKOUT_QTY_MAX_KG = 9999
+
+const maxOrderQty = computed(() =>
+  Math.min(Number(props.contract.quantity_kg) || CHECKOUT_QTY_MAX_KG, CHECKOUT_QTY_MAX_KG),
+)
+const qtyError = ref('')
 
 // Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
 // Writing back to both the element and the ref keeps display and v-model in
@@ -73,6 +81,16 @@ const amountToPay = computed(() => {
 })
 
 const handleConfirm = () => {
+  qtyError.value = ''
+  const qty = parseFloat(quantityKg.value)
+  if (!qty || qty < CHECKOUT_QTY_MIN_KG) {
+    qtyError.value = 'Please enter a quantity greater than zero.'
+    return
+  }
+  if (qty > maxOrderQty.value) {
+    qtyError.value = `Quantity cannot exceed ${maxOrderQty.value.toLocaleString()} kg for this order.`
+    return
+  }
   emit('confirm', {
     contractId: props.contract.id,
     type: props.contract.type,
@@ -86,6 +104,7 @@ const handleConfirm = () => {
   <div class="w-full max-w-2xl mx-auto">
     <div class="mb-8">
       <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Review Your Purchase</h2>
+      <AppAlert v-if="qtyError" type="error" class="mt-3">{{ qtyError }}</AppAlert>
       <p class="text-stone-500 text-sm">
         Please confirm the details of this forward contract before proceeding to payment.
       </p>
@@ -150,8 +169,8 @@ const handleConfirm = () => {
             type="range"
             id="quantity-slider"
             v-model.number="quantityKg"
-            min="1"
-            :max="contract.quantity_kg"
+            :min="CHECKOUT_QTY_MIN_KG"
+            :max="maxOrderQty"
             class="flex-1 h-2 bg-stone-200 rounded-xl appearance-none cursor-pointer accent-moss-600"
           />
           <div class="relative w-24">
@@ -159,8 +178,8 @@ const handleConfirm = () => {
               type="number"
               id="quantity"
               v-model.number="quantityKg"
-              min="1"
-              :max="contract.quantity_kg"
+              :min="CHECKOUT_QTY_MIN_KG"
+              :max="maxOrderQty"
               :maxlength="QUANTITY_MAX_LENGTH"
               @input="clampQuantity"
               class="block w-full rounded-xl border-stone-300 shadow-soft focus:border-moss-500 focus:ring-moss-500 sm:text-sm pr-8"

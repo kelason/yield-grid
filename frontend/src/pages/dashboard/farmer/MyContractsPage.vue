@@ -77,7 +77,7 @@ const handlePageChange = (page) => {
     <!-- Stats -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow rounded-xl border border-stone-100"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">
@@ -99,7 +99,7 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow rounded-xl border border-stone-100"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">
@@ -121,7 +121,7 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow rounded-xl border border-stone-100"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">
@@ -143,7 +143,7 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-r from-moss-500 to-moss-600 overflow-hidden shadow rounded-xl text-white"
+        class="bg-gradient-to-r from-moss-500 to-moss-600 overflow-hidden shadow-soft rounded-xl text-white"
       >
         <div class="p-5">
           <div class="flex items-center">

@@ -14,7 +14,7 @@ use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use Carbon\Carbon;
-use RuntimeException;
+use LogicException;
 
 final class ApproveCashPaymentAction
 {
@@ -28,12 +28,16 @@ final class ApproveCashPaymentAction
             $purchase = Purchase::where('id', $purchase->id)->lockForUpdate()->firstOrFail();
 
             if ($purchase->payment_status === PaymentStatus::COMPLETED) {
-                throw new RuntimeException('Purchase is already fully paid.');
+                throw new LogicException('Purchase is already fully paid.');
             }
 
             if ($type === 'partial') {
                 if ($amount === null || $amount <= 0) {
-                    throw new RuntimeException('Amount is required for partial payment.');
+                    throw new LogicException('Amount is required for partial payment.');
+                }
+                $outstanding = (float) $purchase->total_contract_amount - (float) $purchase->cash_amount_confirmed;
+                if ($amount > $outstanding) {
+                    throw new LogicException('Amount exceeds the outstanding balance of ₱'.number_format($outstanding, 2).'.');
                 }
                 $purchase->cash_payment_status = CashPaymentStatus::PARTIALLY_PAID;
                 $purchase->cash_amount_confirmed += $amount;
