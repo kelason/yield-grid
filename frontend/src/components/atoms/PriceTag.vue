@@ -35,7 +35,7 @@ const formattedAmount = computed(() => {
 </script>
 
 <template>
-  <span class="font-semibold text-gray-900 tracking-tight" :class="sizeClasses">
+  <span class="font-semibold text-stone-900 tracking-tight" :class="sizeClasses">
     {{ formattedAmount }}
   </span>
 </template>

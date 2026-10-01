@@ -6,12 +6,12 @@
 
       <div class="flex-1 space-y-4 py-1">
         <!-- Title skeleton -->
-        <div class="h-4 bg-stone-200 rounded-lg w-3/4"></div>
+        <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
 
         <!-- Content skeleton lines -->
         <div class="space-y-2">
-          <div class="h-4 bg-stone-200 rounded-lg"></div>
-          <div class="h-4 bg-stone-200 rounded-lg w-5/6"></div>
+          <div class="h-4 bg-stone-200 rounded-xl"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-5/6"></div>
         </div>
 
         <!-- Optional button/action skeleton -->
