@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Services;
 
+use App\Infrastructure\Services\ReverseGeocodeService;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -40,15 +41,16 @@ class CropAdvisorService
 
     private int $rateLimitRpm = 10;      // Max 10 requests per minute for Gemini API
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly ReverseGeocodeService $geocoding
+    ) {
         $this->apiKey = (string) (config('services.gemini.key') ?? '');
         $this->model = (string) (config('services.gemini.model', 'gemini-3.5-flash-lite'));
     }
 
     public function getRecommendations(Plot $plot, array $agroData): array
     {
-        $location = $plot->resolveLocation();
+        $location = $this->geocoding->resolvePlotLocation($plot);
         $prompt = $this->buildPrompt($plot, $agroData, $location);
 
         // 1. Check AI recommendation cache first to avoid re-querying Gemini for identical plot inputs

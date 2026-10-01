@@ -9,6 +9,7 @@ use App\CropRecommendation\Resources\CropRecommendationResource;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
+use App\Infrastructure\Services\ReverseGeocodeService;
 use App\Shared\Controllers\Controller;
 use Domain\Farming\Models\Plot;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,10 @@ use Illuminate\Validation\Rule;
 
 class CropRecommendationController extends Controller
 {
+    public function __construct(
+        private readonly ReverseGeocodeService $geocoding
+    ) {}
+
     public function analyze(Request $request, Plot $plot): JsonResponse
     {
         Gate::authorize('analyze', $plot);
@@ -47,7 +52,7 @@ class CropRecommendationController extends Controller
             ->latest()
             ->take(10)
             ->get();
-        $location = $plot->resolveLocation();
+        $location = $this->geocoding->resolvePlotLocation($plot);
 
         return response()->json([
             'data' => CropRecommendationResource::collection($recommendations),

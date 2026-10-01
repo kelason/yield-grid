@@ -16,6 +16,20 @@ final class GeoConstants
 
     public const NOMINATIM_HTTP_TIMEOUT_SECONDS = 5;
 
+    public const PHOTON_REVERSE_GEOCODE_URL = 'https://photon.komoot.io/reverse';
+
+    public const BIGDATACLOUD_REVERSE_GEOCODE_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
+
+    public const REVERSE_GEOCODE_HTTP_TIMEOUT_SECONDS = 4;
+
+    /** Reverse-geocode cache TTL (30 days): resolved coordinates rarely change. */
+    public const REVERSE_GEOCODE_CACHE_TTL_SECONDS = 2592000;
+
+    /** Fallback location labels when neither coordinates nor farm address resolve. */
+    public const FALLBACK_LOCATION_CITY = 'Local Region';
+
+    public const FALLBACK_LOCATION_COUNTRY = 'Philippines';
+
     /**
      * Half-width in degrees of the viewbox used to anchor barangay searches
      * to their city. Prevents same-named barangays in other provinces

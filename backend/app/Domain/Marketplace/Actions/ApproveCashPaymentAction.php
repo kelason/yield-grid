@@ -13,6 +13,7 @@ use App\Domain\Marketplace\Events\CashPaymentApproved;
 use App\Domain\Marketplace\Events\DemandOfferPaid;
 use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use Carbon\Carbon;
 use LogicException;
@@ -20,13 +21,14 @@ use LogicException;
 final class ApproveCashPaymentAction
 {
     public function __construct(
-        private readonly TransactionManagerInterface $transactionManager
+        private readonly TransactionManagerInterface $transactionManager,
+        private readonly PurchaseRepositoryInterface $purchaseRepository
     ) {}
 
     public function execute(Purchase $purchase, string $type, ?float $amount = null): Purchase
     {
         $purchase = $this->transactionManager->run(function () use ($purchase, $type, $amount) {
-            $purchase = Purchase::where('id', $purchase->id)->lockForUpdate()->firstOrFail();
+            $purchase = $this->purchaseRepository->findLockedById($purchase->id);
 
             if ($purchase->payment_status === PaymentStatus::COMPLETED) {
                 throw new LogicException('Purchase is already fully paid.');

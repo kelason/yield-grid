@@ -169,18 +169,6 @@ parameters:
 			path: app/Domain/Farming/Models/Plot.php
 
 		-
-			message: '#^Method Domain\\Farming\\Models\\Plot\:\:resolveLocation\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Farming/Models/Plot.php
-
-		-
-			message: '#^Method Domain\\Farming\\Models\\Plot\:\:reverseGeocodeCoordinates\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Farming/Models/Plot.php
-
-		-
 			message: '#^Class Domain\\Farming\\Models\\RestrictedZone uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1

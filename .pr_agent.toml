@@ -52,14 +52,13 @@ PHP / LARAVEL BACKEND (backend/)
 - Migrations must be reversible (implement `down()` method).
 - Use Enums (PHP 8.1+) instead of magic strings/constants for statuses, types, etc.
 
-## Domain-Driven Design (DDD)
-- Enforce clear separation of layers: Domain, Application, Infrastructure, Presentation (Http).
-- Domain layer must be framework-agnostic — no Laravel imports in Domain models, value objects, or domain services.
-- Use Value Objects for concepts like Money, Email, Percentage, DateRange, etc.
-- Aggregates must enforce invariants; no direct manipulation of child entities from outside the aggregate root.
-- Application layer uses Command/Query pattern or Application Services — no business logic in controllers.
-- Repository pattern: Domain defines interfaces, Infrastructure provides Eloquent implementations.
-- No Eloquent models in the Domain layer — map between Eloquent models and Domain entities in the Infrastructure layer.
+## Domain-Driven Design (DDD) — yield-grid ActiveRecord-style DDD
+- Layers: Controllers/Requests/Resources in `App\\{Context}\\*`; domain code in `App\\Domain\\{Context}\\*`; external integrations in `App\\Infrastructure\\*`.
+- Eloquent models living in `App\\Domain\\{Context}\\Models` is the deliberate architecture — do NOT flag it, and do NOT demand clean-entity/mapper restructuring, Value Objects, aggregates, or Command/Query patterns (this codebase uses DTOs + Actions instead).
+- No business logic in controllers — it belongs in Actions (`App\\Domain\\{Context}\\Actions\\*`) or Services.
+- No outbound HTTP calls, SDK clients, or third-party API logic in Domain models or Actions — external integrations MUST live in `App\\Infrastructure\\Services\\*` and be injected into callers.
+- Repository pattern: where a `*RepositoryInterface` exists for an aggregate, Actions and Controllers MUST query through it (extend the interface for new shapes such as locked reads) instead of direct Eloquent. Do NOT demand repositories where none exist.
+- New aggregates: mirror the Purchase precedent — interface in `App\\Domain\\{Context}\\Repositories\\*`, Eloquent implementation in `App\\Infrastructure\\{Context}\\Repositories\\*`, bound in `AppServiceProvider`.
 
 ## No Magic Values
 - No magic numbers or magic strings. Use class constants, enums, or config values.
@@ -176,7 +175,7 @@ extra_instructions = """
 Focus improvement suggestions on:
 1. Security vulnerabilities (OWASP top 10) — highest priority.
 2. PSR-12 and coding standard violations.
-3. DDD layer violations (e.g., domain logic in controllers, framework code in domain).
+3. DDD layer violations (e.g., domain logic in controllers, outbound HTTP/third-party API calls in Domain models or Actions, bypassing an existing `*RepositoryInterface`).
 4. Missing type declarations (PHP) or prop types (Vue).
 5. Magic values that should be constants or enums.
 6. Component decomposition opportunities (Atomic Design violations).
