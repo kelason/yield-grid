@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted, ref, computed, nextTick } from 'vue'
+import { onMounted, ref, computed, nextTick, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useChatStore } from '../../../stores/chatStore'
-import { useChatWebSocket } from '../../../composables/useChatWebSocket'
 import ConversationItem from '../../../components/molecules/ConversationItem.vue'
 import ChatComposer from '../../../components/molecules/ChatComposer.vue'
 import ChatBubble from '../../../components/atoms/ChatBubble.vue'
@@ -16,14 +15,24 @@ const MESSAGE_SKELETON_STYLES = [
 ]
 
 const chatStore = useChatStore()
-const { listenToConversation, leaveConversation } = useChatWebSocket()
 const route = useRoute()
 
 const messagesContainer = ref(null)
 const selectedConversationId = ref(null)
 
+// Realtime sync is owned by the dashboard layout; scroll locally when a new
+// message lands at the end of the open conversation.
+watch(
+  () => chatStore.messages[chatStore.messages.length - 1]?.id,
+  (newId, oldId) => {
+    if (newId !== undefined && newId !== oldId) {
+      scrollToBottom()
+    }
+  },
+)
+
 onMounted(async () => {
-  await chatStore.fetchConversations()
+  await chatStore.ensureConversationsLoaded()
   const requestedId = Number(route.query.conversation)
   const target = chatStore.conversations.some((c) => c.id === requestedId)
     ? requestedId
@@ -40,23 +49,11 @@ const activeConversation = computed(() => {
 const selectConversation = async (id) => {
   if (selectedConversationId.value === id) return
 
-  // Clean up old listener
-  if (selectedConversationId.value) {
-    leaveConversation(selectedConversationId.value)
-  }
-
   selectedConversationId.value = id
   chatStore.activeConversation = chatStore.conversations.find((c) => c.id === id)
 
   await chatStore.fetchMessages(id)
   scrollToBottom()
-
-  listenToConversation(id, {
-    onMessage: (e) => {
-      chatStore.handleNewMessage(e.message)
-      scrollToBottom()
-    },
-  })
 }
 
 const handleSend = async (text) => {
