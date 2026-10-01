@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources;
+namespace App\Marketplace\Resources;
 
+use App\Domain\Marketplace\Models\ForwardContract;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ForwardContractResource extends JsonResource
+class MarketplaceItemResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
+        $isContract = $this->resource instanceof ForwardContract;
+
         return [
             'id' => $this->id,
+            'type' => $isContract ? 'contract' : 'listing',
             'title' => $this->title,
             'description' => $this->description,
             'crop_name' => $this->crop_name,
@@ -29,13 +28,15 @@ class ForwardContractResource extends JsonResource
             'expiry_date' => $this->expiry_date->format('Y-m-d'),
             'status' => $this->status->value,
             'is_purchasable' => $this->is_purchasable,
+            'is_harvest_available' => $isContract ? false : $this->is_harvest_available,
             'farmer' => [
                 'id' => $this->farmer->id,
                 'name' => $this->farmer->name,
                 'farm_name' => $this->farmer->farms->first()?->name ?? 'Farm',
                 'location' => $this->farmer->farms->first()?->city ?? 'Unknown',
             ],
-            'recommendation' => new CropRecommendationResource($this->whenLoaded('recommendation')),
+            'recommendation' => $isContract ? new CropRecommendationResource($this->whenLoaded('recommendation')) : null,
+            'distance_m' => $this->resource->distance_m !== null ? (int) round((float) $this->resource->distance_m) : null,
             'created_at' => $this->created_at->toIso8601String(),
         ];
     }

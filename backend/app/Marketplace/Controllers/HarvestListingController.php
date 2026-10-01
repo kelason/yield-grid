@@ -9,7 +9,7 @@ use App\Domain\Marketplace\Actions\CreateHarvestListingAction;
 use App\Domain\Marketplace\DTOs\CreateHarvestListingDTO;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Models\HarvestListing;
-use App\Http\Resources\MarketplaceItemResource;
+use App\Marketplace\Resources\MarketplaceItemResource;
 use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

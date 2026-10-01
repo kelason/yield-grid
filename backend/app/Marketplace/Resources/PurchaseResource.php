@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources;
+namespace App\Marketplace\Resources;
 
 use App\Domain\Marketplace\Models\Purchase;
 use Illuminate\Http\Request;

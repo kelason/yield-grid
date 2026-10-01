@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\CropRecommendation\Controllers;
 
 use App\Constants\HttpCode;
+use App\CropRecommendation\Resources\CropRecommendationResource;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
-use App\Http\Resources\CropRecommendationResource;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Shared\Controllers\Controller;
 use Domain\Farming\Models\Plot;
