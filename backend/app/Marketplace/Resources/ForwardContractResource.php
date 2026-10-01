@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Marketplace\Resources;
 
+use App\CropRecommendation\Resources\CropRecommendationResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
