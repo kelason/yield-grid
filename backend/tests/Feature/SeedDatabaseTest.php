@@ -25,5 +25,6 @@ it('restores synced DA prices from the snapshot', function () {
 
 it('runs against the isolated testing database, never the dev database', function () {
     // RefreshDatabase migrates fresh: pointed at dev it would wipe real data.
-    expect(DB::getDatabaseName())->toBe('yieldgrid_testing');
+    // Parallel workers use suffixed databases (yieldgrid_testing_test_N).
+    expect(DB::getDatabaseName())->toMatch('/^yieldgrid_testing(_test_\d+)?$/');
 });
