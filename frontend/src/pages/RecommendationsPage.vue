@@ -192,38 +192,40 @@
     </div>
 
     <!-- Publish Contract Modal -->
-    <div
-      v-if="showPublishModal && selectedRecommendation"
-      class="fixed inset-0 z-50 overflow-y-auto"
-      aria-labelledby="modal-title"
-      role="dialog"
-      aria-modal="true"
-    >
+    <Teleport to="body">
       <div
-        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+        v-if="showPublishModal && selectedRecommendation"
+        class="fixed inset-0 z-50 overflow-y-auto"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
       >
         <div
-          class="fixed inset-0 bg-stone-500 bg-opacity-75 transition-opacity"
-          aria-hidden="true"
-          @click="closePublishModal"
-        ></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"
-          >&#8203;</span
+          class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
         >
-        <div
-          class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-organic transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
-        >
-          <PublishContractForm
-            :recommendation="selectedRecommendation"
-            :loading="marketStore.loading?.publish"
-            :errors="publishErrors"
-            @publish="handlePublishContract"
-            @cancel="closePublishModal"
-            @clear-errors="publishErrors = {}"
-          />
+          <div
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
+            @click="closePublishModal"
+          ></div>
+          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"
+            >&#8203;</span
+          >
+          <div
+            class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-organic transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
+          >
+            <PublishContractForm
+              :recommendation="selectedRecommendation"
+              :loading="marketStore.loading?.publish"
+              :errors="publishErrors"
+              @publish="handlePublishContract"
+              @cancel="closePublishModal"
+              @clear-errors="publishErrors = {}"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
     <ConfirmModal
       :is-open="isOpen"
       :title="config.title"

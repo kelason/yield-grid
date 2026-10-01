@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Services;
 
+use App\Infrastructure\Services\GeminiHttpHelper;
 use App\Infrastructure\Services\ReverseGeocodeService;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 class CropAdvisorService
 {
     private const REQUEST_TIMEOUT_SECONDS = 12;
+
+    private const MAX_RETRIES = 1;
+
+    private const RETRY_DELAY_MS = 0;
 
     private const RATE_LIMIT_DECAY_SECONDS = 60;
 
@@ -35,8 +39,6 @@ class CropAdvisorService
 
     private string $apiKey;
 
-    private string $model;
-
     private int $cacheTtlSeconds = 1800; // 30 minutes recommendation cache
 
     private int $rateLimitRpm = 10;      // Max 10 requests per minute for Gemini API
@@ -45,7 +47,6 @@ class CropAdvisorService
         private readonly ReverseGeocodeService $geocoding
     ) {
         $this->apiKey = (string) (config('services.gemini.key') ?? '');
-        $this->model = (string) (config('services.gemini.model', 'gemini-3.5-flash-lite'));
     }
 
     public function getRecommendations(Plot $plot, array $agroData): array
@@ -80,16 +81,22 @@ class CropAdvisorService
         RateLimiter::hit($rateKey, self::RATE_LIMIT_DECAY_SECONDS);
 
         try {
-            $response = Http::timeout(self::REQUEST_TIMEOUT_SECONDS)->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
-                'contents' => [
-                    ['parts' => [['text' => $prompt]]],
+            $response = GeminiHttpHelper::postGenerateContent(
+                $this->apiKey,
+                [
+                    'contents' => [
+                        ['parts' => [['text' => $prompt]]],
+                    ],
+                    'generationConfig' => [
+                        'responseMimeType' => 'application/json',
+                    ],
                 ],
-                'generationConfig' => [
-                    'responseMimeType' => 'application/json',
-                ],
-            ]);
+                self::REQUEST_TIMEOUT_SECONDS,
+                self::MAX_RETRIES,
+                self::RETRY_DELAY_MS
+            );
 
-            if ($response->successful()) {
+            if ($response !== null) {
                 $data = $response->json();
                 $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '[]';
 
@@ -100,11 +107,13 @@ class CropAdvisorService
 
                     return $decoded;
                 }
-            }
 
-            Log::error('Gemini API error', ['status' => $response->status(), 'body' => $response->body()]);
+                Log::error('Gemini API error', ['status' => $response->status(), 'body' => $response->body()]);
+            } else {
+                Log::error('Gemini API error', ['models' => GeminiHttpHelper::models()]);
+            }
         } catch (\Exception $e) {
-            Log::error('Gemini Request Exception', ['message' => $e->getMessage()]);
+            Log::error('Gemini Request Exception', ['message' => GeminiHttpHelper::redact($e->getMessage(), $this->apiKey)]);
         }
 
         return $this->getMockRecommendations($plot, $location);

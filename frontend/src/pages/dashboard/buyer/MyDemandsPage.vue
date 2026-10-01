@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useDemandStore } from '@/stores/demandStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { usePayment } from '@/composables/usePayment'
 import { useChatEntry } from '@/composables/useChatEntry'
+import { usePriceGuide } from '@/composables/usePriceGuide'
 import { PAYMENT_OPTION } from '@/constants/payment'
 import OfferCard from '@/components/molecules/OfferCard.vue'
 import DeliveryAddressCard from '@/components/molecules/DeliveryAddressCard.vue'
@@ -15,9 +16,19 @@ import AppButton from '@/components/atoms/AppButton.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
 import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
+import PriceFairnessBadge from '@/components/atoms/PriceFairnessBadge.vue'
 import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 
 const demandStore = useDemandStore()
+const { prefetchCrops } = usePriceGuide()
+
+watch(
+  () => demandStore.myDemands,
+  (demands) => {
+    prefetchCrops((demands ?? []).map((demand) => demand.crop_name))
+  },
+  { immediate: true },
+)
 const notificationStore = useNotificationStore()
 const { startOfferCheckout, loading: checkoutLoading } = usePayment()
 const { openChat } = useChatEntry()
@@ -323,6 +334,11 @@ function offersFor(demand) {
                 {{ demand.quantity_kg }} kg remaining ·
                 {{ demand.pending_offers_count ?? 0 }} pending offers
               </p>
+              <PriceFairnessBadge
+                :listing-price="Number(demand.target_price_per_kg)"
+                :crop-name="demand.crop_name"
+                class="mt-1.5"
+              />
             </div>
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               <div class="flex items-center gap-2">

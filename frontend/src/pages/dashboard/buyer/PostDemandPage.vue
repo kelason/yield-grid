@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notificationStore'
 import FormField from '@/components/molecules/FormField.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
+import PriceGuidePopover from '@/components/molecules/PriceGuidePopover.vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
@@ -154,7 +155,7 @@ async function confirmPendingDemand() {
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto space-y-6">
+  <div class="space-y-6">
     <div>
       <h1 class="font-serif text-3xl font-bold text-stone-900">Post a Crop Demand</h1>
       <p class="text-base text-stone-600 font-light mt-1">
@@ -215,7 +216,14 @@ async function confirmPendingDemand() {
             :min="DEMAND_PRICE_MIN"
             :max="DEMAND_PRICE_MAX"
             :error="errors.target_price_per_kg || ''"
-          />
+          >
+            <template #labelSuffix>
+              <PriceGuidePopover
+                :crop-name="form.crop_name"
+                :current-price="Number(form.target_price_per_kg) || null"
+              />
+            </template>
+          </FormField>
           <AppSelect
             id="demand-address"
             label="Delivery address"

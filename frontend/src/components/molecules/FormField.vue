@@ -20,7 +20,9 @@ defineEmits(['update:modelValue'])
 
 <template>
   <div>
-    <AppLabel :for="id" :required="required">{{ label }}</AppLabel>
+    <AppLabel :for="id" :required="required"
+      >{{ label }}<template #suffix><slot name="labelSuffix" /></template
+    ></AppLabel>
     <div class="mt-1">
       <AppInput
         :id="id"

@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
         $path = database_path('seeders/backup.sql');
         if (file_exists($path)) {
             DB::unprepared(file_get_contents($path));
+            // backup.sql is a pg_dump that ends with an emptied search_path,
+            // which breaks unqualified Eloquent table names. Restore it so
+            // every seeder below resolves tables normally.
+            DB::statement('SET search_path TO public');
         } else {
             // Fallback to original seeder logic if backup is missing
             $user = User::firstOrCreate(
@@ -71,5 +75,21 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        // Restore the synced price snapshot so fresh+seed keeps DA/AI prices.
+        // Regenerate after a good sync with (the grep strips psql-only
+        // meta-commands like \restrict that PDO cannot execute):
+        // PGPASSWORD=secret pg_dump -h 127.0.0.1 -U yieldgrid -d yieldgrid \
+        //   --data-only --inserts -t public.crop_reference_prices \
+        //   -t public.crop_price_sync_runs -t public.crop_price_aliases \
+        //   | grep -v '^\\' > database/seeders/price_snapshot.sql
+        $snapshotPath = database_path('seeders/price_snapshot.sql');
+
+        if (file_exists($snapshotPath)) {
+            DB::unprepared(file_get_contents($snapshotPath));
+            DB::statement('SET search_path TO public');
+        }
+
+        $this->call(CropPriceAliasSeeder::class);
     }
 }

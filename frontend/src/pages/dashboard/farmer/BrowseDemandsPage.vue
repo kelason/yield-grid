@@ -1,11 +1,13 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notificationStore'
+import { usePriceGuide } from '@/composables/usePriceGuide'
 import DemandFilter from '@/components/molecules/DemandFilter.vue'
 import DemandCard from '@/components/molecules/DemandCard.vue'
+import PriceGuideHint from '@/components/molecules/PriceGuideHint.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import AppModal from '@/components/molecules/AppModal.vue'
@@ -24,6 +26,15 @@ const OFFER_MESSAGE_MAX_LENGTH = 1000
 const OFFER_TOTAL_MAX = 9999999999.99
 
 const demandStore = useDemandStore()
+const { prefetchCrops } = usePriceGuide()
+
+watch(
+  () => demandStore.demands,
+  (demands) => {
+    prefetchCrops((demands ?? []).map((demand) => demand.crop_name))
+  },
+  { immediate: true },
+)
 const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
@@ -225,6 +236,11 @@ async function confirmPendingOffer() {
             :maxlength="OFFER_PRICE_MAX_DIGITS"
           />
         </div>
+
+        <PriceGuideHint
+          :crop-name="demandStore.activeDemand.crop_name"
+          :current-price="Number(offerForm.price_per_kg) || null"
+        />
         <div>
           <label for="offer-message" class="block text-sm font-medium text-soil-700 mb-1">
             Message to buyer (optional)
