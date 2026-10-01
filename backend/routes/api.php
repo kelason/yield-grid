@@ -24,6 +24,8 @@ use App\Marketplace\Controllers\ForwardContractController;
 use App\Marketplace\Controllers\HarvestListingController;
 use App\Marketplace\Controllers\MarketplaceController;
 use App\Marketplace\Controllers\PayMongoWebhookController;
+use App\Marketplace\Controllers\PriceComparisonController;
+use App\Marketplace\Controllers\PriceGuideController;
 use App\Marketplace\Controllers\PurchaseController;
 use App\Shared\Middleware\AuthenticateIfTokenPresent;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
@@ -54,6 +56,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/market/demands/{demand}', [CropDemandController::class, 'show'])->middleware(AuthenticateIfTokenPresent::class);
 
     // Public PSGC geo cascade (registration needs it before login)
+    Route::get('/market/prices/guide/batch', [PriceGuideController::class, 'batch'])->middleware('throttle:60,1');
+    Route::get('/market/prices/guide/compare', [PriceComparisonController::class, 'compare'])->middleware('throttle:60,1');
+    Route::get('/market/prices/guide', [PriceGuideController::class, 'guide'])->middleware('throttle:60,1');
+
     Route::get('/geo/regions', [GeoController::class, 'regions']);
     Route::get('/geo/provinces', [GeoController::class, 'provinces']);
     Route::get('/geo/cities-municipalities', [GeoController::class, 'citiesMunicipalities']);

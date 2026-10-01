@@ -6,6 +6,7 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppInput from '@/components/atoms/AppInput.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
+import PriceGuidePopover from '@/components/molecules/PriceGuidePopover.vue'
 
 const router = useRouter()
 const marketStore = useMarketStore()
@@ -283,7 +284,13 @@ const handleSubmit = async () => {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1">Price per kg (₱)</label>
+              <div class="mb-1 flex items-center gap-1">
+                <label class="block text-sm font-medium text-soil-700">Price per kg (₱)</label>
+                <PriceGuidePopover
+                  :crop-name="finalCropName"
+                  :current-price="Number(form.price_per_kg) || null"
+                />
+              </div>
               <AppInput
                 id="price_per_kg"
                 type="number"

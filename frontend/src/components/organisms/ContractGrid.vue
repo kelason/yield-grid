@@ -1,8 +1,10 @@
 <script setup>
+import { watch } from 'vue'
 import ContractCard from '../molecules/ContractCard.vue'
+import { usePriceGuide } from '@/composables/usePriceGuide'
 import { InboxIcon } from '@heroicons/vue/24/outline'
 
-defineProps({
+const props = defineProps({
   contracts: {
     type: Array,
     required: true,
@@ -18,6 +20,16 @@ defineProps({
 })
 
 defineEmits(['load-more', 'view-contract'])
+
+const { prefetchCrops } = usePriceGuide()
+
+watch(
+  () => props.contracts,
+  (contracts) => {
+    prefetchCrops((contracts ?? []).map((contract) => contract.crop_name))
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

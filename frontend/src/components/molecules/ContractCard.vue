@@ -3,6 +3,7 @@ import AppButton from '../atoms/AppButton.vue'
 import AppCard from '../atoms/AppCard.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
+import PriceFairnessBadge from '../atoms/PriceFairnessBadge.vue'
 import { CalendarIcon, MapPinIcon, UserIcon } from '@heroicons/vue/24/outline'
 
 defineProps({
@@ -71,10 +72,16 @@ defineEmits(['view-details', 'purchase'])
         </div>
       </div>
 
-      <div class="pt-4 border-t border-stone-100 mt-auto flex items-end justify-between">
+      <div class="pt-4 border-t border-stone-100 mt-auto flex items-end justify-between gap-3">
         <div>
           <div class="text-xs text-stone-500 mb-1">Total for {{ contract.quantity_kg }}kg</div>
-          <PriceTag :amount="contract.total_price" :currency="contract.currency" size="md" />
+          <div class="flex items-center gap-2">
+            <PriceTag :amount="contract.total_price" :currency="contract.currency" size="md" />
+            <PriceFairnessBadge
+              :listing-price="Number(contract.price_per_kg)"
+              :crop-name="contract.crop_name"
+            />
+          </div>
         </div>
 
         <AppButton variant="outline" size="sm" @click="$emit('view-details', contract)">

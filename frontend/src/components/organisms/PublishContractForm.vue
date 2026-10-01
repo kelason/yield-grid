@@ -1,5 +1,8 @@
 <script setup>
 import { reactive, computed, watch } from 'vue'
+import PriceGuideHint from '@/components/molecules/PriceGuideHint.vue'
+import AppInput from '@/components/atoms/AppInput.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 
 // Helper to format date as yyyy-MM-dd
 function getFutureDateStr(daysAhead) {
@@ -15,6 +18,8 @@ const CONTRACT_QUANTITY_MAX_KG = 99999999
 const CONTRACT_PRICE_MIN = 0.01
 const CONTRACT_PRICE_MAX = 99999999
 const TODAY_ISO = new Date().toISOString().split('T')[0]
+// Unit conversion factor, also used as the default yield assumption (kg) when parsing fails
+const KILOGRAMS_PER_TON = 1000
 
 const props = defineProps({
   recommendation: {
@@ -34,11 +39,11 @@ const props = defineProps({
 const emit = defineEmits(['publish', 'cancel', 'clear-errors'])
 
 function extractNumber(yieldString) {
-  if (!yieldString) return 1000
+  if (!yieldString) return KILOGRAMS_PER_TON
   // If it contains "tons", multiply by 1000
   const matchTon = String(yieldString).match(/([\d.,]+)\s*ton/i)
   if (matchTon) {
-    return parseFloat(matchTon[1].replace(',', '')) * 1000
+    return parseFloat(matchTon[1].replace(',', '')) * KILOGRAMS_PER_TON
   }
   // If it contains "kg"
   const matchKg = String(yieldString).match(/([\d.,]+)\s*kg/i)
@@ -47,7 +52,7 @@ function extractNumber(yieldString) {
   }
   // Generic fallback
   const genericMatch = String(yieldString).match(/[\d.,]+/)
-  return genericMatch ? parseFloat(genericMatch[0].replace(',', '')) : 1000
+  return genericMatch ? parseFloat(genericMatch[0].replace(',', '')) : KILOGRAMS_PER_TON
 }
 
 const form = reactive({
@@ -99,43 +104,36 @@ function submit() {
     <div class="px-6 py-6">
       <form @submit.prevent="submit" class="space-y-6">
         <div>
-          <label for="title" class="block text-sm font-medium text-soil-700"
+          <label for="title" class="block text-sm font-medium text-soil-700 mb-1"
             >Listing Title <span class="text-red-500">*</span></label
           >
-          <div class="mt-1">
-            <input
-              type="text"
-              id="title"
-              v-model="form.title"
-              required
-              :maxlength="CONTRACT_TITLE_MAX_LENGTH"
-              class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
-              :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.title }"
-            />
-          </div>
+          <AppInput
+            id="title"
+            v-model="form.title"
+            required
+            :maxlength="CONTRACT_TITLE_MAX_LENGTH"
+            :error="errors.title?.[0] ?? ''"
+          />
           <p v-if="errors.title" class="mt-1 text-sm text-red-600">{{ errors.title[0] }}</p>
         </div>
 
         <div>
-          <label for="description" class="block text-sm font-medium text-soil-700"
-            >Description</label
-          >
-          <div class="mt-1">
-            <textarea
-              id="description"
-              v-model="form.description"
-              rows="3"
-              :maxlength="CONTRACT_DESCRIPTION_MAX_LENGTH"
-              class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
-              :class="{
-                'border-red-300 focus:ring-red-500 focus:border-red-500': errors.description,
-              }"
-              placeholder="Add any details about your farming practices, crop quality, etc."
-            ></textarea>
+          <div class="flex items-center justify-between mb-1">
+            <label for="description" class="block text-sm font-medium text-soil-700"
+              >Description</label
+            >
+            <span class="text-[11px] text-stone-400">
+              {{ (form.description || '').length }}/{{ CONTRACT_DESCRIPTION_MAX_LENGTH }}
+            </span>
           </div>
-          <p class="text-xs text-stone-500 mt-1 text-right">
-            {{ (form.description || '').length }} / {{ CONTRACT_DESCRIPTION_MAX_LENGTH }}
-          </p>
+          <textarea
+            id="description"
+            v-model="form.description"
+            rows="3"
+            :maxlength="CONTRACT_DESCRIPTION_MAX_LENGTH"
+            placeholder="Add any details about your farming practices, crop quality, etc."
+            class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
+          ></textarea>
           <p v-if="errors.description" class="mt-1 text-sm text-red-600">
             {{ errors.description[0] }}
           </p>
@@ -143,27 +141,19 @@ function submit() {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label for="quantity" class="block text-sm font-medium text-soil-700"
+            <label for="quantity" class="block text-sm font-medium text-soil-700 mb-1"
               >Quantity (kg) <span class="text-red-500">*</span></label
             >
-            <div class="mt-1 relative rounded-xl shadow-soft">
-              <input
-                type="number"
-                id="quantity"
-                v-model="form.quantity_kg"
-                required
-                :min="CONTRACT_QUANTITY_MIN_KG"
-                :max="CONTRACT_QUANTITY_MAX_KG"
-                step="0.1"
-                class="focus:ring-moss-500 focus:border-moss-500 block w-full pr-12 sm:text-sm border-stone-300 rounded-xl"
-                :class="{
-                  'border-red-300 focus:ring-red-500 focus:border-red-500': errors.quantity_kg,
-                }"
-              />
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-stone-500 sm:text-sm">kg</span>
-              </div>
-            </div>
+            <AppInput
+              id="quantity"
+              type="number"
+              v-model="form.quantity_kg"
+              required
+              :min="CONTRACT_QUANTITY_MIN_KG"
+              :max="CONTRACT_QUANTITY_MAX_KG"
+              step="0.1"
+              :error="errors.quantity_kg?.[0] ?? ''"
+            />
             <p v-if="errors.quantity_kg" class="mt-1 text-sm text-red-600">
               {{ errors.quantity_kg[0] }}
             </p>
@@ -173,30 +163,27 @@ function submit() {
           </div>
 
           <div>
-            <label for="price" class="block text-sm font-medium text-soil-700"
+            <label for="price" class="block text-sm font-medium text-soil-700 mb-1"
               >Price per kg (₱) <span class="text-red-500">*</span></label
             >
-            <div class="mt-1 relative rounded-xl shadow-soft">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-stone-500 sm:text-sm">₱</span>
-              </div>
-              <input
-                type="number"
-                id="price"
-                v-model="form.price_per_kg"
-                required
-                :min="CONTRACT_PRICE_MIN"
-                :max="CONTRACT_PRICE_MAX"
-                step="0.01"
-                class="focus:ring-moss-500 focus:border-moss-500 block w-full pl-7 sm:text-sm border-stone-300 rounded-xl"
-                :class="{
-                  'border-red-300 focus:ring-red-500 focus:border-red-500': errors.price_per_kg,
-                }"
-              />
-            </div>
+            <AppInput
+              id="price"
+              type="number"
+              v-model="form.price_per_kg"
+              required
+              :min="CONTRACT_PRICE_MIN"
+              :max="CONTRACT_PRICE_MAX"
+              step="0.01"
+              :error="errors.price_per_kg?.[0] ?? ''"
+            />
             <p v-if="errors.price_per_kg" class="mt-1 text-sm text-red-600">
               {{ errors.price_per_kg[0] }}
             </p>
+            <PriceGuideHint
+              :crop-name="recommendation.crop_name"
+              :current-price="Number(form.price_per_kg) || null"
+              class="mt-2"
+            />
           </div>
         </div>
 
@@ -209,46 +196,35 @@ function submit() {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label for="harvest" class="block text-sm font-medium text-soil-700"
+            <label for="harvest" class="block text-sm font-medium text-soil-700 mb-1"
               >Estimated Harvest Date <span class="text-red-500">*</span></label
             >
-            <div class="mt-1">
-              <input
-                type="date"
-                id="harvest"
-                v-model="form.estimated_harvest_date"
-                required
-                :min="TODAY_ISO"
-                class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
-                :class="{
-                  'border-red-300 focus:ring-red-500 focus:border-red-500':
-                    errors.estimated_harvest_date,
-                }"
-              />
-            </div>
+            <AppInput
+              id="harvest"
+              type="date"
+              v-model="form.estimated_harvest_date"
+              required
+              :min="TODAY_ISO"
+              :error="errors.estimated_harvest_date?.[0] ?? ''"
+            />
             <p v-if="errors.estimated_harvest_date" class="mt-1 text-sm text-red-600">
               {{ errors.estimated_harvest_date[0] }}
             </p>
           </div>
 
           <div>
-            <label for="expiry" class="block text-sm font-medium text-soil-700"
+            <label for="expiry" class="block text-sm font-medium text-soil-700 mb-1"
               >Listing Expiry Date <span class="text-red-500">*</span></label
             >
-            <div class="mt-1">
-              <input
-                type="date"
-                id="expiry"
-                v-model="form.expiry_date"
-                required
-                :min="TODAY_ISO"
-                :max="form.estimated_harvest_date || undefined"
-                class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
-                :class="{
-                  'border-red-300 focus:ring-red-500 focus:border-red-500': errors.expiry_date,
-                }"
-              />
-            </div>
+            <AppInput
+              id="expiry"
+              type="date"
+              v-model="form.expiry_date"
+              required
+              :min="TODAY_ISO"
+              :max="form.estimated_harvest_date || undefined"
+              :error="errors.expiry_date?.[0] ?? ''"
+            />
             <p v-if="errors.expiry_date" class="mt-1 text-sm text-red-600">
               {{ errors.expiry_date[0] }}
             </p>
@@ -259,42 +235,12 @@ function submit() {
         </div>
 
         <div class="pt-5 flex justify-end gap-3 border-t border-stone-200 mt-8">
-          <button
-            type="button"
-            @click="$emit('cancel')"
-            :disabled="loading"
-            class="bg-white py-2 px-4 border border-stone-300 rounded-xl shadow-soft text-sm font-medium text-stone-700 hover:bg-stone-50 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
-          >
+          <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">
             Cancel
-          </button>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-soft text-sm font-medium rounded-xl text-white bg-gradient-to-r from-moss-600 to-moss-700 hover:from-moss-700 hover:to-moss-800 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
-          >
-            <svg
-              v-if="loading"
-              class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+          </AppButton>
+          <AppButton type="submit" variant="primary" :loading="loading" :disabled="loading">
             {{ loading ? 'Publishing...' : 'Publish to Marketplace' }}
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>

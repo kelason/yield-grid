@@ -2,6 +2,7 @@
 import AppCard from '../atoms/AppCard.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
+import PriceFairnessBadge from '../atoms/PriceFairnessBadge.vue'
 import { MapPinIcon } from '@heroicons/vue/24/outline'
 
 defineProps({
@@ -70,6 +71,11 @@ function remainingPercent(demand) {
       <p>
         <PriceTag :amount="demand.target_price_per_kg" size="md" />
         <span class="text-sm text-stone-500">/kg target</span>
+        <PriceFairnessBadge
+          :listing-price="Number(demand.target_price_per_kg)"
+          :crop-name="demand.crop_name"
+          class="ml-2"
+        />
       </p>
       <div class="text-right text-xs text-stone-500">
         <p>
