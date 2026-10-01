@@ -45,14 +45,14 @@ async function submitContact() {
     <FormField id="contact-subject" label="Subject" v-model="form.subject" />
 
     <div>
-      <label for="contact-message" class="block text-sm font-medium text-gray-700">Message</label>
+      <label for="contact-message" class="block text-sm font-medium text-soil-700">Message</label>
       <div class="mt-1">
         <textarea
           id="contact-message"
           v-model="form.message"
           rows="4"
           required
-          class="py-3 px-4 block w-full shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300 rounded-md border sm:text-sm"
+          class="py-3 px-4 block w-full shadow-soft focus:ring-moss-500 focus:border-moss-500 border-stone-300 rounded-xl border sm:text-sm"
         ></textarea>
       </div>
     </div>

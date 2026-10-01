@@ -244,7 +244,7 @@ function getInitials(name) {
         <!-- Toggle button -->
         <button
           @click="isCollapsed = !isCollapsed"
-          class="absolute -right-3 top-5 bg-white border border-stone-200 rounded-full p-1 text-stone-400 hover:text-stone-600 shadow-sm z-10 transition-transform duration-300"
+          class="absolute -right-3 top-5 bg-white border border-stone-200 rounded-full p-1 text-stone-400 hover:text-stone-600 shadow-soft z-10 transition-transform duration-300"
           :class="isCollapsed ? 'rotate-180' : ''"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,7 +302,7 @@ function getInitials(name) {
                   isGroupActive(entry)
                     ? 'bg-moss-50 text-moss-700'
                     : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900',
-                  'group flex items-center w-full px-2 pr-2 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500',
+                  'group flex items-center w-full px-2 pr-2 py-2.5 text-sm font-medium rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500',
                 ]"
               >
                 <svg
@@ -366,7 +366,7 @@ function getInitials(name) {
           >
             <!-- Organic avatar -->
             <div
-              class="w-9 h-9 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0 cursor-pointer"
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-sm font-bold shadow-soft flex-shrink-0 cursor-pointer"
               :title="isCollapsed ? authStore.user?.name : ''"
             >
               {{ getInitials(authStore.user?.name) }}

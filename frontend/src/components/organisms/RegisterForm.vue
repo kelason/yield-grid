@@ -88,7 +88,7 @@ async function handleRegister() {
     />
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">I am a...</label>
+      <label class="block text-sm font-medium text-soil-700">I am a...</label>
       <div class="mt-2 flex items-center space-x-6">
         <div class="flex items-center">
           <input
@@ -96,9 +96,9 @@ async function handleRegister() {
             type="radio"
             value="buyer"
             v-model="form.role"
-            class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300"
+            class="focus:ring-moss-500 h-4 w-4 text-moss-600 border-stone-300"
           />
-          <label for="role_buyer" class="ml-3 block text-sm font-medium text-gray-700">Buyer</label>
+          <label for="role_buyer" class="ml-3 block text-sm font-medium text-soil-700">Buyer</label>
         </div>
         <div class="flex items-center">
           <input
@@ -106,9 +106,9 @@ async function handleRegister() {
             type="radio"
             value="farmer"
             v-model="form.role"
-            class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300"
+            class="focus:ring-moss-500 h-4 w-4 text-moss-600 border-stone-300"
           />
-          <label for="role_farmer" class="ml-3 block text-sm font-medium text-gray-700"
+          <label for="role_farmer" class="ml-3 block text-sm font-medium text-soil-700"
             >Farmer</label
           >
         </div>
@@ -136,7 +136,7 @@ async function handleRegister() {
           id="reg-has-address"
           type="checkbox"
           v-model="showAddress"
-          class="h-4 w-4 rounded text-moss-600 border-stone-300 focus:ring-moss-500"
+          class="h-4 w-4 rounded-xl text-moss-600 border-stone-300 focus:ring-moss-500"
         />
         <span class="text-sm font-medium text-stone-900">
           Add my address now

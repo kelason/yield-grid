@@ -77,10 +77,12 @@ function submit() {
 </script>
 
 <template>
-  <div class="bg-white shadow-sm rounded-lg border border-gray-200">
-    <div class="px-6 py-5 border-b border-gray-200 bg-gray-50/50 rounded-t-lg">
-      <h3 class="text-lg leading-6 font-medium text-gray-900">Publish Forward Contract</h3>
-      <p class="mt-1 text-sm text-gray-500">
+  <div class="bg-white shadow-soft rounded-2xl border border-stone-200">
+    <div class="px-6 py-5 border-b border-stone-200 bg-stone-50/50 rounded-t-2xl">
+      <h3 class="font-serif text-lg leading-6 font-medium text-stone-900">
+        Publish Forward Contract
+      </h3>
+      <p class="mt-1 text-sm text-stone-500">
         Create a listing on the YieldGrid Marketplace based on your accepted recommendation for
         {{ recommendation.crop_name }}.
       </p>
@@ -89,7 +91,7 @@ function submit() {
     <div class="px-6 py-6">
       <form @submit.prevent="submit" class="space-y-6">
         <div>
-          <label for="title" class="block text-sm font-medium text-gray-700"
+          <label for="title" class="block text-sm font-medium text-soil-700"
             >Listing Title <span class="text-red-500">*</span></label
           >
           <div class="mt-1">
@@ -98,7 +100,7 @@ function submit() {
               id="title"
               v-model="form.title"
               required
-              class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
               :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.title }"
             />
           </div>
@@ -106,7 +108,7 @@ function submit() {
         </div>
 
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700"
+          <label for="description" class="block text-sm font-medium text-soil-700"
             >Description</label
           >
           <div class="mt-1">
@@ -114,7 +116,7 @@ function submit() {
               id="description"
               v-model="form.description"
               rows="3"
-              class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
               :class="{
                 'border-red-300 focus:ring-red-500 focus:border-red-500': errors.description,
               }"
@@ -128,10 +130,10 @@ function submit() {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label for="quantity" class="block text-sm font-medium text-gray-700"
+            <label for="quantity" class="block text-sm font-medium text-soil-700"
               >Quantity (kg) <span class="text-red-500">*</span></label
             >
-            <div class="mt-1 relative rounded-md shadow-sm">
+            <div class="mt-1 relative rounded-xl shadow-soft">
               <input
                 type="number"
                 id="quantity"
@@ -139,30 +141,30 @@ function submit() {
                 required
                 min="1"
                 step="0.1"
-                class="focus:ring-green-500 focus:border-green-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-md"
+                class="focus:ring-moss-500 focus:border-moss-500 block w-full pr-12 sm:text-sm border-stone-300 rounded-xl"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.quantity_kg,
                 }"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">kg</span>
+                <span class="text-stone-500 sm:text-sm">kg</span>
               </div>
             </div>
             <p v-if="errors.quantity_kg" class="mt-1 text-sm text-red-600">
               {{ errors.quantity_kg[0] }}
             </p>
-            <p v-else class="mt-1 text-xs text-gray-500">
+            <p v-else class="mt-1 text-xs text-stone-500">
               Projected yield was {{ recommendation.projected_yield }}
             </p>
           </div>
 
           <div>
-            <label for="price" class="block text-sm font-medium text-gray-700"
+            <label for="price" class="block text-sm font-medium text-soil-700"
               >Price per kg (₱) <span class="text-red-500">*</span></label
             >
-            <div class="mt-1 relative rounded-md shadow-sm">
+            <div class="mt-1 relative rounded-xl shadow-soft">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">₱</span>
+                <span class="text-stone-500 sm:text-sm">₱</span>
               </div>
               <input
                 type="number"
@@ -171,7 +173,7 @@ function submit() {
                 required
                 min="0.01"
                 step="0.01"
-                class="focus:ring-green-500 focus:border-green-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md"
+                class="focus:ring-moss-500 focus:border-moss-500 block w-full pl-7 sm:text-sm border-stone-300 rounded-xl"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.price_per_kg,
                 }"
@@ -184,15 +186,15 @@ function submit() {
         </div>
 
         <div
-          class="bg-gray-50 p-4 rounded-md border border-gray-100 flex justify-between items-center"
+          class="bg-stone-50 p-4 rounded-xl border border-stone-100 flex justify-between items-center"
         >
-          <span class="text-sm font-medium text-gray-700">Total Contract Value:</span>
-          <span class="text-xl font-bold text-green-700">{{ formattedTotalPrice }}</span>
+          <span class="text-sm font-medium text-stone-700">Total Contract Value:</span>
+          <span class="text-xl font-bold text-harvest-700">{{ formattedTotalPrice }}</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label for="harvest" class="block text-sm font-medium text-gray-700"
+            <label for="harvest" class="block text-sm font-medium text-soil-700"
               >Estimated Harvest Date <span class="text-red-500">*</span></label
             >
             <div class="mt-1">
@@ -201,7 +203,7 @@ function submit() {
                 id="harvest"
                 v-model="form.estimated_harvest_date"
                 required
-                class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500':
                     errors.estimated_harvest_date,
@@ -214,7 +216,7 @@ function submit() {
           </div>
 
           <div>
-            <label for="expiry" class="block text-sm font-medium text-gray-700"
+            <label for="expiry" class="block text-sm font-medium text-soil-700"
               >Listing Expiry Date <span class="text-red-500">*</span></label
             >
             <div class="mt-1">
@@ -223,7 +225,7 @@ function submit() {
                 id="expiry"
                 v-model="form.expiry_date"
                 required
-                class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                class="shadow-soft focus:ring-moss-500 focus:border-moss-500 block w-full sm:text-sm border-stone-300 rounded-xl"
                 :class="{
                   'border-red-300 focus:ring-red-500 focus:border-red-500': errors.expiry_date,
                 }"
@@ -232,25 +234,25 @@ function submit() {
             <p v-if="errors.expiry_date" class="mt-1 text-sm text-red-600">
               {{ errors.expiry_date[0] }}
             </p>
-            <p v-else class="mt-1 text-xs text-gray-500">
+            <p v-else class="mt-1 text-xs text-stone-500">
               When the contract will be removed if unsold.
             </p>
           </div>
         </div>
 
-        <div class="pt-5 flex justify-end gap-3 border-t border-gray-200 mt-8">
+        <div class="pt-5 flex justify-end gap-3 border-t border-stone-200 mt-8">
           <button
             type="button"
             @click="$emit('cancel')"
             :disabled="loading"
-            class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+            class="bg-white py-2 px-4 border border-stone-300 rounded-xl shadow-soft text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             :disabled="loading"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-soft text-sm font-medium rounded-xl text-white bg-gradient-to-r from-moss-600 to-moss-700 hover:from-moss-700 hover:to-moss-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 disabled:opacity-50"
           >
             <svg
               v-if="loading"

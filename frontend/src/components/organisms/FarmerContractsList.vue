@@ -42,8 +42,8 @@ const handleTabChange = (tabId) => {
 </script>
 
 <template>
-  <div class="bg-white shadow rounded-lg border border-gray-200">
-    <div class="border-b border-gray-200">
+  <div class="bg-white shadow-soft rounded-2xl border border-stone-200">
+    <div class="border-b border-stone-200">
       <nav class="-mb-px flex space-x-8 px-6 overflow-x-auto no-scrollbar" aria-label="Tabs">
         <button
           v-for="tab in tabs"
@@ -51,8 +51,8 @@ const handleTabChange = (tabId) => {
           @click="handleTabChange(tab.id)"
           :class="[
             currentTab === tab.id
-              ? 'border-green-500 text-green-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+              ? 'border-moss-500 text-moss-600'
+              : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300',
             'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
           ]"
         >
@@ -74,21 +74,21 @@ const handleTabChange = (tabId) => {
               >
                 <td class="px-6 py-4">
                   <div class="space-y-2">
-                    <div class="h-4 bg-stone-200 rounded-lg w-48"></div>
-                    <div class="h-3 bg-stone-200 rounded-lg w-32"></div>
+                    <div class="h-4 bg-stone-200 rounded-xl w-48"></div>
+                    <div class="h-3 bg-stone-200 rounded-xl w-32"></div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="h-6 bg-stone-200 rounded-full w-20"></div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="h-4 bg-stone-200 rounded-lg w-24"></div>
+                  <div class="h-4 bg-stone-200 rounded-xl w-24"></div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="h-4 bg-stone-200 rounded-lg w-28"></div>
+                  <div class="h-4 bg-stone-200 rounded-xl w-28"></div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="h-4 bg-stone-200 rounded-lg w-16 ml-auto"></div>
+                  <div class="h-4 bg-stone-200 rounded-xl w-16 ml-auto"></div>
                 </td>
               </tr>
             </tbody>
@@ -102,7 +102,7 @@ const handleTabChange = (tabId) => {
             class="animate-pulse motion-reduce:animate-none p-4 space-y-3"
           >
             <div class="flex justify-between items-center gap-3">
-              <div class="h-4 bg-stone-200 rounded-lg w-1/2"></div>
+              <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
               <div class="h-6 bg-stone-200 rounded-full w-16 flex-shrink-0"></div>
             </div>
             <div class="h-16 bg-stone-200 rounded-xl"></div>
@@ -111,11 +111,11 @@ const handleTabChange = (tabId) => {
         <span class="sr-only">Loading contracts...</span>
       </div>
 
-      <div v-else-if="contracts.length === 0" class="p-12 text-center text-gray-500">
+      <div v-else-if="contracts.length === 0" class="p-12 text-center text-stone-500">
         <div
-          class="bg-gray-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4"
+          class="bg-stone-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4"
         >
-          <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-8 w-8 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -130,46 +130,46 @@ const handleTabChange = (tabId) => {
       <div v-else>
         <!-- Desktop Table -->
         <div class="hidden lg:block overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+          <table class="min-w-full divide-y divide-stone-200">
+            <thead class="bg-stone-50">
               <tr>
                 <th
                   scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
                   Contract Details
                 </th>
                 <th
                   scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
                   Status
                 </th>
                 <th
                   scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
                   Total Value
                 </th>
                 <th
                   scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
                   Harvest Date
                 </th>
                 <th
                   scope="col"
-                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-6 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white divide-y divide-stone-200">
               <tr
                 v-for="contract in contracts"
                 :key="contract.id"
-                class="hover:bg-gray-50 transition-colors"
+                class="hover:bg-stone-50 transition-colors"
               >
                 <td class="px-6 py-4 align-top">
                   <div class="flex flex-col">
@@ -204,9 +204,9 @@ const handleTabChange = (tabId) => {
                     :currency="contract.currency"
                     size="sm"
                   />
-                  <div class="text-xs text-gray-400 mt-1">@ ₱{{ contract.price_per_kg }}/kg</div>
+                  <div class="text-xs text-stone-400 mt-1">@ ₱{{ contract.price_per_kg }}/kg</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 align-top">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 align-top">
                   {{ contract.estimated_harvest_date }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium align-top">
@@ -235,11 +235,11 @@ const handleTabChange = (tabId) => {
         </div>
 
         <!-- Mobile/Tablet Card List -->
-        <div class="lg:hidden divide-y divide-gray-200">
+        <div class="lg:hidden divide-y divide-stone-200">
           <div
             v-for="contract in contracts"
             :key="contract.id"
-            class="p-4 bg-white hover:bg-gray-50 transition-colors"
+            class="p-4 bg-white hover:bg-stone-50 transition-colors"
           >
             <div class="flex justify-between items-start mb-3">
               <div class="flex flex-col pr-4">
@@ -268,21 +268,21 @@ const handleTabChange = (tabId) => {
             </div>
 
             <div
-              class="grid grid-cols-2 gap-4 mt-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100"
+              class="grid grid-cols-2 gap-4 mt-4 text-sm bg-stone-50 p-3 rounded-xl border border-stone-100"
             >
               <div>
-                <span class="block text-xs font-medium text-gray-500 mb-1">Total Value</span>
+                <span class="block text-xs font-medium text-stone-500 mb-1">Total Value</span>
                 <PriceTag :amount="contract.total_price" :currency="contract.currency" size="sm" />
-                <div class="text-xs text-gray-400 mt-0.5">@ ₱{{ contract.price_per_kg }}/kg</div>
+                <div class="text-xs text-stone-400 mt-0.5">@ ₱{{ contract.price_per_kg }}/kg</div>
               </div>
               <div>
-                <span class="block text-xs font-medium text-gray-500 mb-1">Harvest Date</span>
-                <span class="text-gray-900">{{ contract.estimated_harvest_date }}</span>
+                <span class="block text-xs font-medium text-stone-500 mb-1">Harvest Date</span>
+                <span class="text-stone-900">{{ contract.estimated_harvest_date }}</span>
               </div>
             </div>
 
             <div
-              class="flex justify-end pt-3 mt-3 border-t border-gray-100"
+              class="flex justify-end pt-3 mt-3 border-t border-stone-100"
               v-if="
                 contract.status === 'available' ||
                 contract.status === 'reserved' ||
@@ -292,14 +292,14 @@ const handleTabChange = (tabId) => {
               <button
                 v-if="contract.status === 'available'"
                 @click="$emit('cancel-contract', contract)"
-                class="inline-flex items-center justify-center px-4 py-2 border border-red-200 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors w-full sm:w-auto"
+                class="inline-flex items-center justify-center px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] w-full sm:w-auto"
               >
                 Cancel Listing
               </button>
               <router-link
                 v-else
                 :to="{ name: 'farmer-cash-approvals' }"
-                class="inline-flex items-center justify-center px-4 py-2 border border-moss-200 rounded-lg text-sm font-medium text-moss-600 bg-moss-50 hover:bg-moss-100 transition-colors w-full sm:w-auto"
+                class="inline-flex items-center justify-center px-4 py-2 border border-moss-200 rounded-xl text-sm font-medium text-moss-600 bg-moss-50 hover:bg-moss-100 transition-all duration-300 hover:scale-[1.02] w-full sm:w-auto"
               >
                 Review Payment
               </router-link>
