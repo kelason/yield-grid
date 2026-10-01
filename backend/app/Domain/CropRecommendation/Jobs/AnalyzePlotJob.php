@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Jobs;
 
+use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Events\AnalysisCompleted;
 use App\Domain\CropRecommendation\Services\AgroMonitoringService;
 use App\Domain\CropRecommendation\Services\CropAdvisorService;
@@ -43,7 +44,7 @@ class AnalyzePlotJob implements ShouldQueue
 
             // 3. Save to Database (remove previous pending recommendations so fresh analysis is displayed)
             CropRecommendation::where('plot_id', $plot->id)
-                ->where('status', 'pending')
+                ->where('status', RecommendationStatus::PENDING->value)
                 ->delete();
 
             foreach ($recommendations as $rec) {
@@ -53,7 +54,7 @@ class AnalyzePlotJob implements ShouldQueue
                     'confidence_score' => $rec['confidence_score'] ?? 0,
                     'reasoning' => $rec['reasoning'] ?? '',
                     'projected_yield' => $rec['projected_yield'] ?? '',
-                    'status' => 'pending',
+                    'status' => RecommendationStatus::PENDING->value,
                 ]);
             }
 
