@@ -52,8 +52,8 @@ function handleViewRecommendations(farmId) {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h2 class="text-xl font-bold text-gray-900 tracking-tight">My Farms</h2>
-        <p class="text-sm text-gray-500 mt-0.5">
+        <h2 class="font-serif text-xl font-bold text-stone-900 tracking-tight">My Farms</h2>
+        <p class="text-sm text-stone-500 mt-0.5">
           {{ farmingStore.farms.length }} farm(s) registered
         </p>
       </div>
@@ -93,7 +93,7 @@ function handleViewRecommendations(farmId) {
         <AppCard variant="muted">
           <div class="flex items-center gap-2 mb-5">
             <span class="text-xl">🏡</span>
-            <h3 class="text-base font-bold text-gray-900">Create New Farm</h3>
+            <h3 class="font-serif text-base font-bold text-stone-900">Create New Farm</h3>
           </div>
           <CreateFarmForm
             :loading="isCreating"
@@ -113,28 +113,28 @@ function handleViewRecommendations(farmId) {
       <div
         v-for="n in SKELETON_COUNT"
         :key="n"
-        class="animate-pulse bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4"
+        class="animate-pulse bg-white rounded-2xl border border-stone-100 shadow-soft p-6 space-y-4"
       >
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gray-200 rounded-xl"></div>
+          <div class="w-10 h-10 bg-stone-200 rounded-xl"></div>
           <div class="flex-1 space-y-2">
-            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+            <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
+            <div class="h-3 bg-stone-100 rounded-xl w-1/2"></div>
           </div>
         </div>
-        <div class="h-10 bg-gray-100 rounded-lg"></div>
-        <div class="h-9 bg-gray-200 rounded-lg"></div>
+        <div class="h-10 bg-stone-100 rounded-xl"></div>
+        <div class="h-9 bg-stone-200 rounded-xl"></div>
       </div>
     </div>
 
     <!-- Empty state -->
     <div
       v-else-if="!farmingStore.farms.length && !showCreateForm"
-      class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200"
+      class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-stone-200 hover:border-moss-300 transition-colors duration-200"
     >
       <div class="text-5xl mb-4">🌾</div>
-      <h3 class="text-base font-semibold text-gray-900 mb-1">No farms yet</h3>
-      <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
+      <h3 class="font-serif text-base font-semibold text-stone-900 mb-1">No farms yet</h3>
+      <p class="text-sm text-stone-500 mb-6 max-w-xs mx-auto">
         Create your first farm to start planning plots and getting AI crop recommendations.
       </p>
       <AppButton

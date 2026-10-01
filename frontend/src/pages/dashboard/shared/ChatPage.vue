@@ -105,8 +105,8 @@ const scrollToBottom = () => {
           >
             <div class="rounded-full bg-stone-200 h-12 w-12 flex-shrink-0"></div>
             <div class="flex-1 space-y-2">
-              <div class="h-4 bg-stone-200 rounded-lg w-2/3"></div>
-              <div class="h-3 bg-stone-200 rounded-lg w-full"></div>
+              <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
+              <div class="h-3 bg-stone-200 rounded-xl w-full"></div>
             </div>
           </div>
           <span class="sr-only">Loading conversations...</span>
@@ -136,11 +136,11 @@ const scrollToBottom = () => {
       <template v-if="activeConversation">
         <!-- Header -->
         <div
-          class="p-4 bg-white border-b border-stone-300 flex items-center gap-3 md:rounded-tr-2xl shadow-sm z-10"
+          class="p-4 bg-white border-b border-stone-300 flex items-center gap-3 md:rounded-tr-2xl shadow-soft z-10"
         >
           <button
             @click="selectedConversationId = null"
-            class="md:hidden p-2 text-stone-500 hover:bg-stone-100 rounded-full"
+            class="md:hidden p-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors duration-200"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -158,7 +158,7 @@ const scrollToBottom = () => {
               name: 'user-profile',
               params: { userId: activeConversation.other_participant.id },
             }"
-            class="flex items-center gap-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+            class="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
           >
             <img
               v-if="activeConversation.other_participant?.avatar_url"

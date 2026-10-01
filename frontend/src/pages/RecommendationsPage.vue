@@ -5,7 +5,7 @@
       <div class="flex items-center gap-4">
         <router-link
           :to="{ name: 'farm-manager' }"
-          class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700 transition-colors duration-200 group"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-moss-600 hover:text-moss-700 transition-colors duration-200 group"
         >
           <svg
             class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200"
@@ -23,10 +23,10 @@
           </svg>
           Back to My Farms
         </router-link>
-        <span class="text-gray-300">|</span>
+        <span class="text-stone-300">|</span>
         <router-link
           to="/dashboard/farmer"
-          class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-700 transition-colors duration-200"
         >
           Dashboard Overview
         </router-link>
@@ -36,7 +36,7 @@
       <div v-if="farmingStore.allPlots.length > 1" class="flex items-center gap-2">
         <label
           for="plot-selector"
-          class="text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+          class="text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap"
         >
           Plot:
         </label>
@@ -45,7 +45,7 @@
             id="plot-selector"
             :value="activePlotId"
             @change="handlePlotChange(Number($event.target.value))"
-            class="block w-full rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-800 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all cursor-pointer"
+            class="block w-full rounded-xl border border-stone-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-stone-800 shadow-soft focus:border-moss-500 focus:outline-none focus:ring-1 focus:ring-moss-500 transition-all cursor-pointer"
           >
             <option v-for="p in farmingStore.allPlots" :key="p.id" :value="p.id">
               {{ p.name }} ({{ p.farm_name || 'Farm' }}) —
@@ -59,17 +59,17 @@
     <!-- Empty State: No Plots in Account -->
     <div
       v-if="!isLoadingPlots && farmingStore.allPlots.length === 0"
-      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200 shadow-sm"
+      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-stone-200 hover:border-moss-300 transition-colors duration-200 shadow-soft"
     >
       <div class="text-5xl mb-4">🌾</div>
-      <h3 class="text-xl font-bold text-gray-900 mb-2">No plots registered yet</h3>
-      <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+      <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">No plots registered yet</h3>
+      <p class="text-stone-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
         You need to create a farm and draw at least one plot before you can receive AI crop
         recommendations.
       </p>
       <router-link
         :to="{ name: 'farm-manager' }"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-full shadow-sm hover:shadow transition-all duration-200"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 text-white font-semibold rounded-full shadow-soft hover:shadow transition-all duration-200"
       >
         <span>🏡</span>
         <span>Go to My Farms</span>
@@ -79,7 +79,7 @@
     <!-- Loading plots -->
     <div v-else-if="isLoadingPlots" class="space-y-6" role="status" aria-label="Loading plots">
       <div class="animate-pulse motion-reduce:animate-none space-y-4" aria-hidden="true">
-        <div class="h-9 bg-stone-200 rounded-lg w-64"></div>
+        <div class="h-9 bg-stone-200 rounded-xl w-64"></div>
         <div class="flex gap-2">
           <div class="h-7 bg-stone-200 rounded-full w-24"></div>
           <div class="h-7 bg-stone-200 rounded-full w-28"></div>
@@ -95,7 +95,7 @@
       <!-- Header -->
       <header class="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+          <h1 class="font-serif text-3xl font-extrabold text-stone-900 tracking-tight mb-3">
             {{ plotDisplayName }} Recommendations
           </h1>
 
@@ -113,13 +113,13 @@
             </span>
             <span
               v-if="locationLabel"
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-moss-50 text-moss-700 rounded-full text-xs font-semibold border border-moss-200"
             >
               📍 {{ locationLabel }}
             </span>
             <span
               v-if="currentPlot?.farm_name"
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-xs font-semibold border border-gray-200"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-50 text-stone-700 rounded-full text-xs font-semibold border border-stone-200"
             >
               🏡 {{ currentPlot.farm_name }}
             </span>
@@ -168,11 +168,11 @@
         <!-- Empty state -->
         <div
           v-else
-          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200"
+          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-stone-200 hover:border-moss-300 transition-colors duration-200"
         >
           <div class="text-5xl mb-4">🌾</div>
-          <h3 class="text-lg font-bold text-gray-900 mb-2">No recommendations yet</h3>
-          <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+          <h3 class="font-serif text-lg font-bold text-stone-900 mb-2">No recommendations yet</h3>
+          <p class="text-stone-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
             Run our AI advisor to analyse soil conditions and weather patterns and get optimised
             crop recommendations for this
             {{ plotArea !== '0.00' ? plotArea + ' ha' : '' }}
@@ -203,7 +203,7 @@
         class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
       >
         <div
-          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          class="fixed inset-0 bg-stone-500 bg-opacity-75 transition-opacity"
           aria-hidden="true"
           @click="closePublishModal"
         ></div>
@@ -211,7 +211,7 @@
           >&#8203;</span
         >
         <div
-          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
+          class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-organic transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
         >
           <PublishContractForm
             :recommendation="selectedRecommendation"

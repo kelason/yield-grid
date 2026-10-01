@@ -86,7 +86,7 @@ const goBack = () => router.push({ name: 'community-forum' })
   <div class="h-full flex flex-col">
     <button
       @click="goBack"
-      class="flex items-center gap-2 text-stone-500 hover:text-moss-600 transition-colors mb-6 font-medium"
+      class="flex items-center gap-2 text-stone-500 hover:text-moss-600 transition-colors duration-200 mb-6 font-medium"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -120,7 +120,7 @@ const goBack = () => router.push({ name: 'community-forum' })
           <form @submit.prevent="handleReply">
             <div
               v-if="replyingToReply"
-              class="mb-3 flex items-center justify-between bg-stone-100 p-3 rounded-lg border border-stone-300"
+              class="mb-3 flex items-center justify-between bg-stone-100 p-3 rounded-xl border border-stone-300"
             >
               <div class="text-sm text-stone-600 truncate flex-grow mr-4">
                 <span class="font-medium text-stone-900"
@@ -131,7 +131,7 @@ const goBack = () => router.push({ name: 'community-forum' })
               <button
                 type="button"
                 @click="replyingToId = null"
-                class="text-stone-400 hover:text-stone-600 flex-shrink-0"
+                class="text-stone-400 hover:text-stone-600 transition-colors duration-200 flex-shrink-0"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -159,7 +159,7 @@ const goBack = () => router.push({ name: 'community-forum' })
               v-model="replyBody"
               rows="4"
               :maxlength="FORUM_CONSTANTS.REPLY_MAX_LENGTH"
-              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white resize-y mb-3"
+              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white resize-y mb-3"
               placeholder="Add your knowledge or ask for clarification..."
               required
             ></textarea>
@@ -169,7 +169,7 @@ const goBack = () => router.push({ name: 'community-forum' })
                   v-model="isAnonymous"
                   type="checkbox"
                   id="anon-reply"
-                  class="rounded text-moss-600 focus:ring-moss-500 w-4 h-4 border-stone-300"
+                  class="rounded-xl text-moss-600 focus:ring-moss-500 w-4 h-4 border-stone-300"
                 />
                 <label for="anon-reply" class="text-sm text-stone-600 cursor-pointer"
                   >Post anonymously</label

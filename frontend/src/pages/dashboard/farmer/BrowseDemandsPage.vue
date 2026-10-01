@@ -211,7 +211,7 @@ async function handleSubmitOffer() {
             rows="3"
             :maxlength="OFFER_MESSAGE_MAX_LENGTH"
             placeholder="e.g. Fresh harvest, can deliver this week"
-            class="block w-full px-4 py-2.5 border rounded-xl shadow-sm placeholder-stone-400 transition-all duration-200 motion-reduce:transition-none sm:text-sm bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white border-stone-300 text-soil-700 hover:border-stone-400"
+            class="block w-full px-4 py-2.5 border rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 motion-reduce:transition-none sm:text-sm bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white border-stone-300 text-soil-700 hover:border-stone-400"
           />
           <p class="text-xs text-stone-500 mt-1 text-right">
             {{ (offerForm.message || '').length }} / {{ OFFER_MESSAGE_MAX_LENGTH }}

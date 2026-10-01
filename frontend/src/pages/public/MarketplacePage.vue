@@ -94,11 +94,13 @@ const handleConfirmCheckout = async (checkoutData) => {
 <template>
   <div class="space-y-6">
     <!-- Page Header -->
-    <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-800 p-6 text-white shadow-lg">
+    <div
+      class="rounded-2xl bg-gradient-to-r from-moss-600 to-moss-800 p-6 text-white shadow-organic"
+    >
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 class="text-2xl font-bold">The Harvest Exchange</h1>
-          <p class="text-green-200 text-sm mt-1">
+          <h1 class="font-serif text-2xl font-bold">The Harvest Exchange</h1>
+          <p class="text-moss-200 text-sm mt-1">
             Secure your supply directly from Filipino farmers at a fixed price.
           </p>
         </div>
@@ -132,7 +134,7 @@ const handleConfirmCheckout = async (checkoutData) => {
       >
         <!-- Backdrop -->
         <div
-          class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+          class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity"
           @click="showCheckoutPanel = false"
         ></div>
 
@@ -140,16 +142,16 @@ const handleConfirmCheckout = async (checkoutData) => {
         <div
           class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all"
         >
-          <div class="h-2 bg-gradient-to-r from-green-500 to-green-700 w-full"></div>
+          <div class="h-2 bg-gradient-to-r from-moss-500 to-moss-700 w-full"></div>
           <!-- Header -->
           <div
-            class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100 z-10"
+            class="flex items-center justify-between px-6 py-4 bg-white border-b border-stone-100 z-10"
           >
-            <h2 class="text-xl font-semibold text-gray-900">Contract Details</h2>
+            <h2 class="font-serif text-xl font-semibold text-stone-900">Contract Details</h2>
             <button
               type="button"
               @click="showCheckoutPanel = false"
-              class="rounded-full p-2 bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+              class="rounded-full p-2 bg-stone-50 text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-moss-500 transition-colors duration-200"
             >
               <span class="sr-only">Close panel</span>
               <XMarkIcon class="h-5 w-5" aria-hidden="true" />
@@ -160,7 +162,7 @@ const handleConfirmCheckout = async (checkoutData) => {
           <div class="flex-1 overflow-y-auto p-0 bg-white relative">
             <div v-if="marketStore.loading.details" class="flex justify-center items-center h-64">
               <svg
-                class="animate-spin h-8 w-8 text-green-500"
+                class="animate-spin h-8 w-8 text-moss-500"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"

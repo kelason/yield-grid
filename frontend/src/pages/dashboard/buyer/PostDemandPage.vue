@@ -171,7 +171,7 @@ async function handleSubmit() {
               v-model="form.needed_by_date"
               :min="todayISO"
               required
-              class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm bg-stone-50 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
+              class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
             />
             <p v-if="errors.needed_by_date" class="mt-1 text-sm text-red-600">
               {{ errors.needed_by_date }}
@@ -188,7 +188,7 @@ async function handleSubmit() {
               :min="todayISO"
               :max="form.needed_by_date || undefined"
               required
-              class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm bg-stone-50 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
+              class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
             />
             <p v-if="errors.expiry_date" class="mt-1 text-sm text-red-600">
               {{ errors.expiry_date }}
@@ -204,7 +204,7 @@ async function handleSubmit() {
             v-model="form.description"
             rows="3"
             placeholder="Quality requirements, delivery notes…"
-            class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-sm bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
+            class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
           ></textarea>
         </div>
 

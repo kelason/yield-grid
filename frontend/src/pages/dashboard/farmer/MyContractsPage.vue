@@ -65,10 +65,10 @@ const handlePageChange = (page) => {
   <div class="py-6 space-y-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
       <div class="flex-1 min-w-0">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        <h2 class="font-serif text-2xl font-bold leading-7 text-stone-900 sm:text-3xl sm:truncate">
           My Forward Contracts
         </h2>
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="mt-1 text-sm text-stone-500">
           Manage your published crop listings and track sales.
         </p>
       </div>
@@ -77,18 +77,18 @@ const handlePageChange = (page) => {
     <!-- Stats -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <div
-        class="bg-gradient-to-br from-white to-gray-50 overflow-hidden shadow rounded-lg border border-gray-100"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">
-            <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
-              <DocumentTextIcon class="h-6 w-6 text-blue-600" aria-hidden="true" />
+            <div class="flex-shrink-0 bg-dew-100 rounded-xl p-3">
+              <DocumentTextIcon class="h-6 w-6 text-dew-600" aria-hidden="true" />
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Listed</dt>
+                <dt class="text-sm font-medium text-stone-500 truncate">Total Listed</dt>
                 <dd>
-                  <div class="text-2xl font-semibold text-gray-900">
+                  <div class="text-2xl font-semibold text-stone-900">
                     {{ marketStore.farmerStats.total_listed }}
                   </div>
                 </dd>
@@ -99,18 +99,18 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-br from-white to-gray-50 overflow-hidden shadow rounded-lg border border-gray-100"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">
-            <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
-              <ClockIcon class="h-6 w-6 text-yellow-600" aria-hidden="true" />
+            <div class="flex-shrink-0 bg-harvest-100 rounded-xl p-3">
+              <ClockIcon class="h-6 w-6 text-harvest-600" aria-hidden="true" />
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Reserved</dt>
+                <dt class="text-sm font-medium text-stone-500 truncate">Total Reserved</dt>
                 <dd>
-                  <div class="text-2xl font-semibold text-gray-900">
+                  <div class="text-2xl font-semibold text-stone-900">
                     {{ marketStore.farmerStats.total_reserved }}
                   </div>
                 </dd>
@@ -121,18 +121,18 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-br from-white to-gray-50 overflow-hidden shadow rounded-lg border border-gray-100"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">
-            <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-              <ChartBarIcon class="h-6 w-6 text-green-600" aria-hidden="true" />
+            <div class="flex-shrink-0 bg-moss-100 rounded-xl p-3">
+              <ChartBarIcon class="h-6 w-6 text-moss-600" aria-hidden="true" />
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Sold</dt>
+                <dt class="text-sm font-medium text-stone-500 truncate">Total Sold</dt>
                 <dd>
-                  <div class="text-2xl font-semibold text-gray-900">
+                  <div class="text-2xl font-semibold text-stone-900">
                     {{ marketStore.farmerStats.total_sold }}
                   </div>
                 </dd>
@@ -143,18 +143,18 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-r from-green-500 to-green-600 overflow-hidden shadow rounded-lg text-white"
+        class="bg-gradient-to-r from-moss-500 to-moss-600 overflow-hidden shadow rounded-xl text-white"
       >
         <div class="p-5">
           <div class="flex items-center">
-            <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+            <div class="flex-shrink-0 bg-red-100 rounded-xl p-3">
               <BanknotesIcon class="h-6 w-6 text-red-600" aria-hidden="true" />
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                <dt class="text-sm font-medium text-stone-500 truncate">Total Revenue</dt>
                 <dd>
-                  <div class="text-2xl font-semibold text-gray-900">
+                  <div class="text-2xl font-semibold text-stone-900">
                     ₱{{ parseFloat(marketStore.farmerStats.total_revenue || 0).toLocaleString() }}
                   </div>
                 </dd>

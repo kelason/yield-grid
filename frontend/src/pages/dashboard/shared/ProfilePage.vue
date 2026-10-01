@@ -214,7 +214,7 @@ watch(userId, fetchProfile, { immediate: true })
           />
           <div
             v-else
-            class="w-16 h-16 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm flex-shrink-0"
+            class="w-16 h-16 rounded-full bg-gradient-to-br from-moss-400 to-soil-600 flex items-center justify-center text-white text-2xl font-bold shadow-soft flex-shrink-0"
             aria-hidden="true"
           >
             {{ profile.name.charAt(0).toUpperCase() }}
@@ -292,21 +292,21 @@ watch(userId, fetchProfile, { immediate: true })
                   v-if="!address.is_default"
                   type="button"
                   @click="setDefaultAddress(address)"
-                  class="text-xs font-medium text-moss-700 hover:text-moss-800 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+                  class="text-xs font-medium text-moss-700 hover:text-moss-800 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
                 >
                   Set default
                 </button>
                 <button
                   type="button"
                   @click="openEditAddress(address)"
-                  class="text-xs font-medium text-stone-600 hover:text-stone-900 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+                  class="text-xs font-medium text-stone-600 hover:text-stone-900 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   @click="deletingId = address.id"
-                  class="text-xs font-medium text-red-600 hover:text-red-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                  class="text-xs font-medium text-red-600 hover:text-red-700 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded-xl"
                 >
                   Delete
                 </button>
@@ -336,7 +336,7 @@ watch(userId, fetchProfile, { immediate: true })
           <AppCard v-for="post in profile.posts" :key="post.id" padding="p-5" :hover="true">
             <RouterLink
               :to="{ name: 'forum-thread', params: { id: post.id } }"
-              class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+              class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
             >
               {{ post.title }}
             </RouterLink>
@@ -376,7 +376,7 @@ watch(userId, fetchProfile, { immediate: true })
             id="profile-addr-default"
             type="checkbox"
             v-model="addressDraft.is_default"
-            class="h-4 w-4 rounded text-moss-600 border-stone-300 focus:ring-moss-500"
+            class="h-4 w-4 rounded-xl text-moss-600 border-stone-300 focus:ring-moss-500"
           />
           <span class="text-sm font-medium text-stone-900">Set as default address</span>
         </label>

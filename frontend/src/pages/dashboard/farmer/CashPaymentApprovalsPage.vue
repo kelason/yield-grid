@@ -162,7 +162,7 @@ function getConfirmedPaid(purchase) {
                 }}</span>
                 <span class="text-stone-300 hidden sm:inline">•</span>
                 <span
-                  class="uppercase tracking-wider text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md"
+                  class="uppercase tracking-wider text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-xl"
                   >{{ purchase.payment_method || '—' }}</span
                 >
                 <span class="text-stone-300 hidden sm:inline">•</span>
@@ -186,7 +186,7 @@ function getConfirmedPaid(purchase) {
           >
             <!-- Amounts -->
             <div
-              class="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-1.5 bg-stone-50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none border border-stone-100 sm:border-0"
+              class="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-1.5 bg-stone-50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-xl border border-stone-100 sm:border-0"
             >
               <div class="text-left sm:text-right">
                 <p
@@ -221,7 +221,7 @@ function getConfirmedPaid(purchase) {
             <div v-if="purchase.buyer?.id" class="flex w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
               <button
                 @click="messageBuyer(purchase)"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm w-full sm:w-auto text-center"
+                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
               >
                 Message buyer
               </button>
@@ -240,7 +240,7 @@ function getConfirmedPaid(purchase) {
                 @click="openApproveModal(purchase, 'partial')"
                 :disabled="isApproving[purchase.id]"
                 v-if="purchase.cash_payment_status !== 'partially_paid'"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm w-full sm:w-auto text-center"
+                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
               >
                 Approve 10%
               </button>
@@ -302,7 +302,7 @@ function getConfirmedPaid(purchase) {
               </p>
 
               <div class="mb-6">
-                <label class="block text-sm font-medium text-stone-700 mb-1"
+                <label class="block text-sm font-medium text-soil-700 mb-1"
                   >Amount Received (₱)</label
                 >
                 <input

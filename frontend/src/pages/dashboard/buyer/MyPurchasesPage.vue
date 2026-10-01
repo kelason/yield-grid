@@ -116,11 +116,13 @@ const cancelPurchase = (purchase) => {
 <template>
   <div class="space-y-6">
     <!-- Page Header -->
-    <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-800 p-6 text-white shadow-lg">
+    <div
+      class="rounded-2xl bg-gradient-to-r from-moss-600 to-moss-800 p-6 text-white shadow-organic"
+    >
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 class="text-2xl font-bold">Purchase History</h1>
-          <p class="text-green-200 text-sm mt-1">All your forward contracts and payment records.</p>
+          <h1 class="font-serif text-2xl font-bold">Purchase History</h1>
+          <p class="text-moss-200 text-sm mt-1">All your forward contracts and payment records.</p>
         </div>
         <router-link
           :to="{ name: 'buyer-marketplace' }"
@@ -141,7 +143,7 @@ const cancelPurchase = (purchase) => {
             📦
           </div>
           <div>
-            <dt class="text-xs font-medium text-green-100">Total Orders</dt>
+            <dt class="text-xs font-medium text-moss-100">Total Orders</dt>
             <dd class="text-3xl font-bold text-white mt-0.5">
               {{ totalOrders }}
             </dd>
@@ -152,13 +154,13 @@ const cancelPurchase = (purchase) => {
       <AppCard>
         <div class="flex items-center gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center text-xl flex-shrink-0"
+            class="w-11 h-11 rounded-xl bg-moss-50 flex items-center justify-center text-xl flex-shrink-0"
           >
             ✅
           </div>
           <div>
-            <dt class="text-xs font-medium text-gray-500">Active Contracts</dt>
-            <dd class="text-3xl font-bold text-gray-900 mt-0.5">{{ activePurchases }}</dd>
+            <dt class="text-xs font-medium text-stone-500">Active Contracts</dt>
+            <dd class="text-3xl font-bold text-stone-900 mt-0.5">{{ activePurchases }}</dd>
           </div>
         </div>
       </AppCard>
@@ -171,19 +173,21 @@ const cancelPurchase = (purchase) => {
             💰
           </div>
           <div>
-            <dt class="text-xs font-medium text-gray-500">Total Spent</dt>
-            <dd class="text-lg font-bold text-gray-900 mt-0.5">{{ formatCurrency(totalSpent) }}</dd>
+            <dt class="text-xs font-medium text-stone-500">Total Spent</dt>
+            <dd class="text-lg font-bold text-stone-900 mt-0.5">
+              {{ formatCurrency(totalSpent) }}
+            </dd>
           </div>
         </div>
       </AppCard>
     </div>
 
     <!-- Controls: Search and Sort -->
-    <div class="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-lg p-4">
+    <div class="bg-white/80 backdrop-blur-sm border border-stone-200 shadow-soft rounded-2xl p-4">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <!-- Search -->
         <div class="w-full md:w-1/3">
-          <label class="block text-xs font-medium text-gray-700 mb-1.5 ml-1">Search Crop</label>
+          <label class="block text-xs font-medium text-soil-700 mb-1.5 ml-1">Search Crop</label>
           <SearchInput
             v-model="marketStore.buyerPurchasesFilters.search"
             placeholder="e.g. Rice, Corn..."
@@ -192,7 +196,7 @@ const cancelPurchase = (purchase) => {
 
         <!-- Sort -->
         <div class="w-full md:w-1/4">
-          <label class="block text-xs font-medium text-gray-700 mb-1.5 ml-1">Sort By</label>
+          <label class="block text-xs font-medium text-soil-700 mb-1.5 ml-1">Sort By</label>
           <SortSelect
             v-model="marketStore.buyerPurchasesFilters.sort"
             :options="[
@@ -232,16 +236,16 @@ const cancelPurchase = (purchase) => {
       <!-- Loading -->
       <div v-if="marketStore.loading.purchases" class="p-5">
         <div class="animate-pulse space-y-4">
-          <div class="h-4 bg-stone-200 rounded-lg w-3/4"></div>
-          <div class="h-4 bg-stone-200 rounded-lg w-1/2"></div>
-          <div class="h-4 bg-stone-200 rounded-lg w-2/3"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
+          <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
         </div>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="marketStore.buyerPurchases.length === 0" class="text-center py-12 px-6">
         <div class="text-5xl mb-3">🌾</div>
-        <h3 class="text-sm font-semibold text-stone-700 mb-1">{{ emptyTitle }}</h3>
+        <h3 class="font-serif text-sm font-semibold text-stone-700 mb-1">{{ emptyTitle }}</h3>
         <p class="text-sm text-stone-500 mb-5">{{ emptyDescription }}</p>
         <router-link
           v-if="currentTab === 'all'"
