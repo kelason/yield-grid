@@ -1,13 +1,29 @@
 <script setup>
+import { onMounted, onUnmounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import AppSidebar from '../organisms/AppSidebar.vue'
 import { useAuthStore } from '../../stores/auth'
+import { useChatStore } from '../../stores/chatStore'
 import { useRouter } from 'vue-router'
 import AppButton from '../atoms/AppButton.vue'
 import EmailVerificationBanner from '../molecules/EmailVerificationBanner.vue'
 
 const authStore = useAuthStore()
+const chatStore = useChatStore()
 const router = useRouter()
+
+// Keep the sidebar unread badge correct on every dashboard page: load the
+// inbox once and stay subscribed to all conversations while mounted.
+onMounted(async () => {
+  if (authStore.isAuthenticated && authStore.isEmailVerified) {
+    await chatStore.ensureConversationsLoaded()
+    chatStore.startRealtimeSync()
+  }
+})
+
+onUnmounted(() => {
+  chatStore.stopRealtimeSync()
+})
 
 async function handleLogout() {
   await authStore.logout()
@@ -55,7 +71,7 @@ async function handleLogout() {
                   <RouterLink
                     v-if="authStore.user?.id"
                     :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"
-                    class="block text-sm font-semibold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded"
+                    class="block text-sm font-semibold text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
                   >
                     {{ authStore.user?.name }}
                   </RouterLink>

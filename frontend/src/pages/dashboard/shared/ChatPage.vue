@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted, ref, computed, nextTick } from 'vue'
+import { onMounted, ref, computed, nextTick, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useChatStore } from '../../../stores/chatStore'
-import { useChatWebSocket } from '../../../composables/useChatWebSocket'
 import ConversationItem from '../../../components/molecules/ConversationItem.vue'
 import ChatComposer from '../../../components/molecules/ChatComposer.vue'
 import ChatBubble from '../../../components/atoms/ChatBubble.vue'
@@ -16,14 +15,24 @@ const MESSAGE_SKELETON_STYLES = [
 ]
 
 const chatStore = useChatStore()
-const { listenToConversation, leaveConversation } = useChatWebSocket()
 const route = useRoute()
 
 const messagesContainer = ref(null)
 const selectedConversationId = ref(null)
 
+// Realtime sync is owned by the dashboard layout; scroll locally when a new
+// message lands at the end of the open conversation.
+watch(
+  () => chatStore.messages[chatStore.messages.length - 1]?.id,
+  (newId, oldId) => {
+    if (newId !== undefined && newId !== oldId) {
+      scrollToBottom()
+    }
+  },
+)
+
 onMounted(async () => {
-  await chatStore.fetchConversations()
+  await chatStore.ensureConversationsLoaded()
   const requestedId = Number(route.query.conversation)
   const target = chatStore.conversations.some((c) => c.id === requestedId)
     ? requestedId
@@ -40,23 +49,11 @@ const activeConversation = computed(() => {
 const selectConversation = async (id) => {
   if (selectedConversationId.value === id) return
 
-  // Clean up old listener
-  if (selectedConversationId.value) {
-    leaveConversation(selectedConversationId.value)
-  }
-
   selectedConversationId.value = id
   chatStore.activeConversation = chatStore.conversations.find((c) => c.id === id)
 
   await chatStore.fetchMessages(id)
   scrollToBottom()
-
-  listenToConversation(id, {
-    onMessage: (e) => {
-      chatStore.handleNewMessage(e.message)
-      scrollToBottom()
-    },
-  })
 }
 
 const handleSend = async (text) => {
@@ -105,8 +102,8 @@ const scrollToBottom = () => {
           >
             <div class="rounded-full bg-stone-200 h-12 w-12 flex-shrink-0"></div>
             <div class="flex-1 space-y-2">
-              <div class="h-4 bg-stone-200 rounded-lg w-2/3"></div>
-              <div class="h-3 bg-stone-200 rounded-lg w-full"></div>
+              <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
+              <div class="h-3 bg-stone-200 rounded-xl w-full"></div>
             </div>
           </div>
           <span class="sr-only">Loading conversations...</span>
@@ -136,11 +133,11 @@ const scrollToBottom = () => {
       <template v-if="activeConversation">
         <!-- Header -->
         <div
-          class="p-4 bg-white border-b border-stone-300 flex items-center gap-3 md:rounded-tr-2xl shadow-sm z-10"
+          class="p-4 bg-white border-b border-stone-300 flex items-center gap-3 md:rounded-tr-2xl shadow-soft z-10"
         >
           <button
             @click="selectedConversationId = null"
-            class="md:hidden p-2 text-stone-500 hover:bg-stone-100 rounded-full"
+            class="md:hidden p-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors duration-200"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -158,7 +155,7 @@ const scrollToBottom = () => {
               name: 'user-profile',
               params: { userId: activeConversation.other_participant.id },
             }"
-            class="flex items-center gap-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+            class="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
           >
             <img
               v-if="activeConversation.other_participant?.avatar_url"

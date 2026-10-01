@@ -18,6 +18,12 @@ interface PurchaseRepositoryInterface
 
     public function update(Purchase $purchase, array $data): bool;
 
+    /**
+     * Find a purchase by id with a row-level write lock.
+     * Must be called inside a transaction.
+     */
+    public function findLockedById(int $id): Purchase;
+
     public function findByCheckoutId(string $checkoutId, int $buyerId): Purchase;
 
     public function findPendingByCheckoutId(string $checkoutId, int $buyerId): ?Purchase;

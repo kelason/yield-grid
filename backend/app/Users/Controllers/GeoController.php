@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Users\Controllers;
 
 use App\Constants\GeoConstants;
-use App\Http\Controllers\Controller;
 use App\Infrastructure\Services\PsgcService;
+use App\Shared\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -54,9 +54,9 @@ final class GeoController extends Controller
     public function center(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'barangay' => ['required', 'string', 'max:255'],
-            'city_municipality' => ['required', 'string', 'max:255'],
-            'province' => ['nullable', 'string', 'max:255'],
+            'barangay' => ['required', 'string', 'max:'.GeoConstants::PLACE_NAME_MAX_LENGTH],
+            'city_municipality' => ['required', 'string', 'max:'.GeoConstants::PLACE_NAME_MAX_LENGTH],
+            'province' => ['nullable', 'string', 'max:'.GeoConstants::PLACE_NAME_MAX_LENGTH],
         ]);
 
         $center = $this->psgc->geocodeCenter(

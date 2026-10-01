@@ -5,6 +5,8 @@ import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import { useAuthStore } from '../../stores/auth'
 
+const AUTH_EMAIL_MAX_LENGTH = 255
+
 const authStore = useAuthStore()
 
 const form = ref({ email: '', password: '', remember: false })
@@ -15,6 +17,18 @@ const emit = defineEmits(['success'])
 
 async function handleLogin() {
   error.value = ''
+  if (!form.value.email.trim()) {
+    error.value = 'Please enter your email address.'
+    return
+  }
+  if (form.value.email.length > AUTH_EMAIL_MAX_LENGTH) {
+    error.value = `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
+    return
+  }
+  if (!form.value.password) {
+    error.value = 'Please enter your password.'
+    return
+  }
   loading.value = true
   try {
     await authStore.login(form.value)
@@ -37,6 +51,7 @@ async function handleLogin() {
       type="email"
       v-model="form.email"
       :required="true"
+      :maxlength="AUTH_EMAIL_MAX_LENGTH"
     />
     <FormField
       id="login-password"
@@ -52,13 +67,13 @@ async function handleLogin() {
           id="remember-me"
           type="checkbox"
           v-model="form.remember"
-          class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+          class="h-4 w-4 text-moss-600 focus:ring-moss-500 border-stone-300 rounded-xl"
         />
-        <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+        <label for="remember-me" class="ml-2 block text-sm text-soil-700">Remember me</label>
       </div>
       <router-link
         :to="{ name: 'forgot-password' }"
-        class="text-sm font-medium text-green-600 hover:text-green-500"
+        class="text-sm font-medium text-moss-600 hover:text-moss-500 transition-colors duration-200"
       >
         Forgot your password?
       </router-link>

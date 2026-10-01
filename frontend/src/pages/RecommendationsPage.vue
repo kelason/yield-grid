@@ -5,7 +5,7 @@
       <div class="flex items-center gap-4">
         <router-link
           :to="{ name: 'farm-manager' }"
-          class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700 transition-colors duration-200 group"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-moss-600 hover:text-moss-700 transition-colors duration-200 group"
         >
           <svg
             class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200"
@@ -23,10 +23,10 @@
           </svg>
           Back to My Farms
         </router-link>
-        <span class="text-gray-300">|</span>
+        <span class="text-stone-300">|</span>
         <router-link
           to="/dashboard/farmer"
-          class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-stone-700 transition-colors duration-200"
         >
           Dashboard Overview
         </router-link>
@@ -36,7 +36,7 @@
       <div v-if="farmingStore.allPlots.length > 1" class="flex items-center gap-2">
         <label
           for="plot-selector"
-          class="text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+          class="text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap"
         >
           Plot:
         </label>
@@ -45,7 +45,7 @@
             id="plot-selector"
             :value="activePlotId"
             @change="handlePlotChange(Number($event.target.value))"
-            class="block w-full rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-800 shadow-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all cursor-pointer"
+            class="block w-full rounded-xl border border-stone-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-stone-800 shadow-soft focus:border-moss-500 focus:outline-none focus:ring-1 focus:ring-moss-500 transition-all cursor-pointer"
           >
             <option v-for="p in farmingStore.allPlots" :key="p.id" :value="p.id">
               {{ p.name }} ({{ p.farm_name || 'Farm' }}) —
@@ -59,17 +59,17 @@
     <!-- Empty State: No Plots in Account -->
     <div
       v-if="!isLoadingPlots && farmingStore.allPlots.length === 0"
-      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200 shadow-sm"
+      class="text-center py-20 px-6 bg-white rounded-2xl border-2 border-dashed border-stone-200 hover:border-moss-300 transition-colors duration-200 shadow-soft"
     >
       <div class="text-5xl mb-4">🌾</div>
-      <h3 class="text-xl font-bold text-gray-900 mb-2">No plots registered yet</h3>
-      <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+      <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">No plots registered yet</h3>
+      <p class="text-stone-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
         You need to create a farm and draw at least one plot before you can receive AI crop
         recommendations.
       </p>
       <router-link
         :to="{ name: 'farm-manager' }"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-full shadow-sm hover:shadow transition-all duration-200"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 text-white font-semibold rounded-full shadow-soft hover:shadow-organic transition-all duration-200"
       >
         <span>🏡</span>
         <span>Go to My Farms</span>
@@ -79,7 +79,7 @@
     <!-- Loading plots -->
     <div v-else-if="isLoadingPlots" class="space-y-6" role="status" aria-label="Loading plots">
       <div class="animate-pulse motion-reduce:animate-none space-y-4" aria-hidden="true">
-        <div class="h-9 bg-stone-200 rounded-lg w-64"></div>
+        <div class="h-9 bg-stone-200 rounded-xl w-64"></div>
         <div class="flex gap-2">
           <div class="h-7 bg-stone-200 rounded-full w-24"></div>
           <div class="h-7 bg-stone-200 rounded-full w-28"></div>
@@ -95,7 +95,7 @@
       <!-- Header -->
       <header class="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+          <h1 class="font-serif text-3xl font-extrabold text-stone-900 tracking-tight mb-3">
             {{ plotDisplayName }} Recommendations
           </h1>
 
@@ -113,13 +113,13 @@
             </span>
             <span
               v-if="locationLabel"
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-moss-50 text-moss-700 rounded-full text-xs font-semibold border border-moss-200"
             >
               📍 {{ locationLabel }}
             </span>
             <span
               v-if="currentPlot?.farm_name"
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-xs font-semibold border border-gray-200"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-50 text-stone-700 rounded-full text-xs font-semibold border border-stone-200"
             >
               🏡 {{ currentPlot.farm_name }}
             </span>
@@ -168,11 +168,11 @@
         <!-- Empty state -->
         <div
           v-else
-          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-green-300 transition-colors duration-200"
+          class="text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-stone-200 hover:border-moss-300 transition-colors duration-200"
         >
           <div class="text-5xl mb-4">🌾</div>
-          <h3 class="text-lg font-bold text-gray-900 mb-2">No recommendations yet</h3>
-          <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+          <h3 class="font-serif text-lg font-bold text-stone-900 mb-2">No recommendations yet</h3>
+          <p class="text-stone-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
             Run our AI advisor to analyse soil conditions and weather patterns and get optimised
             crop recommendations for this
             {{ plotArea !== '0.00' ? plotArea + ' ha' : '' }}
@@ -203,7 +203,7 @@
         class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
       >
         <div
-          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          class="fixed inset-0 bg-stone-500 bg-opacity-75 transition-opacity"
           aria-hidden="true"
           @click="closePublishModal"
         ></div>
@@ -211,7 +211,7 @@
           >&#8203;</span
         >
         <div
-          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
+          class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-organic transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full"
         >
           <PublishContractForm
             :recommendation="selectedRecommendation"
@@ -248,6 +248,7 @@ import PublishContractForm from '../components/organisms/PublishContractForm.vue
 import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
 import ConfirmModal from '../components/molecules/ConfirmModal.vue'
+import { HTTP_STATUS } from '../constants/http'
 import { useMarketStore } from '../stores/marketStore'
 import { useConfirmModal } from '../composables/useConfirmModal'
 
@@ -294,10 +295,20 @@ const locationLabel = computed(() => {
   return parts.join(', ')
 })
 
-const triggerAnalysis = async () => {
-  if (activePlotId.value) {
-    await store.analyzePlot(activePlotId.value)
-  }
+const triggerAnalysis = () => {
+  if (!activePlotId.value) return
+  confirm(
+    {
+      title: 'Run AI analysis?',
+      message:
+        'Run the AI advisor on this plot? Analysis consumes one of your limited hourly runs and takes a few minutes.',
+      confirmText: 'Run analysis',
+      type: 'primary',
+    },
+    async () => {
+      await store.analyzePlot(activePlotId.value)
+    },
+  )
 }
 
 const loadPlotData = async (id) => {
@@ -380,29 +391,82 @@ const closePublishModal = () => {
   publishErrors.value = {}
 }
 
-const handlePublishContract = async (formData) => {
-  if (selectedRecommendation.value) {
-    try {
-      publishErrors.value = {}
-      // The backend now automatically marks it as 'accepted' and 'is_published' when successfully created
-      await marketStore.publishContract(selectedRecommendation.value.id, formData)
+const CONTRACT_TITLE_MAX_LENGTH = 255
+const CONTRACT_DESCRIPTION_MAX_LENGTH = 5000
+const CONTRACT_QUANTITY_MIN_KG = 1
+const CONTRACT_QUANTITY_MAX_KG = 99999999
+const CONTRACT_PRICE_MIN = 0.01
+const CONTRACT_PRICE_MAX = 99999999
+const CONTRACT_TOTAL_MAX = 9999999999.99
 
-      // Update local state so UI updates
-      const index = store.recommendations.findIndex((r) => r.id === selectedRecommendation.value.id)
-      if (index !== -1) {
-        store.recommendations[index].status = 'accepted'
-      }
-
-      closePublishModal()
-      router.push({ name: 'farmer-contracts' })
-    } catch (error) {
-      if (error.response?.status === 422) {
-        publishErrors.value = error.response.data.errors || {}
-      } else {
-        store.errorMessage = 'An unexpected error occurred while publishing the contract.'
-      }
-    }
+const validatePublishForm = (formData) => {
+  const fieldErrors = {}
+  if ((formData.title || '').length > CONTRACT_TITLE_MAX_LENGTH) {
+    fieldErrors.title = [`Title cannot exceed ${CONTRACT_TITLE_MAX_LENGTH} characters.`]
   }
+  if ((formData.description || '').length > CONTRACT_DESCRIPTION_MAX_LENGTH) {
+    fieldErrors.description = [
+      `Description cannot exceed ${CONTRACT_DESCRIPTION_MAX_LENGTH} characters.`,
+    ]
+  }
+  const qty = parseFloat(formData.quantity_kg)
+  if (!qty || qty < CONTRACT_QUANTITY_MIN_KG) {
+    fieldErrors.quantity_kg = ['Please enter a quantity greater than zero.']
+  } else if (qty > CONTRACT_QUANTITY_MAX_KG) {
+    fieldErrors.quantity_kg = [
+      `Quantity cannot exceed ${CONTRACT_QUANTITY_MAX_KG.toLocaleString()} kg.`,
+    ]
+  }
+  const price = parseFloat(formData.price_per_kg)
+  if (!price || price < CONTRACT_PRICE_MIN) {
+    fieldErrors.price_per_kg = ['Please enter a price greater than zero.']
+  } else if (price > CONTRACT_PRICE_MAX) {
+    fieldErrors.price_per_kg = [
+      `Price cannot exceed ${CONTRACT_PRICE_MAX.toLocaleString()} per kg.`,
+    ]
+  }
+  if (Object.keys(fieldErrors).length === 0 && qty * price > CONTRACT_TOTAL_MAX) {
+    fieldErrors.quantity_kg = ['The combined quantity and price exceed the maximum order total.']
+  }
+  return fieldErrors
+}
+
+const handlePublishContract = (formData) => {
+  if (!selectedRecommendation.value) return
+  publishErrors.value = validatePublishForm(formData)
+  if (Object.keys(publishErrors.value).length > 0) return
+  confirm(
+    {
+      title: 'Publish this contract?',
+      message: `Publish "${formData.title}" (${formData.quantity_kg} kg at ₱${formData.price_per_kg}/kg) to the marketplace?`,
+      confirmText: 'Publish contract',
+      type: 'primary',
+    },
+    async () => {
+      try {
+        publishErrors.value = {}
+        // The backend now automatically marks it as 'accepted' and 'is_published' when successfully created
+        await marketStore.publishContract(selectedRecommendation.value.id, formData)
+
+        // Update local state so UI updates
+        const index = store.recommendations.findIndex(
+          (r) => r.id === selectedRecommendation.value.id,
+        )
+        if (index !== -1) {
+          store.recommendations[index].status = 'accepted'
+        }
+
+        closePublishModal()
+        router.push({ name: 'farmer-contracts' })
+      } catch (error) {
+        if (error.response?.status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
+          publishErrors.value = error.response.data.errors || {}
+        } else {
+          store.errorMessage = 'An unexpected error occurred while publishing the contract.'
+        }
+      }
+    },
+  )
 }
 
 const handleReject = (id) => {

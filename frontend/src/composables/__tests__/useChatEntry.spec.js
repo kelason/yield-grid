@@ -9,6 +9,11 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
+// The chat store subscribes newly started conversations via websockets.
+vi.mock('@/composables/useChatWebSocket', () => ({
+  useChatWebSocket: () => ({ listenToConversation: vi.fn(), leaveConversation: vi.fn() }),
+}))
+
 vi.mock('vue-router', () => ({
   useRouter: vi.fn(),
 }))

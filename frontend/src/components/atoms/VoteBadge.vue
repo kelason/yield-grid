@@ -24,7 +24,7 @@ defineEmits(['vote'])
     <button
       @click="!disabled && $emit('vote', 1)"
       :disabled="disabled"
-      class="p-1 rounded transition-colors"
+      class="p-1 rounded-full transition-colors"
       :class="[
         userVote === 1 ? 'text-moss-500' : 'text-stone-400',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
@@ -53,7 +53,7 @@ defineEmits(['vote'])
     <button
       @click="!disabled && $emit('vote', -1)"
       :disabled="disabled"
-      class="p-1 rounded transition-colors"
+      class="p-1 rounded-full transition-colors"
       :class="[
         userVote === -1 ? 'text-red-500' : 'text-stone-400',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',

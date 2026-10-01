@@ -68,6 +68,11 @@ final class EloquentPurchaseRepository implements PurchaseRepositoryInterface
         return $purchase->update($data);
     }
 
+    public function findLockedById(int $id): Purchase
+    {
+        return Purchase::where('id', $id)->lockForUpdate()->firstOrFail();
+    }
+
     public function findByCheckoutId(string $checkoutId, int $buyerId): Purchase
     {
         return Purchase::where('paymongo_checkout_id', $checkoutId)

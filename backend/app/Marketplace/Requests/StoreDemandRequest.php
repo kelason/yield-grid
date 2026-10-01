@@ -22,11 +22,11 @@ class StoreDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:2000'],
-            'crop_name' => ['required', 'string', 'max:100'],
-            'quantity_kg' => ['required', 'numeric', 'min:0.01', 'max:1000000'],
-            'target_price_per_kg' => ['required', 'numeric', 'min:0.01', 'max:1000000'],
+            'title' => ['required', 'string', 'max:'.MarketplaceConstants::DEMAND_TITLE_MAX_LENGTH],
+            'description' => ['nullable', 'string', 'max:'.MarketplaceConstants::DEMAND_DESCRIPTION_MAX_LENGTH],
+            'crop_name' => ['required', 'string', 'max:'.MarketplaceConstants::DEMAND_CROP_NAME_MAX_LENGTH],
+            'quantity_kg' => ['required', 'numeric', 'min:'.MarketplaceConstants::DEMAND_QUANTITY_MIN_KG, 'max:'.MarketplaceConstants::DEMAND_QUANTITY_MAX_KG],
+            'target_price_per_kg' => ['required', 'numeric', 'min:'.MarketplaceConstants::DEMAND_PRICE_MIN, 'max:'.MarketplaceConstants::DEMAND_PRICE_MAX],
             'needed_by_date' => ['required', 'date', 'after_or_equal:today'],
             'expiry_date' => ['required', 'date', 'after_or_equal:today', 'before_or_equal:needed_by_date'],
             'address_id' => [

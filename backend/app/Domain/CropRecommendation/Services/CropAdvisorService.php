@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Services;
 
+use App\Infrastructure\Services\ReverseGeocodeService;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class CropAdvisorService
 {
+    private const REQUEST_TIMEOUT_SECONDS = 12;
+
+    private const RATE_LIMIT_DECAY_SECONDS = 60;
+
     private const SCORE_BASE = 50;
 
     private const SCORE_SOIL_MATCH = 40;
@@ -36,15 +41,16 @@ class CropAdvisorService
 
     private int $rateLimitRpm = 10;      // Max 10 requests per minute for Gemini API
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly ReverseGeocodeService $geocoding
+    ) {
         $this->apiKey = (string) (config('services.gemini.key') ?? '');
         $this->model = (string) (config('services.gemini.model', 'gemini-3.5-flash-lite'));
     }
 
     public function getRecommendations(Plot $plot, array $agroData): array
     {
-        $location = $plot->resolveLocation();
+        $location = $this->geocoding->resolvePlotLocation($plot);
         $prompt = $this->buildPrompt($plot, $agroData, $location);
 
         // 1. Check AI recommendation cache first to avoid re-querying Gemini for identical plot inputs
@@ -71,10 +77,10 @@ class CropAdvisorService
             return $this->getMockRecommendations($plot, $location);
         }
 
-        RateLimiter::hit($rateKey, 60);
+        RateLimiter::hit($rateKey, self::RATE_LIMIT_DECAY_SECONDS);
 
         try {
-            $response = Http::timeout(12)->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
+            $response = Http::timeout(self::REQUEST_TIMEOUT_SECONDS)->post("https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}", [
                 'contents' => [
                     ['parts' => [['text' => $prompt]]],
                 ],

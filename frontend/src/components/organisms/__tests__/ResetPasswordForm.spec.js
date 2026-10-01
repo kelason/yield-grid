@@ -65,9 +65,22 @@ describe('ResetPasswordForm.vue', () => {
     mockStore.resetPassword.mockRejectedValue({ response: { data: { message: 'Invalid token' } } })
     const wrapper = mount(ResetPasswordForm)
 
+    await wrapper.find('#reset-password').setValue('new-password')
+    await wrapper.find('#reset-password-confirmation').setValue('new-password')
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(wrapper.html()).toContain('Invalid token')
     expect(pushMock).not.toHaveBeenCalled()
+  })
+
+  it('blocks submit when the password is too short', async () => {
+    const wrapper = mount(ResetPasswordForm)
+
+    await wrapper.find('#reset-password').setValue('short')
+    await wrapper.find('#reset-password-confirmation').setValue('short')
+    await wrapper.find('form').trigger('submit.prevent')
+
+    expect(wrapper.html()).toContain('at least 8 characters')
+    expect(mockStore.resetPassword).not.toHaveBeenCalled()
   })
 })

@@ -10,7 +10,7 @@ defineProps({
   loading: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   type: { type: String, default: 'button' },
-  rounded: { type: String, default: 'xl', validator: (v) => ['md', 'xl', 'full'].includes(v) },
+  rounded: { type: String, default: 'xl', validator: (v) => ['xl', 'full'].includes(v) },
 })
 
 const variantClasses = {
@@ -21,9 +21,11 @@ const variantClasses = {
   outline:
     'text-moss-700 border-2 border-moss-300 bg-transparent hover:bg-moss-50 hover:border-moss-500 hover:scale-[1.02] active:scale-[0.99]',
   danger:
-    'text-white bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.99]',
-  ghost: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100',
-  'ghost-dark': 'text-stone-300 hover:text-white hover:bg-white/10',
+    'text-white bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-soft hover:shadow-organic hover:scale-[1.02] active:scale-[0.99]',
+  ghost:
+    'text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:scale-[1.02] active:scale-[0.99]',
+  'ghost-dark':
+    'text-stone-300 hover:text-white hover:bg-white/10 hover:scale-[1.02] active:scale-[0.99]',
   harvest:
     'text-white bg-gradient-to-br from-harvest-500 to-harvest-600 hover:from-harvest-600 hover:to-harvest-700 shadow-harvest-glow hover:scale-[1.02] active:scale-[0.99]',
 }
@@ -35,7 +37,6 @@ const sizeClasses = {
 }
 
 const roundedClasses = {
-  md: 'rounded-md',
   xl: 'rounded-xl',
   full: 'rounded-full',
 }

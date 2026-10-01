@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Farming\Requests;
 
+use App\Constants\FarmingConstants;
+use App\Infrastructure\Services\ReverseGeocodeService;
 use Domain\Farming\Enums\SoilType;
-use Domain\Farming\Models\Plot;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -21,10 +24,10 @@ class StorePlotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:'.FarmingConstants::PLOT_NAME_MAX_LENGTH],
             'soil_type' => ['nullable', 'string', Rule::enum(SoilType::class)],
-            'coordinates' => ['required', 'array', 'min:3'],
-            'coordinates.*' => ['required', 'array', 'size:2'],
+            'coordinates' => ['required', 'array', 'min:'.FarmingConstants::POLYGON_MIN_POINTS],
+            'coordinates.*' => ['required', 'array', 'size:'.FarmingConstants::COORD_PAIR_SIZE],
             'coordinates.*.*' => ['required', 'numeric'], // [lng, lat]
         ];
     }
@@ -47,7 +50,7 @@ class StorePlotRequest extends FormRequest
                 $lat = $latSum / $count;
                 $lon = $lonSum / $count;
 
-                $geo = Plot::reverseGeocodeCoordinates($lat, $lon);
+                $geo = app(ReverseGeocodeService::class)->reverseGeocode($lat, $lon);
                 if ($geo && (! empty($geo['city']) || ! empty($geo['state']))) {
                     $farmCityClean = strtolower(trim(str_replace(['city', 'municipality', 'town'], '', $farm->city)));
                     $resolvedCityClean = strtolower(trim(str_replace(['city', 'municipality', 'town'], '', $geo['city'] ?? '')));

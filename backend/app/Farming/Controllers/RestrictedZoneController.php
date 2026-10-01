@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Farming\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Farming\Models\RestrictedZone;
 use Illuminate\Http\JsonResponse;
 

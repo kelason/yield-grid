@@ -31,7 +31,7 @@ const isActive = computed(() => {
       isActive
         ? 'bg-moss-50 text-moss-700 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
         : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900 border-l-[3px] border-transparent pl-2',
-      'group flex items-center py-2.5 text-sm font-medium rounded-lg transition-all duration-150',
+      'group flex items-center py-2.5 text-sm font-medium rounded-xl transition-all duration-150',
       collapsed ? 'justify-center pr-2' : 'pr-2',
     ]"
     :title="collapsed ? item.name : ''"

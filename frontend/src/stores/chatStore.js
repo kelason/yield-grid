@@ -1,15 +1,22 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useApi } from '../composables/useApi'
+import { useChatWebSocket } from '../composables/useChatWebSocket'
 
 export const useChatStore = defineStore('chat', () => {
   const api = useApi()
+  const { listenToConversation, leaveConversation } = useChatWebSocket()
 
   // State
   const conversations = ref([])
   const activeConversation = ref(null)
   const messages = ref([])
   const isLoading = ref(false)
+
+  // Channels with an active realtime subscription (non-reactive by design)
+  const subscribedIds = new Set()
+  // In-flight conversations fetch, shared to avoid duplicate requests
+  let conversationsRequest = null
 
   // Getters
   const totalUnread = computed(() => {
@@ -27,6 +34,37 @@ export const useChatStore = defineStore('chat', () => {
     } finally {
       isLoading.value = false
     }
+  }
+
+  // Same as fetchConversations but joins an in-flight request instead of
+  // firing a duplicate (dashboard layout + chat page mount together).
+  async function ensureConversationsLoaded() {
+    if (!conversationsRequest) {
+      conversationsRequest = fetchConversations().finally(() => {
+        conversationsRequest = null
+      })
+    }
+    return conversationsRequest
+  }
+
+  // Subscribe to every known conversation. Idempotent: safe to call from
+  // multiple components — each channel is subscribed at most once.
+  function startRealtimeSync() {
+    for (const conv of conversations.value) {
+      if (!subscribedIds.has(conv.id)) {
+        subscribedIds.add(conv.id)
+        listenToConversation(conv.id, {
+          onMessage: (e) => handleNewMessage(e.message),
+        })
+      }
+    }
+  }
+
+  function stopRealtimeSync() {
+    for (const id of subscribedIds) {
+      leaveConversation(id)
+    }
+    subscribedIds.clear()
   }
 
   async function fetchMessages(conversationId, page = 1) {
@@ -64,6 +102,7 @@ export const useChatStore = defineStore('chat', () => {
       const exists = conversations.value.find((c) => c.id === newConv.id)
       if (!exists) {
         conversations.value.unshift(newConv)
+        startRealtimeSync()
       }
 
       return newConv
@@ -127,8 +166,9 @@ export const useChatStore = defineStore('chat', () => {
         ...conversations.value.filter((c) => c.id !== message.conversation_id),
       ]
     } else {
-      // If we received a message for an unknown conversation, fetch the list again
-      fetchConversations()
+      // If we received a message for an unknown conversation, fetch the list
+      // again and subscribe to the new channel.
+      ensureConversationsLoaded().then(() => startRealtimeSync())
     }
   }
 
@@ -139,6 +179,9 @@ export const useChatStore = defineStore('chat', () => {
     isLoading,
     totalUnread,
     fetchConversations,
+    ensureConversationsLoaded,
+    startRealtimeSync,
+    stopRealtimeSync,
     fetchMessages,
     startConversation,
     sendMessage,

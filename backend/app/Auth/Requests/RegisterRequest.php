@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Requests;
 
+use App\Constants\AuthConstants;
 use App\Infrastructure\Services\PsgcService;
 use App\Users\Requests\UserAddressRules;
+use Domain\Users\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\Validator;
 
@@ -21,10 +26,10 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return array_merge([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:farmer,buyer'],
+            'name' => ['required', 'string', 'max:'.AuthConstants::NAME_MAX_LENGTH],
+            'email' => ['required', 'string', 'email', 'max:'.AuthConstants::EMAIL_MAX_LENGTH, 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults(), 'max:'.AuthConstants::PASSWORD_MAX_LENGTH],
+            'role' => ['required', Rule::enum(UserRole::class)],
             'address' => ['nullable', 'array'],
         ], UserAddressRules::rules('address', true));
     }

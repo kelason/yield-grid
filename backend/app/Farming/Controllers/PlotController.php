@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Farming\Controllers;
 
 use App\Constants\HttpCode;
 use App\Farming\Requests\StorePlotRequest;
 use App\Farming\Resources\PlotResource;
-use App\Http\Controllers\Controller;
+use App\Shared\Controllers\Controller;
 use Domain\Farming\Actions\CreatePlotAction;
 use Domain\Farming\DTOs\CreatePlotDTO;
 use Domain\Farming\Models\Farm;

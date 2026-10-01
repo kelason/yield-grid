@@ -105,7 +105,7 @@ const statusConfig = computed(() => {
 
 <template>
   <span
-    class="inline-flex items-center justify-center rounded-full font-medium shadow-sm"
+    class="inline-flex items-center justify-center rounded-full font-medium shadow-soft"
     :class="[sizeClasses, statusConfig.classes]"
   >
     {{ statusConfig.label }}

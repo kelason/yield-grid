@@ -12,6 +12,7 @@ import AppModal from '../../../components/molecules/AppModal.vue'
 import SkeletonCard from '../../../components/atoms/SkeletonCard.vue'
 
 const THREAD_SKELETON_COUNT = 5
+const SEARCH_DEBOUNCE_MS = 500
 
 const forumStore = useForumStore()
 const route = useRoute()
@@ -57,7 +58,7 @@ const handleSearch = () => {
     router.replace({ query: { ...route.query, search: searchQuery.value || undefined } })
     forumStore.pagination.currentPage = 1
     fetchThreads()
-  }, 500)
+  }, SEARCH_DEBOUNCE_MS)
 }
 
 const handleComposerSubmit = async (data) => {

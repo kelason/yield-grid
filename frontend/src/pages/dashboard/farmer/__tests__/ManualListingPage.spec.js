@@ -1,9 +1,10 @@
 import { setActivePinia, createPinia } from 'pinia'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import ManualListingPage from '../ManualListingPage.vue'
 
 vi.mock('@/composables/useApi', () => ({
@@ -52,6 +53,12 @@ describe('ManualListingPage.vue limits', () => {
 
     expect(titleInput.element.value).toHaveLength(50)
     await wrapper.find('form').trigger('submit.prevent')
+
+    // Submit opens the confirmation modal; the post fires only after confirm.
+    expect(mockPost).not.toHaveBeenCalled()
+    expect(wrapper.findComponent(ConfirmModal).exists()).toBe(true)
+    await wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
 
     expect(mockPost).toHaveBeenCalledOnce()
     expect(mockPost.mock.calls[0][1].title).toHaveLength(50)

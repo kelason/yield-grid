@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 
+const TOOLTIP_HIDE_DELAY_MS = 150
+
 defineProps({
   modelValue: {
     type: String,
@@ -114,7 +116,7 @@ function hideTooltip(value, immediate = false) {
     if (activeTooltip.value === value) {
       activeTooltip.value = null
     }
-  }, 150)
+  }, TOOLTIP_HIDE_DELAY_MS)
 }
 
 function toggleTooltip(value, e) {
@@ -132,11 +134,11 @@ onUnmounted(() => {
   <div class="relative w-full">
     <!-- Top Field Label -->
     <div class="flex items-center justify-between mb-2">
-      <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+      <label class="block text-xs font-bold text-soil-700 uppercase tracking-wider">
         {{ label }}
         <span v-if="required" class="text-red-500">*</span>
       </label>
-      <span class="text-[11px] text-gray-400 font-medium">Select 1 type</span>
+      <span class="text-[11px] text-stone-400 font-medium">Select 1 type</span>
     </div>
 
     <!-- Error message if any -->
@@ -151,8 +153,8 @@ onUnmounted(() => {
         class="group relative flex items-center justify-between px-3 py-3 rounded-xl border transition-all duration-200 cursor-pointer hover:z-40"
         :class="[
           modelValue === soil.value
-            ? 'border-green-500 bg-green-50/90 ring-1 ring-green-500 shadow-sm'
-            : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/40 shadow-xs',
+            ? 'border-moss-500 bg-moss-50/90 ring-1 ring-moss-500 shadow-soft'
+            : 'border-stone-200 bg-white hover:border-moss-300 hover:bg-moss-50/40 shadow-xs',
           activeTooltip === soil.value ? 'z-50' : 'z-10',
         ]"
         role="radio"
@@ -168,14 +170,14 @@ onUnmounted(() => {
             <img
               :src="soil.photo"
               :alt="soil.label"
-              class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm flex-shrink-0 transition-all duration-300 ease-out cursor-zoom-in group-hover/img:scale-[2.5] group-hover/img:z-40 group-hover/img:shadow-2xl group-hover/img:border-gray-900 group-hover/img:rounded-xl relative"
+              class="w-10 h-10 rounded-xl object-cover border border-stone-200 shadow-soft flex-shrink-0 transition-all duration-300 ease-out cursor-zoom-in group-hover/img:scale-[2.5] group-hover/img:z-40 group-hover/img:shadow-2xl group-hover/img:border-stone-900 group-hover/img:rounded-xl relative"
             />
           </div>
 
           <!-- Name and Question Mark Icon -->
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-bold text-gray-900 leading-none">{{ soil.label }}</span>
+              <span class="text-sm font-bold text-stone-900 leading-none">{{ soil.label }}</span>
 
               <!-- Question Mark Button -->
               <div class="relative inline-flex items-center">
@@ -184,7 +186,7 @@ onUnmounted(() => {
                   @mouseenter="showTooltip(soil.value, $event)"
                   @mouseleave="hideTooltip(soil.value)"
                   @click.stop="toggleTooltip(soil.value, $event)"
-                  class="w-5 h-5 rounded-full bg-gray-100 hover:bg-green-100 text-gray-500 hover:text-green-700 flex items-center justify-center text-[11px] font-bold transition-colors cursor-help"
+                  class="w-5 h-5 rounded-full bg-stone-100 hover:bg-moss-100 text-stone-500 hover:text-moss-700 flex items-center justify-center text-[11px] font-bold transition-colors cursor-help"
                   aria-label="Soil details"
                 >
                   ?
@@ -193,7 +195,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Characteristic subtitle -->
-            <p class="text-xs text-gray-500 mt-1 truncate">
+            <p class="text-xs text-stone-500 mt-1 truncate">
               {{ soil.badge }}
             </p>
           </div>
@@ -203,7 +205,7 @@ onUnmounted(() => {
         <div class="ml-2 flex-shrink-0">
           <div
             v-if="modelValue === soil.value"
-            class="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs shadow-xs"
+            class="w-5 h-5 rounded-full bg-moss-600 text-white flex items-center justify-center text-xs shadow-xs"
           >
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -216,7 +218,7 @@ onUnmounted(() => {
           </div>
           <div
             v-else
-            class="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-green-400 transition-colors"
+            class="w-5 h-5 rounded-full border-2 border-stone-300 group-hover:border-moss-400 transition-colors"
           ></div>
         </div>
 
@@ -233,16 +235,16 @@ onUnmounted(() => {
             v-if="activeTooltip === soil.value"
             @mouseenter="showTooltip(soil.value)"
             @mouseleave="hideTooltip(soil.value)"
-            class="absolute -inset-x-1 z-50 p-3 bg-gray-900/95 text-white rounded-xl shadow-2xl border border-gray-700/80 backdrop-blur-xl"
+            class="absolute -inset-x-1 z-50 p-3 bg-stone-900/95 text-white rounded-xl shadow-2xl border border-stone-700/80 backdrop-blur-xl"
             :class="index >= Math.floor(SOIL_TYPES.length / 2) ? 'bottom-0' : 'top-0'"
             @click.stop="selectSoil(soil)"
           >
             <div class="relative space-y-2">
-              <div class="flex items-center justify-between pb-2 border-b border-gray-800">
+              <div class="flex items-center justify-between pb-2 border-b border-stone-800">
                 <div class="flex items-center gap-2.5">
-                  <span class="font-bold text-green-300 text-sm">{{ soil.label }} Soil</span>
+                  <span class="font-bold text-moss-300 text-sm">{{ soil.label }} Soil</span>
                   <span
-                    class="text-[11px] px-2 py-0.5 rounded-full bg-green-900/70 text-green-300 font-semibold border border-green-700/60"
+                    class="text-[11px] px-2 py-0.5 rounded-full bg-moss-900/70 text-moss-300 font-semibold border border-moss-700/60"
                   >
                     {{ soil.badge }}
                   </span>
@@ -250,18 +252,18 @@ onUnmounted(() => {
                 <button
                   type="button"
                   @click.stop="hideTooltip(soil.value, true)"
-                  class="text-gray-400 hover:text-white text-sm px-1.5 py-1 leading-none transition-colors"
+                  class="text-stone-400 hover:text-white text-sm px-1.5 py-1 leading-none transition-colors"
                   aria-label="Close details"
                 >
                   ✕
                 </button>
               </div>
-              <p class="text-gray-200 text-xs leading-relaxed">
+              <p class="text-stone-200 text-xs leading-relaxed">
                 {{ soil.description }}
               </p>
-              <div class="pt-2 border-t border-gray-800/80 flex items-start gap-1.5 text-xs">
-                <span class="font-bold text-emerald-400 flex-shrink-0">🌱 Best for:</span>
-                <span class="text-gray-300">{{ soil.bestFor }}</span>
+              <div class="pt-2 border-t border-stone-800/80 flex items-start gap-1.5 text-xs">
+                <span class="font-bold text-moss-400 flex-shrink-0">🌱 Best for:</span>
+                <span class="text-stone-300">{{ soil.bestFor }}</span>
               </div>
             </div>
           </div>

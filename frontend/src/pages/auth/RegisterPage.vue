@@ -13,8 +13,8 @@ function onRegisterSuccess() {
   <div>
     <RegisterForm @success="onRegisterSuccess" />
     <div class="mt-6 text-center text-sm">
-      <span class="text-gray-600">Already have an account? </span>
-      <RouterLink to="/auth/login" class="font-medium text-green-600 hover:text-green-500"
+      <span class="text-stone-600">Already have an account? </span>
+      <RouterLink to="/auth/login" class="font-medium text-moss-600 hover:text-moss-500"
         >Sign in here</RouterLink
       >
     </div>

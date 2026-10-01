@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useChatEntry } from '@/composables/useChatEntry'
+import { PAYMENT_CONSTANTS, PAYMENT_OPTION } from '@/constants/payment'
 import PriceTag from '@/components/atoms/PriceTag.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import StatusBadge from '@/components/atoms/StatusBadge.vue'
@@ -22,6 +23,8 @@ onMounted(() => {
   marketStore.fetchFarmerPurchases()
 })
 
+const CASH_PAYMENT_TYPE = { PARTIAL: 'partial', FULL: 'full' }
+
 const isApproving = ref({})
 
 const promptModal = ref({
@@ -34,14 +37,16 @@ const promptModal = ref({
 
 const openApproveModal = (purchase, type) => {
   const suggestedAmount =
-    type === 'partial' ? purchase.total_contract_amount * 0.1 : purchase.total_contract_amount
+    type === CASH_PAYMENT_TYPE.PARTIAL
+      ? purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE
+      : purchase.total_contract_amount
 
   promptModal.value = {
     isOpen: true,
     purchaseId: purchase.id,
     type,
     amount: suggestedAmount,
-    title: `Approve ${type === 'partial' ? 'Partial (10%)' : 'Full'} Payment`,
+    title: `Approve ${type === CASH_PAYMENT_TYPE.PARTIAL ? 'Partial (10%)' : 'Full'} Payment`,
   }
 }
 
@@ -50,6 +55,8 @@ const closeApproveModal = () => {
 }
 
 const AMOUNT_MAX_LENGTH = 8
+const CASH_AMOUNT_MIN = 0.01
+const CASH_AMOUNT_MAX = 99999999
 
 // Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
 const clampAmount = (event) => {
@@ -65,8 +72,14 @@ const confirmApprove = async () => {
   const { purchaseId, type, amount } = promptModal.value
   const parsedAmount = parseFloat(amount)
 
-  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+  if (isNaN(parsedAmount) || parsedAmount < CASH_AMOUNT_MIN) {
     notificationStore.error('Invalid amount entered.')
+    return
+  }
+  if (parsedAmount > CASH_AMOUNT_MAX) {
+    notificationStore.error(
+      `Amount cannot exceed ${AMOUNT_MAX_LENGTH} digits (₱${CASH_AMOUNT_MAX.toLocaleString()}).`,
+    )
     return
   }
 
@@ -93,7 +106,7 @@ function formatDate(dateStr) {
 }
 
 function getConfirmedPaid(purchase) {
-  if (purchase.payment_method !== 'cash' && purchase.payment_status === 'completed') {
+  if (purchase.payment_method !== PAYMENT_OPTION.CASH && purchase.payment_status === 'completed') {
     return purchase.amount_paid || 0
   }
   return purchase.cash_amount_confirmed || 0
@@ -162,7 +175,7 @@ function getConfirmedPaid(purchase) {
                 }}</span>
                 <span class="text-stone-300 hidden sm:inline">•</span>
                 <span
-                  class="uppercase tracking-wider text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md"
+                  class="uppercase tracking-wider text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-xl"
                   >{{ purchase.payment_method || '—' }}</span
                 >
                 <span class="text-stone-300 hidden sm:inline">•</span>
@@ -186,7 +199,7 @@ function getConfirmedPaid(purchase) {
           >
             <!-- Amounts -->
             <div
-              class="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-1.5 bg-stone-50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none border border-stone-100 sm:border-0"
+              class="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-1.5 bg-stone-50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-xl border border-stone-100 sm:border-0"
             >
               <div class="text-left sm:text-right">
                 <p
@@ -221,7 +234,7 @@ function getConfirmedPaid(purchase) {
             <div v-if="purchase.buyer?.id" class="flex w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
               <button
                 @click="messageBuyer(purchase)"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm w-full sm:w-auto text-center"
+                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
               >
                 Message buyer
               </button>
@@ -237,15 +250,15 @@ function getConfirmedPaid(purchase) {
               "
             >
               <button
-                @click="openApproveModal(purchase, 'partial')"
+                @click="openApproveModal(purchase, CASH_PAYMENT_TYPE.PARTIAL)"
                 :disabled="isApproving[purchase.id]"
                 v-if="purchase.cash_payment_status !== 'partially_paid'"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm w-full sm:w-auto text-center"
+                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
               >
                 Approve 10%
               </button>
               <button
-                @click="openApproveModal(purchase, 'full')"
+                @click="openApproveModal(purchase, CASH_PAYMENT_TYPE.FULL)"
                 :disabled="isApproving[purchase.id]"
                 class="px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft hover:shadow-organic focus-visible:outline-moss-600 w-full sm:w-auto text-center"
               >
@@ -302,21 +315,27 @@ function getConfirmedPaid(purchase) {
               </p>
 
               <div class="mb-6">
-                <label class="block text-sm font-medium text-stone-700 mb-1"
+                <label class="block text-sm font-medium text-soil-700 mb-1"
                   >Amount Received (₱)</label
                 >
                 <input
                   type="number"
                   v-model="promptModal.amount"
                   class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-moss-500 focus:border-moss-500 text-stone-900 font-medium text-lg transition-shadow bg-stone-50 focus:bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
-                  min="1"
+                  :min="CASH_AMOUNT_MIN"
+                  :max="CASH_AMOUNT_MAX"
                   step="0.01"
                   :maxlength="AMOUNT_MAX_LENGTH"
                   @input="clampAmount"
-                  :disabled="promptModal.type === 'full'"
-                  @keyup.enter="promptModal.type !== 'full' ? confirmApprove() : null"
+                  :disabled="promptModal.type === CASH_PAYMENT_TYPE.FULL"
+                  @keyup.enter="
+                    promptModal.type !== CASH_PAYMENT_TYPE.FULL ? confirmApprove() : null
+                  "
                 />
-                <p v-if="promptModal.type === 'full'" class="mt-2 text-xs text-stone-500">
+                <p
+                  v-if="promptModal.type === CASH_PAYMENT_TYPE.FULL"
+                  class="mt-2 text-xs text-stone-500"
+                >
                   The amount is locked for full payments to ensure the contract total is met
                   exactly.
                 </p>
