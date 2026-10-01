@@ -20,7 +20,7 @@ it('accepts a small image attachment', function () {
     $this->withHeaders(['Accept' => 'application/json'])->post('/api/v1/forum/attachments', [
         'file' => UploadedFile::fake()->image('plot.jpg', 100, 100),
         'attachable_type' => 'thread',
-    ])->assertOk();
+    ])->assertCreated();
 });
 
 it('rejects a non-image attachment', function () {

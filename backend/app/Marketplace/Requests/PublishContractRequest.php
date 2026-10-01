@@ -59,8 +59,10 @@ class PublishContractRequest extends FormRequest
 
     protected function failedValidation(Validator $validator): void
     {
-        Log::error('Validation Failed Data:', $this->all());
-        Log::error('Validation Failed Errors:', $validator->errors()->toArray());
+        // Log failed field names only — never request payloads (PII).
+        Log::error('Publish contract validation failed.', [
+            'fields' => array_keys($validator->errors()->toArray()),
+        ]);
         parent::failedValidation($validator);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Domain\Farming\Models;
 
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;

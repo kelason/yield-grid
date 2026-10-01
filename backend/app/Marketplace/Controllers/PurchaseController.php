@@ -195,6 +195,8 @@ final class PurchaseController extends Controller
                     'message' => 'Cash purchase request created. Please wait for farmer approval.',
                     'purchase_id' => $purchase->id,
                 ]);
+            } catch (LogicException $e) {
+                return response()->json(['message' => $e->getMessage()], HttpCode::CONFLICT);
             } catch (\Exception $e) {
                 return response()->json(['message' => $e->getMessage()], HttpCode::UNPROCESSABLE_ENTITY);
             }

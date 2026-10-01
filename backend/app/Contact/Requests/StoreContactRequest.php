@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Contact\Requests;
 
 use App\Constants\ContactConstants;

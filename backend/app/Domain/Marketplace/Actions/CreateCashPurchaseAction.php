@@ -15,7 +15,7 @@ use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use Illuminate\Database\Eloquent\Model;
-use RuntimeException;
+use LogicException;
 
 final class CreateCashPurchaseAction
 {
@@ -32,7 +32,7 @@ final class CreateCashPurchaseAction
             $lockedItem = $modelClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
 
             if ($lockedItem->status !== ContractStatus::AVAILABLE || $quantityKg > (float) $lockedItem->quantity_kg) {
-                throw new RuntimeException('Requested quantity is not available.');
+                throw new LogicException('Requested quantity is not available.');
             }
 
             // Calculate if downpayment applies

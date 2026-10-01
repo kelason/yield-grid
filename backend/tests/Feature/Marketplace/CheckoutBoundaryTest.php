@@ -1,7 +1,11 @@
 <?php
 
 use App\Constants\MarketplaceConstants;
+use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
+use Domain\Farming\Models\Farm;
+use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,9 +15,20 @@ uses(TestCase::class, RefreshDatabase::class);
 beforeEach(function () {
     $this->buyer = User::factory()->buyer()->create();
     $this->farmer = User::factory()->farmer()->create();
+    $farm = Farm::create(['user_id' => $this->farmer->id, 'name' => 'Test Farm']);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $this->recommendation = CropRecommendation::create([
+        'plot_id' => $plot->id,
+        'status' => RecommendationStatus::ACCEPTED,
+        'crop_name' => 'Jasmine Rice',
+        'projected_yield' => 500,
+        'confidence_score' => 90,
+        'reasoning' => 'Good soil',
+    ]);
     $this->makeContract = function (float $quantityKg): ForwardContract {
         return ForwardContract::factory()->available()->create([
             'farmer_id' => $this->farmer->id,
+            'crop_recommendation_id' => $this->recommendation->id,
             'quantity_kg' => $quantityKg,
             'price_per_kg' => 10,
             'total_price' => $quantityKg * 10,
