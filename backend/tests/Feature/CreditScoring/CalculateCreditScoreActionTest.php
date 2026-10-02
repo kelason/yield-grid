@@ -7,6 +7,7 @@ use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Models\Farm;
@@ -204,6 +205,46 @@ it('generates improvement tips for weak dimensions', function () {
     expect($score->improvementTips)->not->toBeEmpty()
         ->and($messages)->toContain('plot')
         ->and(array_column($score->improvementTips, 'dimension'))->toContain('plot_activity');
+});
+
+it('excludes unpaid purchases from transaction volume on every channel', function () {
+    $farmer = User::factory()->farmer()->create();
+    $farm = creditScoringFarm($farmer);
+    $rec = creditScoringRecommendation($farm->plots()->firstOrFail());
+    $contract = creditScoringContract($farmer, $rec->id);
+    creditScoringPurchase($contract, 50000.00);
+
+    $listing = HarvestListing::create([
+        'title' => 'Test Listing',
+        'farmer_id' => $farmer->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 1000,
+        'price_per_kg' => 50,
+        'total_price' => 50000,
+        'estimated_harvest_date' => now()->addDays(20),
+        'expiry_date' => now()->addDays(30),
+        'shelf_life_days' => 180,
+        'is_harvest_available' => false,
+    ]);
+    Purchase::factory()->failed()->create([
+        'forward_contract_id' => null,
+        'harvest_listing_id' => $listing->id,
+        'amount_paid' => 400000.00,
+    ]);
+
+    $buyer = User::factory()->buyer()->create();
+    $demand = ReverseMarketplaceHelper::makeDemand($buyer);
+    $offer = ReverseMarketplaceHelper::makeOffer($demand, $farmer, ['status' => DemandOfferStatus::ACCEPTED]);
+    Purchase::factory()->failed()->create([
+        'forward_contract_id' => null,
+        'crop_demand_offer_id' => $offer->id,
+        'amount_paid' => 400000.00,
+    ]);
+
+    $score = app(CalculateCreditScoreAction::class)->execute($farmer);
+
+    expect($score->rawMetrics['transaction_count'])->toBe(1)
+        ->and($score->rawMetrics['total_transaction_value'])->toBe(50000.00);
 });
 
 it('recalculates every farmer via the daily cron command', function () {

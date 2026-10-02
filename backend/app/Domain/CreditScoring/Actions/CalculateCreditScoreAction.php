@@ -9,22 +9,12 @@ use App\Domain\CreditScoring\DTOs\CreditScoreData;
 use App\Domain\CreditScoring\DTOs\ScoreBreakdownData;
 use App\Domain\CreditScoring\Enums\ScoreTier;
 use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
-use App\Domain\CropRecommendation\Enums\RecommendationStatus;
-use App\Domain\Marketplace\Enums\ContractStatus;
-use App\Domain\Marketplace\Enums\DemandOfferStatus;
-use App\Domain\Marketplace\Enums\PaymentStatus;
-use App\Domain\Marketplace\Models\CropDemandOffer;
-use App\Domain\Marketplace\Models\ForwardContract;
-use App\Domain\Marketplace\Models\Purchase;
-use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
-use Domain\Farming\Models\Farm;
-use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
-use Illuminate\Support\Carbon;
 
 final class CalculateCreditScoreAction
 {
     public function __construct(
+        private readonly GatherCreditScoreMetricsAction $metricsAction,
         private readonly GenerateImprovementTipsAction $tipsAction,
     ) {}
 
@@ -33,7 +23,7 @@ final class CalculateCreditScoreAction
      */
     public function execute(User $user): CreditScoreData
     {
-        $metrics = $this->gatherMetrics($user);
+        $metrics = $this->metricsAction->execute($user);
         $breakdown = $this->scoreAllDimensions($metrics);
         $overall = $this->computeOverall($breakdown);
         $tier = ScoreTier::fromScore($overall);
@@ -54,134 +44,6 @@ final class CalculateCreditScoreAction
             rawMetrics: $metrics,
             improvementTips: $tips,
         );
-    }
-
-    /**
-     * Gather all raw metrics from across bounded contexts using efficient aggregate queries.
-     *
-     * @return array<string, mixed>
-     */
-    private function gatherMetrics(User $user): array
-    {
-        $userId = $user->id;
-        $now = Carbon::now();
-
-        // Farming context
-        $farmIds = Farm::where('user_id', $userId)->pluck('id');
-        $plots = Plot::whereIn('farm_id', $farmIds);
-        $activePlots = $plots->count();
-        $plotsWithPolygon = (clone $plots)->whereNotNull('polygon')->count();
-        $plotsWithSoilType = (clone $plots)->whereNotNull('soil_type')->count();
-        $plotIds = Plot::whereIn('farm_id', $farmIds)->pluck('id');
-
-        // CropRecommendation context
-        $totalRecommendations = CropRecommendation::whereIn('plot_id', $plotIds)->count();
-        $acceptedRecommendations = CropRecommendation::whereIn('plot_id', $plotIds)
-            ->where('status', RecommendationStatus::ACCEPTED)
-            ->count();
-        $publishedToContract = ForwardContract::where('farmer_id', $userId)
-            ->whereNotNull('crop_recommendation_id')
-            ->count();
-
-        // Marketplace context — contracts
-        $totalContracts = ForwardContract::where('farmer_id', $userId)->count();
-        $soldContracts = ForwardContract::where('farmer_id', $userId)
-            ->where('status', ContractStatus::SOLD)
-            ->count();
-        $cancelledContracts = ForwardContract::where('farmer_id', $userId)
-            ->where('status', ContractStatus::CANCELLED)
-            ->count();
-        $expiredContracts = ForwardContract::where('farmer_id', $userId)
-            ->where('status', ContractStatus::EXPIRED)
-            ->count();
-
-        // Marketplace context — demand offers
-        $totalOffers = CropDemandOffer::where('farmer_id', $userId)->count();
-        $acceptedOffers = CropDemandOffer::where('farmer_id', $userId)
-            ->where('status', DemandOfferStatus::ACCEPTED)
-            ->count();
-        $completedOffers = CropDemandOffer::where('farmer_id', $userId)
-            ->where('status', DemandOfferStatus::COMPLETED)
-            ->count();
-        $withdrawnOffers = CropDemandOffer::where('farmer_id', $userId)
-            ->where('status', DemandOfferStatus::WITHDRAWN)
-            ->count();
-        $cancelledOffers = CropDemandOffer::where('farmer_id', $userId)
-            ->where('status', DemandOfferStatus::CANCELLED)
-            ->count();
-        $deliveredOffers = CropDemandOffer::where('farmer_id', $userId)
-            ->where('status', DemandOfferStatus::DELIVERED)
-            ->count();
-        // Offers that reached a "successful" lifecycle stage (accepted+)
-        $offersWithDelivery = CropDemandOffer::where('farmer_id', $userId)
-            ->whereIn('status', [
-                DemandOfferStatus::DELIVERED,
-                DemandOfferStatus::COMPLETED,
-            ])
-            ->count();
-
-        // Transaction volume — purchases where this farmer was the seller
-        $farmerPurchases = Purchase::where('payment_status', PaymentStatus::COMPLETED)
-            ->whereHas('contract', fn ($q) => $q->where('farmer_id', $userId))
-            ->orWhereHas('harvestListing', fn ($q) => $q->where('farmer_id', $userId))
-            ->orWhereHas('demandOffer', fn ($q) => $q->where('farmer_id', $userId));
-
-        $totalTransactionValue = (float) (clone $farmerPurchases)->sum('amount_paid');
-        $transactionCount = (clone $farmerPurchases)->count();
-
-        // Calculate active months: months where at least one purchase was paid
-        $firstPurchaseDate = (clone $farmerPurchases)->min('purchased_at');
-        $activeMonths = 0;
-        if ($firstPurchaseDate !== null) {
-            $activeMonths = (int) (clone $farmerPurchases)
-                ->selectRaw('DISTINCT EXTRACT(YEAR FROM purchased_at) * 12 + EXTRACT(MONTH FROM purchased_at) AS ym')
-                ->count();
-        }
-
-        // Platform tenure
-        $accountAgeDays = (int) $user->created_at->diffInDays($now);
-        $accountAgeMonths = max(1, (int) $user->created_at->diffInMonths($now));
-
-        return [
-            // Plot activity
-            'active_plots' => $activePlots,
-            'plots_with_polygon' => $plotsWithPolygon,
-            'plots_with_soil_type' => $plotsWithSoilType,
-            'has_recommendations' => $totalRecommendations > 0,
-
-            // Recommendations
-            'total_recommendations' => $totalRecommendations,
-            'accepted_recommendations' => $acceptedRecommendations,
-            'published_to_contract' => $publishedToContract,
-
-            // Contracts
-            'total_contracts' => $totalContracts,
-            'sold_contracts' => $soldContracts,
-            'cancelled_contracts' => $cancelledContracts,
-            'expired_contracts' => $expiredContracts,
-
-            // Offers
-            'total_offers' => $totalOffers,
-            'accepted_offers' => $acceptedOffers,
-            'completed_offers' => $completedOffers,
-            'withdrawn_offers' => $withdrawnOffers,
-            'cancelled_offers' => $cancelledOffers,
-            'delivered_offers' => $deliveredOffers,
-            'offers_with_delivery' => $offersWithDelivery,
-
-            // Volume
-            'total_transaction_value' => $totalTransactionValue,
-            'transaction_count' => $transactionCount,
-            'active_months' => $activeMonths,
-
-            // Tenure
-            'account_age_days' => $accountAgeDays,
-            'account_age_months' => $accountAgeMonths,
-            'email_verified' => $user->hasVerifiedEmail(),
-            'has_phone' => $user->phone !== null && $user->phone !== '',
-            'has_address' => $user->addresses()->exists(),
-            'has_avatar' => $user->avatar_url !== null && $user->avatar_url !== '',
-        ];
     }
 
     /**
@@ -292,15 +154,21 @@ final class CalculateCreditScoreAction
         $reliabilityScore = $withdrawn === 0
             ? 15
             : max(0, 15 - $withdrawnRatio * CreditScoringConstants::WITHDRAWAL_PENALTY_MULTIPLIER);
-
-        // On-time delivery approximation: completed vs total accepted lifecycle
-        $onTimeRatio = $accepted > 0
-            ? min(1, $completed / max(1, $accepted)) : 0;
-        $timelinessScore = $onTimeRatio * 15;
+        $timelinessScore = $this->scoreOfferTimeliness($accepted, $completed);
 
         return $this->clampScore((int) round(
             $acceptanceScore + $deliveryCompletionScore + $reliabilityScore + $timelinessScore
         ));
+    }
+
+    /**
+     * On-time delivery approximation: completed vs total accepted lifecycle.
+     */
+    private function scoreOfferTimeliness(int $accepted, int $completed): float
+    {
+        $onTimeRatio = $accepted > 0 ? min(1, $completed / max(1, $accepted)) : 0;
+
+        return $onTimeRatio * 15;
     }
 
     /**
