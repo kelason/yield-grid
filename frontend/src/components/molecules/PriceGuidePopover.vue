@@ -35,12 +35,26 @@ function positionPanel() {
   }
   const rect = triggerRef.value.getBoundingClientRect()
   const width = panelRef.value?.offsetWidth || PANEL_FALLBACK_WIDTH_PX
+  const height = panelRef.value?.offsetHeight || 0
   const left = Math.max(
     VIEWPORT_MARGIN_PX,
     Math.min(rect.left, window.innerWidth - width - VIEWPORT_MARGIN_PX),
   )
+  const spaceBelow = window.innerHeight - rect.bottom - PANEL_OFFSET_PX - VIEWPORT_MARGIN_PX
+  const spaceAbove = rect.top - PANEL_OFFSET_PX - VIEWPORT_MARGIN_PX
+  // A zero height means the panel is not measurable yet — default to below.
+  const fitsBelow = height === 0 || height <= spaceBelow
+
+  if (fitsBelow || spaceBelow >= spaceAbove) {
+    panelStyle.value = {
+      top: `${rect.bottom + PANEL_OFFSET_PX}px`,
+      left: `${left}px`,
+    }
+    return
+  }
+
   panelStyle.value = {
-    top: `${rect.bottom + PANEL_OFFSET_PX}px`,
+    bottom: `${window.innerHeight - rect.top + PANEL_OFFSET_PX}px`,
     left: `${left}px`,
   }
 }

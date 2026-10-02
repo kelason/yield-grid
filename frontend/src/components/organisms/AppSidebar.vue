@@ -81,6 +81,12 @@ const farmerNavigation = [
     ],
   },
   {
+    name: 'Trust Score',
+    to: { name: 'credit-score' },
+    icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+    emoji: '🏦',
+  },
+  {
     name: 'Community',
     to: { name: 'community-forum' },
     icon: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',

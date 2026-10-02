@@ -20,6 +20,34 @@ function panelEl() {
   return document.body.querySelector('[role="dialog"][aria-label="Price guide"]')
 }
 
+const VIEWPORT_HEIGHT_PX = 768
+const PANEL_OFFSET_PX = 8
+
+function mockViewportHeight() {
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    value: VIEWPORT_HEIGHT_PX,
+  })
+}
+
+function mockTriggerRect(trigger, { top, bottom, left }) {
+  trigger.element.getBoundingClientRect = () => ({
+    top,
+    bottom,
+    left,
+    right: left,
+    x: left,
+    y: top,
+    width: 0,
+    height: bottom - top,
+  })
+}
+
+function mockPanelSize(panel, { width, height }) {
+  Object.defineProperty(panel, 'offsetWidth', { configurable: true, value: width })
+  Object.defineProperty(panel, 'offsetHeight', { configurable: true, value: height })
+}
+
 describe('PriceGuidePopover', () => {
   afterEach(() => {
     document.body.innerHTML = ''
@@ -82,6 +110,61 @@ describe('PriceGuidePopover', () => {
     document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     await flushPromises()
     expect(panelEl()).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('opens below the trigger at its natural height when the panel fits', async () => {
+    mockViewportHeight()
+    const wrapper = mountPopover()
+    const trigger = wrapper.find('button[aria-label="Show price guide"]')
+    mockTriggerRect(trigger, { top: 100, bottom: 120, left: 100 })
+    await trigger.trigger('click')
+    await flushPromises()
+
+    mockPanelSize(panelEl(), { width: 416, height: 400 })
+    window.dispatchEvent(new Event('resize'))
+    await flushPromises()
+
+    const panel = panelEl()
+    expect(panel.style.top).toBe(`${120 + PANEL_OFFSET_PX}px`)
+    expect(panel.style.bottom).toBe('')
+    expect(panel.style.maxHeight).toBe('')
+    wrapper.unmount()
+  })
+
+  it('flips above the trigger when the panel does not fit below', async () => {
+    mockViewportHeight()
+    const wrapper = mountPopover()
+    const trigger = wrapper.find('button[aria-label="Show price guide"]')
+    mockTriggerRect(trigger, { top: 700, bottom: 720, left: 100 })
+    await trigger.trigger('click')
+    await flushPromises()
+
+    mockPanelSize(panelEl(), { width: 416, height: 500 })
+    window.dispatchEvent(new Event('resize'))
+    await flushPromises()
+
+    const panel = panelEl()
+    expect(panel.style.top).toBe('')
+    expect(panel.style.bottom).toBe(`${VIEWPORT_HEIGHT_PX - 700 + PANEL_OFFSET_PX}px`)
+    wrapper.unmount()
+  })
+
+  it('stays below the trigger when below has more room, even if neither side fits', async () => {
+    mockViewportHeight()
+    const wrapper = mountPopover()
+    const trigger = wrapper.find('button[aria-label="Show price guide"]')
+    mockTriggerRect(trigger, { top: 60, bottom: 80, left: 100 })
+    await trigger.trigger('click')
+    await flushPromises()
+
+    mockPanelSize(panelEl(), { width: 416, height: 700 })
+    window.dispatchEvent(new Event('resize'))
+    await flushPromises()
+
+    const panel = panelEl()
+    expect(panel.style.top).toBe(`${80 + PANEL_OFFSET_PX}px`)
+    expect(panel.style.bottom).toBe('')
     wrapper.unmount()
   })
 

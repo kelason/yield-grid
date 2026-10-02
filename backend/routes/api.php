@@ -13,7 +13,9 @@ use App\Community\Controllers\ForumReportController;
 use App\Community\Controllers\ForumTagController;
 use App\Community\Controllers\ForumThreadController;
 use App\Community\Controllers\ForumVoteController;
+use App\Constants\CreditScoringConstants;
 use App\Contact\Controllers\ContactController;
+use App\CreditScoring\Controllers\CreditScoreController;
 use App\CropRecommendation\Controllers\CropRecommendationController;
 use App\Farming\Controllers\FarmController;
 use App\Farming\Controllers\PlotController;
@@ -68,6 +70,9 @@ Route::prefix('v1')->group(function () {
 
     // PayMongo Webhooks
     Route::post('/webhooks/paymongo', [PayMongoWebhookController::class, 'handle']);
+
+    // Public credit report verification (QR code in PDF reports)
+    Route::get('/verify-report/{token}', [CreditScoreController::class, 'verifyReport'])->middleware('throttle:60,1');
 
     // Protected Auth routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -128,6 +133,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/farmer/offers/{offer}/cancel', [DemandOfferController::class, 'cancel'])->middleware('verified');
             Route::post('/farmer/offers/{offer}/mark-delivered', [DemandOfferController::class, 'markDelivered'])->middleware('verified');
             Route::post('/farmer/offers/{offer}/settle-balance', [DemandOfferController::class, 'settleBalance'])->middleware('verified');
+
+            // Farmer Trust Score (CreditScoring)
+            Route::get('/farmer/credit-score', [CreditScoreController::class, 'show'])
+                ->middleware('throttle:'.CreditScoringConstants::SCORE_CALCULATE_THROTTLE_PER_HOUR.',1');
+            Route::get('/farmer/credit-score/history', [CreditScoreController::class, 'history']);
+            Route::post('/farmer/credit-score/report', [CreditScoreController::class, 'generateReport'])
+                ->middleware(['verified', 'throttle:'.CreditScoringConstants::REPORT_GENERATE_THROTTLE_PER_DAY.',1440']);
+            Route::get('/farmer/credit-score/report/{token}/download', [CreditScoreController::class, 'downloadReport']);
         });
 
         // Buyer Routes
