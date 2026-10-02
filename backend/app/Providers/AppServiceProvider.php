@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
+use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
 use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
 use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\CropDemandOffer;
@@ -22,9 +24,11 @@ use App\Infrastructure\Marketplace\Repositories\EloquentForwardContractRepositor
 use App\Infrastructure\Marketplace\Repositories\EloquentPurchaseRepository;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Infrastructure\Marketplace\Services\TxtFlowSmsService;
+use App\Infrastructure\Services\PdfGeneratorService;
 use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
 use App\Policies\ConversationPolicy;
+use App\Policies\CreditScorePolicy;
 use App\Policies\CropDemandOfferPolicy;
 use App\Policies\CropDemandPolicy;
 use App\Policies\CropRecommendationPolicy;
@@ -59,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(PaymentGatewayInterface::class, PayMongoService::class);
         $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
+        $this->app->bind(PdfGeneratorInterface::class, PdfGeneratorService::class);
     }
 
     public function boot(): void
@@ -92,6 +97,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(UserAddress::class, UserAddressPolicy::class);
         Gate::policy(CropDemand::class, CropDemandPolicy::class);
         Gate::policy(CropDemandOffer::class, CropDemandOfferPolicy::class);
+        Gate::policy(CreditScoreSnapshot::class, CreditScorePolicy::class);
         Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route

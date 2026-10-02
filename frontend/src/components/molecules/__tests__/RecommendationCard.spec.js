@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import RecommendationCard from './RecommendationCard.vue'
+import RecommendationCard from '../RecommendationCard.vue'
 
 // Mock the CropConfidenceMeter since it uses chart.js which might complain in jsdom
-vi.mock('../atoms/CropConfidenceMeter.vue', () => ({
+vi.mock('../../atoms/CropConfidenceMeter.vue', () => ({
   default: {
     template: '<div class="mock-confidence-meter"></div>',
   },

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import SoilTypeSelect from './SoilTypeSelect.vue'
+import SoilTypeSelect from '../SoilTypeSelect.vue'
 
 describe('SoilTypeSelect.vue', () => {
   it('renders label correctly', () => {

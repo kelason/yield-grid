@@ -138,6 +138,12 @@ const router = createRouter({
           meta: { role: 'farmer', requiresVerification: true },
         },
         {
+          path: 'credit-score',
+          name: 'credit-score',
+          component: () => import('@/pages/dashboard/farmer/CreditScorePage.vue'),
+          meta: { role: 'farmer', title: 'Trust Score' },
+        },
+        {
           path: 'buyer',
           name: 'buyer-dashboard',
           component: () => import('@/pages/dashboard/buyer/BuyerDashboard.vue'),
