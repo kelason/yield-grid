@@ -11,6 +11,9 @@ use App\Domain\Insurance\Models\PlantingWindow;
 
 final class ResolvePlantingWindowAction
 {
+    /** @var array<string, PlantingWindow>|null Memoized region/program/season index. */
+    private ?array $index = null;
+
     /**
      * Resolve the planting window for a region, falling back to NATIONAL.
      */
@@ -19,20 +22,39 @@ final class ResolvePlantingWindowAction
         InsuranceProgram $program,
         Season $season,
     ): ?PlantingWindow {
+        $index = $this->indexed();
+
         if ($regionCode !== null) {
-            $regional = PlantingWindow::where('region_code', $regionCode)
-                ->where('program', $program)
-                ->where('season', $season)
-                ->first();
+            $regional = $index[$this->key($regionCode, $program, $season)] ?? null;
 
             if ($regional !== null) {
                 return $regional;
             }
         }
 
-        return PlantingWindow::where('region_code', InsuranceConstants::NATIONAL_REGION_CODE)
-            ->where('program', $program)
-            ->where('season', $season)
-            ->first();
+        return $index[$this->key(InsuranceConstants::NATIONAL_REGION_CODE, $program, $season)] ?? null;
+    }
+
+    /**
+     * @return array<string, PlantingWindow>
+     */
+    private function indexed(): array
+    {
+        if ($this->index !== null) {
+            return $this->index;
+        }
+
+        $index = [];
+
+        foreach (PlantingWindow::all() as $window) {
+            $index[$this->key($window->region_code, $window->program, $window->season)] = $window;
+        }
+
+        return $this->index = $index;
+    }
+
+    private function key(string $regionCode, InsuranceProgram $program, Season $season): string
+    {
+        return "{$regionCode}:{$program->value}:{$season->value}";
     }
 }

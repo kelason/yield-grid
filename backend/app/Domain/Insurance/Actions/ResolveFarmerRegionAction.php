@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Insurance\Actions;
 
 use Domain\Users\Models\User;
+use Domain\Users\Models\UserAddress;
 
 final class ResolveFarmerRegionAction
 {
@@ -21,5 +22,30 @@ final class ResolveFarmerRegionAction
         }
 
         return $user->addresses()->orderBy('id')->first()?->region_code;
+    }
+
+    /**
+     * Resolve regions for many users in one query. Users without an
+     * address are absent from the map (callers fall back to NATIONAL).
+     *
+     * @param  list<int>  $userIds
+     * @return array<int, string>
+     */
+    public function regionsForUsers(array $userIds): array
+    {
+        if ($userIds === []) {
+            return [];
+        }
+
+        $regions = [];
+        $addresses = UserAddress::whereIn('user_id', $userIds)->orderBy('id')->get();
+
+        foreach ($addresses->groupBy('user_id') as $userId => $group) {
+            $default = $group->firstWhere('is_default', true);
+
+            $regions[(int) $userId] = ($default ?? $group->first())->region_code;
+        }
+
+        return $regions;
     }
 }

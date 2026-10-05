@@ -279,3 +279,55 @@ it('serves the office directory with the serving region flagged', function () {
         ->and($offices->firstWhere('region_code', null)['name'])->toContain('Head Office')
         ->and($offices->count())->toBeGreaterThanOrEqual(17);
 });
+
+it('resolves planting windows per farmer region in one run', function () {
+    Mail::fake();
+    $this->seed(PlantingWindowSeeder::class);
+    $national = reminderFarmer();
+    $caraga = reminderFarmer('160000000');
+
+    $this->travelTo('2026-06-10 08:00:00');
+    $this->artisan('insurance:send-reminders')->assertSuccessful();
+    $this->travelBack();
+
+    Mail::assertQueued(InsuranceReminderMail::class, 4);
+
+    $nationalLogs = InsuranceReminderLog::where('user_id', $national->id)->orderBy('reference_key')->get();
+    $caragaLogs = InsuranceReminderLog::where('user_id', $caraga->id)->orderBy('reference_key')->get();
+
+    expect($nationalLogs->pluck('reference_key')->all())->toBe(['window:corn:wet:2026', 'window:rice:wet:2026'])
+        ->and($nationalLogs->map(fn ($log) => $log->meta['window_label'])->all())->toBe(['May 1 – Jul 31', 'May 1 – Jul 31'])
+        ->and($caragaLogs->pluck('reference_key')->all())->toBe(['window:corn:wet:2026', 'window:rice:wet:2026'])
+        ->and($caragaLogs->map(fn ($log) => $log->meta['window_label'])->all())->toBe(['Jun 15 – Aug 31', 'Jun 15 – Aug 31']);
+});
+
+it('sends each farmer only their own renewal reminders', function () {
+    Mail::fake();
+    $farmerA = reminderFarmer();
+    $farmerB = reminderFarmer();
+
+    $this->travelTo('2026-02-10 08:00:00');
+    $enrollmentA = reminderEnrollment($farmerA, [
+        'status' => EnrollmentStatus::ACTIVE,
+        'expires_at' => now()->addDays(20),
+    ]);
+    $enrollmentB = reminderEnrollment($farmerB, [
+        'status' => EnrollmentStatus::ACTIVE,
+        'season' => Season::DRY,
+        'expires_at' => now()->addDays(10),
+    ]);
+    $this->artisan('insurance:send-reminders')->assertSuccessful();
+    $this->travelBack();
+
+    Mail::assertQueued(InsuranceReminderMail::class, 2);
+
+    $logA = InsuranceReminderLog::where('user_id', $farmerA->id)->firstOrFail();
+    $logB = InsuranceReminderLog::where('user_id', $farmerB->id)->firstOrFail();
+
+    expect(InsuranceReminderLog::where('user_id', $farmerA->id)->count())->toBe(1)
+        ->and(InsuranceReminderLog::where('user_id', $farmerB->id)->count())->toBe(1)
+        ->and($logA->type)->toBe(ReminderType::RENEWAL)
+        ->and($logB->type)->toBe(ReminderType::RENEWAL)
+        ->and($logA->enrollment_id)->toBe($enrollmentA->id)
+        ->and($logB->enrollment_id)->toBe($enrollmentB->id);
+});

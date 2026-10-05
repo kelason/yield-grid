@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Insurance\Actions;
 
 use App\Constants\InsuranceConstants;
-use App\Domain\Insurance\Enums\ClaimStatus;
-use App\Domain\Insurance\Enums\EnrollmentStatus;
 use App\Domain\Insurance\Enums\InsuranceProgram;
 use App\Domain\Insurance\Enums\ReminderType;
 use App\Domain\Insurance\Enums\Season;
@@ -18,6 +16,7 @@ use App\Insurance\Mail\InsuranceReminderMail;
 use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -25,40 +24,79 @@ use Throwable;
 final class SendInsuranceRemindersAction
 {
     public function __construct(
-        private readonly ResolveFarmerRegionAction $regionAction,
+        private readonly LoadReminderCandidatesAction $candidatesAction,
         private readonly ResolvePlantingWindowAction $windowAction,
     ) {}
 
     /**
      * Evaluate every verified farmer and send due reminders. Returns the send count.
+     *
+     * Candidates are preloaded in bulk so the run stays at a constant query
+     * count regardless of farmer volume.
      */
     public function execute(): int
     {
+        $now = Carbon::now();
+        $farmerIds = $this->verifiedFarmerIds();
+
+        if ($farmerIds === []) {
+            return 0;
+        }
+
+        $candidates = $this->candidatesAction->execute($farmerIds, $now);
+
         $count = 0;
         $farmers = User::where('role', UserRole::FARMER)->whereNotNull('email_verified_at')->cursor();
 
         foreach ($farmers as $farmer) {
-            $count += $this->remindFarmer($farmer);
+            $count += $this->remindFarmer(
+                $farmer,
+                $candidates->regions[$farmer->id] ?? null,
+                $now,
+                $candidates->noticeClaims->get($farmer->id, collect()),
+                $candidates->renewals->get($farmer->id, collect()),
+                $candidates->idleClaims->get($farmer->id, collect()),
+            );
         }
 
         return $count;
     }
 
-    private function remindFarmer(User $farmer): int
+    /**
+     * @return list<int>
+     */
+    private function verifiedFarmerIds(): array
     {
-        $region = $this->regionAction->execute($farmer);
-
-        return $this->remindEnrollmentWindows($farmer, $region)
-            + $this->remindNoticeDeadlines($farmer)
-            + $this->remindRenewals($farmer)
-            + $this->remindIdleClaims($farmer);
+        return User::where('role', UserRole::FARMER)
+            ->whereNotNull('email_verified_at')
+            ->pluck('id')
+            ->all();
     }
 
-    private function remindEnrollmentWindows(User $farmer, ?string $region): int
+    /**
+     * @param  Collection<int, InsuranceClaim>  $noticeClaims
+     * @param  Collection<int, InsuranceEnrollment>  $renewals
+     * @param  Collection<int, InsuranceClaim>  $idleClaims
+     */
+    private function remindFarmer(
+        User $farmer,
+        ?string $region,
+        Carbon $now,
+        Collection $noticeClaims,
+        Collection $renewals,
+        Collection $idleClaims,
+    ): int {
+        return $this->remindEnrollmentWindows($farmer, $region, $now)
+            + $this->remindNoticeDeadlines($farmer, $noticeClaims)
+            + $this->remindRenewals($farmer, $renewals)
+            + $this->remindIdleClaims($farmer, $idleClaims);
+    }
+
+    private function remindEnrollmentWindows(User $farmer, ?string $region, Carbon $now): int
     {
         $sent = 0;
 
-        foreach ($this->dueSeasons($region, Carbon::now()) as $due) {
+        foreach ($this->dueSeasons($region, $now) as $due) {
             $key = "window:{$due['program']->value}:{$due['season']->value}:{$due['year']}";
 
             if ($this->sendOnce($farmer, ReminderType::ENROLLMENT_WINDOW, $key, [
@@ -131,19 +169,11 @@ final class SendInsuranceRemindersAction
         return $start->format('M j').' – '.$end->format('M j');
     }
 
-    private function remindNoticeDeadlines(User $farmer): int
+    /**
+     * @param  Collection<int, InsuranceClaim>  $claims
+     */
+    private function remindNoticeDeadlines(User $farmer, Collection $claims): int
     {
-        $cutoff = Carbon::now()->subDays(
-            InsuranceConstants::NOTICE_OF_LOSS_DEADLINE_DAYS
-            - InsuranceConstants::NOTICE_OF_LOSS_REMINDER_THRESHOLD_DAYS
-        );
-
-        $claims = InsuranceClaim::whereHas('enrollment', fn ($query) => $query->where('user_id', $farmer->id))
-            ->where('status', ClaimStatus::DRAFT)
-            ->whereNull('notice_of_loss_filed_at')
-            ->whereDate('loss_date', '<=', $cutoff->toDateString())
-            ->get();
-
         $sent = 0;
 
         foreach ($claims as $claim) {
@@ -162,17 +192,11 @@ final class SendInsuranceRemindersAction
         return $sent;
     }
 
-    private function remindRenewals(User $farmer): int
+    /**
+     * @param  Collection<int, InsuranceEnrollment>  $enrollments
+     */
+    private function remindRenewals(User $farmer, Collection $enrollments): int
     {
-        $now = Carbon::now();
-
-        $enrollments = InsuranceEnrollment::where('user_id', $farmer->id)
-            ->where('status', EnrollmentStatus::ACTIVE)
-            ->whereNotNull('expires_at')
-            ->whereDate('expires_at', '>', $now->toDateString())
-            ->whereDate('expires_at', '<=', $now->copy()->addDays(InsuranceConstants::RENEWAL_REMINDER_LEAD_DAYS)->toDateString())
-            ->get();
-
         $sent = 0;
 
         foreach ($enrollments as $enrollment) {
@@ -187,20 +211,11 @@ final class SendInsuranceRemindersAction
         return $sent;
     }
 
-    private function remindIdleClaims(User $farmer): int
+    /**
+     * @param  Collection<int, InsuranceClaim>  $claims
+     */
+    private function remindIdleClaims(User $farmer, Collection $claims): int
     {
-        $idleSince = Carbon::now()->subDays(InsuranceConstants::CLAIM_FOLLOWUP_AFTER_DAYS);
-
-        $claims = InsuranceClaim::whereHas('enrollment', fn ($query) => $query->where('user_id', $farmer->id))
-            ->whereIn('status', [
-                ClaimStatus::NOTICE_OF_LOSS_FILED,
-                ClaimStatus::FIELD_INSPECTION,
-                ClaimStatus::ADJUSTMENT,
-                ClaimStatus::APPROVED,
-            ])
-            ->where('updated_at', '<', $idleSince)
-            ->get();
-
         $sent = 0;
 
         foreach ($claims as $claim) {
@@ -250,10 +265,7 @@ final class SendInsuranceRemindersAction
         try {
             Mail::to($farmer->email)->send(new InsuranceReminderMail($type, $meta));
         } catch (Throwable $e) {
-            InsuranceReminderLog::where('user_id', $farmer->id)
-                ->where('type', $type)
-                ->where('reference_key', $key)
-                ->delete();
+            $this->releaseClaim($farmer, $type, $key);
 
             report($e);
 
@@ -261,5 +273,13 @@ final class SendInsuranceRemindersAction
         }
 
         return true;
+    }
+
+    private function releaseClaim(User $farmer, ReminderType $type, string $key): void
+    {
+        InsuranceReminderLog::where('user_id', $farmer->id)
+            ->where('type', $type)
+            ->where('reference_key', $key)
+            ->delete();
     }
 }
