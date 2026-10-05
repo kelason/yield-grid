@@ -134,4 +134,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Demo Nightly Reset
+    |--------------------------------------------------------------------------
+    |
+    | Safety gate for the demo:reset-database cron. The wipe refuses to run
+    | unless this is explicitly enabled, so the job can never fire by
+    | accident on a server where it was not deliberately switched on.
+    |
+    */
+
+    'demo_reset_enabled' => (bool) env('DEMO_NIGHTLY_RESET', false),
+
 ];
