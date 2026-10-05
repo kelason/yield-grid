@@ -228,6 +228,11 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             php artisan queue:restart
+            # Deploy runs as $USER but php-fpm serves as www-data: without this,
+            # storage/ stays owned by the deploy user and logging + file cache
+            # throw on every request that reports an exception.
+            sudo chown -R $USER:www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache
             sudo supervisorctl restart yieldgrid-scheduler yieldgrid-reverb
             sudo systemctl reload php8.3-fpm
             # Ensure proper restart of services if needed, e.g., sudo systemctl reload nginx

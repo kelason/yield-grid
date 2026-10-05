@@ -38,7 +38,7 @@ final class ReverseGeocodeService
         // Key format is historic: existing cache rows use it, keep it stable.
         $cacheKey = "geo_coord_{$rLat}_{$rLon}";
 
-        $geo = Cache::get($cacheKey);
+        $geo = $this->readCache($cacheKey);
         if (is_array($geo) && (! empty($geo['city']) || ! empty($geo['country']))) {
             return $geo;
         }
@@ -51,7 +51,7 @@ final class ReverseGeocodeService
 
         // Cache ONLY when we have successfully resolved real location data
         if (! empty($geo['city']) || ! empty($geo['country'])) {
-            Cache::put($cacheKey, $geo, GeoConstants::REVERSE_GEOCODE_CACHE_TTL_SECONDS);
+            $this->writeCache($cacheKey, $geo);
 
             return $geo;
         }
@@ -124,7 +124,7 @@ final class ReverseGeocodeService
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning('Photon reverse geocoding failed: '.$e->getMessage());
+            $this->warn('Photon reverse geocoding failed: '.$e->getMessage());
         }
 
         return null;
@@ -168,9 +168,49 @@ final class ReverseGeocodeService
                 ];
             }
         } catch (\Throwable $e) {
-            Log::warning('BigDataCloud reverse geocoding failed: '.$e->getMessage());
+            $this->warn('BigDataCloud reverse geocoding failed: '.$e->getMessage());
         }
 
         return null;
+    }
+
+    /**
+     * Read a cached resolution. A broken cache backend must degrade to a
+     * cache miss, never break the request (e.g. unwritable storage).
+     */
+    private function readCache(string $cacheKey): mixed
+    {
+        try {
+            return Cache::get($cacheKey);
+        } catch (\Throwable $e) {
+            $this->warn('Reverse-geocode cache read failed: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * @param  array{city: ?string, state: ?string, country: ?string}  $geo
+     */
+    private function writeCache(string $cacheKey, array $geo): void
+    {
+        try {
+            Cache::put($cacheKey, $geo, GeoConstants::REVERSE_GEOCODE_CACHE_TTL_SECONDS);
+        } catch (\Throwable $e) {
+            $this->warn('Reverse-geocode cache write failed: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Log without ever throwing: observability must not break geocoding
+     * when the log stream itself is unavailable (e.g. bad file ownership).
+     */
+    private function warn(string $message): void
+    {
+        try {
+            Log::warning($message);
+        } catch (\Throwable) {
+            // Intentionally swallowed: logging must never break the request.
+        }
     }
 }
