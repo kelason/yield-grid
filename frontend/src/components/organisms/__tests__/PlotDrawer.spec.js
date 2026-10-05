@@ -54,6 +54,25 @@ describe('PlotDrawer city locating overlay', () => {
     wrapper.unmount()
   })
 
+  it('renders the overlay without crashing when the farm becomes null mid-geocode', async () => {
+    let resolveFetch
+    const pending = new Promise((resolve) => {
+      resolveFetch = resolve
+    })
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(pending))
+
+    const wrapper = mountDrawer({ city: 'Cabanatuan City', state: 'Nueva Ecija' })
+    await flushPromises()
+    expect(wrapper.find('[data-testid="city-locating-overlay"]').exists()).toBe(true)
+
+    await wrapper.setProps({ farm: null })
+    expect(wrapper.find('[data-testid="city-locating-overlay"]').exists()).toBe(true)
+
+    resolveFetch({ ok: true, json: async () => ({ features: [] }) })
+    await flushPromises()
+    wrapper.unmount()
+  })
+
   it('never shows the overlay when the farm has no city', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)

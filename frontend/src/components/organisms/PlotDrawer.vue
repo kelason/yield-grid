@@ -585,7 +585,7 @@ defineExpose({
           </svg>
           <div>
             <p class="text-sm font-bold text-stone-900">Locating city...</p>
-            <p class="text-xs text-stone-500">Zooming the map to {{ farm.city }}</p>
+            <p class="text-xs text-stone-500">Zooming the map to {{ farm?.city }}</p>
           </div>
         </div>
       </div>
