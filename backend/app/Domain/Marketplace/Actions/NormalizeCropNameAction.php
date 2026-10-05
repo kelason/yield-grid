@@ -10,6 +10,7 @@ use App\Domain\Marketplace\Enums\PriceMatchType;
 use App\Domain\Marketplace\Models\CropPriceAlias;
 use App\Domain\Marketplace\Repositories\CropReferencePriceRepositoryInterface;
 use App\Jobs\LearnCropAliasJob;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 final class NormalizeCropNameAction
@@ -55,7 +56,14 @@ final class NormalizeCropNameAction
             return new CropNameResolution($fuzzy, $catalog[$fuzzy], PriceMatchType::FUZZY, $slug);
         }
 
-        LearnCropAliasJob::dispatch($slug, trim($input));
+        try {
+            LearnCropAliasJob::dispatch($slug, trim($input));
+        } catch (\Throwable $e) {
+            Log::warning('Crop alias learning dispatch failed; continuing unresolved.', [
+                'slug' => $slug,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return null;
     }

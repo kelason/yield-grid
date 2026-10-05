@@ -222,6 +222,12 @@ jobs:
             git pull origin main
             cd backend
             composer install --no-dev --optimize-autoloader
+            # Fail fast when the queue's redis client is unavailable: without the
+            # phpredis extension every queue push/pop throws "Class Redis not found".
+            # (php-fpm needs the extension too: apt install php8.3-redis)
+            if [ "$(grep -E '^REDIS_CLIENT=' .env | cut -d= -f2 | tr -d '\"')" = "phpredis" ]; then
+              php -m | grep -qi '^redis$' || (echo "ERROR: REDIS_CLIENT=phpredis but the php-redis extension is not installed for CLI" && exit 1)
+            fi
             php artisan migrate --force
             php artisan optimize:clear
             php artisan config:cache
