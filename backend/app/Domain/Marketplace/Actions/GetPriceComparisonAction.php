@@ -101,7 +101,14 @@ final class GetPriceComparisonAction
      */
     private function unknownCrop(string $crop, array $wanted): PriceComparisonData
     {
-        GenerateAiPriceEstimateJob::dispatch(Str::slug(trim($crop)), trim($crop));
+        try {
+            GenerateAiPriceEstimateJob::dispatch(Str::slug(trim($crop)), trim($crop));
+        } catch (\Throwable $e) {
+            Log::warning('Crop price estimate dispatch failed; continuing unavailable.', [
+                'crop' => trim($crop),
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         $sections = [];
 
