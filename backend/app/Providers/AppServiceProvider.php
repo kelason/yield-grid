@@ -7,6 +7,10 @@ namespace App\Providers;
 use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
 use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
 use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
+use App\Domain\Insurance\Models\InsuranceClaim;
+use App\Domain\Insurance\Models\InsuranceEnrollment;
+use App\Domain\Insurance\Models\InsuranceProfile;
+use App\Domain\Insurance\Services\EnrollmentPackGeneratorInterface;
 use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\ForwardContract;
@@ -19,6 +23,7 @@ use App\Domain\Shared\Database\TransactionManagerInterface;
 use App\Domain\Shared\Events\EventDispatcherInterface;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
+use App\Infrastructure\Insurance\Services\EnrollmentPackGeneratorService;
 use App\Infrastructure\Marketplace\Repositories\EloquentCropReferencePriceRepository;
 use App\Infrastructure\Marketplace\Repositories\EloquentForwardContractRepository;
 use App\Infrastructure\Marketplace\Repositories\EloquentPurchaseRepository;
@@ -33,6 +38,9 @@ use App\Policies\CropDemandOfferPolicy;
 use App\Policies\CropDemandPolicy;
 use App\Policies\CropRecommendationPolicy;
 use App\Policies\ForwardContractPolicy;
+use App\Policies\InsuranceClaimPolicy;
+use App\Policies\InsuranceEnrollmentPolicy;
+use App\Policies\InsuranceProfilePolicy;
 use App\Policies\PlotPolicy;
 use App\Policies\UserAddressPolicy;
 use Domain\Farming\Models\Plot;
@@ -64,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PaymentGatewayInterface::class, PayMongoService::class);
         $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
         $this->app->bind(PdfGeneratorInterface::class, PdfGeneratorService::class);
+        $this->app->bind(EnrollmentPackGeneratorInterface::class, EnrollmentPackGeneratorService::class);
     }
 
     public function boot(): void
@@ -98,6 +107,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(CropDemand::class, CropDemandPolicy::class);
         Gate::policy(CropDemandOffer::class, CropDemandOfferPolicy::class);
         Gate::policy(CreditScoreSnapshot::class, CreditScorePolicy::class);
+        Gate::policy(InsuranceClaim::class, InsuranceClaimPolicy::class);
+        Gate::policy(InsuranceEnrollment::class, InsuranceEnrollmentPolicy::class);
+        Gate::policy(InsuranceProfile::class, InsuranceProfilePolicy::class);
         Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route

@@ -9,6 +9,9 @@
 !/.gitignore
 !/.pr_agent.toml
 !/.github/
+!/docs/
+/docs/*
+!/docs/RECENT_CHANGES.md
 
 # Environment files
 .env
