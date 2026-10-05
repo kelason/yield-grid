@@ -1,4 +1,8 @@
-version: '3.8'
+# YieldGrid local stack — one command replaces the whole manual checklist:
+#   docker compose up --build
+# Covers: postgres (PostGIS), redis, mailpit, backend (:8000), frontend (:5173),
+# reverb (:8081), queue worker, scheduler (daily console.php jobs).
+name: yieldgrid
 
 services:
   postgres:
@@ -13,24 +17,289 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - yieldgrid-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yieldgrid -d yieldgrid"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
+    volumes:
+      - redisdata:/data
     networks:
       - yieldgrid-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mailpit:
     image: axllent/mailpit
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
     networks:
       - yieldgrid-network
+    restart: unless-stopped
+
+  # Shared notes for backend/queue/reverb/scheduler (same image, different command):
+  # - env_file loads secrets (APP_KEY, GEMINI_*, PAYMONGO_*) from your backend/.env.
+  # - environment below forces Docker hostnames (postgres/redis/mailpit/reverb) so the
+  #   stack works even from a fresh `cp .env.example .env` (entrypoint generates APP_KEY).
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_URL: http://localhost:8000
+      FRONTEND_URL: http://localhost:5173
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: yieldgrid
+      DB_USERNAME: yieldgrid
+      DB_PASSWORD: secret
+      REDIS_CLIENT: predis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_CONNECTION: redis
+      CACHE_STORE: redis
+      SESSION_DRIVER: database
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: 123456
+      REVERB_APP_KEY: yieldgrid_reverb_key
+      REVERB_APP_SECRET: yieldgrid_reverb_secret
+      REVERB_HOST: reverb # internal DNS for backend->reverb posts; browsers use VITE_REVERB_HOST=localhost
+      REVERB_PORT: 8081
+      REVERB_SCHEME: http
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      SANCTUM_STATEFUL_DOMAINS: localhost,localhost:5173,localhost:8000,localhost:8081,127.0.0.1
+      PHP_CLI_SERVER_WORKERS: 4
+      # Same container-local PDF overrides as the queue worker (see above):
+      # backend/.env may point at host-only Chrome/Node paths.
+      BROWSERSHOT_CHROME_PATH: ""
+      BROWSERSHOT_NODE_MODULE_PATH: /var/www/html/node_modules
+      BROWSERSHOT_NO_SANDBOX: "true"
+    volumes:
+      - ./backend:/var/www/html
+      - backend-vendor:/var/www/html/vendor
+      - backend-node-modules:/var/www/html/node_modules
+      - backend-bootstrap-cache:/var/www/html/bootstrap/cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - yieldgrid-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/up || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    # --no-reload: serve strips all non-passthrough env vars from the server
+    # subprocess unless this flag is set (ServeCommand::startProcess).
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000", "--no-reload"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      CHOKIDAR_USEPOLLING: "true" # reliable Vite hot reload on bind mounts
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - yieldgrid-network
+    restart: unless-stopped
+
+  reverb:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_URL: http://localhost:8000
+      FRONTEND_URL: http://localhost:5173
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: yieldgrid
+      DB_USERNAME: yieldgrid
+      DB_PASSWORD: secret
+      REDIS_CLIENT: predis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_CONNECTION: redis
+      CACHE_STORE: redis
+      SESSION_DRIVER: database
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: 123456
+      REVERB_APP_KEY: yieldgrid_reverb_key
+      REVERB_APP_SECRET: yieldgrid_reverb_secret
+      REVERB_HOST: localhost # public hostname browsers connect to
+      REVERB_PORT: 8081
+      REVERB_SCHEME: http
+      REVERB_SERVER_HOST: 0.0.0.0
+      REVERB_SERVER_PORT: 8081
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+    volumes:
+      - ./backend:/var/www/html
+      - backend-vendor:/var/www/html/vendor
+      - backend-node-modules:/var/www/html/node_modules
+      - backend-bootstrap-cache:/var/www/html/bootstrap/cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - yieldgrid-network
+    restart: unless-stopped
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8081", "--hostname=localhost"]
+
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_URL: http://localhost:8000
+      FRONTEND_URL: http://localhost:5173
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: yieldgrid
+      DB_USERNAME: yieldgrid
+      DB_PASSWORD: secret
+      REDIS_CLIENT: predis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_CONNECTION: redis
+      CACHE_STORE: redis
+      SESSION_DRIVER: database
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: 123456
+      REVERB_APP_KEY: yieldgrid_reverb_key
+      REVERB_APP_SECRET: yieldgrid_reverb_secret
+      REVERB_HOST: reverb
+      REVERB_PORT: 8081
+      REVERB_SCHEME: http
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      # PDF rendering (enrollment packs, credit reports) runs here. Host paths
+      # from backend/.env (e.g. a macOS Chrome binary) do not exist in this
+      # container, so force container-local values: empty CHROME_PATH lets
+      # Browsershot auto-detect the Chrome baked into the image, and the
+      # sandbox must be off because the worker runs as root.
+      BROWSERSHOT_CHROME_PATH: ""
+      BROWSERSHOT_NODE_MODULE_PATH: /var/www/html/node_modules
+      BROWSERSHOT_NO_SANDBOX: "true"
+    volumes:
+      - ./backend:/var/www/html
+      - backend-vendor:/var/www/html/vendor
+      - backend-node-modules:/var/www/html/node_modules
+      - backend-bootstrap-cache:/var/www/html/bootstrap/cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - yieldgrid-network
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--max-time=3600", "--timeout=120"]
+
+  # Runs `schedule:work` so the five daily jobs in routes/console.php
+  # (expire contracts/demands, sync DA prices, recalc credit scores,
+  # insurance reminders) actually fire in local dev.
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_URL: http://localhost:8000
+      FRONTEND_URL: http://localhost:5173
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: yieldgrid
+      DB_USERNAME: yieldgrid
+      DB_PASSWORD: secret
+      REDIS_CLIENT: predis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_CONNECTION: redis
+      CACHE_STORE: redis
+      SESSION_DRIVER: database
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: 123456
+      REVERB_APP_KEY: yieldgrid_reverb_key
+      REVERB_APP_SECRET: yieldgrid_reverb_secret
+      REVERB_HOST: reverb
+      REVERB_PORT: 8081
+      REVERB_SCHEME: http
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+    volumes:
+      - ./backend:/var/www/html
+      - backend-vendor:/var/www/html/vendor
+      - backend-node-modules:/var/www/html/node_modules
+      - backend-bootstrap-cache:/var/www/html/bootstrap/cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - yieldgrid-network
+    restart: unless-stopped
+    command: ["php", "artisan", "schedule:work"]
 
 volumes:
   pgdata:
+  redisdata:
+  backend-vendor:
+  backend-node-modules:
+  backend-bootstrap-cache:
+  frontend-node-modules:
 
 networks:
   yieldgrid-network:

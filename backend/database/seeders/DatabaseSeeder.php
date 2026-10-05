@@ -91,5 +91,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(CropPriceAliasSeeder::class);
+        $this->call(InsuranceOfficeSeeder::class);
     }
 }

@@ -90,6 +90,7 @@ return [
         'node_binary' => env('BROWSERSHOT_NODE_BINARY', 'node'),
         'node_module_path' => env('BROWSERSHOT_NODE_MODULE_PATH', base_path('node_modules')),
         'chrome_path' => env('BROWSERSHOT_CHROME_PATH'),
+        'no_sandbox' => env('BROWSERSHOT_NO_SANDBOX', false),
     ],
 
 ];

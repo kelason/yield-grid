@@ -11,7 +11,6 @@ use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
 use Closure;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Spatie\Browsershot\Browsershot;
 
 /**
  * Renders Farmer Trust Score snapshots into A4 PDFs via headless Chrome.
@@ -22,8 +21,6 @@ use Spatie\Browsershot\Browsershot;
  */
 final class PdfGeneratorService implements PdfGeneratorInterface
 {
-    private const PDF_MARGIN_MM = 10;
-
     private const QR_CODE_SIZE_PX = 200;
 
     private const REPORT_ID_PAD_LENGTH = 6;
@@ -49,37 +46,14 @@ final class PdfGeneratorService implements PdfGeneratorInterface
 
         $path = "credit-reports/{$snapshot->user_id}/{$snapshot->id}.pdf";
 
-        Storage::disk('local')->put($path, $this->renderPdf($html));
+        Storage::disk('local')->put($path, $this->renderer()->render($html));
 
         return $path;
     }
 
-    private function renderPdf(string $html): string
+    private function renderer(): BrowsershotPdfRenderer
     {
-        if ($this->pdfRenderer !== null) {
-            return ($this->pdfRenderer)($html);
-        }
-
-        $shot = Browsershot::html($html)
-            ->format('A4')
-            ->margins(
-                top: self::PDF_MARGIN_MM,
-                right: self::PDF_MARGIN_MM,
-                bottom: self::PDF_MARGIN_MM,
-                left: self::PDF_MARGIN_MM
-            )
-            ->showBackground()
-            ->waitUntilNetworkIdle()
-            ->setNodeBinary((string) config('services.browsershot.node_binary', 'node'))
-            ->setNodeModulePath((string) config('services.browsershot.node_module_path', base_path('node_modules')));
-
-        $chromePath = config('services.browsershot.chrome_path');
-
-        if (is_string($chromePath) && $chromePath !== '') {
-            $shot->setChromePath($chromePath);
-        }
-
-        return $shot->pdf();
+        return new BrowsershotPdfRenderer($this->pdfRenderer);
     }
 
     private function renderTemplate(CreditScoreSnapshot $snapshot): string
