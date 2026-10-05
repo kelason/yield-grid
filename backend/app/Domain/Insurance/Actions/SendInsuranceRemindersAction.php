@@ -59,9 +59,10 @@ final class SendInsuranceRemindersAction
         $sent = 0;
 
         foreach ($this->dueSeasons($region, Carbon::now()) as $due) {
-            $key = "window:{$due['season']->value}:{$due['year']}";
+            $key = "window:{$due['program']->value}:{$due['season']->value}:{$due['year']}";
 
             if ($this->sendOnce($farmer, ReminderType::ENROLLMENT_WINDOW, $key, [
+                'program' => $due['program']->value,
                 'season' => $due['season']->value,
                 'season_year' => $due['year'],
                 'window_label' => $due['label'],
@@ -74,7 +75,7 @@ final class SendInsuranceRemindersAction
     }
 
     /**
-     * @return list<array{season: Season, year: int, label: string}>
+     * @return list<array{program: InsuranceProgram, season: Season, year: int, label: string}>
      */
     private function dueSeasons(?string $region, Carbon $now): array
     {
@@ -86,7 +87,8 @@ final class SendInsuranceRemindersAction
                 $year = $this->dueWindowYear($window, $now);
 
                 if ($year !== null) {
-                    $due[$season->value] = [
+                    $due[$program->value.':'.$season->value] = [
+                        'program' => $program,
                         'season' => $season,
                         'year' => $year,
                         'label' => $this->windowLabel($window),

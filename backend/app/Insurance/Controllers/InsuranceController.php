@@ -44,6 +44,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class InsuranceController extends Controller
 {
+    /**
+     * Show the farmer's RSBSA insurance profile, creating it on first visit.
+     */
     public function showProfile(): Response
     {
         $this->authorize('viewOwn', InsuranceProfile::class);
@@ -53,6 +56,9 @@ final class InsuranceController extends Controller
         return (new InsuranceProfileResource($profile))->response()->setStatusCode(HttpCode::OK);
     }
 
+    /**
+     * Create or update the farmer's RSBSA insurance profile.
+     */
     public function updateProfile(
         UpsertInsuranceProfileRequest $request,
         UpsertInsuranceProfileAction $action,
@@ -70,6 +76,9 @@ final class InsuranceController extends Controller
         return (new InsuranceProfileResource($profile))->response()->setStatusCode(HttpCode::OK);
     }
 
+    /**
+     * List the farmer's insurance enrollments, newest first.
+     */
     public function indexEnrollments(): AnonymousResourceCollection
     {
         $this->authorize('viewAny', InsuranceEnrollment::class);
@@ -81,6 +90,9 @@ final class InsuranceController extends Controller
         return InsuranceEnrollmentResource::collection($enrollments);
     }
 
+    /**
+     * Start a new insurance enrollment for the farmer.
+     */
     public function storeEnrollment(
         StoreEnrollmentRequest $request,
         CreateEnrollmentAction $action,
@@ -96,6 +108,9 @@ final class InsuranceController extends Controller
         return (new InsuranceEnrollmentResource($enrollment))->response()->setStatusCode(HttpCode::CREATED);
     }
 
+    /**
+     * Show a single insurance enrollment.
+     */
     public function showEnrollment(InsuranceEnrollment $enrollment): InsuranceEnrollmentResource
     {
         $this->authorize('view', $enrollment);
@@ -103,6 +118,9 @@ final class InsuranceController extends Controller
         return new InsuranceEnrollmentResource($enrollment);
     }
 
+    /**
+     * Move an enrollment to its next lifecycle status.
+     */
     public function advanceEnrollmentStatus(
         AdvanceEnrollmentStatusRequest $request,
         InsuranceEnrollment $enrollment,
@@ -119,6 +137,9 @@ final class InsuranceController extends Controller
         return new InsuranceEnrollmentResource($updated);
     }
 
+    /**
+     * Record the PCIC policy details (CIC number, coverage) on an enrollment.
+     */
     public function recordPolicyDetails(
         UpdatePolicyDetailsRequest $request,
         InsuranceEnrollment $enrollment,
@@ -135,6 +156,9 @@ final class InsuranceController extends Controller
         return new InsuranceEnrollmentResource($updated);
     }
 
+    /**
+     * Queue generation of the enrollment pack PDF.
+     */
     public function requestPack(
         InsuranceEnrollment $enrollment,
         GenerateEnrollmentPackAction $action,
@@ -149,6 +173,9 @@ final class InsuranceController extends Controller
         );
     }
 
+    /**
+     * Download the ready enrollment pack PDF.
+     */
     public function downloadPack(InsuranceEnrollment $enrollment): StreamedResponse|JsonResponse
     {
         $this->authorize('manage', $enrollment);
@@ -164,6 +191,9 @@ final class InsuranceController extends Controller
         return Storage::disk('local')->download($enrollment->pack_path, 'YieldGrid-PCIC-Enrollment-Pack.pdf');
     }
 
+    /**
+     * List the claims filed under an enrollment, newest loss first.
+     */
     public function indexClaims(InsuranceEnrollment $enrollment): AnonymousResourceCollection
     {
         $this->authorize('view', $enrollment);
@@ -173,6 +203,9 @@ final class InsuranceController extends Controller
         return InsuranceClaimResource::collection($claims);
     }
 
+    /**
+     * File a new claim under an enrollment.
+     */
     public function storeClaim(
         StoreClaimRequest $request,
         InsuranceEnrollment $enrollment,
@@ -185,6 +218,9 @@ final class InsuranceController extends Controller
         return (new InsuranceClaimResource($claim))->response()->setStatusCode(HttpCode::CREATED);
     }
 
+    /**
+     * Move a claim to its next stage, recording the payout when paid.
+     */
     public function advanceClaimStatus(
         AdvanceClaimStatusRequest $request,
         InsuranceClaim $claim,
@@ -210,6 +246,9 @@ final class InsuranceController extends Controller
         return new InsuranceClaimResource($updated);
     }
 
+    /**
+     * List the farmer's recent insurance reminders.
+     */
     public function indexReminders(): AnonymousResourceCollection
     {
         $this->authorize('viewAny', InsuranceEnrollment::class);
@@ -222,6 +261,9 @@ final class InsuranceController extends Controller
         return InsuranceReminderResource::collection($logs);
     }
 
+    /**
+     * List PCIC offices, flagging the one serving the farmer's region.
+     */
     public function indexOffices(ResolveFarmerRegionAction $action): JsonResponse
     {
         $this->authorize('viewAny', InsuranceEnrollment::class);

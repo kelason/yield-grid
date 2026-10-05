@@ -102,7 +102,7 @@ export default {
       enrollment_window: {
         title: 'Pagbubukas ng enrollment',
         message:
-          'Malapit nang magbukas ang panahon ng pagtatanim para sa {season} {season_year} ({window_label}). Ihanda na ang requirements.',
+          'Malapit nang magbukas ang panahon ng pagtatanim ng {program} para sa {season} {season_year} ({window_label}). Ihanda na ang requirements.',
       },
       notice_of_loss_deadline: {
         title: 'Deadline ng Notice of Loss',

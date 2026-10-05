@@ -73,7 +73,7 @@ final class InsuranceReminderMail extends Mailable implements ShouldQueue
     {
         return match ($type) {
             ReminderType::ENROLLMENT_WINDOW => [
-                'The '.($meta['season'] ?? '').' '.$this->metaYear($meta).' planting window ('.($meta['window_label'] ?? '').') is opening soon.',
+                'The '.($meta['season'] ?? '').' '.$this->metaYear($meta).' '.($meta['program'] ?? '').' planting window ('.($meta['window_label'] ?? '').') is opening soon.',
                 'Prepare your RSBSA stub and requirements, then complete your enrollment guide in YieldGrid.',
             ],
             ReminderType::NOTICE_OF_LOSS_DEADLINE => [

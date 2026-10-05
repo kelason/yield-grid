@@ -102,7 +102,7 @@ export default {
       enrollment_window: {
         title: 'Enrollment window opening',
         message:
-          'The {season} {season_year} planting window ({window_label}) is opening soon. Prepare your requirements now.',
+          'The {season} {season_year} {program} planting window ({window_label}) is opening soon. Prepare your requirements now.',
       },
       notice_of_loss_deadline: {
         title: 'Notice of Loss deadline',

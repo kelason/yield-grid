@@ -8,6 +8,7 @@ use App\Domain\Insurance\Enums\Season;
 use App\Domain\Insurance\Models\InsuranceClaim;
 use App\Domain\Insurance\Models\InsuranceEnrollment;
 use App\Domain\Insurance\Models\InsuranceReminderLog;
+use App\Domain\Insurance\Models\PlantingWindow;
 use App\Insurance\Mail\InsuranceReminderMail;
 use Database\Seeders\InsuranceOfficeSeeder;
 use Database\Seeders\PlantingWindowSeeder;
@@ -57,12 +58,51 @@ it('sends enrollment-window reminders as the season approaches', function () {
     $this->artisan('insurance:send-reminders')->assertSuccessful();
     $this->travelBack();
 
-    Mail::assertQueued(InsuranceReminderMail::class, 1);
+    Mail::assertQueued(InsuranceReminderMail::class, 2);
 
-    $log = InsuranceReminderLog::firstOrFail();
+    $keys = InsuranceReminderLog::where('type', ReminderType::ENROLLMENT_WINDOW)
+        ->orderBy('reference_key')
+        ->pluck('reference_key')
+        ->all();
 
-    expect($log->type)->toBe(ReminderType::ENROLLMENT_WINDOW)
-        ->and($log->reference_key)->toBe('window:wet:2026');
+    expect($keys)->toBe(['window:corn:wet:2026', 'window:rice:wet:2026']);
+});
+
+it('keeps each program window when both share a season', function () {
+    Mail::fake();
+    $this->seed(PlantingWindowSeeder::class);
+
+    PlantingWindow::where('region_code', 'NATIONAL')
+        ->where('program', InsuranceProgram::CORN)
+        ->where('season', Season::WET)
+        ->update([
+            'window_start_month' => 6,
+            'window_start_day' => 1,
+            'window_end_month' => 8,
+            'window_end_day' => 15,
+        ]);
+
+    reminderFarmer();
+
+    $this->travelTo('2026-05-15 08:00:00');
+    $this->artisan('insurance:send-reminders')->assertSuccessful();
+    $this->travelBack();
+
+    Mail::assertQueued(InsuranceReminderMail::class, 2);
+
+    $logs = InsuranceReminderLog::where('type', ReminderType::ENROLLMENT_WINDOW)
+        ->orderBy('reference_key')
+        ->get();
+
+    expect($logs->pluck('reference_key')->all())->toBe(['window:corn:wet:2026', 'window:rice:wet:2026'])
+        ->and($logs->map(fn ($log) => $log->meta['window_label'])->all())->toBe(['Jun 1 – Aug 15', 'May 1 – Jul 31']);
+
+    foreach (['rice', 'corn'] as $program) {
+        Mail::assertQueued(
+            InsuranceReminderMail::class,
+            fn (InsuranceReminderMail $mail) => ($mail->meta['program'] ?? null) === $program
+        );
+    }
 });
 
 it('does not resend the same seasonal reminder twice', function () {
@@ -75,8 +115,8 @@ it('does not resend the same seasonal reminder twice', function () {
     $this->artisan('insurance:send-reminders')->assertSuccessful();
     $this->travelBack();
 
-    Mail::assertQueued(InsuranceReminderMail::class, 1);
-    expect(InsuranceReminderLog::count())->toBe(1);
+    Mail::assertQueued(InsuranceReminderMail::class, 2);
+    expect(InsuranceReminderLog::count())->toBe(2);
 });
 
 it('reminds during the dry-season tail spanning the new year', function () {
@@ -88,12 +128,13 @@ it('reminds during the dry-season tail spanning the new year', function () {
     $this->artisan('insurance:send-reminders')->assertSuccessful();
     $this->travelBack();
 
-    Mail::assertQueued(InsuranceReminderMail::class, 1);
-    expect(InsuranceReminderLog::where('reference_key', 'window:dry:2026')->count())->toBe(1);
+    Mail::assertQueued(InsuranceReminderMail::class, 2);
+    expect(InsuranceReminderLog::where('reference_key', 'window:rice:dry:2026')->count())->toBe(1)
+        ->and(InsuranceReminderLog::where('reference_key', 'window:corn:dry:2026')->count())->toBe(1);
 });
 
 it('retries later when mail dispatch fails instead of aborting the run', function () {
-    Mail::shouldReceive('to')->once()->andThrow(new RuntimeException('smtp down'));
+    Mail::shouldReceive('to')->twice()->andThrow(new RuntimeException('smtp down'));
     $this->seed(PlantingWindowSeeder::class);
     reminderFarmer();
 
@@ -203,8 +244,8 @@ it('serves recent reminders with translation keys', function () {
     InsuranceReminderLog::create([
         'user_id' => $farmer->id,
         'type' => ReminderType::ENROLLMENT_WINDOW,
-        'reference_key' => 'window:wet:2026',
-        'meta' => ['season' => 'wet', 'season_year' => 2026],
+        'reference_key' => 'window:rice:wet:2026',
+        'meta' => ['program' => 'rice', 'season' => 'wet', 'season_year' => 2026],
         'sent_at' => now(),
     ]);
     InsuranceReminderLog::create([

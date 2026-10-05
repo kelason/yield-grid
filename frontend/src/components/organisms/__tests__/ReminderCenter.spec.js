@@ -21,13 +21,18 @@ describe('ReminderCenter', () => {
         type: 'enrollment_window',
         title_key: 'insurance.reminders.enrollment_window.title',
         message_key: 'insurance.reminders.enrollment_window.message',
-        params: { season: 'wet', season_year: 2026, window_label: 'May 1 – Jul 31' },
+        params: {
+          program: 'rice',
+          season: 'wet',
+          season_year: 2026,
+          window_label: 'May 1 – Jul 31',
+        },
         sent_at: '2026-04-01T00:00:00Z',
       },
     ])
 
     expect(wrapper.text()).toContain('Enrollment window opening')
-    expect(wrapper.text()).toContain('wet 2026 planting window (May 1 – Jul 31)')
+    expect(wrapper.text()).toContain('wet 2026 rice planting window (May 1 – Jul 31)')
   })
 
   it('renders translated reminders in Tagalog', () => {
