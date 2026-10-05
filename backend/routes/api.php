@@ -14,12 +14,14 @@ use App\Community\Controllers\ForumTagController;
 use App\Community\Controllers\ForumThreadController;
 use App\Community\Controllers\ForumVoteController;
 use App\Constants\CreditScoringConstants;
+use App\Constants\InsuranceConstants;
 use App\Contact\Controllers\ContactController;
 use App\CreditScoring\Controllers\CreditScoreController;
 use App\CropRecommendation\Controllers\CropRecommendationController;
 use App\Farming\Controllers\FarmController;
 use App\Farming\Controllers\PlotController;
 use App\Farming\Controllers\RestrictedZoneController;
+use App\Insurance\Controllers\InsuranceController;
 use App\Marketplace\Controllers\CropDemandController;
 use App\Marketplace\Controllers\DemandOfferController;
 use App\Marketplace\Controllers\ForwardContractController;
@@ -141,6 +143,24 @@ Route::prefix('v1')->group(function () {
             Route::post('/farmer/credit-score/report', [CreditScoreController::class, 'generateReport'])
                 ->middleware(['verified', 'throttle:'.CreditScoringConstants::REPORT_GENERATE_THROTTLE_PER_DAY.',1440']);
             Route::get('/farmer/credit-score/report/{token}/download', [CreditScoreController::class, 'downloadReport']);
+
+            // PCIC Crop Insurance
+            Route::get('/farmer/insurance/profile', [InsuranceController::class, 'showProfile']);
+            Route::put('/farmer/insurance/profile', [InsuranceController::class, 'updateProfile'])->middleware('verified');
+            Route::get('/farmer/insurance/enrollments', [InsuranceController::class, 'indexEnrollments']);
+            Route::post('/farmer/insurance/enrollments', [InsuranceController::class, 'storeEnrollment'])->middleware('verified');
+            Route::get('/farmer/insurance/enrollments/{enrollment}', [InsuranceController::class, 'showEnrollment']);
+            Route::patch('/farmer/insurance/enrollments/{enrollment}/status', [InsuranceController::class, 'advanceEnrollmentStatus'])->middleware('verified');
+            Route::patch('/farmer/insurance/enrollments/{enrollment}/policy-details', [InsuranceController::class, 'recordPolicyDetails'])->middleware('verified');
+            Route::post('/farmer/insurance/enrollments/{enrollment}/pack', [InsuranceController::class, 'requestPack'])
+                ->middleware(['verified', 'throttle:'.InsuranceConstants::PACK_GENERATE_THROTTLE_PER_DAY.',1440']);
+            Route::get('/farmer/insurance/enrollments/{enrollment}/pack/download', [InsuranceController::class, 'downloadPack'])
+                ->middleware('throttle:'.InsuranceConstants::PACK_DOWNLOAD_THROTTLE_PER_DAY.',1440,pack-download');
+            Route::get('/farmer/insurance/enrollments/{enrollment}/claims', [InsuranceController::class, 'indexClaims']);
+            Route::post('/farmer/insurance/enrollments/{enrollment}/claims', [InsuranceController::class, 'storeClaim'])->middleware('verified');
+            Route::patch('/farmer/insurance/claims/{claim}/advance', [InsuranceController::class, 'advanceClaimStatus'])->middleware('verified');
+            Route::get('/farmer/insurance/reminders', [InsuranceController::class, 'indexReminders']);
+            Route::get('/farmer/insurance/offices', [InsuranceController::class, 'indexOffices']);
         });
 
         // Buyer Routes

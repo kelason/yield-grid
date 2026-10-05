@@ -50,22 +50,46 @@
               <!-- Cancel -->
               <button
                 type="button"
+                :disabled="loading"
                 @click="handleCancel"
-                class="w-full sm:w-auto rounded-xl bg-stone-100 px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99]"
+                class="w-full sm:w-auto rounded-xl bg-stone-100 px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {{ cancelText }}
               </button>
               <!-- Confirm -->
               <button
                 type="button"
+                :disabled="loading"
                 @click="handleConfirm"
                 :class="[
-                  'w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99]',
+                  'inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99] disabled:opacity-70 disabled:cursor-wait disabled:hover:scale-100',
                   type === 'danger'
                     ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus-visible:outline-red-600'
                     : 'bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 shadow-soft hover:shadow-organic focus-visible:outline-moss-600',
                 ]"
               >
+                <svg
+                  v-if="loading"
+                  class="animate-spin h-4 w-4 flex-shrink-0"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
                 {{ confirmText }}
               </button>
             </div>
@@ -102,6 +126,10 @@ defineProps({
     type: String,
     default: 'primary',
     validator: (value) => ['primary', 'danger'].includes(value),
+  },
+  loading: {
+    type: Boolean,
+    default: false,
   },
 })
 

@@ -144,6 +144,12 @@ const router = createRouter({
           meta: { role: 'farmer', title: 'Trust Score' },
         },
         {
+          path: 'insurance',
+          name: 'insurance',
+          component: () => import('@/pages/dashboard/farmer/InsurancePage.vue'),
+          meta: { role: 'farmer', title: 'Crop Insurance' },
+        },
+        {
           path: 'buyer',
           name: 'buyer-dashboard',
           component: () => import('@/pages/dashboard/buyer/BuyerDashboard.vue'),
