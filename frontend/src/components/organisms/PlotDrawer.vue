@@ -548,6 +548,49 @@ defineExpose({
       </div>
     </Transition>
 
+    <!-- City geocoding loading indicator -->
+    <Transition
+      enter-active-class="transition-all duration-200"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-150"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div
+        v-if="isGeocodingCity"
+        data-testid="city-locating-overlay"
+        role="status"
+        aria-live="polite"
+        class="absolute inset-0 z-[500] bg-black/20 backdrop-blur-[1px] rounded-2xl flex items-center justify-center"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-organic px-5 py-4 flex items-center gap-3 border border-stone-200"
+        >
+          <svg
+            class="loading-spinner w-5 h-5 text-moss-600 motion-safe:animate-spin"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+          <div>
+            <p class="text-sm font-bold text-stone-900">Locating city...</p>
+            <p class="text-xs text-stone-500">Zooming the map to {{ farm.city }}</p>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Active City Zone Indicator Overlay -->
     <div
       v-if="farm?.city"
