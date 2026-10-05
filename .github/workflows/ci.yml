@@ -173,6 +173,15 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci --legacy-peer-deps
+      - name: Validate production build args
+        run: |
+          # Fail fast when the Reverb app key var is empty: Vite would bake the
+          # 'yieldgrid_reverb_key' fallback and live updates would silently break
+          # (browser subscribes to a different app than the backend broadcasts to).
+          if [ -z "${{ vars.VITE_REVERB_APP_KEY }}" ]; then
+            echo "ERROR: VITE_REVERB_APP_KEY repo variable is empty — set it to the server's REVERB_APP_KEY (repo Settings → Secrets and variables → Actions → Variables)"
+            exit 1
+          fi
       - name: Build for production
         run: npm run build
         env:
