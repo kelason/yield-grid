@@ -10,12 +10,17 @@ use App\Jobs\LearnCropAliasJob;
 use Database\Seeders\CropPriceAliasSeeder;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
+    // The guide dispatches the AI estimate job inline (sync queue). Fake
+    // HTTP so no test can reach live Gemini and upsert real estimates.
+    Http::fake();
+
     CropReferencePrice::create([
         'crop_slug' => 'rice',
         'crop_display_name' => 'Rice',

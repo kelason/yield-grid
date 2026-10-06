@@ -46,6 +46,10 @@ class Plot extends Model
 
     public function getCentroid(): ?array
     {
+        if ($this->id === null) {
+            return null;
+        }
+
         try {
             $result = DB::selectOne(
                 'SELECT ST_Y(ST_Centroid(polygon::geometry)) as lat, ST_X(ST_Centroid(polygon::geometry)) as lon FROM plots WHERE id = ?',

@@ -27,6 +27,27 @@
             </span>
           </div>
 
+          <!-- Taxonomy chips -->
+          <div
+            v-if="recommendation.produce_type || recommendation.subtype"
+            class="flex flex-wrap gap-2 mb-3"
+          >
+            <span
+              v-if="recommendation.produce_type"
+              data-test="taxonomy-chip"
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-dew-50 text-dew-700"
+            >
+              {{ recommendation.produce_type }}
+            </span>
+            <span
+              v-if="recommendation.subtype"
+              data-test="taxonomy-chip"
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-800"
+            >
+              {{ recommendation.subtype }}
+            </span>
+          </div>
+
           <!-- Reasoning -->
           <p class="text-stone-600 mb-4 leading-relaxed text-sm text-justify">
             {{ recommendation.reasoning }}

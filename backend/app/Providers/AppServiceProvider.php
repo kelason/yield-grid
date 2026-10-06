@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
 use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
+use App\Domain\CropRecommendation\Actions\BuildAnalysisContextAction;
+use App\Domain\CropRecommendation\Actions\BuildsAnalysisContext;
 use App\Domain\CropRecommendation\Repositories\CropRecommendationRepositoryInterface;
 use App\Domain\Insurance\Models\InsuranceClaim;
 use App\Domain\Insurance\Models\InsuranceEnrollment;
@@ -62,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(CropRecommendationRepositoryInterface::class, EloquentCropRecommendationRepository::class);
+        $this->app->bind(BuildsAnalysisContext::class, BuildAnalysisContextAction::class);
         $this->app->bind(ForwardContractRepositoryInterface::class, EloquentForwardContractRepository::class);
         $this->app->bind(PurchaseRepositoryInterface::class, EloquentPurchaseRepository::class);
         $this->app->bind(TransactionManagerInterface::class, LaravelTransactionManager::class);

@@ -132,9 +132,9 @@ final class MarketplaceController extends Controller
     public function show(Request $request, string $type, int $id): MarketplaceItemResource
     {
         if ($type === 'listing') {
-            $item = HarvestListing::with('farmer.farms')->findOrFail($id);
+            $item = HarvestListing::available()->with('farmer.farms')->findOrFail($id);
         } else {
-            $item = ForwardContract::with(['farmer.farms', 'recommendation'])->findOrFail($id);
+            $item = ForwardContract::available()->with(['farmer.farms', 'recommendation'])->findOrFail($id);
         }
 
         return new MarketplaceItemResource($item);

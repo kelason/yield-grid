@@ -41,17 +41,16 @@
           Plot:
         </label>
         <div class="relative">
-          <select
+          <AppSelect
             id="plot-selector"
-            :value="activePlotId"
-            @change="handlePlotChange(Number($event.target.value))"
-            class="block w-full rounded-xl border border-stone-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-stone-800 shadow-soft focus:border-moss-500 focus:outline-none focus:ring-1 focus:ring-moss-500 transition-all cursor-pointer"
+            :model-value="activePlotId"
+            @update:model-value="handlePlotChange(Number($event))"
           >
             <option v-for="p in farmingStore.allPlots" :key="p.id" :value="p.id">
               {{ p.name }} ({{ p.farm_name || 'Farm' }}) —
               {{ p.calculated_area ? Number(p.calculated_area).toFixed(2) : 0 }} ha
             </option>
-          </select>
+          </AppSelect>
         </div>
       </div>
     </div>
@@ -143,8 +142,17 @@
         <AnalysisProgress :location="locationLabel" />
       </div>
 
+      <!-- Analysis preferences -->
+      <div v-else class="mb-8">
+        <AnalysisPreferencesForm
+          :taxonomy="store.taxonomy"
+          @update:preferences="analysisPrefs = $event"
+          @request-analysis="triggerAnalysis"
+        />
+      </div>
+
       <!-- Recommendations -->
-      <div v-else>
+      <div v-if="!store.isAnalyzing">
         <div
           v-if="store.isLoading"
           class="space-y-5"
@@ -156,8 +164,45 @@
         </div>
 
         <div v-else-if="store.recommendations.length > 0" class="space-y-5">
+          <div v-if="store.availableTypes.length > 0" class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              :aria-pressed="store.typeFilter === ''"
+              :class="[
+                'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500',
+                store.typeFilter === ''
+                  ? 'bg-moss-600 text-white shadow-soft'
+                  : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-300',
+              ]"
+              @click="store.typeFilter = ''"
+            >
+              All
+            </button>
+            <button
+              v-for="type in store.availableTypes"
+              :key="type"
+              type="button"
+              :aria-pressed="store.typeFilter === type"
+              :class="[
+                'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500',
+                store.typeFilter === type
+                  ? 'bg-moss-600 text-white shadow-soft'
+                  : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-300',
+              ]"
+              @click="store.typeFilter = type"
+            >
+              {{ store.typeLabel(type) }}
+            </button>
+          </div>
+          <p
+            v-if="store.typeFilter && store.filteredRecommendations.length === 0"
+            data-test="filter-empty-hint"
+            class="text-center text-sm text-stone-500 py-6"
+          >
+            No recommendations match this filter. Try a different type.
+          </p>
           <RecommendationCard
-            v-for="rec in store.recommendations"
+            v-for="rec in store.filteredRecommendations"
             :key="rec.id"
             :recommendation="rec"
             @accept="handleAccept"
@@ -183,7 +228,7 @@
             size="lg"
             rounded="full"
             :disabled="store.isAnalyzing || !activePlotId"
-            @click="triggerAnalysis"
+            @click="triggerAnalysis()"
           >
             🌱 Run AI Analysis Now
           </AppButton>
@@ -247,8 +292,10 @@ import AnalysisProgress from '../components/atoms/AnalysisProgress.vue'
 import SkeletonCard from '../components/atoms/SkeletonCard.vue'
 import RecommendationCard from '../components/molecules/RecommendationCard.vue'
 import PublishContractForm from '../components/organisms/PublishContractForm.vue'
+import AnalysisPreferencesForm from '../components/organisms/AnalysisPreferencesForm.vue'
 import AppButton from '../components/atoms/AppButton.vue'
 import AppAlert from '../components/atoms/AppAlert.vue'
+import AppSelect from '../components/atoms/AppSelect.vue'
 import ConfirmModal from '../components/molecules/ConfirmModal.vue'
 import { HTTP_STATUS } from '../constants/http'
 import { useMarketStore } from '../stores/marketStore'
@@ -269,6 +316,7 @@ const RECOMMENDATION_SKELETON_COUNT = 3
 
 const showPublishModal = ref(false)
 const selectedRecommendation = ref(null)
+const analysisPrefs = ref({ produce_types: [], subtypes: [], irrigation: null, goal: null })
 
 const activePlotId = computed(() => {
   if (route.params.id) return Number(route.params.id)
@@ -297,8 +345,15 @@ const locationLabel = computed(() => {
   return parts.join(', ')
 })
 
-const triggerAnalysis = () => {
+const triggerAnalysis = (freshPrefs = null) => {
   if (!activePlotId.value) return
+  // The form emits its selections synchronously with run-analysis; prefer
+  // them over analysisPrefs, which only syncs on the next tick. Anything
+  // else (click events, null) falls back to the synced preferences.
+  const prefs =
+    freshPrefs && typeof freshPrefs === 'object' && 'produce_types' in freshPrefs
+      ? freshPrefs
+      : analysisPrefs.value
   confirm(
     {
       title: 'Run AI analysis?',
@@ -308,7 +363,7 @@ const triggerAnalysis = () => {
       type: 'primary',
     },
     async () => {
-      await store.analyzePlot(activePlotId.value)
+      await store.analyzePlot(activePlotId.value, prefs)
     },
   )
 }
@@ -369,6 +424,8 @@ onMounted(async () => {
     selectedPlotId.value = targetId
     await loadPlotData(targetId)
   }
+
+  await store.fetchTaxonomy()
 })
 
 onUnmounted(() => {

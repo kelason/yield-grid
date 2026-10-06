@@ -91,21 +91,31 @@ const router = createRouter({
           path: 'farms',
           name: 'farm-manager',
           component: () => import('../pages/dashboard/FarmManager.vue'),
+          meta: { role: 'farmer' },
         },
         {
           path: 'farms/:farmId/plots',
           name: 'plot-planner',
           component: () => import('../pages/dashboard/PlotPlanner.vue'),
+          meta: { role: 'farmer' },
         },
         {
           path: 'recommendations',
           name: 'recommendations',
           component: () => import('../pages/RecommendationsPage.vue'),
+          meta: { role: 'farmer' },
         },
         {
           path: 'plots/:id/recommendations',
           name: 'crop-recommendations',
           component: () => import('../pages/RecommendationsPage.vue'),
+          meta: { role: 'farmer' },
+        },
+        {
+          path: 'compatibility',
+          name: 'crop-compatibility',
+          component: () => import('../pages/CompatibilityPage.vue'),
+          meta: { role: 'farmer' },
         },
         {
           path: 'contracts',
@@ -210,6 +220,11 @@ const router = createRouter({
       component: () => import('@/pages/error/ServerErrorPage.vue'),
     },
     {
+      path: '/403',
+      name: 'forbidden',
+      component: () => import('@/pages/error/ForbiddenPage.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/pages/error/NotFoundPage.vue'),
@@ -233,6 +248,11 @@ router.beforeEach(async (to) => {
     } else {
       return { name: 'farmer-dashboard' }
     }
+  }
+
+  // Block cross-role access (e.g. a buyer opening a farmer-only page)
+  if (to.meta.role && authStore.userRole && authStore.userRole !== to.meta.role) {
+    return { name: 'forbidden' }
   }
 
   // Prevent access to features that require email verification

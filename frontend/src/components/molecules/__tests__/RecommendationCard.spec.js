@@ -62,4 +62,27 @@ describe('RecommendationCard.vue', () => {
     expect(wrapper.emitted()).toHaveProperty('reject')
     expect(wrapper.emitted('reject')[0]).toEqual([1])
   })
+
+  it('shows taxonomy chips when the recommendation is tagged', () => {
+    const wrapper = mount(RecommendationCard, {
+      props: {
+        recommendation: { ...mockRecommendation, produce_type: 'fruit', subtype: 'citrus' },
+      },
+    })
+
+    const chips = wrapper.findAll('[data-test="taxonomy-chip"]')
+    expect(chips).toHaveLength(2)
+    expect(wrapper.text()).toContain('fruit')
+    expect(wrapper.text()).toContain('citrus')
+  })
+
+  it('hides taxonomy chips when tags are missing', () => {
+    const wrapper = mount(RecommendationCard, {
+      props: {
+        recommendation: { ...mockRecommendation, produce_type: null, subtype: null },
+      },
+    })
+
+    expect(wrapper.findAll('[data-test="taxonomy-chip"]')).toHaveLength(0)
+  })
 })

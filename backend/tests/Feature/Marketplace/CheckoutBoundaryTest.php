@@ -37,7 +37,7 @@ beforeEach(function () {
 });
 
 it('accepts checkout quantity at the min', function () {
-    $contract = ($this->makeContract)(15000);
+    $contract = ($this->makeContract)(MarketplaceConstants::CHECKOUT_QUANTITY_MAX_KG);
 
     $this->actingAs($this->buyer)->postJson("/api/v1/market/contracts/{$contract->id}/checkout", [
         'quantity_kg' => MarketplaceConstants::CHECKOUT_QUANTITY_MIN_KG,
@@ -55,7 +55,7 @@ it('rejects checkout quantity below the min', function () {
 });
 
 it('accepts checkout quantity at the max', function () {
-    $contract = ($this->makeContract)(15000);
+    $contract = ($this->makeContract)(MarketplaceConstants::CHECKOUT_QUANTITY_MAX_KG);
 
     $this->actingAs($this->buyer)->postJson("/api/v1/market/contracts/{$contract->id}/checkout", [
         'quantity_kg' => MarketplaceConstants::CHECKOUT_QUANTITY_MAX_KG,
@@ -70,6 +70,15 @@ it('rejects checkout quantity above the max', function () {
         'quantity_kg' => MarketplaceConstants::CHECKOUT_QUANTITY_MAX_KG + 1,
         'payment_option' => 'cash',
     ])->assertStatus(422)->assertJsonValidationErrors(['quantity_kg']);
+});
+
+it('accepts a 14000 kg order in a single checkout', function () {
+    $contract = ($this->makeContract)(14000);
+
+    $this->actingAs($this->buyer)->postJson("/api/v1/market/contracts/{$contract->id}/checkout", [
+        'quantity_kg' => 14000,
+        'payment_option' => 'cash',
+    ])->assertOk();
 });
 
 it('rejects checkout quantity above availability with conflict', function () {

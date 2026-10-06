@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\CropRecommendation\Actions\BuildsAnalysisContext;
 use App\Domain\CropRecommendation\Services\CropAdvisorService;
 use App\Infrastructure\Services\AiPriceEstimatorService;
 use App\Infrastructure\Services\AiPriceExtractorService;
@@ -8,6 +9,7 @@ use App\Infrastructure\Services\GeminiHttpHelper;
 use App\Infrastructure\Services\ReverseGeocodeService;
 use Domain\Farming\Models\Plot;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -34,11 +36,19 @@ function geminiFakeResponse(string $text): array
     return ['candidates' => [['content' => ['parts' => [['text' => $text]]]]]];
 }
 
+final class KeyProtectionFakeContext implements BuildsAnalysisContext
+{
+    public function execute(Plot $plot, ?array $preferences): array
+    {
+        return [];
+    }
+}
+
 function makeAdvisorService(): CropAdvisorService
 {
     // Real geocoder: with an unpersisted plot (no centroid, no farm) it
     // short-circuits to fallback constants without HTTP or DB access.
-    return new CropAdvisorService(new ReverseGeocodeService);
+    return new CropAdvisorService(new ReverseGeocodeService, new KeyProtectionFakeContext);
 }
 
 function makeUnpersistedPlot(): Plot
@@ -76,10 +86,12 @@ it('sends the normalizer API key via header instead of URL', function () {
 
 it('sends the advisor API key via header instead of URL', function () {
     Http::fake(['generativelanguage.googleapis.com/*' => Http::response(geminiFakeResponse('[]'))]);
+    DB::enableQueryLog();
 
     makeAdvisorService()->getRecommendations(makeUnpersistedPlot(), []);
 
     Http::assertSent(fn (Request $request) => geminiRequestIsProtected($request));
+    expect(DB::getQueryLog())->toBe([]);
 });
 
 it('builds a keyless generateContent URL', function () {

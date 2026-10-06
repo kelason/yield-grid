@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\CropRecommendation\Controllers;
 
 use App\Constants\HttpCode;
+use App\CropRecommendation\Requests\AnalyzePlotRequest;
 use App\CropRecommendation\Resources\CropRecommendationResource;
+use App\Domain\CropRecommendation\DTOs\AnalysisPreferences;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Jobs\AnalyzePlotJob;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
@@ -24,7 +26,7 @@ class CropRecommendationController extends Controller
         private readonly ReverseGeocodeService $geocoding
     ) {}
 
-    public function analyze(Request $request, Plot $plot): JsonResponse
+    public function analyze(AnalyzePlotRequest $request, Plot $plot): JsonResponse
     {
         Gate::authorize('analyze', $plot);
 
@@ -37,7 +39,9 @@ class CropRecommendationController extends Controller
             ], HttpCode::TOO_MANY_REQUESTS);
         }
 
-        AnalyzePlotJob::dispatch($plot->id);
+        $preferences = AnalysisPreferences::fromArray($request->validated());
+
+        AnalyzePlotJob::dispatch($plot->id, $preferences->isEmpty() ? null : $preferences->toArray());
 
         return response()->json([
             'message' => 'Analysis started.',

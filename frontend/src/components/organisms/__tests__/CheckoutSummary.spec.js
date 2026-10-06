@@ -34,20 +34,20 @@ describe('CheckoutSummary.vue quantity cap', () => {
     authStore.user = { id: 9, email_verified_at: '2026-01-01T00:00:00Z' }
   })
 
-  function mountSummary() {
+  function mountSummary(overrides = {}) {
     return mount(CheckoutSummary, {
-      props: { contract },
+      props: { contract: { ...contract, ...overrides } },
       global: { plugins: [pinia] },
     })
   }
 
-  it('caps the purchase quantity display at 6 characters', async () => {
+  it('caps the purchase quantity display at 8 characters', async () => {
     const wrapper = mountSummary()
 
     const input = wrapper.find('input#quantity')
-    await input.setValue('1234567')
+    await input.setValue('123456789')
 
-    expect(input.element.value).toBe('123456')
+    expect(input.element.value).toBe('12345678')
   })
 
   it('blocks confirm with an error when quantity exceeds the order max', async () => {
@@ -69,5 +69,47 @@ describe('CheckoutSummary.vue quantity cap', () => {
     await buttons[1].trigger('click')
 
     expect(wrapper.emitted('confirm')[0][0].quantityKg).toBe(100)
+  })
+
+  it('opens a 14000 kg listing at full quantity', () => {
+    const wrapper = mountSummary({ quantity_kg: 14000 })
+
+    expect(wrapper.find('input#quantity-slider').attributes('max')).toBe('14000')
+    expect(wrapper.find('input#quantity').element.value).toBe('14000')
+  })
+
+  it('confirms a 14000 kg order without error', async () => {
+    const wrapper = mountSummary({ quantity_kg: 14000 })
+    const buttons = wrapper.findAll('button')
+    await buttons[1].trigger('click')
+
+    expect(wrapper.emitted('confirm')[0][0].quantityKg).toBe(14000)
+    expect(wrapper.text()).not.toMatch(/cannot exceed/)
+  })
+
+  it('clamps the initial quantity when the listing exceeds the order max', () => {
+    const wrapper = mountSummary({ quantity_kg: 140000 })
+
+    expect(wrapper.find('input#quantity-slider').attributes('max')).toBe('99999')
+    expect(wrapper.find('input#quantity').element.value).toBe('99999')
+  })
+
+  it('steps the slider by 5 kg', () => {
+    const wrapper = mountSummary()
+
+    expect(wrapper.find('input#quantity-slider').attributes('step')).toBe('5')
+  })
+
+  it('spans the slider from 0 to availability', () => {
+    const wrapper = mountSummary({ quantity_kg: 500 })
+
+    expect(wrapper.find('input#quantity-slider').attributes('min')).toBe('0')
+    expect(wrapper.find('input#quantity-slider').attributes('max')).toBe('500')
+  })
+
+  it('keeps the precise 1 kg minimum on the number input', () => {
+    const wrapper = mountSummary()
+
+    expect(wrapper.find('input#quantity').attributes('min')).toBe('1')
   })
 })

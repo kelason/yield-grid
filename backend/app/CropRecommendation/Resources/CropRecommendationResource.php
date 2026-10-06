@@ -15,6 +15,8 @@ class CropRecommendationResource extends JsonResource
             'id' => $this->id,
             'plot_id' => $this->plot_id,
             'crop_name' => $this->crop_name,
+            'produce_type' => $this->produce_type,
+            'subtype' => $this->subtype,
             'confidence_score' => $this->confidence_score,
             'reasoning' => $this->reasoning,
             'projected_yield' => $this->projected_yield,
