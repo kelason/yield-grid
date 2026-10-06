@@ -17,7 +17,9 @@ use App\Constants\CreditScoringConstants;
 use App\Constants\InsuranceConstants;
 use App\Contact\Controllers\ContactController;
 use App\CreditScoring\Controllers\CreditScoreController;
+use App\CropRecommendation\Controllers\CropCompatibilityController;
 use App\CropRecommendation\Controllers\CropRecommendationController;
+use App\CropRecommendation\Controllers\CropTaxonomyController;
 use App\Farming\Controllers\FarmController;
 use App\Farming\Controllers\PlotController;
 use App\Farming\Controllers\RestrictedZoneController;
@@ -113,6 +115,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware(['throttle:30,1', 'verified']);
             Route::get('/plots/{plot}/recommendations', [CropRecommendationController::class, 'index']);
             Route::patch('/recommendations/{recommendation}/status', [CropRecommendationController::class, 'updateStatus'])->middleware('verified');
+            Route::get('/crop-taxonomy', [CropTaxonomyController::class, 'index']);
+            Route::get('/crop-compatibility', [CropCompatibilityController::class, 'check']);
 
             // Forward Contracts
             Route::post('/recommendations/{recommendation}/publish', [ForwardContractController::class, 'store'])->middleware('verified');

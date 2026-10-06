@@ -34,7 +34,7 @@ final class MarketplaceConstants
 
     public const CHECKOUT_QUANTITY_MIN_KG = 1;
 
-    public const CHECKOUT_QUANTITY_MAX_KG = 9999;
+    public const CHECKOUT_QUANTITY_MAX_KG = 99999;
 
     public const CASH_APPROVAL_AMOUNT_MIN = 0.01;
 

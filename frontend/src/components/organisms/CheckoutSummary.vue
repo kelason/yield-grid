@@ -31,25 +31,30 @@ const pricePerKg = computed(() => {
   return props.contract.price_per_kg || props.contract.total_price / props.contract.quantity_kg
 })
 
-const quantityKg = ref(props.contract.quantity_kg)
+const QUANTITY_MAX_LENGTH = 8
+const CHECKOUT_QTY_MIN_KG = 1
+const CHECKOUT_QTY_MAX_KG = 99999
+const CHECKOUT_QTY_SLIDER_STEP_KG = 5
+const CHECKOUT_QTY_SLIDER_MIN_KG = 0
+
+const maxOrderQty = computed(() =>
+  Math.min(Number(props.contract.quantity_kg) || CHECKOUT_QTY_MAX_KG, CHECKOUT_QTY_MAX_KG),
+)
+
+// Start clamped to the slider max so listings above the per-order cap
+// open confirmable instead of snapping down on first slider touch.
+const quantityKg = ref(maxOrderQty.value)
 const paymentOption = ref(PAYMENT_OPTION.PAYMONGO)
 
 // Reset if contract changes
 watch(
   () => props.contract.id,
   () => {
-    quantityKg.value = props.contract.quantity_kg
+    quantityKg.value = maxOrderQty.value
     paymentOption.value = PAYMENT_OPTION.PAYMONGO
   },
 )
 
-const QUANTITY_MAX_LENGTH = 6
-const CHECKOUT_QTY_MIN_KG = 1
-const CHECKOUT_QTY_MAX_KG = 9999
-
-const maxOrderQty = computed(() =>
-  Math.min(Number(props.contract.quantity_kg) || CHECKOUT_QTY_MAX_KG, CHECKOUT_QTY_MAX_KG),
-)
 const qtyError = ref('')
 
 // Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
@@ -169,8 +174,9 @@ const handleConfirm = () => {
             type="range"
             id="quantity-slider"
             v-model.number="quantityKg"
-            :min="CHECKOUT_QTY_MIN_KG"
+            :min="CHECKOUT_QTY_SLIDER_MIN_KG"
             :max="maxOrderQty"
+            :step="CHECKOUT_QTY_SLIDER_STEP_KG"
             class="flex-1 h-2 bg-stone-200 rounded-xl appearance-none cursor-pointer accent-moss-600"
           />
           <div class="relative w-24">

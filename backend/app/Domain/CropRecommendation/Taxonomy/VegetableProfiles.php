@@ -1,0 +1,287 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\CropRecommendation\Taxonomy;
+
+/**
+ * Operational profiles for vegetable crops. Curated agronomic seed data:
+ * growth_cycle (short|mid|long), cultivation methods, light tags, water
+ * (low|moderate|high), soil_need (heavy|light|builder), harvest
+ * (single|continuous), seasons (wet|dry).
+ */
+final class VegetableProfiles
+{
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public static function all(): array
+    {
+        return [
+            'pechay' => [
+                'name' => 'Pechay (Bok Choy)',
+                'subtype' => 'leafy_greens', 'family' => 'brassica',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field'],
+                'light' => ['partial_shade'], 'water' => 'high',
+                'soil_need' => 'heavy', 'harvest' => 'single',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'lettuce' => [
+                'name' => 'Lettuce',
+                'subtype' => 'leafy_greens', 'family' => 'aster',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field', 'greenhouse', 'hydroponic'],
+                'light' => ['partial_shade', 'cool_season'], 'water' => 'high',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'malunggay' => [
+                'name' => 'Commercial Malunggay (Moringa)',
+                'subtype' => 'leafy_greens', 'family' => 'moringa',
+                'growth_cycle' => 'long', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'light', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'cabbage' => [
+                'name' => 'Highland Cabbage (Repolyo)',
+                'subtype' => 'cruciferous', 'family' => 'brassica',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'cool_season'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'broccoli' => [
+                'name' => 'Broccoli',
+                'subtype' => 'cruciferous', 'family' => 'brassica',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'cool_season'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'cauliflower' => [
+                'name' => 'Cauliflower',
+                'subtype' => 'cruciferous', 'family' => 'brassica',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'cool_season'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'tomato' => [
+                'name' => 'Tomatoes (Kamatis)',
+                'subtype' => 'fruiting', 'family' => 'nightshade',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'greenhouse', 'trellised'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'eggplant' => [
+                'name' => 'Eggplant (Talong)',
+                'subtype' => 'fruiting', 'family' => 'nightshade',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'trellised'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'ampalaya' => [
+                'name' => 'Bitter Gourd (Ampalaya)',
+                'subtype' => 'fruiting', 'family' => 'cucurbit',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'trellised'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'squash' => [
+                'name' => 'Squash (Kalabasa)',
+                'subtype' => 'fruiting', 'family' => 'cucurbit',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'cucumber' => [
+                'name' => 'Cucumber (Pipino)',
+                'subtype' => 'fruiting', 'family' => 'cucurbit',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'greenhouse', 'trellised'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'high',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'chili' => [
+                'name' => 'Hot Chili (Siling Labuyo)',
+                'subtype' => 'fruiting', 'family' => 'nightshade',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'okra' => [
+                'name' => "Okra (Lady's Finger)",
+                'subtype' => 'fruiting', 'family' => 'mallow',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'sweet-potato' => [
+                'name' => 'Sweet Potato (Camote)',
+                'subtype' => 'root_tuber', 'family' => 'morning_glory',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'cassava' => [
+                'name' => 'Cassava (Kamoteng Kahoy)',
+                'subtype' => 'root_tuber', 'family' => 'spurge',
+                'growth_cycle' => 'long', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'taro' => [
+                'name' => 'Taro (Gabi)',
+                'subtype' => 'root_tuber', 'family' => 'aroid',
+                'growth_cycle' => 'long', 'cultivation' => ['open_field'],
+                'light' => ['partial_shade'], 'water' => 'high',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'ginger' => [
+                'name' => 'Native Ginger (Luya)',
+                'subtype' => 'root_tuber', 'family' => 'ginger',
+                'growth_cycle' => 'long', 'cultivation' => ['open_field'],
+                'light' => ['partial_shade'], 'water' => 'moderate',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['wet'],
+            ],
+            'red-onion' => [
+                'name' => 'Red Creole Onions (Sibuyas)',
+                'subtype' => 'bulb_stem', 'family' => 'allium',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun'], 'water' => 'moderate',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'garlic' => [
+                'name' => 'Garlic (Bawang)',
+                'subtype' => 'bulb_stem', 'family' => 'allium',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'cool_season'], 'water' => 'low',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'celery' => [
+                'name' => 'Celery',
+                'subtype' => 'bulb_stem', 'family' => 'apiaceae',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'greenhouse'],
+                'light' => ['partial_shade', 'cool_season'], 'water' => 'high',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['dry'],
+            ],
+            'peanut' => [
+                'name' => 'Peanuts (Mani)',
+                'subtype' => 'legume_pod', 'family' => 'legume',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'builder', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'mungbean' => [
+                'name' => 'Mungbean (Munggo / Balatong)',
+                'subtype' => 'legume_pod', 'family' => 'legume',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'builder', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'sitaw' => [
+                'name' => 'String Beans (Sitaw)',
+                'subtype' => 'legume_pod', 'family' => 'legume',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field', 'trellised'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'builder', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'carrot' => [
+                'name' => 'Carrots',
+                'subtype' => 'root_tuber', 'family' => 'apiaceae',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'cool_season'], 'water' => 'moderate',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'potato' => [
+                'name' => 'White Potato (Patatas)',
+                'subtype' => 'root_tuber', 'family' => 'nightshade',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'cool_season'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'bell-pepper' => [
+                'name' => 'Bell Pepper',
+                'subtype' => 'fruiting', 'family' => 'nightshade',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'greenhouse'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'mustard' => [
+                'name' => 'Mustard Greens (Mustasa)',
+                'subtype' => 'leafy_greens', 'family' => 'brassica',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field'],
+                'light' => ['partial_shade'], 'water' => 'high',
+                'soil_need' => 'heavy', 'harvest' => 'single',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'shallot' => [
+                'name' => 'Shallots (Sibuyas Tagalog)',
+                'subtype' => 'bulb_stem', 'family' => 'allium',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field'],
+                'light' => ['full_sun'], 'water' => 'low',
+                'soil_need' => 'light', 'harvest' => 'single',
+                'seasons' => ['dry'],
+            ],
+            'sayote' => [
+                'name' => 'Chayote (Sayote)',
+                'subtype' => 'fruiting', 'family' => 'cucurbit',
+                'growth_cycle' => 'mid', 'cultivation' => ['open_field', 'trellised'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'heavy', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'kangkong' => [
+                'name' => 'Water Spinach (Kangkong)',
+                'subtype' => 'leafy_greens', 'family' => 'morning_glory',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'high',
+                'soil_need' => 'light', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'dill' => [
+                'name' => 'Dill',
+                'subtype' => 'herbs', 'family' => 'apiaceae',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field'],
+                'light' => ['full_sun'], 'water' => 'moderate',
+                'soil_need' => 'light', 'harvest' => 'continuous',
+                'seasons' => ['dry'],
+            ],
+            'lemongrass' => [
+                'name' => 'Lemongrass (Tanglad)',
+                'subtype' => 'herbs', 'family' => 'grass',
+                'growth_cycle' => 'long', 'cultivation' => ['open_field'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'low',
+                'soil_need' => 'light', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+            'basil' => [
+                'name' => 'Sweet Basil (Balanoy)',
+                'subtype' => 'herbs', 'family' => 'lamiaceae',
+                'growth_cycle' => 'short', 'cultivation' => ['open_field', 'greenhouse'],
+                'light' => ['full_sun', 'heat_tolerant'], 'water' => 'moderate',
+                'soil_need' => 'light', 'harvest' => 'continuous',
+                'seasons' => ['wet', 'dry'],
+            ],
+        ];
+    }
+}

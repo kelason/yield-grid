@@ -23,9 +23,14 @@ class AnalyzePlotJob implements ShouldQueue
 
     public int $plotId;
 
-    public function __construct(int $plotId)
+    /** @var array<string, mixed>|null */
+    public readonly ?array $preferences;
+
+    /** @param array<string, mixed>|null $preferences */
+    public function __construct(int $plotId, ?array $preferences = null)
     {
         $this->plotId = $plotId;
+        $this->preferences = $preferences;
     }
 
     public function handle(AgroMonitoringService $agroService, CropAdvisorService $advisorService): void
@@ -40,7 +45,7 @@ class AnalyzePlotJob implements ShouldQueue
             }
 
             // 2. Get AI Recommendations
-            $recommendations = $advisorService->getRecommendations($plot, $agroData);
+            $recommendations = $advisorService->getRecommendations($plot, $agroData, $this->preferences);
 
             // 3. Save to Database (remove previous pending recommendations so fresh analysis is displayed)
             CropRecommendation::where('plot_id', $plot->id)
@@ -51,6 +56,8 @@ class AnalyzePlotJob implements ShouldQueue
                 CropRecommendation::create([
                     'plot_id' => $plot->id,
                     'crop_name' => $rec['crop_name'] ?? 'Unknown',
+                    'produce_type' => $rec['produce_type'] ?? null,
+                    'subtype' => $rec['subtype'] ?? null,
                     'confidence_score' => $rec['confidence_score'] ?? 0,
                     'reasoning' => $rec['reasoning'] ?? '',
                     'projected_yield' => $rec['projected_yield'] ?? '',

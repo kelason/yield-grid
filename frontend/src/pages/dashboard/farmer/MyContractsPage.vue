@@ -143,7 +143,7 @@ const handlePageChange = (page) => {
       </div>
 
       <div
-        class="bg-gradient-to-r from-moss-500 to-moss-600 overflow-hidden shadow-soft rounded-xl text-white"
+        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
       >
         <div class="p-5">
           <div class="flex items-center">

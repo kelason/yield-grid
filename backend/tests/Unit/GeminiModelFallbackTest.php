@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\CropRecommendation\Actions\BuildsAnalysisContext;
 use App\Domain\CropRecommendation\Services\CropAdvisorService;
 use App\Infrastructure\Services\AiPriceEstimatorService;
 use App\Infrastructure\Services\AiPriceExtractorService;
@@ -9,6 +10,7 @@ use App\Infrastructure\Services\ReverseGeocodeService;
 use Domain\Farming\Models\Plot;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
@@ -37,9 +39,17 @@ function fallbackGeminiText(string $text): array
     return ['candidates' => [['content' => ['parts' => [['text' => $text]]]]]];
 }
 
+final class FallbackFakeContext implements BuildsAnalysisContext
+{
+    public function execute(Plot $plot, ?array $preferences): array
+    {
+        return [];
+    }
+}
+
 function fallbackAdvisorService(): CropAdvisorService
 {
-    return new CropAdvisorService(new ReverseGeocodeService);
+    return new CropAdvisorService(new ReverseGeocodeService, new FallbackFakeContext);
 }
 
 function fallbackPlot(): Plot
@@ -155,8 +165,10 @@ it('returns the normalizer default when all models fail', function () {
 
 it('returns advisor mock recommendations when all models fail', function () {
     Http::fake(fn () => Http::response(null, 500));
+    DB::enableQueryLog();
 
     $recommendations = fallbackAdvisorService()->getRecommendations(fallbackPlot(), []);
 
     expect($recommendations)->toBeArray()->not->toBeEmpty();
+    expect(DB::getQueryLog())->toBe([]);
 });

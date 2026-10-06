@@ -17,8 +17,8 @@
             </p>
           </div>
           <div class="mt-10 flex space-x-3 sm:border-l sm:border-transparent sm:pl-6">
-            <AppButton to="/" variant="primary"> Go back home </AppButton>
-            <AppButton to="/contact" variant="outline"> Contact support </AppButton>
+            <AppButton variant="primary" @click="goHome"> Go back home </AppButton>
+            <AppButton variant="outline" @click="goContact"> Contact support </AppButton>
           </div>
         </div>
       </main>
@@ -27,5 +27,20 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import AppButton from '@/components/atoms/AppButton.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const homeTarget = computed(() => {
+  if (authStore.userRole === 'buyer') return { name: 'buyer-dashboard' }
+  if (authStore.userRole === 'farmer') return { name: 'farmer-dashboard' }
+  return '/'
+})
+
+const goHome = () => router.push(homeTarget.value)
+const goContact = () => router.push('/contact')
 </script>

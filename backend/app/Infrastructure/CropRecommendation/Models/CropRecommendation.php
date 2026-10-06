@@ -18,6 +18,8 @@ class CropRecommendation extends Model
     protected $fillable = [
         'plot_id',
         'crop_name',
+        'produce_type',
+        'subtype',
         'confidence_score',
         'reasoning',
         'projected_yield',

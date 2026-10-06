@@ -4,8 +4,8 @@ import AppLabel from './AppLabel.vue'
 defineProps({
   modelValue: { type: [String, Number], default: '' },
   id: { type: String, required: true },
-  label: { type: String, required: true },
-  options: { type: Array, required: true },
+  label: { type: String, default: '' },
+  options: { type: Array, default: null },
   required: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   error: { type: String, default: '' },
@@ -16,7 +16,7 @@ defineEmits(['update:modelValue'])
 
 <template>
   <div>
-    <AppLabel :for="id" :required="required">{{ label }}</AppLabel>
+    <AppLabel v-if="label" :for="id" :required="required">{{ label }}</AppLabel>
     <div class="mt-1 relative">
       <!-- Custom chevron -->
       <div
@@ -46,10 +46,13 @@ defineEmits(['update:modelValue'])
           { 'bg-stone-200 cursor-not-allowed opacity-60': disabled },
         ]"
       >
-        <option value="" disabled selected>Select an option</option>
-        <option v-for="option in options" :key="option.value" :value="option.value">
-          {{ option.label }}
-        </option>
+        <slot v-if="$slots.default" />
+        <template v-else>
+          <option value="" disabled selected>Select an option</option>
+          <option v-for="option in options" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </template>
       </select>
     </div>
     <p v-if="error" class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
