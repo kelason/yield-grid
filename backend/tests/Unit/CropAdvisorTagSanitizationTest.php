@@ -71,6 +71,50 @@ it('rejects subtypes outside the tagged produce type', function () {
         ->and($recs[0]['subtype'])->toBe('tropical_tree');
 });
 
+it('prefers the catalog pair over mismatched LLM tags', function () {
+    sanitizeFakeGemini([
+        ['crop_name' => 'Tomato', 'confidence_score' => 90, 'reasoning' => 'r', 'projected_yield' => 'y', 'produce_type' => 'fruit', 'subtype' => 'fruiting'],
+    ]);
+
+    $recs = sanitizeAdvisorService()->getRecommendations(sanitizePlot(), []);
+
+    expect($recs[0]['produce_type'])->toBe('vegetable')
+        ->and($recs[0]['subtype'])->toBe('fruiting');
+});
+
+it('prefers the catalog pair over a lone mismatched LLM type', function () {
+    sanitizeFakeGemini([
+        ['crop_name' => 'Tomato', 'confidence_score' => 90, 'reasoning' => 'r', 'projected_yield' => 'y', 'produce_type' => 'fruit', 'subtype' => null],
+    ]);
+
+    $recs = sanitizeAdvisorService()->getRecommendations(sanitizePlot(), []);
+
+    expect($recs[0]['produce_type'])->toBe('vegetable')
+        ->and($recs[0]['subtype'])->toBe('fruiting');
+});
+
+it('keeps coherent LLM tags for unknown crops', function () {
+    sanitizeFakeGemini([
+        ['crop_name' => 'Moon Melon', 'confidence_score' => 80, 'reasoning' => 'r', 'projected_yield' => 'y', 'produce_type' => 'vegetable', 'subtype' => 'fruiting'],
+    ]);
+
+    $recs = sanitizeAdvisorService()->getRecommendations(sanitizePlot(), []);
+
+    expect($recs[0]['produce_type'])->toBe('vegetable')
+        ->and($recs[0]['subtype'])->toBe('fruiting');
+});
+
+it('drops mismatched LLM tags for unknown crops', function () {
+    sanitizeFakeGemini([
+        ['crop_name' => 'Moon Melon', 'confidence_score' => 80, 'reasoning' => 'r', 'projected_yield' => 'y', 'produce_type' => 'fruit', 'subtype' => 'fruiting'],
+    ]);
+
+    $recs = sanitizeAdvisorService()->getRecommendations(sanitizePlot(), []);
+
+    expect($recs[0]['produce_type'])->toBeNull()
+        ->and($recs[0]['subtype'])->toBeNull();
+});
+
 it('backfills cleared tags from the crop name', function () {
     sanitizeFakeGemini([
         ['crop_name' => 'Calamansi', 'confidence_score' => 90, 'reasoning' => 'r', 'projected_yield' => 'y', 'produce_type' => 'Fruit', 'subtype' => null],

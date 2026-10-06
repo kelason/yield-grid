@@ -130,9 +130,10 @@ class CropAdvisorService
     }
 
     /**
-     * Null out LLM taxonomy tags outside the catalog (which would
-     * overflow the columns or fragment the type filter), backfilling
-     * from the crop name when it resolves to a catalog slug.
+     * Coerce LLM taxonomy tags into coherent catalog pairs. A crop name
+     * that resolves to a catalog slug takes its tags from the profile
+     * (the LLM pair is untrusted once either side disagrees); unknown
+     * crops keep their LLM tags only when the pair agrees.
      *
      * @param  array<int, mixed>  $recs
      * @return array<int, mixed>
@@ -144,25 +145,36 @@ class CropAdvisorService
                 continue;
             }
 
-            $type = $this->validSlug($rec['produce_type'] ?? null, CropTaxonomy::typeSlugs());
-            $subtype = $this->validSlug($rec['subtype'] ?? null, CropTaxonomy::subtypeSlugs());
-
-            if ($type !== null && $subtype !== null && (CropTaxonomy::subtypes()[$subtype]['type'] ?? null) !== $type) {
-                $subtype = null;
-            }
-
-            if ($type === null || $subtype === null) {
-                $slug = CropTaxonomy::matchSlug((string) ($rec['crop_name'] ?? ''));
-                $profile = $slug === null ? null : CropTaxonomy::profile($slug);
-                $type ??= $profile['type'] ?? null;
-                $subtype ??= $profile['subtype'] ?? null;
-            }
+            [$type, $subtype] = $this->coherentTags($rec);
 
             $recs[$index]['produce_type'] = $type;
             $recs[$index]['subtype'] = $subtype;
         }
 
         return $recs;
+    }
+
+    /**
+     * @param  array<string, mixed>  $rec
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function coherentTags(array $rec): array
+    {
+        $slug = CropTaxonomy::matchSlug((string) ($rec['crop_name'] ?? ''));
+        $profile = $slug === null ? null : CropTaxonomy::profile($slug);
+
+        if ($profile !== null) {
+            return [$profile['type'] ?? null, $profile['subtype'] ?? null];
+        }
+
+        $type = $this->validSlug($rec['produce_type'] ?? null, CropTaxonomy::typeSlugs());
+        $subtype = $this->validSlug($rec['subtype'] ?? null, CropTaxonomy::subtypeSlugs());
+
+        if ($type !== null && $subtype !== null && (CropTaxonomy::subtypes()[$subtype]['type'] ?? null) !== $type) {
+            return [null, null];
+        }
+
+        return [$type, $subtype];
     }
 
     /**
