@@ -1,38 +1,60 @@
 <script setup>
 import { onMounted, computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import {
+  ShoppingBagIcon,
+  CheckCircleIcon,
+  BanknotesIcon,
+  ArrowUpRightIcon,
+} from '@heroicons/vue/24/outline'
+import { PAYMENT_STATUS } from '@/constants/payment'
 import { useMarketStore } from '@/stores/marketStore'
-import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useApi } from '@/composables/useApi'
-import { ShoppingCartIcon } from '@heroicons/vue/24/outline'
+import { useConfirmModal } from '@/composables/useConfirmModal'
+import { useChatEntry } from '@/composables/useChatEntry'
 import AppCard from '@/components/atoms/AppCard.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import StatCard from '@/components/molecules/StatCard.vue'
 import PurchaseCard from '@/components/molecules/PurchaseCard.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
-import { useConfirmModal } from '@/composables/useConfirmModal'
-
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import PaginationControls from '@/components/molecules/PaginationControls.vue'
 const marketStore = useMarketStore()
-const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
-
+const { openChat } = useChatEntry()
+const OVERVIEW_FILTERS = { search: '', sort: 'newest', status: null }
+const FIRST_PAGE = 1
+const SKELETON_COUNT = 2
+const purchases = computed(() => marketStore.buyerPurchases ?? [])
+const loading = computed(() => marketStore.loading.purchases)
+const error = computed(() => marketStore.buyerPurchasesError)
 const totalSpent = computed(() =>
-  marketStore.buyerPurchases.reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0),
+  purchases.value.reduce((sum, purchase) => sum + parseFloat(purchase.amount_paid || 0), 0),
 )
-
-const activePurchases = computed(
-  () => marketStore.buyerPurchases.filter((p) => p.payment_status === 'completed').length,
+const completedPayments = computed(
+  () =>
+    purchases.value.filter((purchase) => purchase.payment_status === PAYMENT_STATUS.COMPLETED)
+      .length,
 )
-
-onMounted(() => {
-  marketStore.fetchBuyerPurchases()
-})
-
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
+const currency = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' })
+function fetchPurchases(page = FIRST_PAGE) {
+  return marketStore.fetchBuyerPurchases(page, { filters: OVERVIEW_FILTERS })
 }
-
-const cancelPurchase = (purchase) => {
+async function performCancellation(purchase) {
+  try {
+    await api.post(`/checkout/${purchase.id}/cancel`)
+    await fetchPurchases(marketStore.buyerPurchasesPagination.currentPage)
+  } catch {
+    notificationStore.error('Failed to cancel purchase. Please try again.')
+  }
+}
+function cancelPurchase(purchase) {
   confirm(
     {
       title: 'Cancel Purchase',
@@ -40,149 +62,114 @@ const cancelPurchase = (purchase) => {
         'Are you sure you want to cancel this pending purchase? The pending payment will be voided.',
       type: 'danger',
     },
-    async () => {
-      try {
-        await api.post(`/checkout/${purchase.id}/cancel`)
-        marketStore.fetchBuyerPurchases() // Refresh list
-      } catch (err) {
-        console.error('Failed to cancel purchase:', err)
-        notificationStore.error('Failed to cancel purchase. Please try again.')
-      }
-    },
+    () => performCancellation(purchase),
   )
 }
+function messageFarmer(purchase) {
+  const farmer = purchase.contract?.farmer || purchase.demand_offer?.farmer
+  if (!farmer) return
+  confirm(
+    {
+      title: 'Open conversation?',
+      message: `Open a conversation with ${farmer.name || 'the farmer'}?`,
+      confirmText: 'Open chat',
+    },
+    () => openChat(farmer.id),
+  )
+}
+onMounted(() => fetchPurchases())
 </script>
-
 <template>
-  <div class="space-y-8">
-    <!-- Welcome Banner -->
-    <div
-      class="rounded-2xl bg-gradient-to-r from-moss-600 to-moss-800 p-6 text-white shadow-organic"
-    >
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p class="text-moss-200 text-sm font-medium mb-1">Welcome back,</p>
-          <h2 class="font-serif text-2xl font-bold">{{ authStore.user?.name }}</h2>
-          <p class="text-moss-300 text-sm mt-1">
-            Browse fresh forward contracts from Filipino farmers.
-          </p>
-        </div>
-        <router-link
+  <div class="space-y-8" :aria-busy="loading">
+    <PageHeader
+      title="Buyer overview"
+      description="Keep your crop purchases and upcoming harvests in view."
+      ><template #actions
+        ><RouterLink
           :to="{ name: 'buyer-marketplace' }"
-          class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm font-medium rounded-xl px-4 py-2 self-start sm:self-auto"
-        >
-          <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
-        </router-link>
-      </div>
+          class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-br from-moss-500 to-moss-600 px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:from-moss-600 hover:to-moss-700 motion-reduce:transform-none"
+          >Browse Marketplace
+          <ArrowUpRightIcon class="h-4 w-4" aria-hidden="true" /></RouterLink></template
+    ></PageHeader>
+    <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <StatCard
+        label="Purchases on this page"
+        :value="loading || error ? null : purchases.length"
+        :loading="loading"
+        ><template #icon><ShoppingBagIcon class="h-5 w-5" /></template
+      ></StatCard>
+      <StatCard
+        label="Completed payments on this page"
+        :value="loading || error ? null : completedPayments"
+        :loading="loading"
+        ><template #icon><CheckCircleIcon class="h-5 w-5" /></template
+      ></StatCard>
+      <StatCard
+        label="Amount paid on this page"
+        :value="loading || error ? null : currency.format(totalSpent)"
+        :loading="loading"
+        tone="harvest"
+        ><template #icon><BanknotesIcon class="h-5 w-5" /></template
+      ></StatCard>
     </div>
-
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <!-- Total Purchases -->
-      <AppCard variant="gradient" class="!rounded-2xl">
-        <div class="flex items-center gap-4">
-          <div
-            class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl flex-shrink-0 shadow-soft"
-          >
-            📦
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-moss-100">Total Purchases</dt>
-            <dd class="text-3xl font-bold text-white mt-0.5">
-              {{ marketStore.buyerPurchases.length }}
-            </dd>
-          </div>
-        </div>
-      </AppCard>
-
-      <!-- Active Contracts -->
-      <AppCard>
-        <div class="flex items-center gap-4">
-          <div
-            class="w-11 h-11 rounded-xl bg-moss-50 flex items-center justify-center text-xl flex-shrink-0"
-          >
-            ✅
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-stone-500">Active Contracts</dt>
-            <dd class="text-3xl font-bold text-stone-900 mt-0.5">{{ activePurchases }}</dd>
-          </div>
-        </div>
-      </AppCard>
-
-      <!-- Total Spent -->
-      <AppCard>
-        <div class="flex items-center gap-4">
-          <div
-            class="w-11 h-11 rounded-xl bg-stone-50 flex items-center justify-center text-xl flex-shrink-0"
-          >
-            💰
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-stone-500">Total Spent</dt>
-            <dd class="text-lg font-bold text-stone-900 mt-0.5">
-              {{ formatCurrency(totalSpent) }}
-            </dd>
-          </div>
-        </div>
-      </AppCard>
-    </div>
-
-    <!-- Recent Purchases -->
-    <div>
-      <div class="flex items-center gap-3 mb-4">
-        <h2 class="font-serif text-lg font-bold text-stone-900">Recent Purchases</h2>
-        <div class="flex-1 h-px bg-gradient-to-r from-stone-200 to-transparent"></div>
-        <router-link
+    <section aria-labelledby="purchases-heading" class="space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="purchases-heading" class="font-serif text-2xl font-bold text-stone-900">
+          Your purchases
+        </h2>
+        <RouterLink
           :to="{ name: 'buyer-purchases' }"
-          class="text-sm font-medium text-moss-600 hover:text-moss-700 transition-colors"
+          class="inline-flex min-h-11 items-center rounded-xl text-sm font-medium text-moss-700 transition-colors hover:text-moss-900"
+          >Purchase history</RouterLink
         >
-          View all →
-        </router-link>
       </div>
-
-      <!-- Loading -->
-      <AppCard v-if="marketStore.loading?.purchases">
-        <div class="animate-pulse space-y-3">
-          <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
-        </div>
-      </AppCard>
-
-      <!-- Empty -->
-      <AppCard v-else-if="marketStore.buyerPurchases.length === 0">
-        <div class="text-center py-10">
-          <div class="text-5xl mb-3">🌾</div>
-          <h3 class="font-serif text-sm font-semibold text-stone-700 mb-1">No purchases yet</h3>
-          <p class="text-sm text-stone-500 mb-4">
-            Forward contracts let you secure crops before harvest at a fixed price.
-          </p>
-          <router-link
+      <LoadingState v-if="loading" label="Loading purchases"
+        ><div class="space-y-4">
+          <SkeletonCard v-for="index in SKELETON_COUNT" :key="index" with-avatar with-action /></div
+      ></LoadingState>
+      <AppCard v-else-if="error" role="alert"
+        ><h3 class="font-serif text-xl font-bold text-stone-900">Unable to load your purchases</h3>
+        <p class="mt-2 text-sm text-stone-600">Please try again to see your current purchases.</p>
+        <AppButton variant="secondary" class="mt-4" @click="fetchPurchases()"
+          >Retry</AppButton
+        ></AppCard
+      >
+      <EmptyState
+        v-else-if="!purchases.length"
+        title="No purchases yet"
+        description="Explore crops from Filipino farmers and secure your next harvest."
+        ><template #action
+          ><RouterLink
             :to="{ name: 'buyer-marketplace' }"
-            class="inline-flex items-center gap-1.5 bg-moss-600 hover:bg-moss-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
-          >
-            <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
-          </router-link>
-        </div>
-      </AppCard>
-
-      <!-- Purchase rows -->
+            class="inline-flex min-h-11 items-center rounded-xl bg-moss-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-moss-700"
+            >Explore the marketplace</RouterLink
+          ></template
+        ></EmptyState
+      >
       <div v-else class="space-y-4">
         <PurchaseCard
-          v-for="purchase in marketStore.buyerPurchases.slice(0, 5)"
+          v-for="purchase in purchases"
           :key="purchase.id"
           :purchase="purchase"
           @cancel="cancelPurchase"
+          @message="messageFarmer"
         />
       </div>
-    </div>
+      <PaginationControls
+        v-if="!loading && !error"
+        :current-page="marketStore.buyerPurchasesPagination.currentPage"
+        :last-page="marketStore.buyerPurchasesPagination.lastPage"
+        :total="marketStore.buyerPurchasesPagination.total"
+        @page-change="fetchPurchases"
+      />
+    </section>
     <ConfirmModal
-      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"
       :type="config.type"
+      :confirm-text="config.confirmText"
+      :loading="isExecuting"
       @confirm="execute"
       @cancel="cancel"
     />

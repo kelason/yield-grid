@@ -1,112 +1,115 @@
 <script setup>
-import { onMounted, computed } from 'vue'
-import { useFarmingStore } from '../../stores/farming'
-import AppCard from '../../components/atoms/AppCard.vue'
-
+import { ref, onMounted, computed } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { MapIcon, Squares2X2Icon, SparklesIcon, ArrowUpRightIcon } from '@heroicons/vue/24/outline'
+import { useFarmingStore } from '@/stores/farming'
+import AppCard from '@/components/atoms/AppCard.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import StatCard from '@/components/molecules/StatCard.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import FarmCard from '@/components/molecules/FarmCard.vue'
 const farmingStore = useFarmingStore()
-
+const router = useRouter()
+const loading = ref(true)
+const error = ref('')
+const SKELETON_COUNT = 2
+const farms = computed(() => farmingStore.farms ?? [])
 const totalPlots = computed(() =>
-  farmingStore.farms.reduce((acc, farm) => acc + (farm.plots_count || 0), 0),
+  farms.value.reduce((total, farm) => total + (farm?.plots_count || 0), 0),
 )
-
-onMounted(() => {
-  farmingStore.fetchFarms()
-})
+async function fetchFarms() {
+  loading.value = true
+  error.value = ''
+  try {
+    await farmingStore.fetchFarms()
+  } catch {
+    error.value = 'Unable to load your farms'
+  } finally {
+    loading.value = false
+  }
+}
+function viewPlots(farmId) {
+  router.push({ name: 'plot-planner', params: { farmId } })
+}
+function viewRecommendations(farmId) {
+  router.push({ name: 'recommendations', query: { farmId } })
+}
+onMounted(fetchFarms)
 </script>
-
 <template>
-  <div class="space-y-8">
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- Total Farms — gradient card -->
-      <AppCard variant="gradient" class="!rounded-2xl">
-        <div class="flex items-center gap-4">
-          <div
-            class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl flex-shrink-0 shadow-soft"
-          >
-            🏡
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-moss-100">Total Farms</dt>
-            <dd class="text-4xl font-bold text-white mt-1">{{ farmingStore.farms.length }}</dd>
-          </div>
-        </div>
-      </AppCard>
-
-      <!-- Total Plots -->
-      <AppCard>
-        <div class="flex items-center gap-4">
-          <div
-            class="w-12 h-12 rounded-xl bg-dew-50 flex items-center justify-center text-2xl flex-shrink-0"
-          >
-            🗺️
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-stone-500">Total Plots</dt>
-            <dd class="text-4xl font-bold text-stone-900 mt-1">{{ totalPlots }}</dd>
-          </div>
-        </div>
-      </AppCard>
-
-      <!-- AI Recommendations -->
-      <router-link :to="{ name: 'recommendations' }" class="block group">
-        <AppCard
-          class="transition-all duration-200 group-hover:border-moss-200 group-hover:shadow-soft"
+  <div class="space-y-8" :aria-busy="loading">
+    <PageHeader
+      title="Farm overview"
+      description="A clear view of your land, plots, and next growing decisions."
+    >
+      <template #actions
+        ><RouterLink
+          :to="{ name: 'farm-manager' }"
+          class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-br from-moss-500 to-moss-600 px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:from-moss-600 hover:to-moss-700 motion-reduce:transform-none"
+          >Manage farms <ArrowUpRightIcon class="h-4 w-4" aria-hidden="true" /></RouterLink
+      ></template>
+    </PageHeader>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <StatCard label="Farms" :value="error || loading ? null : farms.length" :loading="loading"
+        ><template #icon><Squares2X2Icon class="h-5 w-5" /></template
+      ></StatCard>
+      <StatCard label="Plots" :value="error || loading ? null : totalPlots" :loading="loading"
+        ><template #icon><MapIcon class="h-5 w-5" /></template
+      ></StatCard>
+      <AppCard variant="dew"
+        ><SparklesIcon class="h-5 w-5 text-dew-700" aria-hidden="true" />
+        <h2 class="mt-3 font-serif text-xl font-bold text-stone-900">Crop advisor</h2>
+        <p class="mt-2 text-sm leading-relaxed text-stone-600">
+          Plan your next crop with insights tailored to your plots.
+        </p>
+        <RouterLink
+          :to="{ name: 'recommendations' }"
+          class="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl text-sm font-medium text-dew-700 transition-colors hover:text-dew-900"
+          >View recommendations <ArrowUpRightIcon class="h-4 w-4" aria-hidden="true" /></RouterLink
+      ></AppCard>
+    </div>
+    <section aria-labelledby="farms-heading" class="space-y-5">
+      <div class="flex items-center justify-between gap-4">
+        <h2 id="farms-heading" class="font-serif text-2xl font-bold text-stone-900">Your farms</h2>
+        <span v-if="!loading && !error" class="text-sm text-stone-600"
+          >{{ farms.length }} registered</span
         >
-          <div class="flex items-center gap-4">
-            <div
-              class="w-12 h-12 rounded-xl bg-stone-50 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-200"
-            >
-              🤖
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-stone-500">AI Advisor</dt>
-              <dd class="text-sm font-semibold text-moss-600 mt-1">View Recommendations →</dd>
-              <dd class="text-xs text-stone-400">Crop advisor insights</dd>
-            </div>
-          </div>
-        </AppCard>
-      </router-link>
-    </div>
-
-    <!-- Recent Activity -->
-    <div>
-      <div class="flex items-center gap-3 mb-4">
-        <h2 class="font-serif text-lg font-bold text-stone-900">Recent Activity</h2>
-        <div class="flex-1 h-px bg-gradient-to-r from-stone-200 to-transparent"></div>
       </div>
-
-      <!-- Skeleton loading state -->
-      <AppCard v-if="farmingStore.loading">
-        <div class="animate-pulse space-y-3">
-          <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
-        </div>
-      </AppCard>
-
-      <!-- Empty -->
-      <AppCard v-else-if="farmingStore.farms.length === 0">
-        <div class="text-center py-8">
-          <div class="text-4xl mb-3">🌱</div>
-          <h3 class="font-serif text-sm font-semibold text-stone-700 mb-1">No activity yet</h3>
-          <p class="text-sm text-stone-500">
-            Go to
-            <router-link
-              :to="{ name: 'farm-manager' }"
-              class="text-moss-600 hover:text-moss-700 font-medium transition-colors"
-            >
-              My Farms
-            </router-link>
-            to get started.
-          </p>
-        </div>
-      </AppCard>
-
-      <!-- Placeholder -->
-      <AppCard v-else>
-        <div class="text-sm text-stone-500 py-2">Activity feed coming soon.</div>
-      </AppCard>
-    </div>
+      <LoadingState v-if="loading" label="Loading farms"
+        ><div class="grid gap-5 lg:grid-cols-2">
+          <SkeletonCard v-for="index in SKELETON_COUNT" :key="index" with-avatar with-action /></div
+      ></LoadingState>
+      <AppCard v-else-if="error" role="alert"
+        ><h3 class="font-serif text-xl font-bold text-stone-900">{{ error }}</h3>
+        <p class="mt-2 text-sm text-stone-600">
+          Please try again to see your current farm information.
+        </p>
+        <AppButton variant="secondary" class="mt-4" @click="fetchFarms">Retry</AppButton></AppCard
+      >
+      <EmptyState
+        v-else-if="!farms.length"
+        title="No farms yet"
+        description="Register your farm to map plots and plan your next harvest."
+        ><template #action
+          ><RouterLink
+            :to="{ name: 'farm-manager' }"
+            class="inline-flex min-h-11 items-center rounded-xl bg-moss-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-moss-700"
+            >Go to My Farms</RouterLink
+          ></template
+        ></EmptyState
+      >
+      <div v-else class="grid gap-5 lg:grid-cols-2">
+        <FarmCard
+          v-for="farm in farms"
+          :key="farm.id"
+          :farm="farm"
+          @view-plots="viewPlots"
+          @view-recommendations="viewRecommendations"
+        />
+      </div>
+    </section>
   </div>
 </template>

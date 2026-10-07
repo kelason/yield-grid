@@ -26,6 +26,7 @@ export default defineConfig({
     url: E2E.BASE_URL,
     reuseExistingServer: false,
     env: {
+      E2E_RUN: '1',
       VITE_API_URL: E2E.API_URL,
       VITE_REVERB_HOST: '127.0.0.1',
       VITE_REVERB_APP_KEY: 'synthetic-e2e-key',

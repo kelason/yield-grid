@@ -6,6 +6,10 @@ export default {
   theme: {
     extend: {
       colors: DESIGN_COLORS,
+      fontSize: {
+        '3xl': ['2rem', { lineHeight: '2.5rem' }],
+        '4xl': ['2.5rem', { lineHeight: '3rem' }],
+      },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         serif: ['Lora', 'Georgia', 'serif'],

@@ -49,13 +49,13 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** `mockSession(page, { role = 'farmer', verified = true } = {}) -> Promise<void>` installs synthetic auth and unwrapped `/user`, empty chat bootstrap and controlled realtime routes before navigation. `assertNoUnexpectedApiRequests() -> void` reports unhandled requests collected by the fixture at teardown. Export stable `FARMER`, `BUYER`, `FARMS`, `PURCHASES`, `FIXED_NOW`, viewport and HTTP constants from the fixture modules; IDs and dates must match the current API resource shape.
 
-- [ ] Use a supported Node runtime and record `node --version`, installed Playwright version, `git status`, current test discovery and existing screenshot absence. Do not update dependencies as part of environment setup.
-- [ ] Extend the insurance test to assert the rendered verified farmer identity and role navigation. Run `npx playwright test e2e/Insurance/enrollment.spec.js --project=chromium`; confirm the current incorrect `/user` envelope fails the new assertions for that reason.
-- [ ] Correct `/user` to the bare user object, add `/chat/conversations`, and route WebSocket traffic before navigation. Use a catch-all API route registered before specific mocks; unexpected calls return a deterministic failure and are asserted at teardown. Never fall through to production/local backend or Stripe.
-- [ ] Set test Vite to `127.0.0.1:4173` with `--strictPort`, `reuseExistingServer: false`, explicit local mock API URL, locale `en-PH`, timezone `Asia/Manila`. Create projects `chromium` (1440×900), `mobile-chromium` (390×844), `firefox` and `webkit` (targeted smoke, excluded from default PR command). Keep retries as-is; preserve trace-on-first-retry and artifact uploads.
-- [ ] Add a read-only `lint:check` script (`oxlint . && eslint . --no-cache`) and have CI call it. Preserve the user's explicit local auto-fix scripts. CI installs Chromium for default tests; add an explicit manual smoke input/job to install Firefox/WebKit for those projects.
-- [ ] Run corrected existing tests in Chromium and mobile Chromium, asserting insurance PUT payload plus saved UI. Keep semantic-selector migration that requires new dialogs in Task 4. Expected: role/verification assertions and the existing business outcome pass, no unexpected API traffic.
-- [ ] Capture before screenshots as local review evidence, not approved regression baselines. Verify the prepared documentation ignore exceptions and commit only the verified harness and documentation changes.
+- [x] Use a supported Node runtime and record `node --version`, installed Playwright version, `git status`, current test discovery and existing screenshot absence. Do not update dependencies as part of environment setup.
+- [x] Extend the insurance test to assert the rendered verified farmer identity and role navigation. Run `npx playwright test e2e/Insurance/enrollment.spec.js --project=chromium`; confirm the current incorrect `/user` envelope fails the new assertions for that reason.
+- [x] Correct `/user` to the bare user object, add `/chat/conversations`, and route WebSocket traffic before navigation. Use a catch-all API route registered before specific mocks; unexpected calls return a deterministic failure and are asserted at teardown. Never fall through to production/local backend or Stripe.
+- [x] Set test Vite to `127.0.0.1:4173` with `--strictPort`, `reuseExistingServer: false`, explicit local mock API URL, locale `en-PH`, timezone `Asia/Manila`. Create projects `chromium` (1440×900), `mobile-chromium` (390×844), `firefox` and `webkit` (targeted smoke, excluded from default PR command). Keep retries as-is; preserve trace-on-first-retry and artifact uploads.
+- [x] Add a read-only `lint:check` script (`oxlint . && eslint . --no-cache`) and have CI call it. Preserve the user's explicit local auto-fix scripts. CI installs Chromium for default tests; add an explicit manual smoke input/job to install Firefox/WebKit for those projects.
+- [x] Run corrected existing tests in Chromium and mobile Chromium, asserting insurance PUT payload plus saved UI. Keep semantic-selector migration that requires new dialogs in Task 4. Expected: role/verification assertions and the existing business outcome pass, no unexpected API traffic.
+- [x] Capture before screenshots as local review evidence, not approved regression baselines. Verify the prepared documentation ignore exceptions and commit only the verified harness and documentation changes.
 
 ## Task 2: Introduce the Field & Linen tokens
 
@@ -63,11 +63,11 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** `DESIGN_COLORS` has `moss/harvest/soil/dew/stone` keys, each with shades 50–900 exactly as the spec table. `DESIGN_SHADOWS` exposes soft/organic/harvest-glow exact spec strings. Tailwind imports these with no duplicated palette object. Runtime consumers import only this small module, not Tailwind or its resolver.
 
-- [ ] Add one contrast regression test using the standard sRGB luminance formula: assert white/moss[500], white/moss[600], stone[900]/stone[50], stone[600]/stone[50], stone[500]/stone[50], harvest[700]/harvest[50], dew[700]/dew[50] are `>= 4.5`. Run `npx vitest run src/constants/__tests__/designTokens.spec.js` and verify it fails before the module exists.
-- [ ] Add exact token values; preserve font families, breakpoints and all existing palette names. Retain global focus-visible/reduced-motion behavior and tune body surfaces/type according to the spec.
-- [ ] Update the local design-rule documents with the new palette, calmer elevation, modern heading scale, and restrained decorative treatment. Keep the authoritative proposed rules in the tracked spec; do not unignore unrelated local skills/configuration.
-- [ ] Run the contrast test, `npm run build`, and inspect home, login and both dashboard shells for inherited color regressions. Expected: all token imports resolve; listed pairs pass; normal text on gradient endpoints remains readable. Tinted badge/hover pairs are checked in their owning components, not assumed to pass.
-- [ ] Commit the token change after reviewing site-wide inherited effects.
+- [x] Add one contrast regression test using the standard sRGB luminance formula: assert white/moss[500], white/moss[600], stone[900]/stone[50], stone[600]/stone[50], stone[500]/stone[50], harvest[700]/harvest[50], dew[700]/dew[50] are `>= 4.5`. Run `npx vitest run src/constants/__tests__/designTokens.spec.js` and verify it fails before the module exists.
+- [x] Add exact token values; preserve font families, breakpoints and all existing palette names. Retain global focus-visible/reduced-motion behavior and tune body surfaces/type according to the spec.
+- [x] Update the local design-rule documents with the new palette, calmer elevation, modern heading scale, and restrained decorative treatment. Keep the authoritative proposed rules in the tracked spec; do not unignore unrelated local skills/configuration.
+- [x] Run the contrast test, `npm run build`, and inspect home, login and both dashboard shells for inherited color regressions. Expected: all token imports resolve; listed pairs pass; normal text on gradient endpoints remains readable. Tinted badge/hover pairs are checked in their owning components, not assumed to pass.
+- [x] Commit the token change after reviewing site-wide inherited effects.
 
 ## Task 3: Consolidate buttons, inputs, selects and textareas
 

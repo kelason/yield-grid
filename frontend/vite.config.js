@@ -1,3 +1,4 @@
+/* global process */
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -6,10 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), ...(process.env.E2E_RUN === '1' ? [] : [vueDevTools()])],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

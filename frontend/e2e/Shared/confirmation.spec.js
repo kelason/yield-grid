@@ -11,6 +11,21 @@ async function openBuyer(page) {
   await page.goto('/dashboard/buyer')
 }
 
+test('opening a conversation asks before creating chat state', async ({ page }) => {
+  await openBuyer(page)
+  let created = 0
+  await page.route('**/api/v1/chat/conversations', (route) => {
+    if (route.request().method() === 'POST') created += 1
+    return route.fulfill({ json: { data: [] } })
+  })
+  await page.getByRole('button', { name: 'Message farmer' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Open conversation?', exact: true })
+  await expect(dialog).toBeVisible()
+  expect(created).toBe(0)
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  expect(created).toBe(0)
+})
+
 test('cancel confirmation preserves state and returns focus to its trigger', async ({ page }) => {
   await openBuyer(page)
   let mutations = 0

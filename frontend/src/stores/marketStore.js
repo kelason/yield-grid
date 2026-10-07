@@ -3,6 +3,15 @@ import { ref, computed } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { PaginationConstants } from '@/constants/pagination'
 
+const FIRST_PURCHASE_PAGE = 1
+function buyerPurchaseQuery(page, perPage, filters) {
+  const query = new URLSearchParams({ page, per_page: perPage })
+  if (filters.search) query.append('search', filters.search)
+  if (filters.sort) query.append('sort', filters.sort)
+  if (filters.status) query.append('status', filters.status)
+  return query.toString()
+}
+
 export const useMarketStore = defineStore('market', () => {
   const api = useApi()
 
@@ -15,6 +24,7 @@ export const useMarketStore = defineStore('market', () => {
     total_revenue: 0,
   })
   const buyerPurchases = ref([])
+  const buyerPurchasesError = ref(null)
   const farmerPurchases = ref([])
   const activeContract = ref(null)
 
@@ -214,20 +224,15 @@ export const useMarketStore = defineStore('market', () => {
     }
   }
 
-  async function fetchBuyerPurchases(page = 1) {
+  async function fetchBuyerPurchases(
+    page = FIRST_PURCHASE_PAGE,
+    { filters = buyerPurchasesFilters.value } = {},
+  ) {
     loading.value.purchases = true
+    buyerPurchasesError.value = null
     try {
-      const queryParams = new URLSearchParams()
-      queryParams.append('page', page)
-      queryParams.append('per_page', buyerPurchasesPagination.value.perPage)
-      if (buyerPurchasesFilters.value.search)
-        queryParams.append('search', buyerPurchasesFilters.value.search)
-      if (buyerPurchasesFilters.value.sort)
-        queryParams.append('sort', buyerPurchasesFilters.value.sort)
-      if (buyerPurchasesFilters.value.status)
-        queryParams.append('status', buyerPurchasesFilters.value.status)
-
-      const response = await api.get(`/buyer/purchases?${queryParams.toString()}`)
+      const query = buyerPurchaseQuery(page, buyerPurchasesPagination.value.perPage, filters)
+      const response = await api.get(`/buyer/purchases?${query}`)
       buyerPurchases.value = response.data.data || response.data
 
       const meta = response.data.meta
@@ -240,7 +245,7 @@ export const useMarketStore = defineStore('market', () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching purchases:', error)
+      buyerPurchasesError.value = error.response?.data?.message || 'Unable to load your purchases'
     } finally {
       loading.value.purchases = false
     }
@@ -301,6 +306,7 @@ export const useMarketStore = defineStore('market', () => {
     farmerStats,
     farmerPagination,
     buyerPurchases,
+    buyerPurchasesError,
     farmerPurchases,
     buyerPurchasesFilters,
     buyerPurchasesPagination,
