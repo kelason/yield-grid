@@ -6,8 +6,8 @@ import {
   BuildingStorefrontIcon,
   ShieldCheckIcon,
   SparklesIcon,
-  ArrowPathIcon,
 } from '@heroicons/vue/24/outline'
+import AppSpinner from '@/components/atoms/AppSpinner.vue'
 import { usePriceGuide } from '@/composables/usePriceGuide'
 import {
   PRICE_CHECK_STAGES,
@@ -299,10 +299,7 @@ const priceComparison = computed(() => {
             role="status"
             aria-label="Loading YieldGrid price"
           >
-            <ArrowPathIcon
-              class="loading-spinner h-4 w-4 text-moss-600 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
             <span>Loading…</span>
           </div>
           <p
@@ -335,10 +332,7 @@ const priceComparison = computed(() => {
             role="status"
             aria-label="Loading DA price"
           >
-            <ArrowPathIcon
-              class="loading-spinner h-4 w-4 text-moss-600 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
             <span>Loading…</span>
           </div>
           <div v-else-if="sections.da.available">
@@ -378,10 +372,7 @@ const priceComparison = computed(() => {
             role="status"
             aria-label="Loading AI estimate"
           >
-            <ArrowPathIcon
-              class="loading-spinner h-4 w-4 text-moss-600 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
             <span>Loading…</span>
           </div>
           <div v-else-if="sections.ai.available">
@@ -408,10 +399,7 @@ const priceComparison = computed(() => {
               role="status"
               aria-label="Refreshing AI estimate"
             >
-              <ArrowPathIcon
-                class="loading-spinner h-3.5 w-3.5 text-moss-600 motion-safe:animate-spin"
-                aria-hidden="true"
-              />
+              <AppSpinner class="loading-spinner h-3.5 w-3.5 text-moss-600" aria-hidden="true" />
               <span>Refreshing…</span>
             </p>
           </div>

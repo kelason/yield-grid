@@ -1,4 +1,6 @@
 <script setup>
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMarketStore } from '@/stores/marketStore'
@@ -77,6 +79,7 @@ const SHELF_MAX_DAYS = 9999
 const SHELF_MAX_DIGITS = 4
 
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
@@ -143,8 +146,9 @@ const askListingConfirm = () => {
   }
 }
 
-const handleSubmit = async () => {
-  pendingConfirm.value = null
+const handleSubmit = () => execute(performConfirmedAction)
+
+const performConfirmedAction = async () => {
   isSubmitting.value = true
   try {
     const payload = {
@@ -172,12 +176,10 @@ const handleSubmit = async () => {
 
 <template>
   <div class="space-y-6">
-    <div class="mb-8">
-      <h2 class="font-serif text-3xl font-bold text-stone-900">Post Manual Harvest</h2>
-      <p class="mt-1 text-sm text-stone-600">
-        List your harvest directly on the marketplace without AI crop planning.
-      </p>
-    </div>
+    <PageHeader
+      title="Post Manual Harvest"
+      description="List your harvest directly on the marketplace without AI crop planning."
+    />
 
     <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
       <form @submit.prevent="askListingConfirm" class="space-y-6">
@@ -341,7 +343,6 @@ const handleSubmit = async () => {
         <div class="pt-4 flex justify-end">
           <AppButton
             type="submit"
-            :loading="isSubmitting"
             class="bg-gradient-to-br from-moss-500 to-moss-600 text-white hover:from-moss-600 hover:to-moss-700"
           >
             Post Listing
@@ -358,7 +359,8 @@ const handleSubmit = async () => {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="handleSubmit"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

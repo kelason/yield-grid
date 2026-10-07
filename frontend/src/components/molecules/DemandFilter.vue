@@ -2,10 +2,15 @@
 import { ref } from 'vue'
 import SearchInput from './SearchInput.vue'
 import SortSelect from './SortSelect.vue'
+import AppInput from '../atoms/AppInput.vue'
+import AppAlert from '../atoms/AppAlert.vue'
+import { CATALOG_LIMITS, catalogFilterError } from '@/constants/catalog'
 
 const props = defineProps({
   modelValue: { type: Object, required: true },
 })
+
+const filterError = ref('')
 
 const emit = defineEmits(['update:modelValue', 'search'])
 
@@ -22,6 +27,8 @@ function onCropInput() {
 }
 
 function applyFilters() {
+  filterError.value = catalogFilterError(localFilters.value, 'minBudget', 'maxBudget')
+  if (filterError.value) return
   emit('update:modelValue', { ...localFilters.value })
   emit('search')
 }
@@ -29,6 +36,7 @@ function applyFilters() {
 
 <template>
   <div class="bg-white border border-stone-200 shadow-soft rounded-2xl p-4 mb-6">
+    <AppAlert v-if="filterError" type="error" class="mb-4">{{ filterError }}</AppAlert>
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
       <div class="md:col-span-4 flex flex-col">
         <label for="demand-crop" class="block text-sm font-medium text-soil-700 mb-1"
@@ -37,6 +45,7 @@ function applyFilters() {
         <SearchInput
           id="demand-crop"
           label="Search Crop"
+          :maxlength="CATALOG_LIMITS.CROP_MAX_LENGTH"
           v-model="localFilters.crop"
           placeholder="e.g. Tomato, Rice..."
           class="flex-grow w-full"
@@ -53,8 +62,12 @@ function applyFilters() {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
-            <input
+            <AppInput
               type="number"
+              :min="CATALOG_LIMITS.PRICE_MIN"
+              :max="CATALOG_LIMITS.PRICE_MAX"
+              :maxlength="CATALOG_LIMITS.PRICE_MAX_LENGTH"
+              step="0.01"
               id="demand-min-budget"
               v-model="localFilters.minBudget"
               @change="applyFilters"
@@ -71,8 +84,12 @@ function applyFilters() {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
-            <input
+            <AppInput
               type="number"
+              :min="CATALOG_LIMITS.PRICE_MIN"
+              :max="CATALOG_LIMITS.PRICE_MAX"
+              :maxlength="CATALOG_LIMITS.PRICE_MAX_LENGTH"
+              step="0.01"
               id="demand-max-budget"
               v-model="localFilters.maxBudget"
               @change="applyFilters"

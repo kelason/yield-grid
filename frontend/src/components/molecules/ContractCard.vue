@@ -17,9 +17,7 @@ defineEmits(['view-details', 'purchase'])
 </script>
 
 <template>
-  <AppCard variant="default" :hover="true" padding="p-0" class="flex flex-col h-full">
-    <div class="h-1.5 bg-gradient-to-r from-moss-500 to-moss-600 w-full"></div>
-
+  <AppCard variant="default" padding="p-0" class="flex flex-col h-full">
     <div class="p-5 flex-grow flex flex-col">
       <div class="flex justify-between items-start mb-4 gap-3">
         <div class="min-w-0 flex-1">
@@ -36,13 +34,13 @@ defineEmits(['view-details', 'purchase'])
             v-if="contract.is_harvest_available"
             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-moss-100 text-moss-800"
           >
-            🟢 Harvest Available
+            Harvest Available
           </div>
           <div
             v-else
             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-harvest-100 text-harvest-800"
           >
-            🕐 Incoming Harvest
+            Incoming Harvest
           </div>
         </div>
         <StatusBadge :status="contract.status" size="sm" class="ml-2 flex-shrink-0" />
@@ -72,10 +70,12 @@ defineEmits(['view-details', 'purchase'])
         </div>
       </div>
 
-      <div class="pt-4 border-t border-stone-100 mt-auto flex items-end justify-between gap-3">
+      <div
+        class="pt-4 border-t border-stone-100 mt-auto flex flex-wrap items-end justify-between gap-3"
+      >
         <div>
           <div class="text-xs text-stone-500 mb-1">Total for {{ contract.quantity_kg }}kg</div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <PriceTag :amount="contract.total_price" :currency="contract.currency" size="md" />
             <PriceFairnessBadge
               :listing-price="Number(contract.price_per_kg)"

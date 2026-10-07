@@ -1,4 +1,6 @@
 <script setup>
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
@@ -44,6 +46,7 @@ const offerForm = ref({ quantity_kg: '', price_per_kg: '', message: '' })
 const offerError = ref('')
 const submitting = ref(false)
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
@@ -129,10 +132,9 @@ function askOfferConfirm() {
   pendingConfirm.value = validated
 }
 
-async function confirmPendingOffer() {
-  const pending = pendingConfirm.value
-  pendingConfirm.value = null
-  if (!pending) return
+const confirmPendingOffer = () => execute(performConfirmedAction)
+
+async function performConfirmedAction(pending) {
   submitting.value = true
   try {
     await demandStore.submitOffer(demandStore.activeDemand.id, {
@@ -157,12 +159,10 @@ async function confirmPendingOffer() {
 
 <template>
   <div class="space-y-6">
-    <div class="rounded-2xl bg-gradient-to-r from-soil-800 to-soil-900 p-6 text-white shadow-soft">
-      <h1 class="font-serif text-2xl font-bold">Buyer Demands</h1>
-      <p class="text-stone-300 text-sm mt-1">
-        Browse what buyers are looking for and send your best offer.
-      </p>
-    </div>
+    <PageHeader
+      title="Buyer Demands"
+      description="Browse what buyers are looking for and send your best offer."
+    />
 
     <DemandFilter v-model="demandStore.filters" @search="handleSearch" />
 
@@ -275,7 +275,8 @@ async function confirmPendingOffer() {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="confirmPendingOffer"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

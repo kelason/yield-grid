@@ -9,6 +9,7 @@ use App\Constants\PaginationConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Infrastructure\Services\PsgcService;
+use App\Marketplace\Requests\CatalogFilterRequest;
 use App\Marketplace\Resources\MarketplaceItemResource;
 use App\Shared\Controllers\Controller;
 use Domain\Users\Models\UserAddress;
@@ -20,7 +21,7 @@ use Illuminate\Support\Collection;
 
 final class MarketplaceController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(CatalogFilterRequest $request): AnonymousResourceCollection
     {
         $sort = $request->query('sort', 'newest');
         $withFarmer = $sort === 'nearest'
@@ -36,10 +37,10 @@ final class MarketplaceController extends Controller
             if ($request->has('crop')) {
                 $query->where('crop_name', 'ilike', '%'.$request->query('crop').'%');
             }
-            if ($request->has('min_price')) {
+            if ($request->filled('min_price')) {
                 $query->where('total_price', '>=', $request->query('min_price'));
             }
-            if ($request->has('max_price')) {
+            if ($request->filled('max_price')) {
                 $query->where('total_price', '<=', $request->query('max_price'));
             }
             if ($request->has('harvest_after')) {

@@ -1,4 +1,5 @@
 <script setup>
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { onMounted, ref, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useDemandStore } from '@/stores/demandStore'
@@ -32,6 +33,7 @@ const form = ref({
 const errors = ref({})
 const submitting = ref(false)
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const DEMAND_TOTAL_MAX = 9999999999.99
 const DEMAND_TITLE_MAX_LENGTH = 255
@@ -124,8 +126,9 @@ function askDemandConfirm() {
   }
 }
 
-async function confirmPendingDemand() {
-  pendingConfirm.value = null
+const confirmPendingDemand = () => execute(performConfirmedAction)
+
+async function performConfirmedAction() {
   submitting.value = true
   try {
     await demandStore.postDemand({
@@ -294,7 +297,6 @@ async function confirmPendingDemand() {
           <AppButton
             type="submit"
             variant="primary"
-            :loading="submitting"
             :disabled="addressStore.addresses.length === 0"
           >
             Post demand
@@ -311,7 +313,8 @@ async function confirmPendingDemand() {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="confirmPendingDemand"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

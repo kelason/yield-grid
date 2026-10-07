@@ -1,6 +1,10 @@
 <script setup>
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
+import AppButton from '../atoms/AppButton.vue'
+import SkeletonCard from '../atoms/SkeletonCard.vue'
+import LoadingState from '../molecules/LoadingState.vue'
+import EmptyState from '../molecules/EmptyState.vue'
 import { DocumentTextIcon, SparklesIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -53,7 +57,7 @@ const handleTabChange = (tabId) => {
             currentTab === tab.id
               ? 'border-moss-500 text-moss-600'
               : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300',
-            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
+            'min-h-11 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
           ]"
         >
           {{ tab.name }}
@@ -62,70 +66,17 @@ const handleTabChange = (tabId) => {
     </div>
 
     <div class="p-0">
-      <div v-if="loading && contracts.length === 0" role="status" aria-label="Loading contracts">
-        <!-- Desktop: skeleton table rows mirroring the contracts table -->
-        <div class="hidden lg:block overflow-x-auto" aria-hidden="true">
-          <table class="min-w-full divide-y divide-stone-200">
-            <tbody class="bg-white divide-y divide-stone-200">
-              <tr
-                v-for="n in CONTRACT_SKELETON_ROW_COUNT"
-                :key="n"
-                class="animate-pulse motion-reduce:animate-none"
-              >
-                <td class="px-6 py-4">
-                  <div class="space-y-2">
-                    <div class="h-4 bg-stone-200 rounded-xl w-48"></div>
-                    <div class="h-3 bg-stone-200 rounded-xl w-32"></div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="h-6 bg-stone-200 rounded-full w-20"></div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="h-4 bg-stone-200 rounded-xl w-24"></div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="h-4 bg-stone-200 rounded-xl w-28"></div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="h-4 bg-stone-200 rounded-xl w-16 ml-auto"></div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- Mobile/Tablet: skeleton cards mirroring the card list -->
-        <div class="lg:hidden divide-y divide-stone-200" aria-hidden="true">
-          <div
-            v-for="n in CONTRACT_SKELETON_ROW_COUNT"
-            :key="n"
-            class="animate-pulse motion-reduce:animate-none p-4 space-y-3"
-          >
-            <div class="flex justify-between items-center gap-3">
-              <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
-              <div class="h-6 bg-stone-200 rounded-full w-16 flex-shrink-0"></div>
-            </div>
-            <div class="h-16 bg-stone-200 rounded-xl"></div>
-          </div>
-        </div>
-        <span class="sr-only">Loading contracts...</span>
-      </div>
-
-      <div v-else-if="contracts.length === 0" class="p-12 text-center text-stone-500">
-        <div
-          class="bg-stone-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4"
-        >
-          <svg class="h-8 w-8 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </div>
-        <p>No contracts found in this category.</p>
-      </div>
+      <LoadingState
+        v-if="loading && !contracts?.length"
+        label="Loading contracts"
+        class="p-5 space-y-4"
+        ><SkeletonCard v-for="n in CONTRACT_SKELETON_ROW_COUNT" :key="n" withAction
+      /></LoadingState>
+      <EmptyState
+        v-else-if="!contracts?.length"
+        title="No contracts found in this category."
+        description="Listings with this status will appear here."
+      />
 
       <div v-else>
         <!-- Desktop Table -->
@@ -211,19 +162,20 @@ const handleTabChange = (tabId) => {
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium align-top">
                   <div class="flex justify-end gap-3">
-                    <button
+                    <AppButton
+                      variant="ghost"
                       v-if="contract.status === 'available'"
                       @click="$emit('cancel-contract', contract)"
                       class="text-red-600 hover:text-red-900"
                     >
                       Cancel
-                    </button>
+                    </AppButton>
                     <router-link
                       v-else-if="
                         contract.status === 'reserved' || contract.status === 'partially_paid'
                       "
                       :to="{ name: 'farmer-cash-approvals' }"
-                      class="text-moss-600 hover:text-moss-900"
+                      class="inline-flex min-h-11 items-center rounded-xl text-moss-700 transition-colors hover:text-moss-900"
                     >
                       Review Payment
                     </router-link>
@@ -289,13 +241,14 @@ const handleTabChange = (tabId) => {
                 contract.status === 'partially_paid'
               "
             >
-              <button
+              <AppButton
+                variant="ghost"
                 v-if="contract.status === 'available'"
                 @click="$emit('cancel-contract', contract)"
                 class="inline-flex items-center justify-center px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] w-full sm:w-auto"
               >
                 Cancel Listing
-              </button>
+              </AppButton>
               <router-link
                 v-else
                 :to="{ name: 'farmer-cash-approvals' }"

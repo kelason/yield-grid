@@ -75,12 +75,12 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** Use the contracts in spec §5. `FormField` adds `multiline`, `hint`, `disabled`; preserves `labelSuffix`. Keep input/select emission types and native option slots. Add AppButton's actual `icon` slot. AppSpinner is decorative and inherits currentColor.
 
-- [ ] Add failing contract assertions: `wrapper.get('input').element.disabled === true` when FormField disabled; `step`, `autocomplete`, `name`, `readonly` reach input; wrapper grid class stays on wrapper; input's aria-describedby names rendered error/hint; invalid state toggles; maxlength clamp still handles pasted numeric input. Cover ResetPasswordForm's disabled email regression.
-- [ ] Add textarea tests for paste beyond maxlength, external v-model update, null-safe counter presentation, label association, and native minlength; retain feature-specific submit validation. Add button checks that loading disables click/submit, retains accessible name and sets aria-busy.
-- [ ] Run affected Vitest specs and verify failures reflect the missing behaviors, then implement the smallest forwarding/semantic changes. Deliberately separate wrapper attrs from control attrs instead of applying all `$attrs` blindly.
-- [ ] Compose SearchInput/SortSelect from the existing atoms; associate ContractFilter labels by ID. Preserve filter values and emits. Trace existing backend query bounds and use their values; record unmatched validation gaps separately rather than inventing frontend-only rules.
-- [ ] Migrate ConfirmModal button/spinner markup in Task 4 and remaining callers in their route batches. Do not convert radio/checkbox/file/range controls into text inputs.
-- [ ] Run `npx vitest run src/components/atoms/__tests__ src/components/molecules/__tests__/FormField.spec.js src/components/molecules/__tests__/SearchInput.spec.js src/components/molecules/__tests__/SortSelect.spec.js src/components/organisms/__tests__/ResetPasswordForm.spec.js`; run lint:check and format:check. Commit the control contracts.
+- [x] Add failing contract assertions: `wrapper.get('input').element.disabled === true` when FormField disabled; `step`, `autocomplete`, `name`, `readonly` reach input; wrapper grid class stays on wrapper; input's aria-describedby names rendered error/hint; invalid state toggles; maxlength clamp still handles pasted numeric input. Cover ResetPasswordForm's disabled email regression.
+- [x] Add textarea tests for paste beyond maxlength, external v-model update, null-safe counter presentation, label association, and native minlength; retain feature-specific submit validation. Add button checks that loading disables click/submit, retains accessible name and sets aria-busy.
+- [x] Run affected Vitest specs and verify failures reflect the missing behaviors, then implement the smallest forwarding/semantic changes. Deliberately separate wrapper attrs from control attrs instead of applying all `$attrs` blindly.
+- [x] Compose SearchInput/SortSelect from the existing atoms; associate ContractFilter labels by ID. Preserve filter values and emits. Trace existing backend query bounds and use their values; record unmatched validation gaps separately rather than inventing frontend-only rules.
+- [x] Migrate ConfirmModal button/spinner markup in Task 4 and remaining callers in their route batches. Do not convert radio/checkbox/file/range controls into text inputs.
+- [x] Run `npx vitest run src/components/atoms/__tests__ src/components/molecules/__tests__/FormField.spec.js src/components/molecules/__tests__/SearchInput.spec.js src/components/molecules/__tests__/SortSelect.spec.js src/components/organisms/__tests__/ResetPasswordForm.spec.js`; run lint:check and format:check. Commit the control contracts.
 
 ## Task 4: Make AppModal the shared accessible shell
 
@@ -88,12 +88,12 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** Preserve existing props/events; add spec §5 AppModal props plus `placement: 'center' | 'left' = 'center'` for the known mobile navigation consumer. Sizes map to max-w-md/max-w-xl/max-w-2xl. Footer and default slots remain passive presentation. ConfirmModal's loading maps to AppModal busy and disables both buttons. Page callers bind `isExecuting` or their existing pending flag.
 
-- [ ] Add unit assertions that title/message produce the dialog's accessible name/description, close/cancel/confirm events preserve existing names, loading prevents emission, and opening another confirmation resets old custom labels. Use minimal dialog API stubs in jsdom only; do not treat them as focus verification.
-- [ ] Run focused tests, observe intended failures, then replace the duplicated shell with native dialog showModal/close. Guard redundant opens and synchronize parent isOpen with user close requests; avoid double close events. A close button always has an accessible name.
-- [ ] Style the native backdrop and content using design tokens. Prevent default Escape cancellation while busy; backdrop clicks during busy do nothing. Clean up scroll locking and focus on unmount. No reliance on experimental dialog invoker/closedby features.
-- [ ] Add browser tests against a real pending PurchaseCard cancellation: opening/canceling produces zero POSTs; confirming produces exactly one `/checkout/:id/cancel` with the existing payload; a delayed response keeps the dialog busy; failure shows error and restores usable UI. Scope controls through `getByRole('dialog', { name: 'Cancel Purchase' })`.
-- [ ] Add nested dialog case using Profile address editor plus confirmation: Tab/Shift+Tab remain in top dialog, Escape closes top only when idle, focus returns to form then trigger, and scrolling/keyboard work in a 360×640 viewport. Check route unmount during an idle dialog cleans up modality.
-- [ ] Replace insurance `.last()` selector with named-dialog scope and field labels; assert response completion and saved state. Run modal unit specs, useConfirmModal spec, and `npx playwright test e2e/Shared/confirmation.spec.js e2e/Insurance/enrollment.spec.js --project=chromium --project=mobile-chromium`. Commit after keyboard checks pass.
+- [x] Add unit assertions that title/message produce the dialog's accessible name/description, close/cancel/confirm events preserve existing names, loading prevents emission, and opening another confirmation resets old custom labels. Use minimal dialog API stubs in jsdom only; do not treat them as focus verification.
+- [x] Run focused tests, observe intended failures, then replace the duplicated shell with native dialog showModal/close. Guard redundant opens and synchronize parent isOpen with user close requests; avoid double close events. A close button always has an accessible name.
+- [x] Style the native backdrop and content using design tokens. Prevent default Escape cancellation while busy; backdrop clicks during busy do nothing. Clean up scroll locking and focus on unmount. No reliance on experimental dialog invoker/closedby features.
+- [x] Add browser tests against a real pending PurchaseCard cancellation: opening/canceling produces zero POSTs; confirming produces exactly one `/checkout/:id/cancel` with the existing payload; a delayed response keeps the dialog busy; failure shows error and restores usable UI. Scope controls through `getByRole('dialog', { name: 'Cancel Purchase' })`.
+- [x] Add nested dialog case using Profile address editor plus confirmation: Tab/Shift+Tab remain in top dialog, Escape closes top only when idle, focus returns to form then trigger, and scrolling/keyboard work in a 360×640 viewport. Check route unmount during an idle dialog cleans up modality.
+- [x] Replace insurance `.last()` selector with named-dialog scope and field labels; assert response completion and saved state. Run modal unit specs, useConfirmModal spec, and `npx playwright test e2e/Shared/confirmation.spec.js e2e/Insurance/enrollment.spec.js --project=chromium --project=mobile-chromium`. Commit after keyboard checks pass.
 
 ## Task 5: Unify cards, loading, empty states and page headers
 
@@ -101,10 +101,10 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** Exact props/slots in spec §5. AppCard preserves existing padding/variant/hover and outer class behavior. EmptyState adds an action slot; StatCard uses null as unknown, not zero. LoadingState owns one status announcement; repeated skeletons are aria-hidden.
 
-- [ ] Add behavioral assertions for `StatCard({value:null})` displaying an em dash, `value:0` displaying zero, loading hiding stale values and exposing one status, and EmptyState action event plus actual icon rendering. Run tests before implementation.
-- [ ] Simplify surfaces and shadows without removing legacy variants. Compose SkeletonCard and EmptyState from shared atoms. Render PageHeader with the requested heading level and actions slot; no automatic routing/data fetching.
-- [ ] Use a real RouterLink/AppButton inside action cards; remove visual cues implying static panels are clickable. Keep required cards rounded and avoid nested links/buttons.
-- [ ] Run new specs and existing consumers; visually inspect long values and loading at 360/768/1440px. Do not add tests that merely assert color class names. Commit the presentation primitives.
+- [x] Add behavioral assertions for `StatCard({value:null})` displaying an em dash, `value:0` displaying zero, loading hiding stale values and exposing one status, and EmptyState action event plus actual icon rendering. Run tests before implementation.
+- [x] Simplify surfaces and shadows without removing legacy variants. Compose SkeletonCard and EmptyState from shared atoms. Render PageHeader with the requested heading level and actions slot; no automatic routing/data fetching.
+- [x] Use a real RouterLink/AppButton inside action cards; remove visual cues implying static panels are clickable. Keep required cards rounded and avoid nested links/buttons.
+- [x] Run new specs and existing consumers; visually inspect long values and loading at 360/768/1440px. Do not add tests that merely assert color class names. Commit the presentation primitives.
 
 ## Task 6: Rebuild responsive shells and navigation
 
@@ -112,12 +112,12 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** `useDashboardNavigation()` returns role-filtered `navigation`, `isActive(to)`, `isGroupOpen(group)`, `toggleGroup(group)` using existing route matching/verification rules. Data constants preserve existing names/routes. `SidebarNavigation` receives items/collapsed/openGroups and emits toggle/navigate. `AppSidebar` adds mobileOpen (false) and close event; uses AppModal placement left for mobile and the same list for desktop.
 
-- [ ] Add regressions for farmer/buyer and verified/unverified menus, active deep links, chat badge, collapse labels, and unchanged profile links. Preserve existing tests for chat subscribe/unsubscribe lifecycle.
-- [ ] Add a browser test opening navigation at 390px, keyboard-selecting a route, observing automatic menu close/focus, and using Back. Assert `page.getByRole('navigation', { name: 'Dashboard navigation' })` exposes only role-appropriate routes. Test resizing to desktop while drawer is open.
-- [ ] Move navigation configuration/state out of the 407-line AppSidebar; compose the shared list in desktop/mobile containers. Add skip-to-main link and a stable main ID, named menu controls, current route indication and visible focus.
-- [ ] Apply the new calm shell styling. Dashboard utility header avoids a second page h1; pages own PageHeader. Auth/public layouts retain routes/SEO behavior and receive usable mobile nav. Replace structural emoji with existing SVG/Heroicons, preserving the YieldGrid wordmark.
-- [ ] Route logout through one ConfirmModal per shell and existing useConfirmModal; cancel leaves the session intact, confirm calls the existing store once. Preserve verification banner and realtime behavior.
-- [ ] Run AppSidebar/DashboardLayout/router role-guard specs and new Shared/navigation browser tests in desktop/mobile Chromium. Assert no horizontal overflow at 360px and visible focus under sticky headers at enlarged text. Commit shells.
+- [x] Add regressions for farmer/buyer and verified/unverified menus, active deep links, chat badge, collapse labels, and unchanged profile links. Preserve existing tests for chat subscribe/unsubscribe lifecycle.
+- [x] Add a browser test opening navigation at 390px, keyboard-selecting a route, observing automatic menu close/focus, and using Back. Assert `page.getByRole('navigation', { name: 'Dashboard navigation' })` exposes only role-appropriate routes. Test resizing to desktop while drawer is open.
+- [x] Move navigation configuration/state out of the 407-line AppSidebar; compose the shared list in desktop/mobile containers. Add skip-to-main link and a stable main ID, named menu controls, current route indication and visible focus.
+- [x] Apply the new calm shell styling. Dashboard utility header avoids a second page h1; pages own PageHeader. Auth/public layouts retain routes/SEO behavior and receive usable mobile nav. Replace structural emoji with existing SVG/Heroicons, preserving the YieldGrid wordmark.
+- [x] Route logout through one ConfirmModal per shell and existing useConfirmModal; cancel leaves the session intact, confirm calls the existing store once. Preserve verification banner and realtime behavior.
+- [x] Run AppSidebar/DashboardLayout/router role-guard specs and new Shared/navigation browser tests in desktop/mobile Chromium. Assert no horizontal overflow at 360px and visible focus under sticky headers at enlarged text. Commit shells.
 
 ## Task 7: Redesign farmer and buyer dashboards
 
@@ -125,12 +125,12 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** Compose PageHeader/StatCard/LoadingState/EmptyState and current stores. Farmer data remains `fetchFarms()` + farms; buyer remains `fetchBuyerPurchases()` + buyerPurchases. Keep FarmCard/PurchaseCard existing action events and confirmation callbacks.
 
-- [ ] Pin actual paginated purchase semantics with fixtures having more records than one page. Assert labels “Purchases on this page”, “Paid purchases on this page”, and “Amount paid on this page”, plus existing pagination controls; numbers match only displayed purchases. Test seeded farms with missing plots_count, buyer pending/completed payments, zero values and large peso amounts. Reset stale buyer-purchases filters when loading the overview without altering the separate purchase-history route's behavior.
-- [ ] Add loading→empty, loading→data, rejected-fetch→Retry→data cases; assert errors do not present empty-state copy and KPI unknown values do not display zero. Add long name/value mobile assertions.
-- [ ] Run failing new unit tests; compose dashboards according to spec §6. Replace farmer activity placeholder with actual farm summary and existing navigation. Reuse cards and Heroicons. Keep pages small; extract state only if its complexity requires it.
-- [ ] Preserve buyer cancellation payload/confirmation/busy state from Task 4. Keep one clear page heading and one primary action; advisory CTA remains read-only navigation.
-- [ ] Run both dashboard unit specs, `npx playwright test e2e/Dashboard/dashboard.spec.js e2e/Shared/confirmation.spec.js --project=chromium --project=mobile-chromium`, build, lint:check, format:check. Visually review both dashboards at 360/768/1440px before proceeding to the remaining routes.
-- [ ] Commit the first completed redesign slice. Use it as the reference for later screens.
+- [x] Pin actual paginated purchase semantics with fixtures having more records than one page. Assert labels “Purchases on this page”, “Paid purchases on this page”, and “Amount paid on this page”, plus existing pagination controls; numbers match only displayed purchases. Test seeded farms with missing plots_count, buyer pending/completed payments, zero values and large peso amounts. Reset stale buyer-purchases filters when loading the overview without altering the separate purchase-history route's behavior.
+- [x] Add loading→empty, loading→data, rejected-fetch→Retry→data cases; assert errors do not present empty-state copy and KPI unknown values do not display zero. Add long name/value mobile assertions.
+- [x] Run failing new unit tests; compose dashboards according to spec §6. Replace farmer activity placeholder with actual farm summary and existing navigation. Reuse cards and Heroicons. Keep pages small; extract state only if its complexity requires it.
+- [x] Preserve buyer cancellation payload/confirmation/busy state from Task 4. Keep one clear page heading and one primary action; advisory CTA remains read-only navigation.
+- [x] Run both dashboard unit specs, `npx playwright test e2e/Dashboard/dashboard.spec.js e2e/Shared/confirmation.spec.js --project=chromium --project=mobile-chromium`, build, lint:check, format:check. Visually review both dashboards at 360/768/1440px before proceeding to the remaining routes.
+- [x] Commit the first completed redesign slice. Use it as the reference for later screens.
 
 ## Task 8: Migrate marketplace and financial workflows
 
@@ -138,12 +138,12 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** `useDemandActions()` consumes existing demand/payment/notification stores and owns the current MyDemandsPage action handlers/pending state; preserve their arguments and API payloads. OfferPaymentPanel consumes offer, payment selection, loading/error and emits the current payment selection event; CashPaymentReviewPanel consumes the selected purchase, amount/notes draft, errors/loading and emits submit/cancel. Declare explicit props matching extracted fields before moving markup. Neither panel performs an API call.
 
-- [ ] Extend existing page/checkout tests to pin original payloads, amount calculations, address selection, min/max/maxlength boundaries, and confirmation sequencing before moving UI. Include duplicate-click and request-failure cases. No weakening payment/quantity assertions to accommodate styling.
-- [ ] Replace page-owned overlays with AppModal + the existing CheckoutSummary or focused panel organisms. Split the large MyDemands action orchestration into useDemandActions without changing transitions. Replace unsupported AppCard body-class usage with padding.
-- [ ] Migrate textarea/loading/button duplication, including numeric clamping already provided by AppInput. Keep native payment radios and existing payment constants. PriceGuidePopover remains an anchored popover; do not force it into a modal.
-- [ ] Make DemandCard's existing view event reachable through a named real button; retain mouse behavior. Confirm card internals avoid nested interactive targets.
-- [ ] In `transactions.spec.js`, mock pending checkout, buyer accept/reject/cancel, farmer offer withdrawal and cash approval. Assert cancel sends zero mutation requests, confirm sends one expected method/path/payload, pending prevents repeat, 409/422 errors retain actionable feedback. Assert no external payment navigation occurs in test mocks.
-- [ ] Run existing affected page/organism specs and new transaction/browser confirmation tests; visually inspect long prices/addresses and empty filters at mobile/desktop. Commit in separate buyer/seller batches if diff size impedes review, with unchanged interfaces between them.
+- [x] Extend existing page/checkout tests to pin original payloads, amount calculations, address selection, min/max/maxlength boundaries, and confirmation sequencing before moving UI. Include duplicate-click and request-failure cases. No weakening payment/quantity assertions to accommodate styling.
+- [x] Replace page-owned overlays with AppModal + the existing CheckoutSummary or focused panel organisms. Split the large MyDemands action orchestration into useDemandActions without changing transitions. Replace unsupported AppCard body-class usage with padding.
+- [x] Migrate textarea/loading/button duplication, including numeric clamping already provided by AppInput. Keep native payment radios and existing payment constants. PriceGuidePopover remains an anchored popover; do not force it into a modal.
+- [x] Make DemandCard's existing view event reachable through a named real button; retain mouse behavior. Confirm card internals avoid nested interactive targets.
+- [x] In `transactions.spec.js`, mock pending checkout, buyer accept/reject/cancel, farmer offer withdrawal and cash approval. Assert cancel sends zero mutation requests, confirm sends one expected method/path/payload, pending prevents repeat, 409/422 errors retain actionable feedback. Assert no external payment navigation occurs in test mocks.
+- [x] Run existing affected page/organism specs and new transaction/browser confirmation tests; visually inspect long prices/addresses and empty filters at mobile/desktop. Commit in separate buyer/seller batches if diff size impedes review, with unchanged interfaces between them.
 
 ## Task 9: Correct address composition and migrate forms
 

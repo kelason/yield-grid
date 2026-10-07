@@ -2,6 +2,9 @@
 import { ref, watch } from 'vue'
 import SearchInput from './SearchInput.vue'
 import SortSelect from './SortSelect.vue'
+import AppInput from '../atoms/AppInput.vue'
+import AppAlert from '../atoms/AppAlert.vue'
+import { CATALOG_LIMITS, catalogFilterError } from '@/constants/catalog'
 
 const SEARCH_DEBOUNCE_MS = 300
 
@@ -11,6 +14,8 @@ const props = defineProps({
     required: true,
   },
 })
+
+const filterError = ref('')
 
 const emit = defineEmits(['update:modelValue', 'search'])
 
@@ -27,14 +32,15 @@ watch(
     if (newVal !== oldVal) {
       if (searchTimeout) clearTimeout(searchTimeout)
       searchTimeout = setTimeout(() => {
-        emit('update:modelValue', localFilters.value)
-        emit('search')
+        applyFilters()
       }, SEARCH_DEBOUNCE_MS)
     }
   },
 )
 
 function applyFilters() {
+  filterError.value = catalogFilterError(localFilters.value, 'minPrice', 'maxPrice')
+  if (filterError.value) return
   emit('update:modelValue', localFilters.value)
   emit('search')
 }
@@ -46,12 +52,11 @@ function setAvailability(availability) {
 </script>
 
 <template>
-  <div
-    class="bg-white/80 backdrop-blur-sm border border-stone-200 shadow-soft rounded-2xl p-4 mb-6"
-  >
+  <div class="bg-white border border-stone-200 shadow-soft rounded-2xl p-4 mb-6">
+    <AppAlert v-if="filterError" type="error" class="mb-4">{{ filterError }}</AppAlert>
     <!-- Availability Tabs -->
     <div
-      class="flex space-x-1 bg-stone-100/50 p-1 rounded-xl mb-5 w-fit border border-stone-200/50"
+      class="flex flex-wrap gap-1 bg-stone-100/50 p-1 rounded-xl mb-5 w-fit border border-stone-200/50"
     >
       <button
         type="button"
@@ -60,7 +65,7 @@ function setAvailability(availability) {
           localFilters.availability === 'all'
             ? 'bg-white text-stone-900 shadow-soft ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-xl transition-all',
+          'min-h-11 px-4 py-1.5 text-sm font-medium rounded-xl transition-all',
         ]"
       >
         All Markets
@@ -72,7 +77,7 @@ function setAvailability(availability) {
           localFilters.availability === 'available'
             ? 'bg-white text-moss-700 shadow-soft ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-1.5',
+          'min-h-11 px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-1.5',
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-moss-500"></span>
@@ -85,7 +90,7 @@ function setAvailability(availability) {
           localFilters.availability === 'incoming'
             ? 'bg-white text-harvest-700 shadow-soft ring-1 ring-stone-900/5'
             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50',
-          'px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-1.5',
+          'min-h-11 px-4 py-1.5 text-sm font-medium rounded-xl transition-all flex items-center gap-1.5',
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-harvest-500"></span>
@@ -102,6 +107,7 @@ function setAvailability(availability) {
         <SearchInput
           id="contract-crop"
           label="Search Crop"
+          :maxlength="CATALOG_LIMITS.CROP_MAX_LENGTH"
           v-model="localFilters.crop"
           placeholder="e.g. Rice, Corn..."
           class="flex-grow w-full"
@@ -118,8 +124,12 @@ function setAvailability(availability) {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
-            <input
+            <AppInput
               type="number"
+              :min="CATALOG_LIMITS.PRICE_MIN"
+              :max="CATALOG_LIMITS.PRICE_MAX"
+              :maxlength="CATALOG_LIMITS.PRICE_MAX_LENGTH"
+              step="0.01"
               id="min_price"
               v-model="localFilters.minPrice"
               @change="applyFilters"
@@ -136,8 +146,12 @@ function setAvailability(availability) {
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-400 font-medium">₱</span>
             </div>
-            <input
+            <AppInput
               type="number"
+              :min="CATALOG_LIMITS.PRICE_MIN"
+              :max="CATALOG_LIMITS.PRICE_MAX"
+              :maxlength="CATALOG_LIMITS.PRICE_MAX_LENGTH"
+              step="0.01"
               id="max_price"
               v-model="localFilters.maxPrice"
               @change="applyFilters"

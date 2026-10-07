@@ -1,5 +1,23 @@
 import { ref } from 'vue'
 
+export function usePendingConfirmation(pending) {
+  const isExecuting = ref(false)
+  const cancel = () => {
+    if (!isExecuting.value) pending.value = null
+  }
+  const execute = async (action) => {
+    if (isExecuting.value || !pending.value) return
+    isExecuting.value = true
+    try {
+      await action(pending.value)
+    } finally {
+      isExecuting.value = false
+      pending.value = null
+    }
+  }
+  return { isExecuting, execute, cancel }
+}
+
 export function useConfirmModal() {
   const isOpen = ref(false)
   const isExecuting = ref(false)

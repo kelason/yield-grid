@@ -1,4 +1,5 @@
 <script setup>
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { onMounted, ref, computed } from 'vue'
 import { useDemandStore } from '@/stores/demandStore'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -27,6 +28,7 @@ const OFFER_TABS = [
 
 const actingId = ref(null)
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 const currentTab = ref('all')
 const expandedAddressId = ref(null)
 
@@ -46,6 +48,12 @@ const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   const { action, offer } = pendingConfirm.value
   const configs = {
+    message: {
+      title: 'Open conversation?',
+      message: 'Open a conversation with this buyer?',
+      confirmText: 'Open conversation',
+      type: 'primary',
+    },
     withdraw: {
       title: 'Withdraw offer?',
       message: `Withdraw your offer of ${offer.quantity_kg} kg? The buyer will no longer see it, but you can submit a new one while the demand is still open.`,
@@ -83,35 +91,24 @@ function askConfirm(action, offer) {
   pendingConfirm.value = { action, offer }
 }
 
-async function confirmPending() {
-  const pending = pendingConfirm.value
-  pendingConfirm.value = null
-  if (!pending) return
-  if (pending.action === 'withdraw') {
-    await runAction(
-      pending.offer,
-      () => demandStore.withdrawOffer(pending.offer.id),
-      'Offer withdrawn.',
-    )
-  } else if (pending.action === 'cancel') {
-    await runAction(
-      pending.offer,
-      () => demandStore.cancelOffer(pending.offer.id, true),
-      'Offer cancelled.',
-    )
-  } else if (pending.action === 'mark-delivered') {
-    await runAction(
-      pending.offer,
-      () => demandStore.markDelivered(pending.offer.id),
-      'Marked as delivered. Waiting for buyer confirmation.',
-    )
-  } else if (pending.action === 'settle-balance') {
-    await runAction(
-      pending.offer,
-      () => demandStore.settleBalance(pending.offer.id),
-      'Full payment confirmed. The order is now settled.',
-    )
-  }
+const confirmPending = () => execute(performConfirmedAction)
+
+const OFFER_ACTIONS = {
+  withdraw: { run: (id) => demandStore.withdrawOffer(id), message: 'Offer withdrawn.' },
+  cancel: { run: (id) => demandStore.cancelOffer(id, true), message: 'Offer cancelled.' },
+  'mark-delivered': {
+    run: (id) => demandStore.markDelivered(id),
+    message: 'Marked as delivered. Waiting for buyer confirmation.',
+  },
+  'settle-balance': {
+    run: (id) => demandStore.settleBalance(id),
+    message: 'Full payment confirmed. The order is now settled.',
+  },
+}
+async function performConfirmedAction(pending) {
+  if (pending.action === 'message') return openChat(pending.offer.demand?.buyer?.id)
+  const action = OFFER_ACTIONS[pending.action]
+  await runAction(pending.offer, () => action.run(pending.offer.id), action.message)
 }
 
 onMounted(() => {
@@ -166,7 +163,7 @@ function handleSettleBalance(offer) {
 }
 
 function handleMessage(offer) {
-  openChat(offer.demand?.buyer?.id)
+  askConfirm('message', offer)
 }
 </script>
 
@@ -275,7 +272,8 @@ function handleMessage(offer) {
       :confirm-text="confirmConfig?.confirmText || 'Confirm'"
       :type="confirmConfig?.type || 'primary'"
       @confirm="confirmPending"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>
