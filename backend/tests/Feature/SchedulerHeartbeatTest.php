@@ -1,29 +1,36 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 uses(TestCase::class);
 
 beforeEach(function () {
-    Schema::dropIfExists('scheduler_heartbeats');
-    Schema::create('scheduler_heartbeats', function (Blueprint $table) {
-        $table->id();
-        $table->timestamp('beat_at');
-    });
+    Artisan::call('migrate', [
+        '--path' => 'database/migrations/2026_10_07_103133_create_scheduler_heartbeats_table.php',
+        '--force' => true,
+    ]);
 });
 
-it('registers a five-minute scheduler heartbeat', function () {
-    $events = collect(app(Schedule::class)->events());
+function heartbeatEvents(): Collection
+{
+    return collect(app(Schedule::class)->events())
+        ->filter(fn ($event) => $event->expression === '*/5 * * * *');
+}
 
-    expect($events->contains(fn ($event) => $event->expression === '*/5 * * * *'))->toBeTrue();
+it('registers exactly one five-minute scheduler heartbeat', function () {
+    expect(heartbeatEvents())->toHaveCount(1);
 });
 
-it('upserts the heartbeat row', function () {
-    DB::table('scheduler_heartbeats')->updateOrInsert(['id' => 1], ['beat_at' => now()]);
+it('writes a fresh heartbeat when the scheduled closure runs', function () {
+    heartbeatEvents()->first()->run(app());
 
-    expect(DB::table('scheduler_heartbeats')->find(1)->beat_at)->not->toBeNull();
+    $beatAt = DB::table('scheduler_heartbeats')->find(1)->beat_at;
+
+    expect($beatAt)->not->toBeNull();
+    expect(Carbon::parse($beatAt)->greaterThan(now()->subMinute()))->toBeTrue();
 });
