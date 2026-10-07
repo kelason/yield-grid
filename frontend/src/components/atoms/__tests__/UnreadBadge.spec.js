@@ -15,7 +15,7 @@ describe('UnreadBadge.vue', () => {
       props: { count: 5 },
     })
     expect(wrapper.text()).toBe('5')
-    expect(wrapper.classes()).toContain('bg-harvest-500')
+    expect(wrapper.attributes('aria-label')).toBe('5 unread messages')
   })
 
   it('renders 99+ if count exceeds 99', () => {

@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
 import { useChatStore } from '@/stores/chatStore'
 import ChatPage from '../ChatPage.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 
 vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
@@ -72,6 +73,24 @@ describe('ChatPage.vue inbox', () => {
     await flushPromises()
     return wrapper
   }
+
+  it('asks before sending and retains the draft after a failed confirmed send', async () => {
+    const wrapper = await mountPage()
+    const store = useChatStore()
+    store.sendMessage = vi
+      .fn()
+      .mockRejectedValue({ response: { data: { message: 'Please retry sending.' } } })
+    wrapper.findComponent({ name: 'ChatComposer' }).vm.$emit('send', 'Draft')
+    await flushPromises()
+    expect(store.sendMessage).not.toHaveBeenCalled()
+    expect(wrapper.findComponent(ConfirmModal).props('isOpen')).toBe(true)
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
+    expect(store.sendMessage).toHaveBeenCalledWith(1, 'Draft')
+    expect(wrapper.findComponent({ name: 'ChatComposer' }).props('sentMessage')).toBe('')
+    expect(wrapper.text()).toContain('Please retry sending.')
+    wrapper.unmount()
+  })
 
   it('loads the inbox and auto-selects the first conversation', async () => {
     const wrapper = await mountPage()

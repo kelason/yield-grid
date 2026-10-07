@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useApi } from '@/composables/useApi'
 import ProfilePage from '../ProfilePage.vue'
+import { useRoute } from 'vue-router'
 
 const { routeParams } = vi.hoisted(() => ({ routeParams: { userId: '7' } }))
 
@@ -10,10 +11,13 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
-vi.mock('vue-router', () => ({
-  useRoute: () => ({ params: routeParams }),
-  RouterLink: { template: '<a><slot /></a>' },
-}))
+vi.mock('vue-router', async () => {
+  const { reactive } = await import('vue')
+  return {
+    useRoute: () => ({ params: reactive(routeParams) }),
+    RouterLink: { template: '<a><slot /></a>' },
+  }
+})
 
 describe('ProfilePage.vue', () => {
   const farmerProfile = {
@@ -56,6 +60,32 @@ describe('ProfilePage.vue', () => {
     await flushPromises()
     return wrapper
   }
+
+  it('clears a profile during route loading and ignores a late response for the old user', async () => {
+    let oldResponse
+    const get = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            oldResponse = resolve
+          }),
+      )
+      .mockResolvedValueOnce({ data: { data: buyerProfile } })
+    useApi.mockReturnValue({ get })
+    const wrapper = mount(ProfilePage)
+    await flushPromises()
+    useRoute().params.userId = '9'
+    await flushPromises()
+    expect(wrapper.text()).toContain('Jose Buyer')
+    oldResponse({ data: { data: farmerProfile } })
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('Maria Farmer')
+    wrapper.vm.profile = null
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Profile not found')
+    wrapper.unmount()
+  })
 
   it('shows the anonymous state without fetching', async () => {
     routeParams.userId = 'anonymous'

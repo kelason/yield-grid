@@ -1,61 +1,60 @@
 <script setup>
-import AppTextarea from '@/components/atoms/AppTextarea.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { PaperAirplaneIcon } from '@heroicons/vue/24/outline'
+import AppTextarea from '../atoms/AppTextarea.vue'
+import AppButton from '../atoms/AppButton.vue'
 import { CHAT_CONSTANTS } from '../../constants/chat'
-
+const props = defineProps({ isSending: Boolean, sentMessage: { type: String, default: '' } })
 const emit = defineEmits(['send'])
-
 const message = ref('')
-const isSending = ref(false)
-
-const messageLength = computed(() => message.value.length)
-
+const messageLength = computed(() => (message.value || '').length)
 const isOverLimit = computed(() => messageLength.value > CHAT_CONSTANTS.MESSAGE_MAX_LENGTH)
-
-const send = () => {
-  if (!message.value.trim() || isOverLimit.value || isSending.value) return
+watch(
+  () => props.sentMessage,
+  (sent) => {
+    if (sent && sent === message.value) message.value = ''
+  },
+)
+function send() {
+  if (!message.value.trim() || isOverLimit.value || props.isSending) return
   emit('send', message.value)
-  message.value = ''
+}
+function handleEnter(event) {
+  if (event.shiftKey || event.isComposing) return
+  event.preventDefault()
+  send()
 }
 </script>
-
 <template>
-  <div class="bg-white border-t border-stone-200 p-4">
-    <form @submit.prevent="send" class="flex gap-2 items-end relative">
-      <div
-        class="flex-grow bg-stone-50 rounded-2xl border border-stone-200 overflow-hidden focus-within:ring-2 focus-within:ring-moss-500 focus-within:border-moss-500 transition-all"
-      >
-        <AppTextarea
-          minlength="0"
-          id="chat-message"
-          aria-describedby="chat-message-counter"
-          aria-label="Message"
-          v-model="message"
-          rows="3"
-          :maxlength="CHAT_CONSTANTS.MESSAGE_MAX_LENGTH"
-          class="resize-none min-h-24 max-h-48 overflow-y-auto"
-          placeholder="Type a message..."
-          @keydown.enter.prevent="send"
-        ></AppTextarea>
-      </div>
-      <button
+  <form @submit.prevent="send" class="bg-white border-t border-stone-200 p-4 space-y-2">
+    <label for="chat-message" class="text-sm font-medium text-soil-700">Message</label>
+    <div class="flex gap-3 items-end">
+      <AppTextarea
+        id="chat-message"
+        aria-describedby="chat-message-counter"
+        v-model="message"
+        rows="3"
+        minlength="0"
+        :maxlength="CHAT_CONSTANTS.MESSAGE_MAX_LENGTH"
+        :disabled="isSending"
+        class="min-w-0 flex-1 resize-y"
+        placeholder="Type a message..."
+        @keydown.enter="handleEnter"
+      />
+      <AppButton
         type="submit"
-        :disabled="!message.trim() || isOverLimit || isSending"
-        class="flex-shrink-0 bg-moss-500 hover:bg-moss-600 text-white rounded-full p-3 shadow-soft transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed mb-0.5"
-      >
-        <svg class="w-5 h-5 ml-0.5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
-          ></path>
-        </svg>
-      </button>
-    </form>
-    <div
-      class="text-right text-[10px] mt-1 mr-14"
-      :class="isOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+        aria-label="Send message"
+        :loading="isSending"
+        :disabled="!message.trim() || isOverLimit"
+        ><PaperAirplaneIcon class="h-5 w-5" aria-hidden="true"
+      /></AppButton>
+    </div>
+    <p
       id="chat-message-counter"
+      class="text-right text-xs"
+      :class="isOverLimit ? 'text-red-600' : 'text-stone-500'"
     >
       {{ messageLength }}/{{ CHAT_CONSTANTS.MESSAGE_MAX_LENGTH }}
-    </div>
-  </div>
+    </p>
+  </form>
 </template>

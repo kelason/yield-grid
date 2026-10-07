@@ -21,11 +21,11 @@ defineProps({
     :class="isOwn ? 'items-end self-end ml-auto' : 'items-start self-start mr-auto'"
   >
     <div
-      class="px-4 py-2.5 text-sm shadow-soft"
+      class="px-4 py-2.5 text-sm shadow-soft whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
       :class="
         isOwn
-          ? 'bg-moss-100 text-stone-800 rounded-2xl rounded-br-sm'
-          : 'bg-white border border-stone-200 text-stone-800 rounded-2xl rounded-bl-sm'
+          ? 'bg-moss-100 text-stone-800 rounded-2xl rounded-br-xl'
+          : 'bg-white border border-stone-200 text-stone-800 rounded-2xl rounded-bl-xl'
       "
     >
       {{ body }}

@@ -175,10 +175,10 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** ProfileAddressPanel consumes addresses, loading/errors, editor draft and emits edit/add/save/delete with existing IDs/drafts. useProfileAddresses consumes addressStore and current profile ownership; extracts existing modal/confirmation handlers without changing auth scoping. Keep chat/forum events, unread badges and subscription lifecycles intact.
 
-- [ ] Pin current profile address CRUD payloads and ownership guards in existing tests. Test null profile during route change, long messages/labels, keyboard send, draft retention after failure, and existing message/textarea length limits.
-- [ ] Compose shared input/button/modal/loading/card primitives. Give chat textarea and icon send action accessible names; preserve keyboard send behavior and explicit mutation confirmations required by current flows. Extract the address panel/orchestration from ProfilePage.
-- [ ] Keep user text escaped, including forum/message content, and maintain loading/error/empty distinctions. Do not change realtime protocols or make visual snapshots depend on a live connection.
-- [ ] Run existing shared-page/chat/forum specs and mocked community browser flow; verify unread changes and null→loaded transitions do not move keyboard focus unexpectedly. Commit the community/profile batch.
+- [x] Pin current profile address CRUD payloads and ownership guards in existing tests. Test null profile during route change, long messages/labels, keyboard send, draft retention after failure, and existing message/textarea length limits.
+- [x] Compose shared input/button/modal/loading/card primitives. Give chat textarea and icon send action accessible names; preserve keyboard send behavior and explicit mutation confirmations required by current flows. Extract the address panel/orchestration from ProfilePage.
+- [x] Keep user text escaped, including forum/message content, and maintain loading/error/empty distinctions. Do not change realtime protocols or make visual snapshots depend on a live connection.
+- [x] Run existing shared-page/chat/forum specs and mocked community browser flow; verify unread changes and null→loaded transitions do not move keyboard focus unexpectedly. Commit the community/profile batch.
 
 ## Task 12: Complete public, auth and error-page design
 

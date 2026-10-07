@@ -23,7 +23,7 @@ describe('ChatComposer.vue', () => {
     expect(wrapper.emitted()).not.toHaveProperty('send')
   })
 
-  it('clears the textarea after sending', async () => {
+  it('keeps the draft until the page acknowledges a successful send', async () => {
     const wrapper = mount(ChatComposer)
 
     const textarea = wrapper.find('textarea')
@@ -31,6 +31,8 @@ describe('ChatComposer.vue', () => {
 
     await wrapper.find('form').trigger('submit.prevent')
 
+    expect(textarea.element.value).toBe('Test message')
+    await wrapper.setProps({ sentMessage: 'Test message' })
     expect(textarea.element.value).toBe('')
   })
 

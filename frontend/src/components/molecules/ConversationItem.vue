@@ -19,6 +19,8 @@ defineEmits(['select'])
 
 <template>
   <button
+    type="button"
+    :aria-pressed="isActive"
     @click="$emit('select', conversation.id)"
     class="flex items-center gap-3 w-full text-left p-3 rounded-xl transition-all duration-200 border"
     :class="
@@ -37,11 +39,13 @@ defineEmits(['select'])
         v-else
         class="w-12 h-12 rounded-full bg-soil-200 flex items-center justify-center text-soil-700 text-lg font-bold"
       >
-        {{ conversation.other_participant?.name.charAt(0).toUpperCase() || '?' }}
+        {{ conversation.other_participant?.name?.charAt(0).toUpperCase() || '?' }}
       </div>
-      <!-- Assuming some logic for online status, using static true/false for now based on some prop or random -->
-      <div class="absolute bottom-0 right-0">
-        <OnlineIndicator :isOnline="true" />
+      <div
+        v-if="conversation.other_participant?.is_online !== undefined"
+        class="absolute bottom-0 right-0"
+      >
+        <OnlineIndicator :isOnline="conversation.other_participant?.is_online === true" />
       </div>
     </div>
 

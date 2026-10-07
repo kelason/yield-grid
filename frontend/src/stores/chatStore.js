@@ -12,6 +12,8 @@ export const useChatStore = defineStore('chat', () => {
   const activeConversation = ref(null)
   const messages = ref([])
   const isLoading = ref(false)
+  const conversationsError = ref('')
+  const messagesError = ref('')
 
   // Channels with an active realtime subscription (non-reactive by design)
   const subscribedIds = new Set()
@@ -25,11 +27,13 @@ export const useChatStore = defineStore('chat', () => {
 
   // Actions
   async function fetchConversations() {
+    conversationsError.value = ''
     isLoading.value = true
     try {
       const response = await api.get('/chat/conversations')
       conversations.value = response.data.data
     } catch (error) {
+      conversationsError.value = 'Failed to load conversations. Please retry.'
       console.error('Failed to fetch conversations:', error)
     } finally {
       isLoading.value = false
@@ -68,6 +72,8 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   async function fetchMessages(conversationId, page = 1) {
+    messagesError.value = ''
+    if (page === 1) messages.value = []
     isLoading.value = true
     try {
       const response = await api.get(`/chat/conversations/${conversationId}?page=${page}`)
@@ -86,6 +92,7 @@ export const useChatStore = defineStore('chat', () => {
 
       return response.data.meta // for pagination details
     } catch (error) {
+      messagesError.value = 'Failed to load messages. Please retry.'
       console.error('Failed to fetch messages:', error)
     } finally {
       isLoading.value = false
@@ -177,6 +184,8 @@ export const useChatStore = defineStore('chat', () => {
     activeConversation,
     messages,
     isLoading,
+    conversationsError,
+    messagesError,
     totalUnread,
     fetchConversations,
     ensureConversationsLoaded,

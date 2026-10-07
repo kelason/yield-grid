@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Community\Controllers;
 
+use App\Community\Requests\ForumFilterRequest;
 use App\Community\Requests\StoreThreadRequest;
 use App\Community\Requests\UpdateThreadRequest;
 use App\Community\Resources\ForumThreadResource;
@@ -19,7 +20,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ForumThreadController
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(ForumFilterRequest $request): AnonymousResourceCollection
     {
         $query = ForumThread::query()
             ->with(['author', 'category', 'tags', 'votes'])

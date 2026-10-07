@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
 import { useForumStore } from '@/stores/forumStore'
 import ThreadPage from '../ThreadPage.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 
 vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
@@ -79,6 +80,9 @@ describe('ThreadPage.vue reply composer', () => {
     await wrapper.find('textarea').setValue('A helpful reply')
     await wrapper.find('form').trigger('submit.prevent')
 
+    expect(createReply).not.toHaveBeenCalled()
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
     expect(createReply).toHaveBeenCalledWith(1, {
       body: 'A helpful reply',
       is_anonymous: false,

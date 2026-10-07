@@ -29,6 +29,15 @@ describe('chatStore envelopes', () => {
     store = useChatStore()
   })
 
+  it('distinguishes a failed inbox load from an empty inbox and permits retry', async () => {
+    mockGet.mockRejectedValueOnce(new Error('Offline'))
+    await store.fetchConversations()
+    expect(store.conversationsError).toContain('Please retry')
+    mockGet.mockResolvedValueOnce({ data: { data: [] } })
+    await store.fetchConversations()
+    expect(store.conversationsError).toBe('')
+  })
+
   it('unwraps the sent message so the bubble renders own style and time', async () => {
     const serverMessage = {
       id: 11,

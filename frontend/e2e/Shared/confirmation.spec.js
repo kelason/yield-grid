@@ -96,7 +96,7 @@ test('nested address confirmation restores the form and preserves its draft', as
   await page.goto('/dashboard/users/2')
   const trigger = page.getByRole('button', { name: 'Add address', exact: true })
   await trigger.click()
-  const form = page.getByRole('dialog', { name: 'Delivery address', exact: true })
+  const form = page.getByRole('dialog', { name: 'Add address', exact: true })
   await form.getByLabel('Label', { exact: true }).fill('Farm gate')
   await form.getByRole('combobox', { name: 'Region', exact: true }).selectOption('region')
   await form

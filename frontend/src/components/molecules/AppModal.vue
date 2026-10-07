@@ -50,7 +50,7 @@ function handleBackdrop(event) {
   if (outside) requestClose()
 }
 function handleNativeClose() {
-  if (props.isOpen) requestClose()
+  if (props.isOpen && !dialog.value?.open) requestClose()
 }
 watch(() => props.isOpen, syncDialog, { flush: 'post' })
 onMounted(syncDialog)
