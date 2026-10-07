@@ -73,7 +73,7 @@ function getConfirmedPaid(purchase) {
 
       <!-- Right: Amounts & Actions -->
       <div
-        class="flex flex-col sm:flex-row items-start sm:items-center justify-between lg:justify-end gap-5 w-full lg:w-auto mt-2 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-0 border-stone-100"
+        class="flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap items-start sm:items-center justify-between lg:justify-end gap-5 w-full lg:w-auto mt-2 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-0 border-stone-100"
       >
         <!-- Amounts -->
         <div
@@ -115,7 +115,7 @@ function getConfirmedPaid(purchase) {
 
         <!-- Actions -->
         <div
-          class="flex flex-wrap sm:flex-col gap-2.5 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0"
+          class="flex flex-wrap sm:flex-col gap-2.5 w-full sm:w-40 mt-2 sm:mt-0 flex-shrink-0"
           v-if="
             purchase.payment_status === 'pending' ||
             purchase.cash_payment_status === 'pending' ||
@@ -138,7 +138,7 @@ function getConfirmedPaid(purchase) {
         </div>
 
         <!-- Visual spacer when no actions -->
-        <div v-else class="hidden lg:block w-[110px]"></div>
+        <div v-else class="hidden sm:block sm:w-40 flex-shrink-0"></div>
       </div>
     </div>
   </AppCard>

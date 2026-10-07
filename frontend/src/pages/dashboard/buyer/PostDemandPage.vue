@@ -214,7 +214,7 @@ async function performConfirmedAction() {
             :error="errors.quantity_kg || ''"
           />
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>div>span]:flex [&>div>span]:min-h-11">
           <FormField
             id="demand-price"
             label="Target price per kg (₱)"

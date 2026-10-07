@@ -98,7 +98,7 @@ function setAvailability(availability) {
       </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4">
       <!-- Search -->
       <div class="md:col-span-4 flex flex-col">
         <label for="contract-crop" class="block text-sm font-medium text-soil-700 mb-1"
@@ -115,7 +115,7 @@ function setAvailability(availability) {
       </div>
 
       <!-- Price Range -->
-      <div class="md:col-span-4 flex space-x-2">
+      <div class="md:col-span-4 flex items-end space-x-2">
         <div class="w-1/2">
           <label for="min_price" class="block text-xs font-medium text-soil-700 mb-1"
             >Min Price</label
@@ -133,7 +133,7 @@ function setAvailability(availability) {
               id="min_price"
               v-model="localFilters.minPrice"
               @change="applyFilters"
-              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-soft hover:border-stone-400"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="0"
             />
           </div>
@@ -155,7 +155,7 @@ function setAvailability(availability) {
               id="max_price"
               v-model="localFilters.maxPrice"
               @change="applyFilters"
-              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 shadow-soft hover:border-stone-400"
+              class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="Any"
             />
           </div>

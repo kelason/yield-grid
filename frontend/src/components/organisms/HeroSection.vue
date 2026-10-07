@@ -23,8 +23,8 @@ const router = useRouter()
           Smarter farming,<br /><span class="text-moss-700">better harvest.</span>
         </h1>
         <p class="mt-6 max-w-2xl text-lg text-stone-600 leading-relaxed">
-          Plan your crops, care for your land, and connect with local buyers. A practical growing
-          workspace for farmers and the people they feed.
+          Plan crops, trade harvests, explore crop insurance and learn from your community. One
+          connected workspace for farmers and the buyers they supply.
         </p>
         <div class="mt-8 flex flex-wrap items-center gap-4">
           <AppButton size="lg" @click="router.push('/auth/register')"
@@ -53,7 +53,8 @@ const router = useRouter()
             A little clarity for every growing season.
           </h2>
           <p class="mt-4 text-base text-stone-600 leading-relaxed">
-            Keep planning, mapping and trading connected, so you can focus on your farm.
+            From your first planting decision to buyer offers, payment confirmations and farm
+            support, keep the work of every season connected.
           </p>
         </div>
         <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

@@ -1,6 +1,6 @@
 # YieldGrid Modern Minimalist Organic Redesign
 
-**Status:** Approved and implemented on `codex/modern-organic-redesign`, verified on 2026-10-07; integration into `develop` is pending.
+**Status:** Approved and implemented on `codex/modern-organic-redesign`, verified on 2026-10-07; integration into `develop` approved by the user on 2026-10-08.
 **Requested:** Analyze Atomic Design, modernize the organic visual language, change the palette, consolidate reusable buttons/modals/inputs/cards/loading, and update Playwright for the overall redesign.
 **Rollout:** Shared foundations → farmer and buyer dashboards → remaining frontend.
 **Implementation plan:** [Task-by-task plan](../plans/2026-10-07-modern-organic-redesign.md).

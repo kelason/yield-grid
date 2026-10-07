@@ -10,7 +10,7 @@
 
 **Spec:** [Modern organic design and frontend assessment](../specs/2026-10-07-modern-organic-redesign.md).
 
-**Status:** All 13 tasks implemented and verified on `codex/modern-organic-redesign` on 2026-10-07. Integration into `develop` is pending; nothing has been pushed or deployed.
+**Status:** All 13 tasks implemented and verified on `codex/modern-organic-redesign` on 2026-10-07. Integration into `develop` approved by the user on 2026-10-08; no deployment is requested.
 
 ## Global Constraints
 
@@ -239,3 +239,7 @@ Real OSM map tiles: 20/20 HTTP 200 during route-family QA; overlay/popup legibil
 The final independent reviewer found four Important issues and no Critical/Minor issues; Declined to judge was empty. One fix pass verified each RED→GREEN: cent-valid bounded cash suggestions, checkout errors inside the active native dialog, message error/retry before empty states, and authenticated own-profile links in mobile navigation for both roles. Focused checks passed 11 unit and 6 Chromium desktop/mobile cases before the fresh full suites above. No second reviewer was dispatched.
 
 Field & Linen is implemented with centralized tokens, self-hosted Inter/Lora, Atomic Design primitives, page/composable mutation ownership, and native dialog focus/scroll behavior. AGENTS.md and the local design skill are synchronized. The four legacy risky backend tests remain unchanged; no other minors were deferred. The branch and worktree remain available for the user’s integration choice.
+
+## User-requested follow-up — 2026-10-08
+
+Aligned community search/sort, demand and marketplace filters, price/address labels, and conditional cash-approval action columns. Expanded Home/About to eight existing feature areas and both audience roles. Verified the five layouts at 1440/768/390, including cash-card containment, and Home/About at the same widths. Lint, formatting, host and Linux builds, 17 focused unit tests and 52 affected Chromium desktop/mobile browser checks passed; all 20 baselines replayed without updates after inspecting the four changed Home/Marketplace images and diffs. Linux compilation took 200 seconds, so the browser replay served that prebuilt bundle through a temporary configuration instead of repeating the build. The user requested no further review and authorized pushing to develop.

@@ -31,6 +31,10 @@ business behavior while improving component reuse and accessibility.
   colors in templates. Use SVG/Heroicons for structural UI icons.
 - Prefer understated surfaces and subtle elevation. Use decorative gradients,
   glow, glass, and organic dividers sparingly; static cards should not lift on hover.
+- Align the actual input/select boxes in multi-column rows, including wrapped
+  labels and label help buttons. Keep shared control font/line heights instead of
+  shrinking individual fields. Conditional action columns keep a consistent width
+  and wrap within their card at smaller viewports.
 - Every redesigned flow needs responsive and keyboard verification. Follow the
   plan's Playwright fixtures and visual-baseline policy; do not approve screenshot
   changes merely by regenerating them.

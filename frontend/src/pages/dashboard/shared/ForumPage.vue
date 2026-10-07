@@ -137,7 +137,7 @@ async function changePage(delta) {
         ><AppButton @click="openComposer">New Discussion</AppButton></template
       ></PageHeader
     >
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid items-end gap-4 sm:grid-cols-2">
       <SearchInput
         id="forum-search"
         aria-label="Search discussions"
