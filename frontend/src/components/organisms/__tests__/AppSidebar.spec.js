@@ -57,6 +57,14 @@ describe('AppSidebar farmer groups', () => {
     })
   })
 
+  it('names its collapse control and collapsed navigation links', async () => {
+    const wrapper = mountSidebar()
+    const collapse = wrapper.find('button[aria-label="Collapse navigation"]')
+    expect(collapse.exists()).toBe(true)
+    await collapse.trigger('click')
+    expect(wrapper.find('a[aria-label="Overview"]').exists()).toBe(true)
+  })
+
   it('expands a group when its header is clicked', async () => {
     const wrapper = mountSidebar()
     const header = wrapper

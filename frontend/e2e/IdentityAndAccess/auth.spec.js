@@ -10,11 +10,11 @@ test('has title and can navigate to login', async ({ page, isMobile }) => {
   const getStarted = page.getByRole('link', { name: 'Log in' })
 
   // Expect an attribute "to be strictly equal" to the value.
-  if (!isMobile) await expect(getStarted).toHaveAttribute('href', '/auth/login')
+  if (isMobile) await page.getByRole('button', { name: 'Open menu' }).click()
+  await expect(getStarted).toHaveAttribute('href', '/auth/login')
 
   // Click the get started link.
-  if (isMobile) await page.goto('/auth/login')
-  else await getStarted.click()
+  await getStarted.click()
 
   // Expects page to have a heading with the name of Login.
   await expect(page.getByRole('heading', { name: 'Welcome Back' })).toBeVisible()
