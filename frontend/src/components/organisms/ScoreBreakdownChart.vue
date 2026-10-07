@@ -1,9 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { InformationCircleIcon } from '@heroicons/vue/24/outline'
-import { CREDIT_DIMENSIONS } from '@/constants/creditScoring'
+import { CREDIT_DIMENSIONS, CREDIT_SCORE } from '@/constants/creditScoring'
 
-const STAGGER_DELAY_MS = 90
+const GOOD_DIMENSION_SCORE = 70
+const FAIR_DIMENSION_SCORE = 40
 
 const props = defineProps({
   dimensionScores: {
@@ -12,32 +13,25 @@ const props = defineProps({
   },
 })
 
-const revealed = ref(false)
 const expandedKey = ref(null)
-
-onMounted(() => {
-  requestAnimationFrame(() => {
-    revealed.value = true
-  })
-})
 
 function toggleDescription(key) {
   expandedKey.value = expandedKey.value === key ? null : key
 }
 
 function barColor(score) {
-  if (score >= 70) {
-    return 'bg-moss-500'
+  if (score >= GOOD_DIMENSION_SCORE) {
+    return 'text-moss-600'
   }
-  if (score >= 40) {
-    return 'bg-harvest-500'
+  if (score >= FAIR_DIMENSION_SCORE) {
+    return 'text-harvest-600'
   }
-  return 'bg-stone-400'
+  return 'text-stone-500'
 }
 
-function barWidth(dimension) {
-  const score = props.dimensionScores[dimension.key] ?? 0
-  return revealed.value ? `${Math.min(100, Math.max(0, score))}%` : '0%'
+function barValue(dimension) {
+  const score = props.dimensionScores?.[dimension.key] ?? CREDIT_SCORE.MIN_SCORE
+  return Math.min(CREDIT_SCORE.MAX_SCORE, Math.max(CREDIT_SCORE.MIN_SCORE, score))
 }
 </script>
 
@@ -45,7 +39,7 @@ function barWidth(dimension) {
   <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
     <h3 class="font-serif text-2xl font-bold text-stone-900">Score Breakdown</h3>
     <div class="mt-4 space-y-4">
-      <div v-for="(dimension, index) in CREDIT_DIMENSIONS" :key="dimension.key">
+      <div v-for="dimension in CREDIT_DIMENSIONS" :key="dimension.key">
         <div class="flex items-baseline justify-between gap-2">
           <span class="inline-flex items-center gap-1">
             <span class="text-sm font-medium text-soil-700">
@@ -58,14 +52,14 @@ function barWidth(dimension) {
               :aria-controls="`dimension-info-${dimension.key}`"
               :aria-label="`About ${dimension.label}`"
               :title="`About ${dimension.label}`"
-              class="rounded-full p-0.5 text-dew-600 transition-colors duration-200 hover:bg-dew-100 hover:text-dew-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+              class="min-h-11 min-w-11 inline-flex items-center justify-center rounded-full p-0.5 text-dew-700 transition-colors duration-200 hover:bg-dew-100 hover:text-dew-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
               @click="toggleDescription(dimension.key)"
             >
               <InformationCircleIcon class="h-4 w-4" aria-hidden="true" />
             </button>
           </span>
           <span class="text-sm font-semibold text-stone-900">
-            {{ dimensionScores[dimension.key] ?? 0 }}/100
+            {{ dimensionScores?.[dimension.key] ?? 0 }}/100
           </span>
         </div>
         <p
@@ -75,17 +69,26 @@ function barWidth(dimension) {
         >
           {{ dimension.description }}
         </p>
-        <div class="mt-1.5 h-2.5 rounded-full bg-stone-100 overflow-hidden">
-          <div
-            class="h-full rounded-full transition-all duration-700 ease-out"
-            :class="barColor(dimensionScores[dimension.key] ?? 0)"
-            :style="{
-              width: barWidth(dimension),
-              transitionDelay: `${index * STAGGER_DELAY_MS}ms`,
-            }"
-          />
-        </div>
+        <progress
+          class="dimension-progress appearance-none bg-stone-100 mt-1.5 h-2.5 w-full rounded-full"
+          :class="barColor(dimensionScores?.[dimension.key] ?? 0)"
+          :value="barValue(dimension)"
+          :max="CREDIT_SCORE.MAX_SCORE"
+          :aria-label="`${dimension.label} score`"
+        />
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.dimension-progress::-webkit-progress-bar {
+  @apply rounded-full bg-stone-100;
+}
+.dimension-progress::-webkit-progress-value {
+  @apply rounded-full bg-current;
+}
+.dimension-progress::-moz-progress-bar {
+  @apply rounded-full bg-current;
+}
+</style>

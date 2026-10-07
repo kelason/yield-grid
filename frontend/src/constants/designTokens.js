@@ -66,3 +66,6 @@ export const DESIGN_SHADOWS = {
   organic: '0 12px 32px rgba(32,41,29,0.10)',
   'harvest-glow': '0 4px 14px rgba(150,119,51,0.10)',
 }
+
+// Semantic hazards remain distinct from brand colors in maps and confidence charts.
+export const DESIGN_STATUS_COLORS = { error: '#DC2626', errorFill: '#FEE2E2', surface: '#FFFFFF' }

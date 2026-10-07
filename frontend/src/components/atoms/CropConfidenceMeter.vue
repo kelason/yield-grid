@@ -1,6 +1,10 @@
 <template>
-  <div class="confidence-meter w-24 h-24 relative">
-    <Doughnut :data="chartData" :options="chartOptions" />
+  <div
+    class="confidence-meter w-24 h-24 relative"
+    role="img"
+    :aria-label="`Crop confidence: ${score}%`"
+  >
+    <Doughnut :data="chartData" :options="chartOptions" aria-hidden="true" />
     <div
       class="confidence-label absolute inset-0 flex items-center justify-center text-sm font-bold text-stone-800"
     >
@@ -11,6 +15,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { DESIGN_COLORS, DESIGN_STATUS_COLORS } from '@/constants/designTokens'
+const CONFIDENCE_LIMITS = { LOW: 50, HIGH: 75, MAX: 100 }
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 
@@ -25,17 +31,17 @@ const props = defineProps({
 
 const chartData = computed(() => {
   // Organic palette: moss green (high), harvest amber (medium), red (low)
-  let color = '#4a8c42' // moss-500 for high confidence
-  if (props.score < 50)
-    color = '#dc2626' // red-600 for low
-  else if (props.score < 75) color = '#d49a20' // harvest-500 for medium
+  let color = DESIGN_COLORS.moss[500] // moss-500 for high confidence
+  if (props.score < CONFIDENCE_LIMITS.LOW)
+    color = DESIGN_STATUS_COLORS.error // red-600 for low
+  else if (props.score < CONFIDENCE_LIMITS.HIGH) color = DESIGN_COLORS.harvest[500] // harvest-500 for medium
 
   return {
     labels: ['Confidence', 'Remaining'],
     datasets: [
       {
-        backgroundColor: [color, '#e8e4de'], // stone-200 for remaining track
-        data: [props.score, 100 - props.score],
+        backgroundColor: [color, DESIGN_COLORS.stone[200]], // stone-200 for remaining track
+        data: [props.score, CONFIDENCE_LIMITS.MAX - props.score],
         borderWidth: 0,
       },
     ],

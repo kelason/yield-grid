@@ -18,7 +18,12 @@ const sizes = { sm: 'max-w-md', md: 'max-w-xl', lg: 'max-w-2xl' }
 let returnFocus = null
 
 function restoreFocus() {
-  if (returnFocus?.isConnected) returnFocus.focus()
+  if (
+    returnFocus?.isConnected &&
+    returnFocus.getClientRects().length &&
+    !returnFocus.matches(':disabled')
+  )
+    returnFocus.focus()
   else document.getElementById('main-content')?.focus()
 }
 function syncDialog() {

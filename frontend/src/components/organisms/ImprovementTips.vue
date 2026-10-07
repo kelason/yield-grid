@@ -63,7 +63,7 @@ const summary = computed(() => {
   <div class="bg-dew-50 rounded-2xl border border-dew-200 shadow-soft p-6">
     <h3 class="font-serif text-2xl font-bold text-stone-900">How to Improve Your Score</h3>
     <div v-if="groupedTips.length > 0">
-      <p class="mt-1 text-sm font-light text-stone-600">{{ summary }}</p>
+      <p class="mt-1 text-sm font-normal text-stone-600">{{ summary }}</p>
       <div v-for="group in groupedTips" :key="group.key" class="mt-4">
         <div class="flex items-center gap-2">
           <p class="text-sm font-semibold text-stone-900">{{ group.label }}</p>
@@ -81,12 +81,12 @@ const summary = computed(() => {
             class="flex items-start gap-2.5"
           >
             <LightBulbIcon class="h-5 w-5 shrink-0 text-harvest-500" aria-hidden="true" />
-            <span class="text-base text-stone-600 font-light leading-relaxed">{{ message }}</span>
+            <span class="text-base text-stone-600 font-normal leading-relaxed">{{ message }}</span>
           </li>
         </ul>
       </div>
     </div>
-    <p v-else class="mt-4 text-base text-stone-600 font-light leading-relaxed">
+    <p v-else class="mt-4 text-base text-stone-600 font-normal leading-relaxed">
       Outstanding — your profile is in excellent shape. Keep completing contracts and deliveries to
       stay there.
     </p>

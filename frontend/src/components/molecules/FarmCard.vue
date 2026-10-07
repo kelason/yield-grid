@@ -28,7 +28,11 @@ const location = computed(() =>
         ><template v-else>No mapped area yet</template>
       </p>
       <div class="mt-5 flex flex-wrap gap-3">
-        <AppButton variant="outline" size="sm" @click="$emit('view-plots', farm.id)"
+        <AppButton
+          variant="outline"
+          size="sm"
+          :aria-label="`${farm.plots_count ? 'Manage plots' : 'Draw plots'} for ${farm.name}`"
+          @click="$emit('view-plots', farm.id)"
           ><MapIcon class="h-4 w-4" aria-hidden="true" />{{
             farm.plots_count ? 'Manage plots' : 'Draw plots'
           }}</AppButton
@@ -36,6 +40,7 @@ const location = computed(() =>
           v-if="farm.plots_count"
           variant="ghost"
           size="sm"
+          :aria-label="`Recommendations for ${farm.name}`"
           @click="$emit('view-recommendations', farm.id)"
           ><SparklesIcon class="h-4 w-4" aria-hidden="true" />Recommendations</AppButton
         >

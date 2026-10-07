@@ -1,14 +1,9 @@
 <template>
   <div class="space-y-6">
-    <header>
-      <h1 class="font-serif text-5xl font-bold tracking-tight text-stone-900">
-        Crop compatibility
-      </h1>
-      <p class="text-base text-stone-600 font-light leading-relaxed mt-2 max-w-2xl">
-        Pick any two crops to see whether they follow each other well in rotation and whether they
-        grow well side by side.
-      </p>
-    </header>
+    <PageHeader
+      title="Crop compatibility"
+      description="Pick two crops to check whether they follow each other well in rotation or grow well side by side."
+    />
 
     <CompatibilityChecker
       :taxonomy="store.taxonomy"
@@ -23,6 +18,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRecommendationStore } from '../stores/recommendationStore'
+import PageHeader from '@/components/molecules/PageHeader.vue'
 import CompatibilityChecker from '../components/organisms/CompatibilityChecker.vue'
 
 const store = useRecommendationStore()

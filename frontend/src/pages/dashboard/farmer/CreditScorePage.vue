@@ -1,4 +1,7 @@
 <script setup>
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
@@ -13,6 +16,7 @@ import { CREDIT_TIER_STYLES } from '@/constants/creditScoring'
 
 const creditScoreStore = useCreditScoreStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
+const SCORE_SKELETON_COUNT = 2
 const entered = ref(false)
 
 const tierStyle = computed(
@@ -70,35 +74,17 @@ function handleRetry() {
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out"
     :class="entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1.5'"
   >
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-stone-900">
-          Farmer Trust Score
-        </h1>
-        <p class="text-base text-stone-600 font-light leading-relaxed mt-2">
-          Your creditworthiness profile for Land Bank, ACPC, and rural bank loan applications.
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      title="Farmer Trust Score"
+      description="Your creditworthiness profile for Land Bank, ACPC, and rural bank loan applications."
+    />
 
-    <div
+    <LoadingState
       v-if="creditScoreStore.isLoading && !creditScoreStore.score"
-      class="mt-6 space-y-6"
-      aria-live="polite"
-    >
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
-          <div class="w-44 h-44 mx-auto rounded-full bg-stone-200 animate-pulse" />
-          <div class="w-32 h-6 mx-auto mt-4 rounded-full bg-stone-200 animate-pulse" />
-        </div>
-        <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6 space-y-4">
-          <div class="w-48 h-7 rounded-xl bg-stone-200 animate-pulse" />
-          <div class="w-full h-2.5 rounded-full bg-stone-200 animate-pulse" />
-          <div class="w-full h-2.5 rounded-full bg-stone-200 animate-pulse" />
-          <div class="w-full h-2.5 rounded-full bg-stone-200 animate-pulse" />
-        </div>
-      </div>
-    </div>
+      label="Loading trust score"
+      class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5"
+      ><SkeletonCard v-for="n in SCORE_SKELETON_COUNT" :key="n"
+    /></LoadingState>
 
     <div
       v-else-if="creditScoreStore.errorMessage && !creditScoreStore.score"

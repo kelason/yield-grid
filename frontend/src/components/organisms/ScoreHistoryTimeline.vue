@@ -13,7 +13,7 @@ const props = defineProps({
 })
 
 const points = computed(() => {
-  const items = [...props.history].reverse()
+  const items = [...(props.history || [])].reverse()
   if (items.length === 0) {
     return []
   }
@@ -41,59 +41,58 @@ const hasEnoughData = computed(() => points.value.length >= 2)
         Your score trend will appear here after your next daily recalculation.
       </p>
     </div>
-    <svg
-      v-else
-      :viewBox="`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`"
-      class="w-full h-auto mt-4"
-      role="img"
-      aria-label="Trust score trend over time"
-    >
-      <line
-        :x1="CHART_PADDING"
-        :y1="CHART_HEIGHT - CHART_PADDING"
-        :x2="CHART_WIDTH - CHART_PADDING"
-        :y2="CHART_HEIGHT - CHART_PADDING"
-        stroke="#e7e5e4"
-        stroke-width="1"
-      />
-      <polyline
-        :points="polylinePoints"
-        fill="none"
-        stroke="#4a8c42"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="transition-all duration-700 ease-out"
-      />
-      <g v-for="(point, index) in points" :key="index">
-        <circle
-          :cx="point.x"
-          :cy="point.y"
-          r="4.5"
-          fill="#4a8c42"
-          stroke="#ffffff"
-          stroke-width="2"
+    <div v-else class="overflow-x-auto">
+      <svg
+        :viewBox="`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`"
+        class="w-full min-w-[600px] h-auto mt-4"
+        role="img"
+        aria-label="Trust score trend over time"
+      >
+        <line
+          :x1="CHART_PADDING"
+          :y1="CHART_HEIGHT - CHART_PADDING"
+          :x2="CHART_WIDTH - CHART_PADDING"
+          :y2="CHART_HEIGHT - CHART_PADDING"
+          class="stroke-stone-200"
+          stroke-width="1"
         />
-        <text
-          :x="point.x"
-          :y="point.y - 10"
-          text-anchor="middle"
-          class="fill-stone-900"
-          font-size="11"
-          font-weight="600"
-        >
-          {{ point.score }}
-        </text>
-        <text
-          :x="point.x"
-          :y="CHART_HEIGHT - 8"
-          text-anchor="middle"
-          class="fill-stone-500"
-          font-size="10"
-        >
-          {{ point.date }}
-        </text>
-      </g>
-    </svg>
+        <polyline
+          :points="polylinePoints"
+          fill="none"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="stroke-moss-600 transition-all duration-700 ease-out motion-reduce:transition-none"
+        />
+        <g v-for="(point, index) in points" :key="index">
+          <circle
+            :cx="point.x"
+            :cy="point.y"
+            r="4.5"
+            class="fill-moss-600 stroke-white"
+            stroke-width="2"
+          />
+          <text
+            :x="point.x"
+            :y="point.y - 10"
+            text-anchor="middle"
+            class="fill-stone-900"
+            font-size="11"
+            font-weight="600"
+          >
+            {{ point.score }}
+          </text>
+          <text
+            :x="point.x"
+            :y="CHART_HEIGHT - 8"
+            text-anchor="middle"
+            class="fill-stone-500"
+            font-size="10"
+          >
+            {{ point.date }}
+          </text>
+        </g>
+      </svg>
+    </div>
   </div>
 </template>

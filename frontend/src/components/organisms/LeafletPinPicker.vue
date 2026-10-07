@@ -2,6 +2,7 @@
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { DESIGN_COLORS } from '@/constants/designTokens'
 import { GEO_CONSTANTS } from '@/constants/geo'
 import { haversineKm } from '@/composables/useGeo'
 
@@ -64,7 +65,7 @@ function drawRadius() {
   if (map && props.center?.lat != null && props.center?.lng != null && props.maxRadiusKm != null) {
     radiusCircle = L.circle([props.center.lat, props.center.lng], {
       radius: props.maxRadiusKm * GEO_CONSTANTS.METERS_PER_KM,
-      color: '#65a30d',
+      color: DESIGN_COLORS.moss[600],
       weight: 1.5,
       dashArray: '6 4',
       fillOpacity: 0.06,
