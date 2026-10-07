@@ -1,6 +1,6 @@
 # YieldGrid Modern Minimalist Organic Redesign Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Redesign YieldGrid as a modern minimalist organic website, retaining Atomic Design and delivering consistent reusable UI with meaningful browser regression coverage.
 
@@ -10,7 +10,7 @@
 
 **Spec:** [Modern organic design and frontend assessment](../specs/2026-10-07-modern-organic-redesign.md).
 
-**Status:** Approved for execution on 2026-10-07; implementation in progress in the managed redesign worktree.
+**Status:** All 13 tasks implemented and verified on `codex/modern-organic-redesign` on 2026-10-07. Integration into `develop` is pending; nothing has been pushed or deployed.
 
 ## Global Constraints
 
@@ -197,13 +197,13 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** Visual cases reuse mockSession and fixed API fixtures. Use named main/dialog/nav regions and labels, not CSS class selectors. Screenshot names describe route/role/state/viewport. Use the self-hosted product Inter/Lora fonts consistently; do not substitute fonts for screenshots.
 
-- [ ] Add selected screenshot assertions after fonts/fixtures/UI readiness: populated farmer and buyer dashboards desktop/mobile, one dashboard loading/empty state, ordinary and destructive confirmation, representative form errors, marketplace and public home. Use `animations: 'disabled'`; do not mask the redesigned content to suppress differences.
-- [ ] Add separate behavior/layout cases for reduced motion, 360×800, 768×1024, 200% enlarged text, long localized labels and values, and short-viewport dialogs. Assert document scrollWidth does not exceed clientWidth for page chrome; allow intentional map/table internal scrolling.
-- [ ] Generate initial baselines in the pinned Linux Chromium environment with `npx playwright test e2e/Visual/redesign.spec.js --project=chromium --project=mobile-chromium --update-snapshots`. Review each image and diff before accepting. A missing baseline is not an automatic approval; never update snapshots just to turn CI green.
-- [ ] Run `npm run lint:check`, `npm run format:check`, `npx vitest run`, `npm run build`, and `npx playwright test --project=chromium --project=mobile-chromium` in the supported environment. Also check Prettier on new Playwright/config files. Expected: zero lint/format/test/build failures, no unexpected API calls or browser page errors.
-- [ ] Run targeted shared/navigation/confirmation/auth smoke in Firefox and WebKit after installing the matching browsers in the dedicated smoke environment. Keep screenshot comparisons limited to Chromium/Linux. Verify real Lora/Inter, maps, keyboard operation and short-screen dialogs manually.
-- [ ] Review all 35 page SFCs against the migration inventory; scan remaining raw tags/colors/inline styles and upward imports, distinguishing intentional native controls from duplicate styled controls. No app-wide feature folders or new design-framework dependency. Any old large component retained must have one coherent responsibility, not a deferred mixture of forms, fetching and overlays.
-- [ ] Run a final whole-diff review focused on financial/auth regressions, component contracts, null transitions and accessibility. Commit reviewed visual baselines and docs; report exact passing checks and any remaining limitations. CI backend checks still apply normally to the PR. Implementation added only matching server-side catalog/forum/login input bounds; domain/payment behavior is unchanged.
+- [x] Add selected screenshot assertions after fonts/fixtures/UI readiness: populated farmer and buyer dashboards desktop/mobile, one dashboard loading/empty state, ordinary and destructive confirmation, representative form errors, marketplace and public home. Use `animations: 'disabled'`; do not mask the redesigned content to suppress differences.
+- [x] Add separate behavior/layout cases for reduced motion, 360×800, 768×1024, 200% enlarged text, long localized labels and values, and short-viewport dialogs. Assert document scrollWidth does not exceed clientWidth for page chrome; allow intentional map/table internal scrolling.
+- [x] Generate initial baselines in the pinned Linux Chromium environment with `npx playwright test e2e/Visual/redesign.spec.js --project=chromium --project=mobile-chromium --update-snapshots`. Review each image and diff before accepting. A missing baseline is not an automatic approval; never update snapshots just to turn CI green.
+- [x] Run `npm run lint:check`, `npm run format:check`, `npx vitest run`, `npm run build`, and `npx playwright test --project=chromium --project=mobile-chromium` in the supported environment. Also check Prettier on new Playwright/config files. Expected: zero lint/format/test/build failures, no unexpected API calls or browser page errors.
+- [x] Run targeted shared/navigation/confirmation/auth smoke in Firefox and WebKit after installing the matching browsers in the dedicated smoke environment. Keep screenshot comparisons limited to Chromium/Linux. Verify real Lora/Inter, maps, keyboard operation and short-screen dialogs manually.
+- [x] Review all 35 page SFCs against the migration inventory; scan remaining raw tags/colors/inline styles and upward imports, distinguishing intentional native controls from duplicate styled controls. No app-wide feature folders or new design-framework dependency. Any old large component retained must have one coherent responsibility, not a deferred mixture of forms, fetching and overlays.
+- [x] Run a final whole-diff review focused on financial/auth regressions, component contracts, null transitions and accessibility. Commit reviewed visual baselines and docs; report exact passing checks and any remaining limitations. CI backend checks still apply normally to the PR. Implementation added only matching server-side catalog/forum/login input bounds; domain/payment behavior is unchanged.
 
 ## Page inventory and verification ownership
 
@@ -219,6 +219,23 @@ Paths below are relative to `frontend/src/pages/`; all remain in their existing 
 
 ## Execution evidence
 
-Tasks 1–12 are committed on `codex/modern-organic-redesign`; Task 13 verification and the final independent review are in progress. Execution uses supported Node 24.19.0 locally and Node 24.20.0 in the pinned Linux browser container. All 20 initial real-font Chromium desktop/mobile baselines were inspected and replayed without updates. Final results are recorded below after the final review. Nothing has been merged, pushed or deployed.
+Implementation used native execution in this chat with one fresh independent whole-branch review. All 13 tasks are committed on `codex/modern-organic-redesign` in the managed worktree. Final product revision: `4f87cdf`; later changes only record verification/documentation. Supported Node 24.19.0 locally and Node 24.20.0 in the pinned Linux browser container.
 
-Implementation method recommendation: **Native execution in this chat**, with one final independent review. The early tasks share tightly coupled control/dialog/navigation interfaces, so a single implementation owner avoids repeated contract churn. Independent later route batches can be delegated once those contracts pass. Subagent-driven execution with per-task independent reviews is the alternative when stronger review separation is preferred.
+| Final check | Result |
+| --- | --- |
+| ESLint/Oxlint, source Prettier, Playwright/config Prettier | Passed |
+| Full Vitest | 89 files / 386 tests passed |
+| Production build | Passed |
+| Linux Chromium desktop/mobile full suite | 104 passed; no unexpected API calls/page errors |
+| Reviewed visual baselines | All 20 real-font images replayed without updates |
+| Firefox/WebKit shared/auth smoke before review fixes | 11 passed in each engine |
+| Final Firefox/WebKit checkout, pending/nested dialogs, both-role mobile profile | 5 passed in each engine |
+| Full backend suite | 541 passed / 3297 assertions; 4 unchanged Debug* tests risky because they contain no assertions |
+| Full Pint and PHPStan level 6 | Passed |
+| Catalog/forum/login server boundary checks | Passed |
+
+Real OSM map tiles: 20/20 HTTP 200 during route-family QA; overlay/popup legibility inspected. Public/dashboard layouts checked at 360/768/1440, 200% text, Tagalog labels and reduced motion. These isolated checks do not claim a GitHub Actions or deployment run.
+
+The final independent reviewer found four Important issues and no Critical/Minor issues; Declined to judge was empty. One fix pass verified each RED→GREEN: cent-valid bounded cash suggestions, checkout errors inside the active native dialog, message error/retry before empty states, and authenticated own-profile links in mobile navigation for both roles. Focused checks passed 11 unit and 6 Chromium desktop/mobile cases before the fresh full suites above. No second reviewer was dispatched.
+
+Field & Linen is implemented with centralized tokens, self-hosted Inter/Lora, Atomic Design primitives, page/composable mutation ownership, and native dialog focus/scroll behavior. AGENTS.md and the local design skill are synchronized. The four legacy risky backend tests remain unchanged; no other minors were deferred. The branch and worktree remain available for the user’s integration choice.

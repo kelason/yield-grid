@@ -1,6 +1,6 @@
 # YieldGrid Modern Minimalist Organic Redesign
 
-**Status:** Approved for implementation by the user on 2026-10-07; execution in progress.
+**Status:** Approved and implemented on `codex/modern-organic-redesign`, verified on 2026-10-07; integration into `develop` is pending.
 **Requested:** Analyze Atomic Design, modernize the organic visual language, change the palette, consolidate reusable buttons/modals/inputs/cards/loading, and update Playwright for the overall redesign.
 **Rollout:** Shared foundations → farmer and buyer dashboards → remaining frontend.
 **Implementation plan:** [Task-by-task plan](../plans/2026-10-07-modern-organic-redesign.md).
@@ -9,7 +9,7 @@
 
 Create a calm, practical agricultural workspace for Filipino farmers and buyers. Prioritize clear actions, readable data, responsive navigation, and trustworthy transaction states. Keep organic warmth through Lora headings, Inter body text, muted natural colors, rounded surfaces, and restrained motion.
 
-The recommended direction is **Field & Linen**. A light neutral canvas carries the information; sage identifies primary actions; wheat highlights financial context; teal identifies advisory information. Use dark olive charcoal for structural navigation. Decorative gradients, translucent layers, emoji UI icons, and glows currently compete with content; remove them from ordinary panels while keeping a subtle primary-button gradient and a single organic divider where public sections meet.
+The approved direction is **Field & Linen**. A light neutral canvas carries the information; sage identifies primary actions; wheat highlights financial context; teal identifies advisory information. Use dark olive charcoal for structural navigation. Decorative gradients, translucent layers, emoji UI icons, and glows currently compete with content; remove them from ordinary panels while keeping a subtle primary-button gradient and a single organic divider where public sections meet.
 
 Alternatives considered: a brighter agricultural palette retains the current busy appearance; an all-neutral dashboard weakens YieldGrid's organic identity. Field & Linen provides a visible redesign while retaining the established token names and familiar navigation.
 
@@ -49,7 +49,7 @@ Largest components include PlotDrawer (632 lines), RecommendationsPage (543), Pr
 
 ## 3. Field & Linen palette
 
-Keep `moss`, `harvest`, `soil`, `dew`, and `stone` names so existing consumers continue to resolve. These are proposed replacement values, not changes already made. Store them once in `frontend/src/constants/designTokens.js`, exporting `DESIGN_COLORS` and `DESIGN_SHADOWS`; import the colors into Tailwind and chart/map code. Hex values belong in that module, never Vue templates.
+Keep `moss`, `harvest`, `soil`, `dew`, and `stone` names so existing consumers continue to resolve. These approved replacement values are implemented on `codex/modern-organic-redesign`. Store them once in `frontend/src/constants/designTokens.js`, exporting `DESIGN_COLORS` and `DESIGN_SHADOWS`; import the colors into Tailwind and chart/map code. Hex values belong in that module, never Vue templates.
 
 | Shade | moss: sage | harvest: wheat | soil: olive earth | dew: mist teal | stone: linen |
 | ----- | ---------- | -------------- | ----------------- | -------------- | ------------ |
@@ -95,7 +95,7 @@ Calculated sRGB contrast: white/moss-500 **5.38:1**, white/moss-600 **7.14:1**, 
 - Shared buttons and icon controls target at least 44×44 CSS px. Keep navigation and form layout usable at 360px wide and with text enlarged to 200%.
 - Preserve a restrained organic divider on public section boundaries. Remove ornamental accent strips, decorative blobs, and repetitive gradients from operational screens.
 
-These decisions explicitly update the old bright palette, oversized dashboard h1 recommendation, and mandatory decorative treatments in the project design documentation. Atomic Design, organic radii, accessibility, validation, and mutation confirmation requirements continue to apply. `AGENTS.md` now records the requested direction and pending plan review; synchronize `.agents/skills/yieldgrid-design-system/SKILL.md` at implementation time. That local skill remains ignored by Git; the tracked spec carries the design contract.
+These decisions explicitly update the old bright palette, oversized dashboard h1 recommendation, and mandatory decorative treatments in the project design documentation. Atomic Design, organic radii, accessibility, validation, and mutation confirmation requirements continue to apply. `AGENTS.md` and `.agents/skills/yieldgrid-design-system/SKILL.md` now record the approved direction and shared component/verification contracts. Keep both synchronized for future changes. That local skill remains ignored by Git; the tracked spec carries the design contract.
 
 ## 5. Atomic Design and reusable interfaces
 
@@ -177,4 +177,6 @@ Completion requires reusable primitive behavior verified, every route visually r
 
 No new runtime UI, animation or form library is required. Native controls, existing Vue/Tailwind/Heroicons, existing Pinia stores, Vitest and Playwright cover the work. UI UX Pro Max supplied useful minimal/organic guidance; its generic Swiss sharp-corner and form-library recommendations do not override this project's organic shapes or existing form architecture.
 
-The original `.gitignore` excluded `docs/superpowers`, `AGENTS.md`, and `.agents`. This planning pass adds narrow exceptions for `AGENTS.md` and `docs/superpowers/`, making the instructions and design documents available to commit; `.agents` remains local. At the user's request, `AGENTS.md` now records the modern minimalist organic direction, links these documents, and marks the detailed palette/implementation as pending review. The local design skill is synchronized during implementation. No application files were changed by this planning pass.
+The original `.gitignore` excluded `docs/superpowers`, `AGENTS.md`, and `.agents`. Narrow exceptions now track `AGENTS.md` and this exact spec/plan; `.agents` remains local. The tracked specification carries the design contract. Implementation is isolated on `codex/modern-organic-redesign`; no merge, push or deployment has occurred.
+
+Final independent review found four Important gaps, all corrected through failing-then-passing regressions: valid cent-rounded cash suggestions, checkout errors inside the active dialog, message-load error/retry states, and own-profile access in mobile navigation for both roles. No Critical or Minor findings were reported, and no behaviors were declined for judgment. Full verification results are recorded in the matching plan.
