@@ -2,19 +2,12 @@
 
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
-uses(TestCase::class);
-
-beforeEach(function () {
-    Artisan::call('migrate', [
-        '--path' => 'database/migrations/2026_10_07_103133_create_scheduler_heartbeats_table.php',
-        '--force' => true,
-    ]);
-});
+uses(TestCase::class, RefreshDatabase::class);
 
 function heartbeatEvents(): Collection
 {
@@ -27,7 +20,11 @@ it('registers exactly one five-minute scheduler heartbeat', function () {
 });
 
 it('writes a fresh heartbeat when the scheduled closure runs', function () {
-    heartbeatEvents()->first()->run(app());
+    $event = heartbeatEvents()->first();
+
+    expect($event)->not->toBeNull();
+
+    $event->run(app());
 
     $beatAt = DB::table('scheduler_heartbeats')->find(1)->beat_at;
 
