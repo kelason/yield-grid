@@ -19,3 +19,11 @@ test('has title and can navigate to login', async ({ page, isMobile }) => {
   // Expects page to have a heading with the name of Login.
   await expect(page.getByRole('heading', { name: 'Welcome Back' })).toBeVisible()
 })
+
+test('password recovery routes expose their own page headings', async ({ page }) => {
+  await page.goto('/auth/forgot-password')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Forgot your password?')
+  await page.goto('/auth/reset-password?token=synthetic-token&email=farmer%40example.test')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Reset your password')
+  await expect(page.getByLabel(/^Email address/i)).toBeDisabled()
+})

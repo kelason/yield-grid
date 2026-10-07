@@ -1,69 +1,29 @@
+<script setup>
+import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
+import AppButton from '../atoms/AppButton.vue'
+defineProps({ cooldown: { type: Number, default: 0 }, loading: Boolean })
+defineEmits(['resend'])
+</script>
 <template>
-  <div
-    class="bg-gradient-to-r from-harvest-400 to-harvest-500 px-4 py-3 sm:px-6 lg:px-8 relative z-50 shadow-soft border-b border-harvest-500"
-  >
+  <div class="bg-harvest-50 px-4 py-3 border-b border-harvest-200 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
-      <div class="flex flex-1 items-center gap-x-3">
-        <span class="flex p-2 rounded-xl bg-white/20 backdrop-blur-sm shadow-inner">
-          <svg
-            class="h-5 w-5 text-white drop-shadow-soft"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-        </span>
-        <p class="text-sm leading-6 text-white drop-shadow-soft">
-          <strong class="font-semibold text-white">Action Required:</strong>
-          Please verify your email address. You will not be able to use the marketplace or manage
-          plots until your email is verified.
+      <div class="flex flex-1 min-w-0 items-start gap-3">
+        <ExclamationTriangleIcon class="h-6 w-6 shrink-0 text-harvest-700" aria-hidden="true" />
+        <p class="text-sm leading-relaxed text-harvest-800">
+          <strong class="font-semibold">Action Required:</strong> Please verify your email address.
+          You will not be able to use the marketplace or manage plots until your email is verified.
         </p>
       </div>
-      <div class="flex-shrink-0">
-        <button
-          type="button"
-          @click="handleResend"
-          :disabled="isSending || authStore.resendCooldown > 0"
-          class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-harvest-800 shadow-soft hover:bg-harvest-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white hover:scale-[1.02] transition-all disabled:opacity-70 disabled:cursor-not-allowed active:scale-95 min-w-[180px]"
-        >
-          <span v-if="isSending">Sending...</span>
-          <span v-else-if="authStore.resendCooldown > 0"
-            >Resend in {{ authStore.resendCooldown }}s</span
-          >
-          <span v-else>Resend Verification Email</span>
-        </button>
-      </div>
+      <AppButton
+        variant="outline"
+        size="sm"
+        :loading="loading"
+        :disabled="loading || cooldown > 0"
+        @click="$emit('resend')"
+        ><span v-if="loading">Sending...</span
+        ><span v-else-if="cooldown > 0">Resend in {{ cooldown }}s</span
+        ><span v-else>Resend Verification Email</span></AppButton
+      >
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { useNotificationStore } from '@/stores/notificationStore'
-
-const authStore = useAuthStore()
-const notificationStore = useNotificationStore()
-const isSending = ref(false)
-
-const handleResend = async () => {
-  if (isSending.value) return
-  isSending.value = true
-  try {
-    await authStore.resendVerificationEmail()
-    notificationStore.success('Verification email sent! Please check your inbox.')
-  } catch (error) {
-    console.error(error)
-    notificationStore.error(error.response?.data?.message || 'Failed to resend verification email.')
-  } finally {
-    isSending.value = false
-  }
-}
-</script>

@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useApi } from '../../composables/useApi'
 import AppButton from '../../components/atoms/AppButton.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 import AppAlert from '../../components/atoms/AppAlert.vue'
 
 const authStore = useAuthStore()
@@ -11,6 +13,23 @@ const api = useApi()
 const sending = ref(false)
 const message = ref('')
 const error = ref('')
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
+function requestResend() {
+  confirm(
+    {
+      title: 'Resend verification email?',
+      message: 'Send a new verification link to your account email?',
+      confirmText: 'Resend email',
+    },
+    resendVerificationEmail,
+  )
+}
+function requestLogout() {
+  confirm(
+    { title: 'Log out?', message: 'End your current YieldGrid session?', confirmText: 'Log out' },
+    () => authStore.logout(),
+  )
+}
 
 async function resendVerificationEmail() {
   sending.value = true
@@ -43,7 +62,9 @@ async function resendVerificationEmail() {
         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
       />
     </svg>
-    <h3 class="font-serif mt-2 text-lg leading-6 font-medium text-stone-900">Verify your email</h3>
+    <h1 class="font-serif mt-4 text-3xl font-bold tracking-tight text-stone-900">
+      Verify your email
+    </h1>
     <p class="mt-4 text-sm text-stone-500">
       Thanks for signing up! Before getting started, could you verify your email address by clicking
       on the link we just emailed to you?
@@ -53,10 +74,19 @@ async function resendVerificationEmail() {
     <AppAlert v-if="error" type="error" class="mt-4">{{ error }}</AppAlert>
 
     <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-      <AppButton variant="primary" :loading="sending" @click="resendVerificationEmail">
+      <AppButton variant="primary" :loading="sending" @click="requestResend">
         Resend Verification Email
       </AppButton>
-      <AppButton variant="ghost" @click="authStore.logout()"> Log Out </AppButton>
+      <AppButton variant="ghost" @click="requestLogout"> Log Out </AppButton>
     </div>
+    <ConfirmModal
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :confirm-text="config.confirmText"
+      :loading="isExecuting"
+      @confirm="execute"
+      @cancel="cancel"
+    />
   </div>
 </template>

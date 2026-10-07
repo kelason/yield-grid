@@ -1,7 +1,17 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import AppLogo from '../atoms/AppLogo.vue'
 import AppCard from '../atoms/AppCard.vue'
+const route = useRoute()
+const TITLES = {
+  login: 'Welcome Back',
+  register: 'Create your account',
+  'forgot-password': 'Forgot your password?',
+  'reset-password': 'Reset your password',
+  'verify-email': 'Email verification',
+}
+const title = computed(() => TITLES[route.name] || 'Welcome Back')
 </script>
 <template>
   <main
@@ -13,7 +23,7 @@ import AppCard from '../atoms/AppCard.vue'
       <div class="mb-10 text-center">
         <AppLogo />
         <h1 class="mt-8 font-serif text-3xl font-bold tracking-tight text-stone-900">
-          <slot name="title">Welcome Back</slot>
+          <slot name="title">{{ title }}</slot>
         </h1>
         <p v-if="$slots.subtitle" class="mt-3 text-base text-stone-600"><slot name="subtitle" /></p>
       </div>

@@ -186,10 +186,10 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** Preserve route names/URLs, page metadata, form contracts and authentication guard behavior. Public pages compose the approved shared shells and primitives. Check VerifyEmailPage's current route reachability before styling it; do not activate an unused route as a design change.
 
-- [ ] Extend browser tests for guest home→login/register, public mobile navigation, protected redirect, cross-role denial, unverified access behavior and checkout result pages with mocked data. Assert read-only navigation never opens confirmation.
-- [ ] Simplify the hero and supporting sections to one clear primary action per region, purposeful whitespace, restrained nature references and one organic divider. Keep real product copy and existing assets/metadata; do not add invented social proof or placeholder imagery.
-- [ ] Apply the same field, button, card and loading language to auth/error/result pages. Ensure password reset and verification callbacks preserve working/error states and redirects.
-- [ ] Run public/auth browser tests plus existing error/auth/contact unit specs. Visually check 360px/768px/1440px and enlarged text. Commit the final page-family migration.
+- [x] Extend browser tests for guest home→login/register, public mobile navigation, protected redirect, cross-role denial, unverified access behavior and checkout result pages with mocked data. Assert read-only navigation never opens confirmation.
+- [x] Simplify the hero and supporting sections to one clear primary action per region, purposeful whitespace, restrained nature references and one organic divider. Keep real product copy and existing assets/metadata; do not add invented social proof or placeholder imagery.
+- [x] Apply the same field, button, card and loading language to auth/error/result pages. Ensure password reset and verification callbacks preserve working/error states and redirects.
+- [x] Run public/auth browser tests plus existing error/auth/contact unit specs. Visually check 360px/768px/1440px and enlarged text. Commit the final page-family migration.
 
 ## Task 13: Approve visual baselines and run whole-site verification
 

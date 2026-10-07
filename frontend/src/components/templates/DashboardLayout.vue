@@ -9,11 +9,14 @@ import ConfirmModal from '../molecules/ConfirmModal.vue'
 import EmailVerificationBanner from '../molecules/EmailVerificationBanner.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useChatStore } from '@/stores/chatStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 const router = useRouter()
 const mobileOpen = ref(false)
+const isResending = ref(false)
+const notificationStore = useNotificationStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 onMounted(async () => {
   if (authStore.isAuthenticated && authStore.isEmailVerified) {
@@ -31,6 +34,28 @@ function requestLogout() {
     },
   )
 }
+function requestResend() {
+  if (isResending.value || authStore.resendCooldown > 0) return
+  confirm(
+    {
+      title: 'Resend verification email?',
+      message: 'Send a new verification link to your account email?',
+      confirmText: 'Resend email',
+    },
+    resendVerification,
+  )
+}
+async function resendVerification() {
+  isResending.value = true
+  try {
+    await authStore.resendVerificationEmail()
+    notificationStore.success('Verification email sent! Please check your inbox.')
+  } catch (error) {
+    notificationStore.error(error.response?.data?.message || 'Failed to resend verification email.')
+  } finally {
+    isResending.value = false
+  }
+}
 </script>
 <template>
   <div class="flex h-dvh flex-col overflow-hidden bg-stone-50 font-sans">
@@ -39,7 +64,12 @@ function requestLogout() {
       class="sr-only z-50 rounded-xl bg-white p-3 focus:not-sr-only focus:absolute"
       >Skip to main content</a
     >
-    <EmailVerificationBanner v-if="authStore.isAuthenticated && !authStore.isEmailVerified" />
+    <EmailVerificationBanner
+      v-if="authStore.isAuthenticated && !authStore.isEmailVerified"
+      :loading="isResending"
+      :cooldown="authStore.resendCooldown"
+      @resend="requestResend"
+    />
     <div class="flex min-h-0 flex-1">
       <AppSidebar :mobile-open="mobileOpen" @close="mobileOpen = false" />
       <div class="flex min-w-0 flex-1 flex-col">

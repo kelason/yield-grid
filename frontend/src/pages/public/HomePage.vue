@@ -19,16 +19,12 @@ useHead({
       content:
         'Predictive agriculture platform combining AI crop recommendations, GIS mapping, and direct B2B forward contract sales.',
     },
-    {
-      property: 'og:image',
-      content: '/og-image-home.jpg', // Placeholder for actual image
-    },
   ],
 })
 </script>
 
 <template>
-  <div class="bg-white">
+  <div class="bg-stone-100">
     <HeroSection />
   </div>
 </template>

@@ -1,41 +1,42 @@
 <script setup>
-import { onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { XCircleIcon } from '@heroicons/vue/24/solid'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { XCircleIcon } from '@heroicons/vue/24/outline'
 import { useApi } from '@/composables/useApi'
-
+import AppCard from '@/components/atoms/AppCard.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
 const route = useRoute()
+const router = useRouter()
 const api = useApi()
-
+const isCanceling = ref(true)
+const error = ref('')
 onMounted(async () => {
   const sessionId = route.query.session_id
-  if (sessionId) {
-    try {
-      await api.post(`/checkout/${sessionId}/cancel`)
-    } catch (err) {
-      console.error('Failed to cancel checkout session:', err)
-    }
+  try {
+    if (sessionId) await api.post(`/checkout/${sessionId}/cancel`)
+  } catch {
+    error.value =
+      'We could not update this checkout. Check your purchases for the latest payment status.'
+  } finally {
+    isCanceling.value = false
   }
 })
 </script>
-
 <template>
-  <div class="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow-soft sm:rounded-xl sm:px-10 text-center">
-        <XCircleIcon class="mx-auto h-16 w-16 text-red-500 mb-4" />
-        <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Payment Cancelled</h2>
-        <p class="text-sm text-stone-500 mb-6">
-          Your payment was cancelled or failed. No charges were made.
+  <div class="mx-auto max-w-xl px-4 py-16 sm:py-24">
+    <AppCard padding="p-6 sm:p-10" class="text-center space-y-6"
+      ><LoadingState v-if="isCanceling" label="Updating checkout" /><template v-else
+        ><XCircleIcon class="mx-auto h-12 w-12 text-stone-600" aria-hidden="true" />
+        <h1 class="font-serif text-3xl font-bold text-stone-900">Payment Cancelled</h1>
+        <p class="text-base text-stone-600 leading-relaxed">
+          You left checkout. Check your purchases for the latest payment status.
         </p>
-
-        <router-link
-          to="/marketplace"
-          class="w-full flex justify-center py-2 px-4 border border-stone-300 rounded-xl shadow-soft text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500"
-        >
-          Return to Marketplace
-        </router-link>
-      </div>
-    </div>
+        <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
+        <AppButton variant="outline" class="w-full" @click="router.push('/marketplace')"
+          >Return to Marketplace</AppButton
+        ></template
+      ></AppCard
+    >
   </div>
 </template>

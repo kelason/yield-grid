@@ -19,11 +19,7 @@ describe('EmailVerificationBanner.vue', () => {
   })
 
   it('displays sending text while in loading state', async () => {
-    const wrapper = mount(EmailVerificationBanner)
-
-    // Set isSending to true manually to check text
-    wrapper.vm.isSending = true
-    await wrapper.vm.$nextTick()
+    const wrapper = mount(EmailVerificationBanner, { props: { loading: true } })
 
     expect(wrapper.find('button').text()).toContain('Sending...')
     expect(wrapper.find('button').attributes('disabled')).toBeDefined()
@@ -33,13 +29,15 @@ describe('EmailVerificationBanner.vue', () => {
     const authStore = useAuthStore()
     authStore.resendCooldown = 15
 
-    const wrapper = mount(EmailVerificationBanner)
+    const wrapper = mount(EmailVerificationBanner, {
+      props: { cooldown: authStore.resendCooldown },
+    })
 
     expect(wrapper.find('button').text()).toContain('Resend in 15s')
     expect(wrapper.find('button').attributes('disabled')).toBeDefined()
   })
 
-  it('calls authStore.resendVerificationEmail when button is clicked', async () => {
+  it('asks its owner to confirm resend instead of changing account state directly', async () => {
     const authStore = useAuthStore()
     authStore.resendVerificationEmail = vi.fn().mockResolvedValueOnce({})
 
@@ -50,6 +48,7 @@ describe('EmailVerificationBanner.vue', () => {
 
     await wrapper.find('button').trigger('click')
 
-    expect(authStore.resendVerificationEmail).toHaveBeenCalledTimes(1)
+    expect(authStore.resendVerificationEmail).not.toHaveBeenCalled()
+    expect(wrapper.emitted('resend')).toHaveLength(1)
   })
 })
