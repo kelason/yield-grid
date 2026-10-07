@@ -1,52 +1,31 @@
 <script setup>
 defineProps({
-  padding: {
-    type: String,
-    default: 'p-6',
-  },
+  padding: { type: String, default: 'p-6' },
   variant: {
     type: String,
     default: 'default',
-    validator: (v) => ['default', 'gradient', 'muted', 'glass', 'harvest', 'dew'].includes(v),
+    validator: (value) =>
+      ['default', 'gradient', 'muted', 'glass', 'harvest', 'dew'].includes(value),
   },
-  hover: {
-    type: Boolean,
-    default: false,
-  },
+  hover: Boolean,
 })
+const variants = {
+  default: 'border-stone-200 bg-white',
+  gradient: 'border-moss-700 bg-moss-700 text-white',
+  muted: 'border-stone-200 bg-stone-100',
+  glass: 'border-stone-200 bg-white',
+  harvest: 'border-harvest-200 bg-harvest-50',
+  dew: 'border-dew-200 bg-dew-50',
+}
 </script>
-
 <template>
   <div
     :class="[
-      'overflow-hidden rounded-2xl border transition-all duration-300 motion-reduce:transition-none motion-reduce:transform-none',
-      variant === 'default' &&
-        'bg-white shadow-soft border-stone-300 ' +
-          (hover
-            ? 'hover:shadow-organic hover:border-stone-400 hover:-translate-y-1 cursor-pointer'
-            : ''),
-      variant === 'gradient' &&
-        'bg-gradient-to-br from-moss-500 to-moss-700 shadow-organic border-transparent text-white',
-      variant === 'muted' &&
-        'bg-stone-100 shadow-soft border-stone-300 ' +
-          (hover
-            ? 'hover:shadow-soft hover:border-stone-400 hover:-translate-y-1 cursor-pointer'
-            : ''),
-      variant === 'glass' &&
-        'bg-white/85 backdrop-blur-sm shadow-organic border-white/30 ' +
-          (hover
-            ? 'hover:bg-white/95 hover:shadow-organic hover:-translate-y-1 cursor-pointer'
-            : ''),
-      variant === 'harvest' &&
-        'bg-gradient-to-br from-harvest-50 to-harvest-100 shadow-harvest-glow border-harvest-200 ' +
-          (hover ? 'hover:shadow-organic hover:-translate-y-1 cursor-pointer' : ''),
-      variant === 'dew' &&
-        'bg-gradient-to-br from-dew-50 to-dew-100 shadow-soft border-dew-200 ' +
-          (hover ? 'hover:shadow-soft hover:-translate-y-1 cursor-pointer' : ''),
+      'overflow-hidden rounded-2xl border shadow-soft transition-all duration-300 motion-reduce:transition-none',
+      variants[variant],
+      hover ? 'hover:border-moss-300 hover:shadow-organic' : '',
     ]"
   >
-    <div :class="padding">
-      <slot></slot>
-    </div>
+    <div :class="padding"><slot /></div>
   </div>
 </template>
