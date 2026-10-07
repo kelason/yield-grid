@@ -7,7 +7,7 @@ namespace App\Auth\Requests;
 use App\Constants\AuthConstants;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+final class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -21,7 +21,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'max:'.AuthConstants::EMAIL_MAX_LENGTH],
-            'password' => ['required'],
+            'password' => ['required', 'string', 'min:'.AuthConstants::LOGIN_PASSWORD_MIN_LENGTH, 'max:'.AuthConstants::PASSWORD_MAX_LENGTH],
             'remember' => ['nullable', 'boolean'],
         ];
     }

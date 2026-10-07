@@ -1,4 +1,6 @@
 <script setup>
+import ConfirmModal from '../molecules/ConfirmModal.vue'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormField from '../molecules/FormField.vue'
@@ -12,6 +14,7 @@ const AUTH_PASSWORD_MIN_LENGTH = 8
 const AUTH_PASSWORD_MAX_LENGTH = 255
 
 const authStore = useAuthStore()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const route = useRoute()
 const router = useRouter()
 
@@ -46,9 +49,20 @@ async function handleResetPassword() {
     error.value = 'Passwords do not match.'
     return
   }
+  const payload = { ...form.value }
+  confirm(
+    {
+      title: 'Reset password?',
+      message: 'Replace your account password with the new password?',
+      confirmText: 'Reset Password',
+    },
+    () => performRequest(payload),
+  )
+}
+async function performRequest(payload) {
   loading.value = true
   try {
-    const response = await authStore.resetPassword(form.value)
+    const response = await authStore.resetPassword(payload)
     success.value = response.message || 'Password reset successful. You can now login.'
     setTimeout(() => {
       router.push({ name: 'login' })
@@ -66,39 +80,56 @@ async function handleResetPassword() {
 </script>
 
 <template>
-  <form class="space-y-6" @submit.prevent="handleResetPassword">
-    <AppAlert v-if="error" type="error">{{ error }}</AppAlert>
-    <AppAlert v-if="success" type="success">{{ success }}</AppAlert>
+  <div>
+    <form class="space-y-6" @submit.prevent="handleResetPassword">
+      <AppAlert v-if="error" type="error">{{ error }}</AppAlert>
+      <AppAlert v-if="success" type="success">{{ success }}</AppAlert>
 
-    <FormField
-      id="reset-email"
-      label="Email address"
-      type="email"
-      v-model="form.email"
-      :required="true"
-      :disabled="true"
+      <FormField
+        id="reset-email"
+        label="Email address"
+        type="email"
+        autocomplete="username"
+        name="email"
+        v-model="form.email"
+        :required="true"
+        :disabled="true"
+      />
+
+      <FormField
+        id="reset-password"
+        label="New Password"
+        type="password"
+        :minlength="AUTH_PASSWORD_MIN_LENGTH"
+        autocomplete="new-password"
+        v-model="form.password"
+        :required="true"
+        :maxlength="AUTH_PASSWORD_MAX_LENGTH"
+      />
+
+      <FormField
+        id="reset-password-confirmation"
+        label="Confirm Password"
+        type="password"
+        :minlength="AUTH_PASSWORD_MIN_LENGTH"
+        autocomplete="new-password"
+        v-model="form.password_confirmation"
+        :required="true"
+        :maxlength="AUTH_PASSWORD_MAX_LENGTH"
+      />
+
+      <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
+        Reset Password
+      </AppButton>
+    </form>
+    <ConfirmModal
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :confirm-text="config.confirmText"
+      :loading="isExecuting"
+      @confirm="execute"
+      @cancel="cancel"
     />
-
-    <FormField
-      id="reset-password"
-      label="New Password"
-      type="password"
-      v-model="form.password"
-      :required="true"
-      :maxlength="AUTH_PASSWORD_MAX_LENGTH"
-    />
-
-    <FormField
-      id="reset-password-confirmation"
-      label="Confirm Password"
-      type="password"
-      v-model="form.password_confirmation"
-      :required="true"
-      :maxlength="AUTH_PASSWORD_MAX_LENGTH"
-    />
-
-    <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
-      Reset Password
-    </AppButton>
-  </form>
+  </div>
 </template>

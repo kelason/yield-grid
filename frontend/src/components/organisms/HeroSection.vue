@@ -1,142 +1,72 @@
 <script setup>
+import { RouterLink, useRouter } from 'vue-router'
+import { ArrowRightIcon } from '@heroicons/vue/24/outline'
 import AppButton from '../atoms/AppButton.vue'
-
-const features = [
-  {
-    icon: '🤖',
-    title: 'AI Crop Advisor',
-    description:
-      'Personalised crop recommendations powered by GPT-4, tuned to your soil and climate.',
-  },
-  {
-    icon: '🗺️',
-    title: 'Plot Mapping',
-    description: 'Draw and manage farm plots with precise geo-boundary tools.',
-  },
-  {
-    icon: '📈',
-    title: 'Market Insights',
-    description: 'Connect with verified buyers and lock in forward contracts.',
-  },
-  {
-    icon: '🌤️',
-    title: 'Live Weather',
-    description: 'Real-time weather data integrated into every recommendation.',
-  },
-]
+import AppCard from '../atoms/AppCard.vue'
+import { PLATFORM_FEATURES } from '@/constants/platformFeatures'
+const router = useRouter()
 </script>
-
 <template>
-  <div
-    class="relative bg-gradient-to-br from-stone-100 via-white to-moss-50 overflow-hidden min-h-[90vh] flex items-center"
-  >
-    <!-- Organic background blobs -->
-    <div
-      class="absolute top-0 right-0 w-[700px] h-[700px] bg-moss-200/20 rounded-full -translate-y-1/3 translate-x-1/3 blur-3xl pointer-events-none"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-harvest-200/20 rounded-full translate-y-1/3 -translate-x-1/3 blur-3xl pointer-events-none"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="absolute top-1/2 right-1/4 w-[300px] h-[300px] bg-soil-200/10 rounded-full blur-2xl pointer-events-none"
-      aria-hidden="true"
-    ></div>
-
-    <div class="max-w-7xl mx-auto w-full relative z-10 px-4 sm:px-6 lg:px-8">
-      <div class="grid lg:grid-cols-2 gap-12 items-center py-16 lg:py-24">
-        <!-- Left: Copy -->
-        <div>
-          <!-- Live badge — harvest amber for warmth -->
-          <div
-            class="inline-flex items-center gap-2 bg-harvest-100 text-harvest-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-harvest-200 mb-6"
+  <div class="bg-stone-100">
+    <section
+      class="mx-auto max-w-7xl px-4 pt-16 pb-20 sm:px-6 sm:pt-24 lg:px-8 lg:pt-28"
+      aria-labelledby="home-heading"
+    >
+      <div class="max-w-3xl">
+        <p class="mb-5 text-sm font-medium uppercase tracking-widest text-moss-700">
+          From soil to sale
+        </p>
+        <h1
+          id="home-heading"
+          class="font-serif text-4xl sm:text-5xl font-bold tracking-tight leading-tight text-stone-900"
+        >
+          Smarter farming,<br /><span class="text-moss-700">better harvest.</span>
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg text-stone-600 leading-relaxed">
+          Plan crops, trade harvests, explore crop insurance and learn from your community. One
+          connected workspace for farmers and the buyers they supply.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center gap-4">
+          <AppButton size="lg" @click="router.push('/auth/register')"
+            >Get started<template #icon
+              ><ArrowRightIcon class="h-5 w-5" aria-hidden="true" /></template></AppButton
+          ><RouterLink
+            to="/about"
+            class="inline-flex min-h-11 items-center rounded-xl px-4 text-moss-700 font-medium transition-colors duration-200 hover:text-moss-900"
+            >Learn more</RouterLink
           >
-            <span class="w-1.5 h-1.5 rounded-full bg-harvest-500 animate-pulse"></span>
-            AI-Powered Crop Intelligence
-          </div>
-
-          <!-- Lora serif headline for organic authority -->
-          <h1
-            class="font-serif text-5xl tracking-tight font-bold text-stone-900 sm:text-6xl leading-tight mb-4"
-          >
-            <span class="block">Smarter farming,</span>
-            <span
-              class="block text-transparent bg-clip-text bg-gradient-to-r from-moss-600 to-moss-400"
-            >
-              better harvest.
-            </span>
-          </h1>
-
-          <p class="text-lg text-stone-600 font-light leading-relaxed max-w-xl mb-8">
-            Connect with local buyers, plan your crops with AI, and manage your farm's success — all
-            in one premium platform built for the modern farmer.
-          </p>
-
-          <!-- CTA row -->
-          <div class="flex flex-wrap gap-4">
-            <AppButton
-              variant="primary"
-              size="lg"
-              rounded="full"
-              @click="$router.push('/auth/register')"
-            >
-              Get Started Today →
-            </AppButton>
-            <AppButton variant="outline" size="lg" rounded="full" @click="$router.push('/about')">
-              Learn More
-            </AppButton>
-          </div>
-
-          <!-- Social proof -->
-          <div class="mt-10 flex flex-wrap items-center gap-6 text-sm text-stone-500">
-            <div class="flex items-center gap-1.5">
-              <span class="text-moss-500 font-bold">✓</span> No credit card required
-            </div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-moss-500 font-bold">✓</span> Free to start
-            </div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-moss-500 font-bold">✓</span> Trusted by farmers
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Feature card grid — organic glassmorphism -->
-        <div class="hidden lg:grid grid-cols-2 gap-4">
-          <div
-            v-for="(feature, i) in features"
-            :key="i"
-            :class="[
-              'bg-white/80 backdrop-blur-sm border border-stone-100 rounded-2xl p-5 shadow-soft hover:shadow-organic hover:-translate-y-1 transition-all duration-300',
-              i === 0 && 'col-span-2',
-            ]"
-          >
-            <div class="text-2xl mb-2">{{ feature.icon }}</div>
-            <h3 class="font-semibold text-stone-900 text-sm mb-1 font-serif">
-              {{ feature.title }}
-            </h3>
-            <p class="text-xs text-stone-500 leading-relaxed">{{ feature.description }}</p>
-          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Organic wave divider at the bottom -->
-    <div class="absolute bottom-0 left-0 right-0 overflow-hidden leading-none pointer-events-none">
-      <svg
-        viewBox="0 0 1440 60"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-        class="w-full h-12 sm:h-16"
-      >
-        <path
-          d="M0 60L60 50C120 40 240 20 360 15C480 10 600 20 720 25C840 30 960 30 1080 25C1200 20 1320 10 1380 5L1440 0V60H0Z"
-          fill="white"
-          fill-opacity="0.6"
-        />
-      </svg>
-    </div>
+    </section>
+    <svg
+      viewBox="0 0 1440 48"
+      preserveAspectRatio="none"
+      class="h-8 sm:h-12 w-full text-white"
+      aria-hidden="true"
+    >
+      <path d="M0 30C240 48 420 8 720 22C1020 36 1200 0 1440 10V48H0Z" fill="currentColor" />
+    </svg>
+    <section aria-labelledby="platform-heading" class="bg-white px-4 py-16 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl">
+        <div class="max-w-2xl mb-10">
+          <h2 id="platform-heading" class="font-serif text-3xl font-bold text-stone-900">
+            A little clarity for every growing season.
+          </h2>
+          <p class="mt-4 text-base text-stone-600 leading-relaxed">
+            From your first planting decision to buyer offers, payment confirmations and farm
+            support, keep the work of every season connected.
+          </p>
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <AppCard v-for="feature in PLATFORM_FEATURES" :key="feature.title" padding="p-6"
+            ><component :is="feature.icon" class="mb-5 h-7 w-7 text-moss-700" aria-hidden="true" />
+            <h3 class="font-serif text-2xl font-bold text-stone-900">{{ feature.title }}</h3>
+            <p class="mt-3 text-base leading-relaxed text-stone-600">
+              {{ feature.description }}
+            </p></AppCard
+          >
+        </div>
+      </div>
+    </section>
   </div>
 </template>

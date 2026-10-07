@@ -1,3 +1,5 @@
+import { DESIGN_COLORS } from './designTokens'
+
 export const CREDIT_SCORE = {
   SCORE_ENDPOINT: '/farmer/credit-score',
   HISTORY_ENDPOINT: '/farmer/credit-score/history',
@@ -20,27 +22,27 @@ export const CREDIT_TIER = {
 export const CREDIT_TIER_STYLES = {
   excellent: {
     pill: 'bg-moss-100 text-moss-800 border-moss-200',
-    ring: '#4a8c42',
+    ring: DESIGN_COLORS.moss[500],
     bar: 'bg-moss-500',
   },
   good: {
     pill: 'bg-moss-100 text-moss-800 border-moss-200',
-    ring: '#6aa862',
+    ring: DESIGN_COLORS.moss[400],
     bar: 'bg-moss-400',
   },
   fair: {
     pill: 'bg-harvest-100 text-harvest-800 border-harvest-200',
-    ring: '#d49a20',
+    ring: DESIGN_COLORS.harvest[500],
     bar: 'bg-harvest-500',
   },
   developing: {
     pill: 'bg-harvest-100 text-harvest-800 border-harvest-200',
-    ring: '#b87e18',
+    ring: DESIGN_COLORS.harvest[600],
     bar: 'bg-harvest-600',
   },
   new: {
     pill: 'bg-stone-100 text-stone-800 border-stone-200',
-    ring: '#918880',
+    ring: DESIGN_COLORS.stone[400],
     bar: 'bg-stone-400',
   },
 }

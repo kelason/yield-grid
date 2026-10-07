@@ -23,7 +23,6 @@ const VIEWPORT_MARGIN_PX = 16
 const PANEL_FALLBACK_WIDTH_PX = 416
 
 const isOpen = ref(false)
-const panelStyle = ref({})
 const triggerRef = ref(null)
 const panelRef = ref(null)
 
@@ -45,18 +44,15 @@ function positionPanel() {
   // A zero height means the panel is not measurable yet — default to below.
   const fitsBelow = height === 0 || height <= spaceBelow
 
-  if (fitsBelow || spaceBelow >= spaceAbove) {
-    panelStyle.value = {
-      top: `${rect.bottom + PANEL_OFFSET_PX}px`,
-      left: `${left}px`,
-    }
-    return
-  }
-
-  panelStyle.value = {
-    bottom: `${window.innerHeight - rect.top + PANEL_OFFSET_PX}px`,
+  applyPosition(left, fitsBelow || spaceBelow >= spaceAbove, rect)
+}
+function applyPosition(left, below, rect) {
+  if (!panelRef.value) return
+  Object.assign(panelRef.value.style, {
     left: `${left}px`,
-  }
+    top: below ? `${rect.bottom + PANEL_OFFSET_PX}px` : '',
+    bottom: below ? '' : `${window.innerHeight - rect.top + PANEL_OFFSET_PX}px`,
+  })
 }
 
 function onOutsideMousedown(event) {
@@ -124,7 +120,7 @@ onBeforeUnmount(() => {
       :aria-expanded="isOpen"
       aria-label="Show price guide"
       title="Show price guide"
-      class="inline-flex items-center gap-1 rounded-full py-0.5 pl-1 pr-2 text-xs font-medium text-dew-700 transition-all duration-200 hover:bg-dew-100 hover:text-dew-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+      class="inline-flex items-center gap-1 min-h-11 rounded-full py-0.5 pl-1 pr-2 text-xs font-medium text-dew-700 transition-all duration-200 hover:bg-dew-100 hover:text-dew-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
       @click="toggle"
     >
       <InformationCircleIcon class="h-4 w-4" aria-hidden="true" />
@@ -142,7 +138,6 @@ onBeforeUnmount(() => {
         <div
           v-if="isOpen"
           ref="panelRef"
-          :style="panelStyle"
           role="dialog"
           aria-label="Price guide"
           class="fixed z-[110] max-h-[70vh] w-[min(26rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-stone-200 bg-white p-4 shadow-organic"
@@ -153,7 +148,7 @@ onBeforeUnmount(() => {
             :current-price="currentPrice"
             :region-code="regionCode"
           />
-          <p v-else class="text-sm font-light text-stone-600">
+          <p v-else class="text-sm font-normal text-stone-600">
             Enter a crop name to load the price guide.
           </p>
         </div>

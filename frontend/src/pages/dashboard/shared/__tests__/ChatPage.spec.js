@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
 import { useChatStore } from '@/stores/chatStore'
 import ChatPage from '../ChatPage.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 
 vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
@@ -72,6 +73,52 @@ describe('ChatPage.vue inbox', () => {
     await flushPromises()
     return wrapper
   }
+
+  it('asks before sending and retains the draft after a failed confirmed send', async () => {
+    const wrapper = await mountPage()
+    const store = useChatStore()
+    store.sendMessage = vi
+      .fn()
+      .mockRejectedValue({ response: { data: { message: 'Please retry sending.' } } })
+    wrapper.findComponent({ name: 'ChatComposer' }).vm.$emit('send', 'Draft')
+    await flushPromises()
+    expect(store.sendMessage).not.toHaveBeenCalled()
+    expect(wrapper.findComponent(ConfirmModal).props('isOpen')).toBe(true)
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
+    expect(store.sendMessage).toHaveBeenCalledWith(1, 'Draft')
+    expect(wrapper.findComponent({ name: 'ChatComposer' }).props('sentMessage')).toBe('')
+    expect(wrapper.text()).toContain('Please retry sending.')
+    wrapper.unmount()
+  })
+
+  it('shows a failed message load and retries the selected conversation', async () => {
+    let fail = true
+    mockGet.mockImplementation((url) => {
+      if (url === '/chat/conversations')
+        return Promise.resolve({ data: { data: structuredClone(conversations) } })
+      if (fail) return Promise.reject(new Error('Messages unavailable'))
+      return Promise.resolve({
+        data: {
+          data: [{ id: 7, body: 'Existing message', created_at: '2026-10-07T00:00:00Z' }],
+          meta: {},
+        },
+      })
+    })
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('Failed to load messages. Please retry.')
+    expect(wrapper.text()).not.toContain('Say hello to start the conversation')
+    fail = false
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Retry messages')
+      .trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'ChatBubble' }).props('body')).toBe('Existing message')
+    expect(wrapper.text()).not.toContain('Failed to load messages. Please retry.')
+    expect(useChatStore().activeConversation?.id).toBe(1)
+    wrapper.unmount()
+  })
 
   it('loads the inbox and auto-selects the first conversation', async () => {
     const wrapper = await mountPage()

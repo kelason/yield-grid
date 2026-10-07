@@ -35,7 +35,7 @@ const accentFor = (type) => REMINDER_ACCENTS[type] || 'bg-stone-100 text-stone-8
         v-for="(reminder, index) in reminders"
         :key="`${reminder.type}-${index}`"
         data-testid="reminder-item"
-        class="rounded-2xl border border-stone-200 bg-stone-50 p-4 transition-all duration-300 hover:shadow-organic"
+        class="rounded-2xl border border-stone-200 bg-stone-50 p-4 transition-all duration-300"
       >
         <div class="flex items-center gap-2">
           <span
@@ -45,7 +45,7 @@ const accentFor = (type) => REMINDER_ACCENTS[type] || 'bg-stone-100 text-stone-8
             {{ t(reminder.title_key) }}
           </span>
         </div>
-        <p class="mt-2 text-base text-stone-600 font-light leading-relaxed">
+        <p class="mt-2 text-base text-stone-600 font-normal leading-relaxed">
           {{ t(reminder.message_key, reminder.params || {}) }}
         </p>
       </li>

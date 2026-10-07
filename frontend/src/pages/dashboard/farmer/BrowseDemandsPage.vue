@@ -1,4 +1,7 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
@@ -44,6 +47,7 @@ const offerForm = ref({ quantity_kg: '', price_per_kg: '', message: '' })
 const offerError = ref('')
 const submitting = ref(false)
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
@@ -129,10 +133,9 @@ function askOfferConfirm() {
   pendingConfirm.value = validated
 }
 
-async function confirmPendingOffer() {
-  const pending = pendingConfirm.value
-  pendingConfirm.value = null
-  if (!pending) return
+const confirmPendingOffer = () => execute(performConfirmedAction)
+
+async function performConfirmedAction(pending) {
   submitting.value = true
   try {
     await demandStore.submitOffer(demandStore.activeDemand.id, {
@@ -157,12 +160,10 @@ async function confirmPendingOffer() {
 
 <template>
   <div class="space-y-6">
-    <div class="rounded-2xl bg-gradient-to-r from-soil-800 to-soil-900 p-6 text-white shadow-soft">
-      <h1 class="font-serif text-2xl font-bold">Buyer Demands</h1>
-      <p class="text-stone-300 text-sm mt-1">
-        Browse what buyers are looking for and send your best offer.
-      </p>
-    </div>
+    <PageHeader
+      title="Buyer Demands"
+      description="Browse what buyers are looking for and send your best offer."
+    />
 
     <DemandFilter v-model="demandStore.filters" @search="handleSearch" />
 
@@ -194,7 +195,7 @@ async function confirmPendingOffer() {
       class="mt-6"
     />
 
-    <AppModal :is-open="showOfferModal" @close="showOfferModal = false">
+    <AppModal title="Make an offer" :is-open="showOfferModal" @close="showOfferModal = false">
       <div v-if="demandStore.activeDemand" class="space-y-5">
         <div>
           <h2 class="font-serif text-2xl font-bold text-stone-900">
@@ -245,15 +246,16 @@ async function confirmPendingOffer() {
           <label for="offer-message" class="block text-sm font-medium text-soil-700 mb-1">
             Message to buyer (optional)
           </label>
-          <textarea
+          <AppTextarea
+            minlength="0"
             id="offer-message"
+            aria-describedby="offer-message-counter"
             v-model="offerForm.message"
             rows="3"
             :maxlength="OFFER_MESSAGE_MAX_LENGTH"
             placeholder="e.g. Fresh harvest, can deliver this week"
-            class="block w-full px-4 py-2.5 border rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 motion-reduce:transition-none sm:text-sm bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white border-stone-300 text-soil-700 hover:border-stone-400"
           />
-          <p class="text-xs text-stone-500 mt-1 text-right">
+          <p class="text-xs text-stone-500 mt-1 text-right" id="offer-message-counter">
             {{ (offerForm.message || '').length }} / {{ OFFER_MESSAGE_MAX_LENGTH }}
           </p>
         </div>
@@ -275,7 +277,8 @@ async function confirmPendingOffer() {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="confirmPendingOffer"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

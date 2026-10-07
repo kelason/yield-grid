@@ -105,7 +105,7 @@ const submitCicForm = (id) => {
         v-for="enrollment in enrollments"
         :key="enrollment.id"
         data-testid="enrollment-card"
-        class="rounded-2xl border border-stone-200 bg-white shadow-soft p-5 transition-all duration-300 hover:shadow-organic hover:-translate-y-1"
+        class="rounded-2xl border border-stone-200 bg-white shadow-soft p-5 transition-all duration-300"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
           <h3 class="font-serif text-lg font-bold text-stone-900">

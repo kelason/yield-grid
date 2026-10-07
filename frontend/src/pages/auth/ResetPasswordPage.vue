@@ -5,13 +5,12 @@ import ResetPasswordForm from '../../components/organisms/ResetPasswordForm.vue'
 
 <template>
   <div>
-    <h2 class="font-serif mt-6 text-center text-3xl font-bold tracking-tight text-stone-900 mb-8">
-      Reset your password
-    </h2>
     <ResetPasswordForm />
     <div class="mt-6 text-center text-sm">
       <span class="text-stone-600">Remember your password? </span>
-      <RouterLink to="/auth/login" class="font-medium text-moss-600 hover:text-moss-500"
+      <RouterLink
+        to="/auth/login"
+        class="inline-flex min-h-11 items-center rounded-xl px-1 font-medium text-moss-700 hover:text-moss-900 transition-colors duration-200"
         >Sign in here</RouterLink
       >
     </div>

@@ -13,6 +13,7 @@ use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\DemandStatus;
 use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\CropDemandOffer;
+use App\Marketplace\Requests\CatalogFilterRequest;
 use App\Marketplace\Requests\StoreDemandRequest;
 use App\Marketplace\Resources\CropDemandResource;
 use App\Shared\Controllers\Controller;
@@ -24,7 +25,7 @@ use LogicException;
 
 final class CropDemandController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(CatalogFilterRequest $request): AnonymousResourceCollection
     {
         $query = CropDemand::open()->with(['buyer', 'deliveryAddress'])->withCount('offers');
 

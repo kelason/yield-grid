@@ -1,4 +1,5 @@
 <script setup>
+import { VOTE_VALUES } from '@/constants/forum'
 defineProps({
   score: {
     type: Number,
@@ -22,14 +23,16 @@ defineEmits(['vote'])
     class="flex flex-col items-center justify-center bg-stone-50 rounded-xl p-1 shadow-inner border border-stone-100 min-w-[2.5rem]"
   >
     <button
-      @click="!disabled && $emit('vote', 1)"
+      @click="!disabled && $emit('vote', VOTE_VALUES.UPVOTE)"
       :disabled="disabled"
-      class="p-1 rounded-full transition-colors"
+      type="button"
+      class="min-h-11 min-w-11 p-2 rounded-full transition-colors duration-200"
       :class="[
-        userVote === 1 ? 'text-moss-500' : 'text-stone-400',
+        userVote === 1 ? 'text-moss-500' : 'text-stone-500',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
       ]"
       title="Upvote"
+      aria-label="Upvote"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -51,14 +54,16 @@ defineEmits(['vote'])
       {{ score }}
     </span>
     <button
-      @click="!disabled && $emit('vote', -1)"
+      @click="!disabled && $emit('vote', VOTE_VALUES.DOWNVOTE)"
       :disabled="disabled"
-      class="p-1 rounded-full transition-colors"
+      type="button"
+      class="min-h-11 min-w-11 p-2 rounded-full transition-colors duration-200"
       :class="[
-        userVote === -1 ? 'text-red-500' : 'text-stone-400',
+        userVote === -1 ? 'text-red-500' : 'text-stone-500',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
       ]"
       title="Downvote"
+      aria-label="Downvote"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

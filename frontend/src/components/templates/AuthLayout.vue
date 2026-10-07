@@ -1,52 +1,33 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import AppLogo from '../atoms/AppLogo.vue'
+import AppCard from '../atoms/AppCard.vue'
+const route = useRoute()
+const TITLES = {
+  login: 'Welcome Back',
+  register: 'Create your account',
+  'forgot-password': 'Forgot your password?',
+  'reset-password': 'Reset your password',
+  'verify-email': 'Email verification',
+}
+const title = computed(() => TITLES[route.name] || 'Welcome Back')
 </script>
-
 <template>
-  <div
-    class="min-h-screen relative flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans overflow-hidden"
+  <main
+    id="main-content"
+    tabindex="-1"
+    class="flex min-h-screen flex-col items-center justify-center bg-stone-100 px-4 py-12 font-sans focus:outline-none sm:px-6"
   >
-    <!-- Organic gradient background — stone linen to moss hint -->
-    <div
-      class="absolute inset-0 bg-gradient-to-br from-stone-100 via-white to-moss-50 pointer-events-none"
-      aria-hidden="true"
-    ></div>
-
-    <!-- Organic decorative blobs -->
-    <div
-      class="absolute top-0 right-0 w-[500px] h-[500px] bg-moss-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-harvest-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-soil-200/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl pointer-events-none"
-      aria-hidden="true"
-    ></div>
-
-    <!-- Header content -->
-    <div class="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="text-center mb-8">
+    <div class="w-full max-w-md">
+      <div class="mb-10 text-center">
         <AppLogo />
+        <h1 class="mt-8 font-serif text-3xl font-bold tracking-tight text-stone-900">
+          <slot name="title">{{ title }}</slot>
+        </h1>
+        <p v-if="$slots.subtitle" class="mt-3 text-base text-stone-600"><slot name="subtitle" /></p>
       </div>
-      <h2 class="text-center text-3xl font-bold text-stone-900 tracking-tight font-serif">
-        <slot name="title">Welcome Back</slot>
-      </h2>
-      <p class="mt-2 text-center text-sm text-stone-500">
-        <slot name="subtitle" />
-      </p>
+      <AppCard padding="p-6 sm:p-8"><RouterView /></AppCard>
     </div>
-
-    <!-- Form card — organic glass -->
-    <div class="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div
-        class="bg-white/95 backdrop-blur-sm py-8 px-6 shadow-organic rounded-3xl border border-stone-100 sm:px-10"
-      >
-        <RouterView />
-      </div>
-    </div>
-  </div>
+  </main>
 </template>

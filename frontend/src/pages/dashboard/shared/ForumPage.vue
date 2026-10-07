@@ -1,34 +1,57 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useForumStore } from '../../../stores/forumStore'
-import { THREAD_SORT_OPTIONS } from '../../../constants/forum'
-import { PAGINATION_DIRECTION } from '../../../constants/pagination'
-import ThreadCard from '../../../components/molecules/ThreadCard.vue'
-import CategoryCard from '../../../components/molecules/CategoryCard.vue'
-import ThreadComposer from '../../../components/molecules/ThreadComposer.vue'
-import AppButton from '../../../components/atoms/AppButton.vue'
-import AppModal from '../../../components/molecules/AppModal.vue'
-import SkeletonCard from '../../../components/atoms/SkeletonCard.vue'
-
-const THREAD_SKELETON_COUNT = 5
+import { useForumStore } from '@/stores/forumStore'
+import { useConfirmModal } from '@/composables/useConfirmModal'
+import { FORUM_CONSTANTS, THREAD_SORT_OPTIONS } from '@/constants/forum'
+import { PAGINATION_DIRECTION } from '@/constants/pagination'
+import ThreadCard from '@/components/molecules/ThreadCard.vue'
+import CategoryCard from '@/components/molecules/CategoryCard.vue'
+import ThreadComposer from '@/components/molecules/ThreadComposer.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import SearchInput from '@/components/molecules/SearchInput.vue'
+import AppSelect from '@/components/atoms/AppSelect.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import AppCard from '@/components/atoms/AppCard.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import AppModal from '@/components/molecules/AppModal.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
+const THREAD_SKELETON_COUNT = 3
 const SEARCH_DEBOUNCE_MS = 500
-
+const FIRST_PAGE = 1
+const DEFAULT_SORT = 'latest'
 const forumStore = useForumStore()
 const route = useRoute()
 const router = useRouter()
-
 const showComposer = ref(false)
-const isSubmitting = ref(false)
+const composerError = ref('')
 const selectedCategory = ref(route.query.category || '')
-const currentSort = ref(route.query.sort || 'latest')
-const searchQuery = ref(route.query.search || '')
-
-onMounted(async () => {
-  await Promise.all([forumStore.fetchCategories(), forumStore.fetchTags(), fetchThreads()])
-})
-
-const fetchThreads = async () => {
+const currentSort = ref(route.query.sort || DEFAULT_SORT)
+const searchQuery = ref(
+  String(route.query.search || '').slice(0, FORUM_CONSTANTS.SEARCH_MAX_LENGTH),
+)
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
+const allDiscussions = computed(() => ({
+  name: 'All Discussions',
+  slug: '',
+  description: 'Everything in one place',
+  threads_count: forumStore.categories.reduce(
+    (total, category) => total + (category.threads_count || 0),
+    0,
+  ),
+}))
+const title = computed(
+  () =>
+    forumStore.categories.find((category) => category.slug === selectedCategory.value)?.name ||
+    'Community Forum',
+)
+let searchTimeout
+onMounted(() => Promise.all([forumStore.fetchCategories(), forumStore.fetchTags(), fetchThreads()]))
+onUnmounted(() => clearTimeout(searchTimeout))
+async function fetchThreads() {
+  if (searchQuery.value.length > FORUM_CONSTANTS.SEARCH_MAX_LENGTH) return
   await forumStore.fetchThreads({
     category: selectedCategory.value,
     sort: currentSort.value,
@@ -36,227 +59,181 @@ const fetchThreads = async () => {
     page: forumStore.pagination.currentPage,
   })
 }
-
-// Watch filters to trigger fetch
 watch([selectedCategory, currentSort], () => {
-  // Update URL
   router.replace({
     query: {
       ...route.query,
       category: selectedCategory.value || undefined,
-      sort: currentSort.value !== 'latest' ? currentSort.value : undefined,
+      sort: currentSort.value !== DEFAULT_SORT ? currentSort.value : undefined,
     },
   })
-  forumStore.pagination.currentPage = 1
+  forumStore.pagination.currentPage = FIRST_PAGE
   fetchThreads()
 })
-
-let searchTimeout = null
-const handleSearch = () => {
+function handleSearch() {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     router.replace({ query: { ...route.query, search: searchQuery.value || undefined } })
-    forumStore.pagination.currentPage = 1
+    forumStore.pagination.currentPage = FIRST_PAGE
     fetchThreads()
   }, SEARCH_DEBOUNCE_MS)
 }
-
-const handleComposerSubmit = async (data) => {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
+function requestCreate(data) {
+  const draft = { ...data, tag_ids: [...data.tag_ids] }
+  confirm(
+    {
+      title: 'Post this discussion?',
+      message: 'Your discussion will be shared with the community.',
+      confirmText: 'Post discussion',
+    },
+    () => createThread(draft),
+  )
+}
+async function createThread(data) {
+  composerError.value = ''
   try {
     await forumStore.createThread(data)
     showComposer.value = false
-    // Refresh the categories and threads list instead of navigating away
     await Promise.all([forumStore.fetchCategories(), fetchThreads()])
   } catch (error) {
-    console.error(error)
-    // Handled in store
-  } finally {
-    isSubmitting.value = false
+    composerError.value =
+      error.response?.data?.message || 'Failed to post discussion. Please retry.'
   }
 }
-
-const handleVote = (threadId, val) => {
-  forumStore.voteThread(threadId, val)
+function handleVote(id, value) {
+  confirm(
+    {
+      title: 'Update your vote?',
+      message: 'Your vote on this discussion will be updated.',
+      confirmText: 'Vote',
+    },
+    () => forumStore.voteThread(id, value),
+  )
 }
-
-const clearFilters = () => {
+function openComposer() {
+  composerError.value = ''
+  showComposer.value = true
+}
+function closeComposer() {
+  if (!isExecuting.value) showComposer.value = false
+}
+function clearFilters() {
   selectedCategory.value = ''
-  currentSort.value = 'latest'
+  currentSort.value = DEFAULT_SORT
   searchQuery.value = ''
+  handleSearch()
 }
-
-const changePage = async (delta) => {
-  const { currentPage, lastPage } = forumStore.pagination
-  const nextPage = currentPage + delta
-  if (nextPage < 1 || nextPage > lastPage) return
+async function changePage(delta) {
+  const nextPage = forumStore.pagination.currentPage + delta
+  if (nextPage < FIRST_PAGE || nextPage > forumStore.pagination.lastPage) return
   forumStore.pagination.currentPage = nextPage
   await fetchThreads()
 }
 </script>
-
 <template>
-  <div class="h-full flex flex-col">
-    <!-- Top Header: Title & Actions -->
-    <div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8">
-      <h1 class="font-serif text-3xl font-bold text-stone-900 w-full lg:w-auto">
-        {{
-          selectedCategory
-            ? forumStore.categories.find((c) => c.slug === selectedCategory)?.name ||
-              'Community Forum'
-            : 'Community Forum'
-        }}
-      </h1>
-
-      <div class="flex items-center gap-3 w-full lg:w-auto flex-wrap sm:flex-nowrap">
-        <div class="relative w-full sm:w-64">
-          <input
-            v-model="searchQuery"
-            @input="handleSearch"
-            type="text"
-            placeholder="Search discussions..."
-            class="w-full pl-10 pr-4 py-2 rounded-full border-stone-300 shadow-soft focus:ring-moss-500 focus:border-moss-500 text-sm"
-          />
-          <svg
-            class="w-5 h-5 text-stone-400 absolute left-3 top-2.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            ></path>
-          </svg>
-        </div>
-
-        <select
-          v-model="currentSort"
-          class="appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%20stroke%3D%22%236b7280%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22M6%208l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_1rem_center] bg-no-repeat rounded-full border-stone-300 shadow-soft focus:ring-moss-500 focus:border-moss-500 text-sm py-2 pl-4 pr-12"
-        >
-          <option v-for="opt in THREAD_SORT_OPTIONS" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
-
-        <AppButton
-          rounded="full"
-          @click="showComposer = true"
-          class="!py-2 !text-sm border border-transparent justify-center bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 text-white font-medium shadow-soft hover:shadow-organic px-5 transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap"
-        >
-          <span class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              ></path>
-            </svg>
-            New Discussion
-          </span>
-        </AppButton>
-      </div>
+  <div class="space-y-6">
+    <PageHeader :title="title" description="Share practical knowledge with your farming community."
+      ><template #actions
+        ><AppButton @click="openComposer">New Discussion</AppButton></template
+      ></PageHeader
+    >
+    <div class="grid items-end gap-4 sm:grid-cols-2">
+      <SearchInput
+        id="forum-search"
+        aria-label="Search discussions"
+        v-model="searchQuery"
+        :minlength="FORUM_CONSTANTS.SEARCH_MIN_LENGTH"
+        :maxlength="FORUM_CONSTANTS.SEARCH_MAX_LENGTH"
+        placeholder="Search discussions..."
+        @update:model-value="handleSearch"
+      />
+      <AppSelect
+        id="forum-sort"
+        label="Sort discussions"
+        v-model="currentSort"
+        :options="THREAD_SORT_OPTIONS"
+      />
     </div>
-
-    <!-- Content Columns -->
-    <div class="flex flex-col md:flex-row gap-8">
-      <!-- Left Sidebar: Categories -->
-      <aside class="w-full md:w-64 flex-shrink-0">
-        <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-4">
-          <h2 class="font-serif text-lg font-bold text-stone-900 mb-4">Categories</h2>
-          <div class="space-y-1">
-            <CategoryCard
-              :category="{
-                name: 'All Discussions',
-                slug: '',
-                icon_emoji: '🌍',
-                description: 'Everything in one place',
-                threads_count: forumStore.categories.reduce(
-                  (acc, cat) => acc + cat.threads_count,
-                  0,
-                ),
-              }"
-              :isSelected="selectedCategory === ''"
-              @select="selectedCategory = ''"
-            />
-            <CategoryCard
-              v-for="cat in forumStore.categories"
-              :key="cat.id"
-              :category="cat"
-              :isSelected="selectedCategory === cat.slug"
-              @select="(slug) => (selectedCategory = slug)"
-            />
-          </div>
-        </div>
+    <div class="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <aside>
+        <AppCard padding="p-4"
+          ><h2 class="font-serif text-2xl font-bold text-stone-900 mb-4">Categories</h2>
+          <CategoryCard
+            :category="allDiscussions"
+            :is-selected="selectedCategory === ''"
+            @select="selectedCategory = ''" /><CategoryCard
+            v-for="category in forumStore.categories"
+            :key="category.id"
+            :category="category"
+            :is-selected="selectedCategory === category.slug"
+            @select="selectedCategory = $event"
+        /></AppCard>
       </aside>
-
-      <!-- Main Content: Threads List -->
-      <main class="flex-grow min-w-0">
-        <!-- Thread List -->
-        <div class="space-y-4">
-          <div
-            v-if="forumStore.isLoading"
-            class="space-y-4"
-            role="status"
-            aria-label="Loading discussions"
+      <section aria-label="Discussions" class="min-w-0 space-y-4">
+        <LoadingState v-if="forumStore.isLoading" label="Loading discussions"
+          ><div class="space-y-4">
+            <SkeletonCard v-for="number in THREAD_SKELETON_COUNT" :key="number" with-avatar /></div
+        ></LoadingState>
+        <AppCard v-else-if="forumStore.fetchError" role="alert"
+          ><p class="mb-3">{{ forumStore.fetchError }}</p>
+          <AppButton variant="outline" @click="fetchThreads">Retry discussions</AppButton></AppCard
+        >
+        <template v-else-if="forumStore.threads.length"
+          ><ThreadCard
+            v-for="thread in forumStore.threads"
+            :key="thread.id"
+            :thread="thread"
+            @vote="handleVote"
+          />
+          <nav
+            v-if="forumStore.pagination.lastPage > 1"
+            aria-label="Discussion pages"
+            class="flex justify-center gap-3"
           >
-            <SkeletonCard v-for="n in THREAD_SKELETON_COUNT" :key="n" withAvatar />
-            <span class="sr-only">Loading discussions...</span>
-          </div>
-          <template v-else-if="forumStore.threads.length > 0">
-            <ThreadCard
-              v-for="thread in forumStore.threads"
-              :key="thread.id"
-              :thread="thread"
-              @vote="handleVote"
-            />
-
-            <!-- Pagination -->
-            <div class="flex justify-center mt-8 gap-2" v-if="forumStore.pagination.lastPage > 1">
-              <AppButton
-                variant="outline"
-                :disabled="forumStore.pagination.currentPage === 1"
-                @click="changePage(PAGINATION_DIRECTION.PREVIOUS)"
-              >
-                Previous
-              </AppButton>
-              <AppButton
-                variant="outline"
-                :disabled="forumStore.pagination.currentPage === forumStore.pagination.lastPage"
-                @click="changePage(PAGINATION_DIRECTION.NEXT)"
-              >
-                Next
-              </AppButton>
-            </div>
-          </template>
-          <div
-            v-else
-            class="text-center py-16 bg-white rounded-2xl shadow-soft border border-stone-200"
-          >
-            <div class="text-5xl mb-4">🌱</div>
-            <h3 class="font-serif text-xl font-bold text-stone-900 mb-2">No discussions found</h3>
-            <p class="text-stone-500 max-w-md mx-auto mb-6">
-              We couldn't find any discussions matching your current filters.
-            </p>
-            <AppButton variant="outline" @click="clearFilters">Clear Filters</AppButton>
-          </div>
-        </div>
-      </main>
+            <AppButton
+              variant="outline"
+              :disabled="forumStore.pagination.currentPage === 1"
+              @click="changePage(PAGINATION_DIRECTION.PREVIOUS)"
+              >Previous</AppButton
+            ><AppButton
+              variant="outline"
+              :disabled="forumStore.pagination.currentPage === forumStore.pagination.lastPage"
+              @click="changePage(PAGINATION_DIRECTION.NEXT)"
+              >Next</AppButton
+            >
+          </nav></template
+        >
+        <EmptyState
+          v-else
+          title="No discussions found"
+          description="Try changing your search or category."
+          ><template #action
+            ><AppButton variant="outline" @click="clearFilters">Clear Filters</AppButton></template
+          ></EmptyState
+        >
+      </section>
     </div>
-
-    <!-- Composer Modal -->
-    <AppModal :isOpen="showComposer" @close="showComposer = false">
-      <ThreadComposer
+    <AppModal
+      title="New community post"
+      :is-open="showComposer"
+      :busy="isExecuting"
+      @close="closeComposer"
+      ><ThreadComposer
         :categories="forumStore.categories"
         :tags="forumStore.tags"
-        :isSubmitting="isSubmitting"
-        @submit="handleComposerSubmit"
-        @cancel="showComposer = false"
-      />
-    </AppModal>
+        :is-submitting="isExecuting"
+        :error="composerError"
+        @submit="requestCreate"
+        @cancel="closeComposer"
+    /></AppModal>
+    <ConfirmModal
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :confirm-text="config.confirmText"
+      :loading="isExecuting"
+      @confirm="execute"
+      @cancel="cancel"
+    />
   </div>
 </template>

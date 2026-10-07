@@ -8,12 +8,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project=chromium --project=mobile-chromium",
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write \"src/**/*.{vue,js,ts}\"",
-    "format:check": "prettier --check \"src/**/*.{vue,js,ts}\""
+    "format:check": "prettier --check \"src/**/*.{vue,js,ts}\"",
+    "lint:check": "oxlint . && eslint . --no-cache"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",

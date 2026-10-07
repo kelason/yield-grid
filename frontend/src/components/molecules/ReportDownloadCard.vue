@@ -47,7 +47,7 @@ const statusText = computed(() => {
 <template>
   <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
     <h3 class="font-serif text-2xl font-bold text-stone-900">PDF Report</h3>
-    <p class="text-base text-stone-600 font-light leading-relaxed mt-2">
+    <p class="text-base text-stone-600 font-normal leading-relaxed mt-2">
       Generate a shareable report for Land Bank, ACPC, or rural bank loan applications.
     </p>
     <p

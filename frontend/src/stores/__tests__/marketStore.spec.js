@@ -29,6 +29,23 @@ describe('marketStore', () => {
     expect(store.buyerPurchases).toEqual([])
   })
 
+  it('allows the overview to fetch unfiltered purchases without changing history filters', async () => {
+    store.buyerPurchasesFilters.search = 'corn'
+    mockGet.mockResolvedValue({ data: { data: [] } })
+    await store.fetchBuyerPurchases(1, { filters: { search: '', sort: 'newest', status: null } })
+    expect(mockGet.mock.calls[0][0]).not.toContain('search=corn')
+    expect(store.buyerPurchasesFilters.search).toBe('corn')
+  })
+
+  it('exposes purchase-load errors for retry instead of presenting a false empty state', async () => {
+    mockGet.mockRejectedValueOnce(new Error('Offline'))
+    await store.fetchBuyerPurchases()
+    expect(store.buyerPurchasesError).toBeTruthy()
+    mockGet.mockResolvedValue({ data: { data: [] } })
+    await store.fetchBuyerPurchases()
+    expect(store.buyerPurchasesError).toBe(null)
+  })
+
   it('fetches market contracts successfully', async () => {
     const mockData = {
       data: [{ id: 1, title: 'Test Contract' }],

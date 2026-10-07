@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { useConfirmModal } from '../useConfirmModal'
+import { usePendingConfirmation } from '../useConfirmModal'
+import { ref } from 'vue'
 
 function deferred() {
   let resolve
@@ -10,6 +12,29 @@ function deferred() {
 }
 
 describe('useConfirmModal', () => {
+  it('holds pending data and ignores cancel/repeated execution until the request settles', async () => {
+    const pending = ref({ id: 7 })
+    const modal = usePendingConfirmation(pending)
+    const gate = deferred()
+    const action = vi.fn(() => gate.promise)
+    const running = modal.execute(action)
+    modal.cancel()
+    await modal.execute(action)
+    expect(pending.value).toEqual({ id: 7 })
+    expect(action).toHaveBeenCalledTimes(1)
+    expect(action).toHaveBeenCalledWith({ id: 7 })
+    gate.resolve()
+    await running
+    expect(pending.value).toBeNull()
+    expect(modal.isExecuting.value).toBe(false)
+  })
+  it('resets action-specific text before opening the next confirmation', () => {
+    const modal = useConfirmModal()
+    modal.confirm({ title: 'Pay', message: 'Pay?', confirmText: 'Pay now' }, () => {})
+    modal.cancel()
+    modal.confirm({ title: 'Save', message: 'Save?' }, () => {})
+    expect(modal.config.value.confirmText).toBeUndefined()
+  })
   it('tracks execution while the confirmed action runs', async () => {
     const modal = useConfirmModal()
     const gate = deferred()

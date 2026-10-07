@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white rounded-2xl border border-stone-200 shadow-soft p-6 sm:p-8">
     <h2 class="font-serif text-2xl font-bold text-stone-900">Check two crops</h2>
-    <p class="text-base text-stone-600 font-light leading-relaxed mt-1 mb-6">
+    <p class="text-base text-stone-600 font-normal leading-relaxed mt-1 mb-6">
       See whether a pair fits together in rotation and as companions before you plant.
     </p>
 
@@ -71,7 +71,7 @@
             <li
               v-for="(reason, index) in result.rotation?.reasons || []"
               :key="index"
-              class="text-sm text-stone-600 font-light leading-relaxed"
+              class="text-sm text-stone-600 font-normal leading-relaxed"
             >
               {{ reason }}
             </li>
@@ -83,7 +83,7 @@
             <li
               v-for="(reason, index) in result.companion?.reasons || []"
               :key="index"
-              class="text-sm text-stone-600 font-light leading-relaxed"
+              class="text-sm text-stone-600 font-normal leading-relaxed"
             >
               {{ reason }}
             </li>

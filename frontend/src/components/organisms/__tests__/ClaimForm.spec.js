@@ -62,7 +62,9 @@ describe('ClaimForm', () => {
     expect(wrapper.text()).toContain('/ 5000')
 
     await wrapper.get('[data-testid="claim-loss-date"] input').setValue('2026-08-15')
-    await wrapper.get('[data-testid="claim-description"]').setValue('d'.repeat(5001))
+    // Bypass native/shared input clamping to verify the submit-time guard.
+    wrapper.vm.description = 'd'.repeat(5001)
+    await wrapper.vm.$nextTick()
     await wrapper.get('form').trigger('submit')
 
     expect(wrapper.emitted('submit-claim')).toBeFalsy()

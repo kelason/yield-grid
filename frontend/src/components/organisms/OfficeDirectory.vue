@@ -13,7 +13,7 @@ const { t } = useI18n()
 <template>
   <AppCard>
     <h2 class="font-serif text-2xl font-bold text-stone-900">{{ t('insurance.offices.title') }}</h2>
-    <p class="mt-1 text-base text-stone-600 font-light leading-relaxed">
+    <p class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
       {{ t('insurance.offices.subtitle') }}
     </p>
     <div v-if="offices.length === 0" data-testid="offices-empty" class="mt-4">
@@ -27,7 +27,7 @@ const { t } = useI18n()
         v-for="office in offices"
         :key="office.region_code || 'head'"
         data-testid="office-card"
-        class="rounded-2xl border p-5 transition-all duration-300 hover:shadow-organic hover:-translate-y-1"
+        class="rounded-2xl border p-5 transition-all duration-300"
         :class="
           office.is_serving_region
             ? 'border-moss-300 bg-moss-50 shadow-soft'
@@ -50,15 +50,15 @@ const { t } = useI18n()
           </span>
         </div>
         <p v-if="office.city" class="mt-1 text-sm font-medium text-soil-700">{{ office.city }}</p>
-        <p v-if="office.address" class="mt-1 text-base text-stone-600 font-light leading-relaxed">
+        <p v-if="office.address" class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
           {{ office.address }}
         </p>
-        <p v-if="office.phone" class="mt-1 text-base text-stone-600 font-light">
+        <p v-if="office.phone" class="mt-1 text-base text-stone-600 font-normal">
           {{ office.phone }}
         </p>
         <p
           v-if="!office.phone && !office.address"
-          class="mt-2 text-sm text-stone-600 font-light italic"
+          class="mt-2 text-sm text-stone-600 font-normal italic"
         >
           {{ t('insurance.offices.no_contact') }}
         </p>

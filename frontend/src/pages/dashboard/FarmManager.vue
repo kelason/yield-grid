@@ -6,6 +6,12 @@ import { useAuthStore } from '../../stores/auth'
 import AppButton from '../../components/atoms/AppButton.vue'
 import FarmCard from '../../components/molecules/FarmCard.vue'
 import CreateFarmForm from '../../components/organisms/CreateFarmForm.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import AppAlert from '@/components/atoms/AppAlert.vue'
+import { HomeModernIcon } from '@heroicons/vue/24/outline'
 import AppCard from '../../components/atoms/AppCard.vue'
 
 const router = useRouter()
@@ -16,10 +22,17 @@ const showCreateForm = ref(false)
 const createError = ref('')
 const isCreating = ref(false)
 const SKELETON_COUNT = 3
+const farmsError = ref('')
 
-onMounted(() => {
-  farmingStore.fetchFarms()
-})
+async function loadFarms() {
+  farmsError.value = ''
+  try {
+    await farmingStore.fetchFarms()
+  } catch (error) {
+    farmsError.value = error.response?.data?.message || 'Could not load your farms. Please retry.'
+  }
+}
+onMounted(loadFarms)
 
 async function handleCreateFarm(payload) {
   isCreating.value = true
@@ -49,39 +62,23 @@ function handleViewRecommendations(farmId) {
 
 <template>
   <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
-      <div>
-        <h2 class="font-serif text-xl font-bold text-stone-900 tracking-tight">My Farms</h2>
-        <p class="text-sm text-stone-500 mt-0.5">
-          {{ farmingStore.farms.length }} farm(s) registered
-        </p>
-      </div>
-      <AppButton
-        v-if="farmingStore.farms.length"
-        variant="primary"
-        rounded="full"
-        :disabled="!authStore.isEmailVerified"
-        @click="showCreateForm = !showCreateForm"
+    <PageHeader
+      title="My Farms"
+      :description="
+        farmingStore.loading
+          ? 'Loading your registered farms…'
+          : `${farmingStore.farms.length} farm(s) registered`
+      "
+    >
+      <template #actions
+        ><AppButton
+          v-if="farmingStore.farms.length"
+          :disabled="!authStore.isEmailVerified"
+          @click="showCreateForm = !showCreateForm"
+          >{{ showCreateForm ? 'Cancel' : 'Add Farm' }}</AppButton
+        ></template
       >
-        <svg
-          class="mr-2 h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        {{ showCreateForm ? 'Cancel' : 'Add Farm' }}
-      </AppButton>
-    </div>
-
+    </PageHeader>
     <!-- Create form panel -->
     <Transition
       enter-active-class="transition-all duration-200 ease-out"
@@ -92,7 +89,7 @@ function handleViewRecommendations(farmId) {
       <div v-if="showCreateForm">
         <AppCard variant="muted">
           <div class="flex items-center gap-2 mb-5">
-            <span class="text-xl">🏡</span>
+            <HomeModernIcon class="h-6 w-6 text-moss-700" aria-hidden="true" />
             <h3 class="font-serif text-base font-bold text-stone-900">Create New Farm</h3>
           </div>
           <CreateFarmForm
@@ -105,61 +102,27 @@ function handleViewRecommendations(farmId) {
       </div>
     </Transition>
 
-    <!-- Loading skeleton -->
-    <div
+    <LoadingState
       v-if="farmingStore.loading && !farmingStore.farms.length"
+      label="Loading farms"
       class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
-    >
-      <div
-        v-for="n in SKELETON_COUNT"
-        :key="n"
-        class="animate-pulse bg-white rounded-2xl border border-stone-100 shadow-soft p-6 space-y-4"
-      >
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-stone-200 rounded-xl"></div>
-          <div class="flex-1 space-y-2">
-            <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
-            <div class="h-3 bg-stone-100 rounded-xl w-1/2"></div>
-          </div>
-        </div>
-        <div class="h-10 bg-stone-100 rounded-xl"></div>
-        <div class="h-9 bg-stone-200 rounded-xl"></div>
-      </div>
+      ><SkeletonCard v-for="n in SKELETON_COUNT" :key="n" withAction
+    /></LoadingState>
+    <div v-else-if="farmsError" class="space-y-3">
+      <AppAlert type="error">{{ farmsError }}</AppAlert
+      ><AppButton @click="loadFarms">Retry</AppButton>
     </div>
-
-    <!-- Empty state -->
-    <div
+    <EmptyState
       v-else-if="!farmingStore.farms.length && !showCreateForm"
-      class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-stone-200 hover:border-moss-300 transition-colors duration-200"
+      title="No farms yet"
+      description="Create your first farm to start planning plots and getting crop recommendations."
     >
-      <div class="text-5xl mb-4">🌾</div>
-      <h3 class="font-serif text-base font-semibold text-stone-900 mb-1">No farms yet</h3>
-      <p class="text-sm text-stone-500 mb-6 max-w-xs mx-auto">
-        Create your first farm to start planning plots and getting AI crop recommendations.
-      </p>
-      <AppButton
-        variant="primary"
-        rounded="full"
-        :disabled="!authStore.isEmailVerified"
-        @click="showCreateForm = true"
+      <template #action
+        ><AppButton :disabled="!authStore.isEmailVerified" @click="showCreateForm = true"
+          >Create First Farm</AppButton
+        ></template
       >
-        <svg
-          class="mr-2 h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Create First Farm
-      </AppButton>
-    </div>
+    </EmptyState>
 
     <!-- Farm grid -->
     <div v-else-if="!showCreateForm" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">

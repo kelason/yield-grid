@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useChatStore } from '../../stores/chatStore'
 import UnreadBadge from '../atoms/UnreadBadge.vue'
+import { isNavigationActive } from '@/composables/useDashboardNavigation'
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -12,33 +13,26 @@ const props = defineProps({
 const route = useRoute()
 const chatStore = useChatStore()
 
-const isActive = computed(() => {
-  const to = props.item.to
-  if (to.name === 'recommendations') {
-    return route.name === 'recommendations' || route.name === 'crop-recommendations'
-  }
-  if (to.name === 'farm-manager') {
-    return route.name === 'farm-manager' || route.name === 'plot-planner'
-  }
-  return route.name === to.name || route.path.startsWith(to.path || '/not-a-path')
-})
+const isActive = computed(() => isNavigationActive(props.item.to, route))
 </script>
 
 <template>
   <RouterLink
     :to="item.to"
+    :aria-label="item.name"
+    :aria-current="isActive ? 'page' : undefined"
     :class="[
       isActive
-        ? 'bg-moss-50 text-moss-700 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
-        : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900 border-l-[3px] border-transparent pl-2',
-      'group flex items-center py-2.5 text-sm font-medium rounded-xl transition-all duration-150',
+        ? 'bg-moss-100 text-moss-800 border-l-[3px] border-moss-500 pl-[calc(0.5rem-3px)]'
+        : 'text-stone-100 hover:bg-soil-700 hover:text-white border-l-[3px] border-transparent pl-2',
+      'group flex min-h-11 items-center py-2.5 text-sm font-medium rounded-xl transition-all duration-150',
       collapsed ? 'justify-center pr-2' : 'pr-2',
     ]"
     :title="collapsed ? item.name : ''"
   >
     <svg
       :class="[
-        isActive ? 'text-moss-600' : 'text-stone-400 group-hover:text-stone-500',
+        isActive ? 'text-moss-600' : 'text-stone-300 group-hover:text-white',
         'flex-shrink-0 h-5 w-5',
         collapsed ? '' : 'mr-3',
       ]"

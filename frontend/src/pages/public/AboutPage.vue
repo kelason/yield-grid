@@ -1,120 +1,63 @@
+<script setup>
+import AppCard from '@/components/atoms/AppCard.vue'
+import { PLATFORM_FEATURES } from '@/constants/platformFeatures'
+</script>
 <template>
-  <div class="bg-white">
-    <!-- Hero -->
-    <div
-      class="relative bg-gradient-to-br from-stone-50 via-white to-moss-50 py-20 overflow-hidden"
-    >
-      <div
-        class="absolute top-0 right-0 w-96 h-96 bg-moss-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"
-        aria-hidden="true"
-      ></div>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <span
-          class="inline-flex items-center gap-1.5 bg-moss-100 text-moss-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-moss-200 mb-6"
-        >
-          <span class="w-1.5 h-1.5 rounded-full bg-moss-500 animate-pulse"></span>
-          Our Story
-        </span>
-        <h1 class="font-serif text-5xl font-extrabold text-stone-900 tracking-tight mb-6">
-          Empowering the<br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-moss-500 to-moss-700"
-            >Modern Farmer</span
-          >
+  <div class="bg-stone-50">
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div class="max-w-3xl">
+        <p class="mb-5 text-sm font-medium uppercase tracking-widest text-moss-700">Our purpose</p>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          Growing together, season after season.
         </h1>
-        <p class="text-lg text-stone-600 font-light max-w-2xl mx-auto leading-relaxed">
-          YieldGrid was founded with a single mission: to bring cutting-edge AI and market analytics
-          to farmers of all sizes. By bridging the gap between local growers and high-demand buyers,
-          we help create sustainable, profitable agricultural ecosystems.
+        <p class="mt-6 text-lg text-stone-600 leading-relaxed">
+          YieldGrid connects crop planning, harvest trading, farm support and community in one
+          workspace. Farmers can care for their land and manage the next harvest; buyers can find
+          crops, share their requirements and build direct relationships with the people who grow
+          their food.
         </p>
       </div>
-    </div>
-
-    <!-- Stats strip -->
-    <div class="bg-moss-600 text-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div v-for="stat in stats" :key="stat.label">
-            <div class="text-3xl font-extrabold mb-1">{{ stat.value }}</div>
-            <div class="text-sm text-moss-200">{{ stat.label }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Features grid -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-      <div class="text-center mb-14">
-        <h2 class="font-serif text-3xl font-extrabold text-stone-900 tracking-tight mb-3">
-          Built for every stage of farming
+      <div class="mt-16">
+        <h2 class="font-serif text-3xl font-bold text-stone-900">
+          Support for the whole growing season
         </h2>
-        <p class="text-stone-500 max-w-xl mx-auto text-base">
-          From planning to harvest, YieldGrid gives you the tools to work smarter.
+        <p class="mt-4 max-w-2xl text-base text-stone-600 leading-relaxed">
+          Practical tools for planning, trading, insurance records and the conversations that keep
+          farmers and buyers connected.
         </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="feature in features"
-          :key="feature.title"
-          class="bg-white border border-stone-100 rounded-2xl p-6 shadow-soft hover:shadow-soft hover:-translate-y-1 hover:border-moss-200 transition-all duration-200"
-        >
-          <div
-            class="w-12 h-12 rounded-xl bg-gradient-to-br from-moss-50 to-moss-100 flex items-center justify-center text-2xl mb-4 border border-moss-100"
+        <div class="mt-8 grid gap-5 sm:grid-cols-2">
+          <AppCard v-for="feature in PLATFORM_FEATURES" :key="feature.title" padding="p-6 sm:p-8"
+            ><component :is="feature.icon" class="mb-5 h-7 w-7 text-moss-700" aria-hidden="true" />
+            <h3 class="font-serif text-2xl font-bold text-stone-900">{{ feature.title }}</h3>
+            <p class="mt-3 text-base text-stone-600 leading-relaxed">
+              {{ feature.description }}
+            </p></AppCard
           >
-            {{ feature.icon }}
-          </div>
-          <h3 class="font-serif text-base font-bold text-stone-900 mb-2">{{ feature.title }}</h3>
-          <p class="text-sm text-stone-500 leading-relaxed">{{ feature.description }}</p>
         </div>
       </div>
-    </div>
+      <section aria-labelledby="people-heading" class="mt-16">
+        <h2 id="people-heading" class="font-serif text-3xl font-bold text-stone-900">
+          Different roles. A shared harvest.
+        </h2>
+        <div class="mt-8 grid gap-5 sm:grid-cols-2">
+          <AppCard padding="p-6 sm:p-8">
+            <h3 class="font-serif text-2xl font-bold text-stone-900">For farmers</h3>
+            <p class="mt-3 text-base text-stone-600 leading-relaxed">
+              Map your land, compare crop options and plan around local weather. Publish harvest
+              listings, respond to buyer demands and manage payment confirmations. Keep insurance
+              records and your trust profile organized, with a community to learn from.
+            </p>
+          </AppCard>
+          <AppCard padding="p-6 sm:p-8">
+            <h3 class="font-serif text-2xl font-bold text-stone-900">For buyers</h3>
+            <p class="mt-3 text-base text-stone-600 leading-relaxed">
+              Browse harvests and forward contracts, post the crops and quantities you need, and
+              compare farmer offers. Manage purchases and delivery addresses, then use direct
+              messaging to discuss the details with your trading partners.
+            </p>
+          </AppCard>
+        </div>
+      </section>
+    </section>
   </div>
 </template>
-
-<script setup>
-const stats = [
-  { value: '10,000+', label: 'Farmers onboarded' },
-  { value: '50,000+', label: 'Plots analysed' },
-  { value: '95%', label: 'Recommendation accuracy' },
-  { value: '40+', label: 'Countries served' },
-]
-
-const features = [
-  {
-    icon: '🤖',
-    title: 'AI Crop Advisor',
-    description:
-      'GPT-powered recommendations tuned to your soil composition, local climate patterns, and current market demand.',
-  },
-  {
-    icon: '🗺️',
-    title: 'Interactive Plot Mapping',
-    description:
-      'Draw precise farm plot boundaries on a live map with PostGIS-backed geometry for accurate area calculations.',
-  },
-  {
-    icon: '📈',
-    title: 'Market Connectivity',
-    description:
-      'List your crops and connect with verified buyers. Lock in forward contracts before you even plant a seed.',
-  },
-  {
-    icon: '🌤️',
-    title: 'Live Weather Integration',
-    description:
-      'Real-time weather data from OpenWeatherMap, integrated into every AI recommendation for your location.',
-  },
-  {
-    icon: '📊',
-    title: 'Yield Analytics',
-    description:
-      'Track projected vs actual yields per plot over time to optimise future crop planning.',
-  },
-  {
-    icon: '🔔',
-    title: 'Real-Time Alerts',
-    description:
-      'Instant WebSocket notifications when your AI analysis completes or a buyer responds to your listing.',
-  },
-]
-</script>

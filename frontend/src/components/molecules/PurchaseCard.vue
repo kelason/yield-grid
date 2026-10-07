@@ -1,5 +1,7 @@
 <script setup>
 import AppCard from '@/components/atoms/AppCard.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import { ShoppingBagIcon } from '@heroicons/vue/24/outline'
 import { ChatBubbleLeftRightIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -12,6 +14,7 @@ const props = defineProps({
 defineEmits(['cancel', 'message'])
 
 import { computed } from 'vue'
+import { PAYMENT_STATUS } from '@/constants/payment'
 
 const statusStyles = {
   completed: 'bg-moss-50 text-moss-700 border border-moss-200/60',
@@ -22,7 +25,7 @@ const statusStyles = {
 
 const displayStatus = computed(() => {
   const p = props.purchase
-  if (p.payment_status === 'completed') {
+  if (p.payment_status === PAYMENT_STATUS.COMPLETED) {
     const total = parseFloat(p.total_contract_amount)
     const paid = parseFloat(p.amount_paid)
     if (p.is_downpayment && (Number.isNaN(total) || paid < total)) {
@@ -63,20 +66,17 @@ function formatDate(dateStr) {
 </script>
 
 <template>
-  <AppCard
-    class="group hover:border-moss-300 hover:shadow-organic transition-all duration-300 motion-reduce:transition-none"
-    padding="p-5"
-  >
+  <AppCard class="group" padding="p-5">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
       <!-- Left: crop info -->
       <div class="flex items-center gap-4 min-w-0">
         <div
           class="w-12 h-12 rounded-2xl bg-gradient-to-br from-moss-50 to-moss-100/50 flex items-center justify-center text-2xl flex-shrink-0 border border-moss-100"
         >
-          🌱
+          <ShoppingBagIcon class="h-5 w-5 text-moss-700" aria-hidden="true" />
         </div>
         <div class="min-w-0">
-          <h3 class="font-serif font-bold text-stone-900 text-[17px] leading-tight truncate">
+          <h3 class="font-serif font-bold text-stone-900 text-[17px] leading-tight break-words">
             {{
               purchase.contract?.crop_name || purchase.demand_offer?.crop_name || 'Forward Contract'
             }}
@@ -98,21 +98,23 @@ function formatDate(dateStr) {
 
       <!-- Right: status + amount + actions -->
       <div
-        class="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-stone-100"
+        class="flex flex-wrap items-center justify-between sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-stone-100"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex flex-wrap items-center gap-4">
           <span
             :class="displayStyle"
-            class="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+            class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"
           >
             {{ displayStatus }}
           </span>
 
           <div class="text-right min-w-[100px]">
-            <p class="text-lg font-extrabold text-stone-900 tracking-tight leading-none">
+            <p
+              class="text-lg font-semibold text-stone-900 tracking-tight leading-relaxed break-all tabular-nums"
+            >
               {{ formatCurrency(purchase.amount_paid) }}
             </p>
-            <p class="text-[11px] font-medium text-stone-400 uppercase tracking-wider mt-1.5">
+            <p class="text-xs font-medium text-stone-600 uppercase tracking-wider mt-1.5">
               {{ purchase.payment_method || '—' }}
             </p>
           </div>
@@ -120,27 +122,31 @@ function formatDate(dateStr) {
 
         <!-- Actions (icon buttons in a horizontal row) -->
         <div class="flex flex-row items-center justify-end gap-2 flex-shrink-0">
-          <button
+          <AppButton
+            variant="outline"
+            size="sm"
             v-if="purchase.contract?.farmer?.id || purchase.demand_offer?.farmer?.id"
             @click="$emit('message', purchase)"
             title="Message farmer"
             aria-label="Message farmer"
-            class="p-2 rounded-xl text-moss-700 border border-moss-300 hover:bg-moss-50 hover:border-moss-500 transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 shadow-soft"
+            class="p-2"
           >
             <ChatBubbleLeftRightIcon class="h-5 w-5" aria-hidden="true" />
-          </button>
-          <button
+          </AppButton>
+          <AppButton
+            variant="danger"
+            size="sm"
             v-if="
-              purchase.payment_status === 'pending' &&
+              purchase.payment_status === PAYMENT_STATUS.PENDING &&
               purchase.cash_payment_status !== 'partially_paid'
             "
             @click="$emit('cancel', purchase)"
             title="Cancel purchase"
             aria-label="Cancel purchase"
-            class="p-2 rounded-xl text-red-600 border border-red-200 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shadow-soft"
+            class="p-2"
           >
             <XMarkIcon class="h-5 w-5" aria-hidden="true" />
-          </button>
+          </AppButton>
         </div>
       </div>
     </div>

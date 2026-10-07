@@ -92,7 +92,7 @@ const submit = () => {
 <template>
   <AppCard>
     <h2 class="font-serif text-2xl font-bold text-stone-900">{{ t('insurance.guide.title') }}</h2>
-    <p class="mt-1 text-base text-stone-600 font-light leading-relaxed">
+    <p class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
       {{ t('insurance.guide.subtitle') }}
     </p>
 
@@ -117,7 +117,7 @@ const submit = () => {
           <span class="block text-base font-medium text-stone-900">{{
             t(`insurance.guide.step_${step.key}_title`)
           }}</span>
-          <span class="block text-sm text-stone-600 font-light">{{
+          <span class="block text-sm text-stone-600 font-normal">{{
             t(`insurance.guide.step_${step.key}_text`)
           }}</span>
         </span>
@@ -171,7 +171,7 @@ const submit = () => {
           :placeholder="t('insurance.guide.notes_placeholder')"
           :maxlength="INSURANCE_LIMITS.NOTES_MAX_LENGTH"
         />
-        <p class="mt-1 text-sm text-stone-600 font-light">
+        <p class="mt-1 text-sm text-stone-600 font-normal">
           {{ notes.length }} / {{ INSURANCE_LIMITS.NOTES_MAX_LENGTH }}
         </p>
       </div>

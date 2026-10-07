@@ -1,5 +1,5 @@
 <template>
-  <AppCard variant="default" :hover="true" padding="p-6" class="recommendation-card">
+  <AppCard variant="default" padding="p-6" class="recommendation-card">
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Confidence Meter -->
       <div class="flex-shrink-0 flex justify-center sm:justify-start">
@@ -49,7 +49,7 @@
           </div>
 
           <!-- Reasoning -->
-          <p class="text-stone-600 mb-4 leading-relaxed text-sm text-justify">
+          <p class="text-stone-600 mb-4 leading-relaxed text-base">
             {{ recommendation.reasoning }}
           </p>
 
@@ -57,7 +57,7 @@
           <div
             class="inline-flex items-center gap-2 bg-moss-50 text-moss-700 border border-moss-200 px-3 py-1.5 rounded-xl text-sm font-semibold mb-4 sm:mb-0"
           >
-            <span>🌾</span>
+            <ChartBarIcon class="h-5 w-5" aria-hidden="true" />
             <span
               >Projected Yield: <strong>{{ recommendation.projected_yield }}</strong></span
             >
@@ -67,7 +67,7 @@
         <!-- Actions -->
         <div
           v-if="recommendation.status === 'pending'"
-          class="flex items-center gap-3 mt-4 sm:justify-end"
+          class="flex flex-wrap items-center gap-3 mt-4 sm:justify-end"
         >
           <AppButton variant="ghost" size="sm" @click="$emit('reject', recommendation.id)">
             Reject
@@ -78,7 +78,7 @@
             rounded="full"
             @click="$emit('accept', recommendation.id)"
           >
-            ✓ Accept &amp; Contract
+            Accept &amp; Contract
           </AppButton>
         </div>
       </div>
@@ -87,6 +87,7 @@
 </template>
 
 <script setup>
+import { ChartBarIcon } from '@heroicons/vue/24/outline'
 import AppCard from '../atoms/AppCard.vue'
 import CropConfidenceMeter from '../atoms/CropConfidenceMeter.vue'
 import AppButton from '../atoms/AppButton.vue'

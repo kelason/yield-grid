@@ -1,0 +1,71 @@
+export const DESIGN_COLORS = {
+  moss: {
+    50: '#F3F6F1',
+    100: '#E4ECE0',
+    200: '#CDDCC7',
+    300: '#ABC2A5',
+    400: '#7E9B7B',
+    500: '#55715C',
+    600: '#435E4B',
+    700: '#344D3D',
+    800: '#2B3F32',
+    900: '#223329',
+  },
+  harvest: {
+    50: '#F8F3E8',
+    100: '#EFE4CB',
+    200: '#E0CEA5',
+    300: '#CCB47E',
+    400: '#B29757',
+    500: '#967733',
+    600: '#85672D',
+    700: '#765C29',
+    800: '#5B4725',
+    900: '#40331F',
+  },
+  soil: {
+    50: '#F5F5F0',
+    100: '#E7E9DF',
+    200: '#D4D8C8',
+    300: '#B7BEA8',
+    400: '#949F83',
+    500: '#747E63',
+    600: '#5E684F',
+    700: '#4B5541',
+    800: '#3D4337',
+    900: '#2D3129',
+  },
+  dew: {
+    50: '#EEF5F4',
+    100: '#DCEBE8',
+    200: '#BDD8D3',
+    300: '#94BDB7',
+    400: '#6E9D98',
+    500: '#537F7C',
+    600: '#426B6A',
+    700: '#3D6265',
+    800: '#304B4E',
+    900: '#25393C',
+  },
+  stone: {
+    50: '#FAFAF7',
+    100: '#F3F2EC',
+    200: '#E4E4DA',
+    300: '#CECEC2',
+    400: '#A0A396',
+    500: '#6B7364',
+    600: '#596153',
+    700: '#424B3D',
+    800: '#2F382B',
+    900: '#20291D',
+  },
+}
+
+export const DESIGN_SHADOWS = {
+  soft: '0 2px 6px rgba(32,41,29,0.04)',
+  organic: '0 12px 32px rgba(32,41,29,0.10)',
+  'harvest-glow': '0 4px 14px rgba(150,119,51,0.10)',
+}
+
+// Semantic hazards remain distinct from brand colors in maps and confidence charts.
+export const DESIGN_STATUS_COLORS = { error: '#DC2626', errorFill: '#FEE2E2', surface: '#FFFFFF' }

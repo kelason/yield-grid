@@ -1,29 +1,48 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useChatEntry } from '@/composables/useChatEntry'
-import { PAYMENT_CONSTANTS, PAYMENT_OPTION } from '@/constants/payment'
-import PriceTag from '@/components/atoms/PriceTag.vue'
-import AppCard from '@/components/atoms/AppCard.vue'
-import StatusBadge from '@/components/atoms/StatusBadge.vue'
+import { PAYMENT_CONSTANTS, CASH_PAYMENT_TYPE, CASH_PAYMENT_LIMITS } from '@/constants/payment'
 import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import AppModal from '@/components/molecules/AppModal.vue'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import FarmerPurchaseCard from '@/components/molecules/FarmerPurchaseCard.vue'
+import CashPaymentReviewPanel from '@/components/organisms/CashPaymentReviewPanel.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 
 const PURCHASE_SKELETON_COUNT = 4
+const CASH_AMOUNT_DECIMAL_PLACES = 2
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const { openChat } = useChatEntry()
 
 const messageBuyer = (purchase) => {
-  openChat(purchase.buyer?.id)
+  pendingConfirm.value = { action: 'message', recipientId: purchase.buyer?.id }
 }
 
 onMounted(() => {
   marketStore.fetchFarmerPurchases()
 })
 
-const CASH_PAYMENT_TYPE = { PARTIAL: 'partial', FULL: 'full' }
+const pendingConfirm = ref(null)
+const approvalError = ref('')
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
+const confirmConfig = computed(() =>
+  pendingConfirm.value?.action === 'message'
+    ? {
+        title: 'Open conversation?',
+        message: 'Open a conversation with this buyer?',
+        confirmText: 'Open conversation',
+      }
+    : {
+        title: 'Confirm cash payment?',
+        message: `Confirm receipt of ₱${Number(pendingConfirm.value?.amount || 0).toLocaleString('en-PH')}?`,
+        confirmText: 'Confirm payment',
+      },
+)
 
 const isApproving = ref({})
 
@@ -36,9 +55,20 @@ const promptModal = ref({
 })
 
 const openApproveModal = (purchase, type) => {
+  approvalError.value = ''
   const suggestedAmount =
     type === CASH_PAYMENT_TYPE.PARTIAL
-      ? purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE
+      ? Math.min(
+          CASH_PAYMENT_LIMITS.MAX,
+          Math.max(
+            CASH_PAYMENT_LIMITS.MIN,
+            Number(
+              (purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE).toFixed(
+                CASH_AMOUNT_DECIMAL_PLACES,
+              ),
+            ),
+          ),
+        )
       : purchase.total_contract_amount
 
   promptModal.value = {
@@ -54,75 +84,43 @@ const closeApproveModal = () => {
   promptModal.value.isOpen = false
 }
 
-const AMOUNT_MAX_LENGTH = 8
-const CASH_AMOUNT_MIN = 0.01
-const CASH_AMOUNT_MAX = 99999999
-
-// Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
-const clampAmount = (event) => {
-  const value = event.target.value
-  if (value.length > AMOUNT_MAX_LENGTH) {
-    const sliced = value.slice(0, AMOUNT_MAX_LENGTH)
-    event.target.value = sliced
-    promptModal.value.amount = sliced
+const reviewApproval = () => {
+  const amount = Number(promptModal.value.amount)
+  if (
+    !Number.isFinite(amount) ||
+    amount < CASH_PAYMENT_LIMITS.MIN ||
+    amount > CASH_PAYMENT_LIMITS.MAX
+  ) {
+    approvalError.value = 'Enter a received amount between ₱0.01 and ₱99,999,999.'
+    return
   }
+  pendingConfirm.value = { ...promptModal.value, action: 'approve', amount }
 }
 
-const confirmApprove = async () => {
-  const { purchaseId, type, amount } = promptModal.value
-  const parsedAmount = parseFloat(amount)
-
-  if (isNaN(parsedAmount) || parsedAmount < CASH_AMOUNT_MIN) {
-    notificationStore.error('Invalid amount entered.')
-    return
-  }
-  if (parsedAmount > CASH_AMOUNT_MAX) {
-    notificationStore.error(
-      `Amount cannot exceed ${AMOUNT_MAX_LENGTH} digits (₱${CASH_AMOUNT_MAX.toLocaleString()}).`,
-    )
-    return
-  }
-
-  closeApproveModal()
+const performApproval = async ({ action, recipientId, purchaseId, type, amount }) => {
+  if (action === 'message') return openChat(recipientId)
   isApproving.value[purchaseId] = true
-
+  approvalError.value = ''
   try {
-    await marketStore.approveCashPayment(purchaseId, type, parsedAmount)
+    await marketStore.approveCashPayment(purchaseId, type, amount)
     notificationStore.success(`Successfully approved ${type} cash payment!`)
+    closeApproveModal()
   } catch (err) {
-    notificationStore.error(err.response?.data?.message || 'Failed to approve payment')
+    approvalError.value = err.response?.data?.message || 'Failed to approve payment'
+    notificationStore.error(approvalError.value)
   } finally {
     isApproving.value[purchaseId] = false
   }
 }
-
-function formatDate(dateStr) {
-  if (!dateStr) return '—'
-  return new Intl.DateTimeFormat('en-PH', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(dateStr))
-}
-
-function getConfirmedPaid(purchase) {
-  if (purchase.payment_method !== PAYMENT_OPTION.CASH && purchase.payment_status === 'completed') {
-    return purchase.amount_paid || 0
-  }
-  return purchase.cash_amount_confirmed || 0
-}
+const confirmApprove = () => execute(performApproval)
 </script>
 
 <template>
   <div class="py-6 space-y-6">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-      <div class="flex-1 min-w-0">
-        <h2 class="font-serif text-3xl font-bold text-stone-900">Cash Payment Approvals</h2>
-        <p class="mt-1 text-sm text-stone-600">
-          Review and approve cash/off-site payments from buyers.
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      title="Cash Payment Approvals"
+      description="Review and approve cash/off-site payments from buyers."
+    />
 
     <div
       v-if="marketStore.loading.purchases"
@@ -142,225 +140,39 @@ function getConfirmedPaid(purchase) {
     </div>
 
     <div v-else class="space-y-4">
-      <AppCard
+      <FarmerPurchaseCard
         v-for="purchase in marketStore.farmerPurchases"
         :key="purchase.id"
-        class="group hover:border-moss-200 hover:shadow-organic transition-all duration-300 bg-white"
-        body-class="p-5 sm:p-6"
-      >
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <!-- Left: Crop & Buyer Info -->
-          <div class="flex items-start gap-4 min-w-0">
-            <div
-              class="w-12 h-12 rounded-2xl bg-gradient-to-br from-moss-50 to-moss-100/50 flex items-center justify-center text-2xl flex-shrink-0 border border-moss-100 mt-1 lg:mt-0"
-            >
-              🌱
-            </div>
-            <div class="min-w-0">
-              <h3 class="font-bold text-stone-900 text-[17px] leading-tight truncate font-serif">
-                {{
-                  purchase.contract?.title || purchase.demand_offer?.demand_title || 'Unknown Item'
-                }}
-              </h3>
-              <p v-if="purchase.demand_offer" class="text-xs font-medium text-moss-700 mt-0.5">
-                Demand offer · {{ purchase.demand_offer.quantity_kg }} kg of
-                {{ purchase.demand_offer.crop_name }}
-              </p>
-
-              <div
-                class="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-stone-500 mt-1.5"
-              >
-                <span class="font-medium text-stone-700">{{
-                  purchase.buyer?.name || 'Unknown Buyer'
-                }}</span>
-                <span class="text-stone-300 hidden sm:inline">•</span>
-                <span
-                  class="uppercase tracking-wider text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-xl"
-                  >{{ purchase.payment_method || '—' }}</span
-                >
-                <span class="text-stone-300 hidden sm:inline">•</span>
-                <span>{{ formatDate(purchase.created_at) }}</span>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-2 mt-3">
-                <StatusBadge :status="purchase.payment_status" size="sm" />
-                <StatusBadge
-                  v-if="purchase.cash_payment_status"
-                  :status="purchase.cash_payment_status"
-                  size="sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Amounts & Actions -->
-          <div
-            class="flex flex-col sm:flex-row items-start sm:items-center justify-between lg:justify-end gap-5 w-full lg:w-auto mt-2 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-0 border-stone-100"
-          >
-            <!-- Amounts -->
-            <div
-              class="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4 sm:gap-1.5 bg-stone-50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-xl border border-stone-100 sm:border-0"
-            >
-              <div class="text-left sm:text-right">
-                <p
-                  class="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-0.5 sm:mb-0"
-                >
-                  Total Due
-                </p>
-                <PriceTag
-                  :amount="purchase.total_contract_amount"
-                  :currency="purchase.currency"
-                  class="text-[15px] font-extrabold text-stone-900 leading-none"
-                />
-              </div>
-
-              <div class="hidden sm:block w-8 border-t border-stone-200 my-0.5"></div>
-
-              <div class="text-right">
-                <p
-                  class="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-0.5 sm:mb-0"
-                >
-                  Confirmed Paid
-                </p>
-                <PriceTag
-                  :amount="getConfirmedPaid(purchase)"
-                  :currency="purchase.currency"
-                  class="text-[15px] font-extrabold text-moss-600 leading-none"
-                />
-              </div>
-            </div>
-
-            <!-- Message buyer (transaction partner) -->
-            <div v-if="purchase.buyer?.id" class="flex w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
-              <button
-                @click="messageBuyer(purchase)"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
-              >
-                Message buyer
-              </button>
-            </div>
-
-            <!-- Actions -->
-            <div
-              class="flex flex-wrap sm:flex-col gap-2.5 w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0"
-              v-if="
-                purchase.payment_status === 'pending' ||
-                purchase.cash_payment_status === 'pending' ||
-                purchase.cash_payment_status === 'partially_paid'
-              "
-            >
-              <button
-                @click="openApproveModal(purchase, CASH_PAYMENT_TYPE.PARTIAL)"
-                :disabled="isApproving[purchase.id]"
-                v-if="purchase.cash_payment_status !== 'partially_paid'"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-moss-700 bg-moss-50 border border-moss-200 hover:bg-moss-100 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft w-full sm:w-auto text-center"
-              >
-                Approve 10%
-              </button>
-              <button
-                @click="openApproveModal(purchase, CASH_PAYMENT_TYPE.FULL)"
-                :disabled="isApproving[purchase.id]"
-                class="px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-soft hover:shadow-organic focus-visible:outline-moss-600 w-full sm:w-auto text-center"
-              >
-                Approve Full
-              </button>
-            </div>
-
-            <!-- Visual spacer when no actions -->
-            <div v-else class="hidden lg:block w-[110px]"></div>
-          </div>
-        </div>
-      </AppCard>
+        :purchase="purchase"
+        :loading="isApproving[purchase.id]"
+        @message="messageBuyer"
+        @approve="openApproveModal"
+      />
     </div>
 
-    <!-- Amount Prompt Modal -->
-    <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-300 ease-out"
-        enter-from-class="opacity-0 scale-95 translate-y-2"
-        enter-to-class="opacity-100 scale-100 translate-y-0"
-        leave-active-class="transition duration-200 ease-in"
-        leave-from-class="opacity-100 scale-100 translate-y-0"
-        leave-to-class="opacity-0 scale-95 translate-y-2"
-      >
-        <div
-          v-if="promptModal.isOpen"
-          class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6"
-        >
-          <div
-            class="fixed inset-0 bg-soil-900/50 backdrop-blur-sm transition-opacity"
-            @click="closeApproveModal"
-            aria-hidden="true"
-          ></div>
-
-          <div
-            class="relative w-full max-w-md bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all border border-stone-100"
-          >
-            <div class="h-1.5 w-full bg-gradient-to-r from-moss-500 to-moss-600"></div>
-
-            <div class="p-7">
-              <div class="flex items-center justify-center mb-4">
-                <div
-                  class="w-14 h-14 rounded-full flex items-center justify-center text-2xl bg-moss-100"
-                >
-                  <span>💵</span>
-                </div>
-              </div>
-
-              <h3 class="text-xl font-bold text-stone-900 mb-2 font-serif text-center">
-                {{ promptModal.title }}
-              </h3>
-              <p class="text-sm text-stone-500 mb-5 leading-relaxed text-center">
-                Please confirm the exact amount of cash you have received from the buyer.
-              </p>
-
-              <div class="mb-6">
-                <label class="block text-sm font-medium text-soil-700 mb-1"
-                  >Amount Received (₱)</label
-                >
-                <input
-                  type="number"
-                  v-model="promptModal.amount"
-                  class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-moss-500 focus:border-moss-500 text-stone-900 font-medium text-lg transition-shadow bg-stone-50 focus:bg-white disabled:opacity-75 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
-                  :min="CASH_AMOUNT_MIN"
-                  :max="CASH_AMOUNT_MAX"
-                  step="0.01"
-                  :maxlength="AMOUNT_MAX_LENGTH"
-                  @input="clampAmount"
-                  :disabled="promptModal.type === CASH_PAYMENT_TYPE.FULL"
-                  @keyup.enter="
-                    promptModal.type !== CASH_PAYMENT_TYPE.FULL ? confirmApprove() : null
-                  "
-                />
-                <p
-                  v-if="promptModal.type === CASH_PAYMENT_TYPE.FULL"
-                  class="mt-2 text-xs text-stone-500"
-                >
-                  The amount is locked for full payments to ensure the contract total is met
-                  exactly.
-                </p>
-              </div>
-
-              <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  type="button"
-                  @click="closeApproveModal"
-                  class="w-full sm:w-auto rounded-xl bg-stone-100 px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  @click="confirmApprove"
-                  class="w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 shadow-soft hover:shadow-organic focus-visible:outline-moss-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]"
-                >
-                  Confirm Payment
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+    <AppModal
+      :is-open="promptModal.isOpen"
+      :title="promptModal.title"
+      :busy="isExecuting"
+      @close="closeApproveModal"
+    >
+      <CashPaymentReviewPanel
+        v-model:amount="promptModal.amount"
+        :payment-type="promptModal.type"
+        :error="approvalError"
+        :loading="isExecuting"
+        @submit="reviewApproval"
+        @cancel="closeApproveModal"
+      />
+    </AppModal>
+    <ConfirmModal
+      :is-open="pendingConfirm !== null"
+      :title="confirmConfig.title"
+      :message="confirmConfig.message"
+      :confirm-text="confirmConfig.confirmText"
+      :loading="isExecuting"
+      @confirm="confirmApprove"
+      @cancel="cancel"
+    />
   </div>
 </template>

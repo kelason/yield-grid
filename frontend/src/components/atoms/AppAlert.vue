@@ -1,4 +1,17 @@
 <script setup>
+import {
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/outline'
+import AppButton from './AppButton.vue'
+const ALERT_ICONS = {
+  success: CheckCircleIcon,
+  error: ExclamationTriangleIcon,
+  warning: ExclamationTriangleIcon,
+  info: InformationCircleIcon,
+}
 defineProps({
   type: {
     type: String,
@@ -22,25 +35,18 @@ const emit = defineEmits(['dismiss'])
     ]"
     role="alert"
   >
-    <!-- Icon -->
-    <span class="text-lg leading-none flex-shrink-0 mt-0.5" aria-hidden="true">
-      <span v-if="type === 'success'">🌱</span>
-      <span v-else-if="type === 'error'">⚠️</span>
-      <span v-else-if="type === 'warning'">🌾</span>
-      <span v-else>💧</span>
-    </span>
+    <component :is="ALERT_ICONS[type]" class="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
 
     <div class="flex-1 text-sm font-medium leading-relaxed">
       <slot />
     </div>
 
-    <button
+    <AppButton
       v-if="dismissible"
-      @click="emit('dismiss')"
-      class="ml-2 -mr-1 -mt-1 opacity-50 hover:opacity-100 transition-opacity motion-reduce:transition-none text-lg leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-400 rounded-xl"
+      variant="ghost"
       aria-label="Dismiss alert"
-    >
-      ✕
-    </button>
+      @click="emit('dismiss')"
+      ><XMarkIcon class="h-5 w-5" aria-hidden="true"
+    /></AppButton>
   </div>
 </template>

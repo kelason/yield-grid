@@ -1,9 +1,11 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { ref, computed } from 'vue'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import ConfirmModal from '../molecules/ConfirmModal.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { useApi } from '../../composables/useApi'
 
 const CONTACT_NAME_MAX_LENGTH = 255
@@ -17,7 +19,8 @@ const form = ref({ name: '', email: '', subject: '', message: '' })
 const loading = ref(false)
 const successMessage = ref('')
 const error = ref('')
-const pendingConfirm = ref(false)
+const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const messageLength = computed(() => (form.value.message || '').length)
 
@@ -46,17 +49,18 @@ function validate() {
 function handleSubmit() {
   error.value = validate()
   if (error.value) return
-  pendingConfirm.value = true
+  pendingConfirm.value = { ...form.value }
 }
 
-async function submitContact() {
-  pendingConfirm.value = false
+const submitContact = () => execute(performContact)
+
+async function performContact(payload) {
   loading.value = true
   error.value = ''
   successMessage.value = ''
 
   try {
-    const response = await api.post('/contact', form.value)
+    const response = await api.post('/contact', payload)
     successMessage.value = response.data.message
     form.value = { name: '', email: '', subject: '', message: '' }
   } catch (e) {
@@ -100,19 +104,20 @@ async function submitContact() {
           <label for="contact-message" class="block text-sm font-medium text-soil-700"
             >Message</label
           >
-          <span class="text-[11px] text-stone-400">
+          <span class="text-sm text-stone-600" id="contact-message-counter">
             {{ messageLength }} / {{ CONTACT_MESSAGE_MAX_LENGTH }}
           </span>
         </div>
         <div class="mt-1">
-          <textarea
+          <AppTextarea
+            minlength="0"
             id="contact-message"
+            aria-describedby="contact-message-counter"
             v-model="form.message"
             rows="4"
             required
             :maxlength="CONTACT_MESSAGE_MAX_LENGTH"
-            class="py-3 px-4 block w-full shadow-soft focus:ring-moss-500 focus:border-moss-500 border-stone-300 rounded-xl border sm:text-sm"
-          ></textarea>
+          ></AppTextarea>
         </div>
       </div>
 
@@ -122,13 +127,14 @@ async function submitContact() {
     </form>
 
     <ConfirmModal
-      :is-open="pendingConfirm"
+      :is-open="pendingConfirm !== null"
+      :loading="isExecuting"
       :title="confirmConfig.title"
       :message="confirmConfig.message"
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="submitContact"
-      @cancel="pendingConfirm = false"
+      @cancel="cancel"
     />
   </div>
 </template>

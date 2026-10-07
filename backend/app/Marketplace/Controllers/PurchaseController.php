@@ -25,6 +25,7 @@ use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Marketplace\Requests\ApproveCashPaymentRequest;
+use App\Marketplace\Requests\CatalogFilterRequest;
 use App\Marketplace\Requests\CheckoutRequest;
 use App\Marketplace\Requests\OfferCheckoutRequest;
 use App\Marketplace\Resources\PurchaseResource;
@@ -48,7 +49,7 @@ final class PurchaseController extends Controller
         private readonly SplitPurchasableAction $splitPurchasableAction
     ) {}
 
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(CatalogFilterRequest $request): AnonymousResourceCollection
     {
         $filters = [
             'search' => $request->query('search'),

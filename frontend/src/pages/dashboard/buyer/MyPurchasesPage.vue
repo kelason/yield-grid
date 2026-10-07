@@ -3,7 +3,14 @@ import { onMounted, computed, ref, watch } from 'vue'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { ShoppingCartIcon } from '@heroicons/vue/24/outline'
-import AppCard from '@/components/atoms/AppCard.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import StatCard from '@/components/molecules/StatCard.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import AppAlert from '@/components/atoms/AppAlert.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import { CATALOG_LIMITS } from '@/constants/catalog'
 import SearchInput from '@/components/molecules/SearchInput.vue'
 import SortSelect from '@/components/molecules/SortSelect.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
@@ -17,7 +24,8 @@ const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
 const SEARCH_DEBOUNCE_MS = 300
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const PURCHASE_SKELETON_COUNT = 3
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const { openChat } = useChatEntry()
 
 const PURCHASE_TABS = [
@@ -52,7 +60,14 @@ function handleTabChange(tabId) {
 }
 
 const messageFarmer = (purchase) => {
-  openChat(purchase.contract?.farmer?.id || purchase.demand_offer?.farmer?.id)
+  confirm(
+    {
+      title: 'Open conversation?',
+      message: 'Open a conversation with this farmer?',
+      confirmText: 'Open conversation',
+    },
+    () => openChat(purchase.contract?.farmer?.id || purchase.demand_offer?.farmer?.id),
+  )
 }
 
 onMounted(() => {
@@ -116,80 +131,49 @@ const cancelPurchase = (purchase) => {
 
 <template>
   <div class="space-y-6">
-    <!-- Page Header -->
-    <div
-      class="rounded-2xl bg-gradient-to-r from-moss-600 to-moss-800 p-6 text-white shadow-organic"
+    <PageHeader
+      title="Purchase History"
+      description="All your forward contracts and payment records."
     >
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 class="font-serif text-2xl font-bold">Purchase History</h1>
-          <p class="text-moss-200 text-sm mt-1">All your forward contracts and payment records.</p>
-        </div>
-        <router-link
+      <template #actions
+        ><router-link
           :to="{ name: 'buyer-marketplace' }"
-          class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm font-medium rounded-xl px-4 py-2 self-start sm:self-auto"
-        >
-          <ShoppingCartIcon class="w-5 h-5" /> Browse More
-        </router-link>
-      </div>
-    </div>
-
-    <!-- KPI Summary -->
+          class="inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-moss-700 transition-colors hover:bg-moss-50"
+          ><ShoppingCartIcon class="w-5 h-5" aria-hidden="true" />Browse More</router-link
+        ></template
+      >
+    </PageHeader>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <AppCard variant="gradient" class="!rounded-2xl">
-        <div class="flex items-center gap-4">
-          <div
-            class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl flex-shrink-0"
-          >
-            📦
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-moss-100">Total Orders</dt>
-            <dd class="text-3xl font-bold text-white mt-0.5">
-              {{ totalOrders }}
-            </dd>
-          </div>
-        </div>
-      </AppCard>
-
-      <AppCard>
-        <div class="flex items-center gap-4">
-          <div
-            class="w-11 h-11 rounded-xl bg-moss-50 flex items-center justify-center text-xl flex-shrink-0"
-          >
-            ✅
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-stone-500">Active Contracts</dt>
-            <dd class="text-3xl font-bold text-stone-900 mt-0.5">{{ activePurchases }}</dd>
-          </div>
-        </div>
-      </AppCard>
-
-      <AppCard>
-        <div class="flex items-center gap-4">
-          <div
-            class="w-11 h-11 rounded-xl bg-stone-50 flex items-center justify-center text-xl flex-shrink-0"
-          >
-            💰
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-stone-500">Total Spent</dt>
-            <dd class="text-lg font-bold text-stone-900 mt-0.5">
-              {{ formatCurrency(totalSpent) }}
-            </dd>
-          </div>
-        </div>
-      </AppCard>
+      <StatCard
+        label="Orders on this page"
+        :value="marketStore.buyerPurchasesError ? null : totalOrders"
+        :loading="marketStore.loading.purchases"
+      />
+      <StatCard
+        label="Completed payments on this page"
+        :value="marketStore.buyerPurchasesError ? null : activePurchases"
+        :loading="marketStore.loading.purchases"
+      />
+      <StatCard
+        label="Amount paid on this page"
+        :value="marketStore.buyerPurchasesError ? null : formatCurrency(totalSpent)"
+        :loading="marketStore.loading.purchases"
+        tone="harvest"
+      />
     </div>
 
     <!-- Controls: Search and Sort -->
-    <div class="bg-white/80 backdrop-blur-sm border border-stone-200 shadow-soft rounded-2xl p-4">
+    <div class="bg-white border border-stone-200 shadow-soft rounded-2xl p-4">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <!-- Search -->
         <div class="w-full md:w-1/3">
-          <label class="block text-xs font-medium text-soil-700 mb-1.5 ml-1">Search Crop</label>
+          <label for="purchase-search" class="block text-sm font-medium text-soil-700 mb-1.5"
+            >Search Crop</label
+          >
           <SearchInput
+            id="purchase-search"
+            label="Search Crop"
+            :maxlength="CATALOG_LIMITS.CROP_MAX_LENGTH"
             v-model="marketStore.buyerPurchasesFilters.search"
             placeholder="e.g. Rice, Corn..."
           />
@@ -197,8 +181,11 @@ const cancelPurchase = (purchase) => {
 
         <!-- Sort -->
         <div class="w-full md:w-1/4">
-          <label class="block text-xs font-medium text-soil-700 mb-1.5 ml-1">Sort By</label>
+          <label for="purchase-sort" class="block text-sm font-medium text-soil-700 mb-1.5"
+            >Sort By</label
+          >
           <SortSelect
+            id="purchase-sort"
             v-model="marketStore.buyerPurchasesFilters.sort"
             :options="[
               { value: 'newest', label: 'Newest First' },
@@ -234,30 +221,31 @@ const cancelPurchase = (purchase) => {
         </nav>
       </div>
 
-      <!-- Loading -->
-      <div v-if="marketStore.loading.purchases" class="p-5">
-        <div class="animate-pulse space-y-4">
-          <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-1/2"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-2/3"></div>
-        </div>
+      <LoadingState
+        v-if="marketStore.loading.purchases"
+        label="Loading purchases"
+        class="p-5 space-y-4"
+        ><SkeletonCard v-for="n in PURCHASE_SKELETON_COUNT" :key="n" withAction
+      /></LoadingState>
+      <div v-else-if="marketStore.buyerPurchasesError" class="p-5 space-y-3">
+        <AppAlert type="error">{{ marketStore.buyerPurchasesError }}</AppAlert
+        ><AppButton @click="marketStore.fetchBuyerPurchases()">Retry</AppButton>
       </div>
 
-      <!-- Empty State -->
-      <div v-else-if="marketStore.buyerPurchases.length === 0" class="text-center py-12 px-6">
-        <div class="text-5xl mb-3">🌾</div>
-        <h3 class="font-serif text-sm font-semibold text-stone-700 mb-1">{{ emptyTitle }}</h3>
-        <p class="text-sm text-stone-500 mb-5">{{ emptyDescription }}</p>
-        <router-link
-          v-if="currentTab === 'all'"
-          :to="{ name: 'buyer-marketplace' }"
-          class="inline-flex items-center gap-1.5 bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+      <EmptyState
+        v-else-if="marketStore.buyerPurchases.length === 0"
+        :title="emptyTitle"
+        :description="emptyDescription"
+      >
+        <template #action v-if="currentTab === 'all'"
+          ><router-link
+            :to="{ name: 'buyer-marketplace' }"
+            class="inline-flex min-h-11 items-center rounded-xl bg-moss-600 px-5 text-white transition-colors hover:bg-moss-700"
+            >Browse Marketplace</router-link
+          ></template
         >
-          <ShoppingCartIcon class="w-5 h-5" /> Browse Marketplace
-        </router-link>
-      </div>
+      </EmptyState>
 
-      <!-- Purchase List -->
       <div v-else class="divide-y divide-stone-200">
         <div
           v-for="purchase in marketStore.buyerPurchases"
@@ -277,6 +265,7 @@ const cancelPurchase = (purchase) => {
       @page-change="marketStore.fetchBuyerPurchases"
     />
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"

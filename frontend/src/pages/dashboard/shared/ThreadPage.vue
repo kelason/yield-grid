@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '../../../stores/forumStore'
@@ -8,6 +9,10 @@ import ThreadCard from '../../../components/molecules/ThreadCard.vue'
 import ReplyCard from '../../../components/molecules/ReplyCard.vue'
 import AppButton from '../../../components/atoms/AppButton.vue'
 import ConfirmModal from '../../../components/molecules/ConfirmModal.vue'
+import { useConfirmModal } from '@/composables/useConfirmModal'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import EmptyState from '@/components/molecules/EmptyState.vue'
 import { FORUM_CONSTANTS } from '../../../constants/forum'
 
 const forumStore = useForumStore()
@@ -21,13 +26,15 @@ const replyBody = ref('')
 const isAnonymous = ref(false)
 const isSubmitting = ref(false)
 const replyingToId = ref(null)
+const replyError = ref('')
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
 const thread = computed(() => forumStore.currentThread)
 
 const replyingToReply = computed(() => {
   if (!replyingToId.value || !thread.value) return null
   const findReply = (replies, id) => {
-    for (const r of replies) {
+    for (const r of replies || []) {
       if (r.id === id) return r
       if (r.children) {
         const found = findReply(r.children, id)
@@ -41,7 +48,10 @@ const replyingToReply = computed(() => {
 
 const handleReplyTo = (id) => {
   replyingToId.value = id
-  document.getElementById('reply-composer').scrollIntoView({ behavior: 'smooth' })
+  document.getElementById('reply-composer')?.scrollIntoView({
+    behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+  })
+  document.getElementById('reply-body')?.focus()
 }
 
 onMounted(async () => {
@@ -60,51 +70,77 @@ onUnmounted(() => {
 const replyBodyLength = computed(() => (replyBody.value || '').length)
 const isReplyOverLimit = computed(() => replyBodyLength.value > FORUM_CONSTANTS.REPLY_MAX_LENGTH)
 
-const handleReply = async () => {
-  if (!replyBody.value.trim() || isSubmitting.value || isReplyOverLimit.value) return
+function handleReply() {
+  if (
+    isSubmitting.value ||
+    isReplyOverLimit.value ||
+    replyBody.value.trim().length < FORUM_CONSTANTS.REPLY_MIN_LENGTH
+  )
+    return
+  const payload = { body: replyBody.value, is_anonymous: isAnonymous.value }
+  if (replyingToId.value) payload.parent_id = replyingToId.value
+  confirm(
+    {
+      title: 'Post this reply?',
+      message: 'Your reply will be shared with this discussion.',
+      confirmText: 'Post reply',
+    },
+    () => postReply(payload),
+  )
+}
+async function postReply(payload) {
   isSubmitting.value = true
+  replyError.value = ''
   try {
-    const payload = { body: replyBody.value, is_anonymous: isAnonymous.value }
-    if (replyingToId.value) {
-      payload.parent_id = replyingToId.value
-    }
     await forumStore.createReply(threadId, payload)
     replyBody.value = ''
     replyingToId.value = null
+  } catch (error) {
+    replyError.value = error.response?.data?.message || 'Failed to post reply. Please retry.'
   } finally {
     isSubmitting.value = false
   }
 }
-
-const handleVote = (id, val) => forumStore.voteThread(id, val)
-const handleReplyVote = (id, val) => forumStore.voteReply(id, val)
-
-const pendingAcceptId = ref(null)
-
-const acceptConfig = computed(() => ({
-  title: 'Accept this answer?',
-  message:
-    'This reply will be marked as the accepted answer for your thread. The thread will be flagged as resolved.',
-  confirmText: 'Accept answer',
-  type: 'primary',
-}))
-
-const handleAccept = (id) => {
-  pendingAcceptId.value = id
+function handleVote(id, value) {
+  confirm(
+    {
+      title: 'Update your vote?',
+      message: 'Your vote on this discussion will be updated.',
+      confirmText: 'Vote',
+    },
+    () => forumStore.voteThread(id, value),
+  )
 }
-
-const confirmAccept = async () => {
-  const id = pendingAcceptId.value
-  pendingAcceptId.value = null
-  if (id !== null) await forumStore.acceptReply(id)
+function handleReplyVote(id, value) {
+  confirm(
+    {
+      title: 'Update your vote?',
+      message: 'Your vote on this reply will be updated.',
+      confirmText: 'Vote',
+    },
+    () => forumStore.voteReply(id, value),
+  )
+}
+function handleAccept(id) {
+  confirm(
+    {
+      title: 'Accept this answer?',
+      message:
+        'This reply will be marked as the accepted answer for your thread. The thread will be flagged as resolved.',
+      confirmText: 'Accept answer',
+    },
+    () => forumStore.acceptReply(id),
+  )
 }
 
 const goBack = () => router.push({ name: 'community-forum' })
 </script>
 
 <template>
-  <div class="h-full flex flex-col">
-    <button
+  <div class="space-y-6">
+    <PageHeader :title="thread?.title || 'Discussion'" />
+    <AppButton
+      variant="ghost"
       @click="goBack"
       class="flex items-center gap-2 text-stone-500 hover:text-moss-600 transition-colors duration-200 mb-6 font-medium"
     >
@@ -117,10 +153,18 @@ const goBack = () => router.push({ name: 'community-forum' })
         ></path>
       </svg>
       Back to Discussions
-    </button>
+    </AppButton>
 
-    <div v-if="forumStore.isLoading && !thread" class="text-center py-12 text-stone-500">
-      Loading discussion...
+    <LoadingState v-if="forumStore.isLoading && !thread" label="Loading discussion" />
+    <div
+      v-else-if="forumStore.fetchError"
+      role="alert"
+      class="rounded-2xl border border-red-200 bg-white p-6"
+    >
+      <p>{{ forumStore.fetchError }}</p>
+      <AppButton variant="outline" @click="forumStore.fetchThread(threadId)"
+        >Retry discussion</AppButton
+      >
     </div>
 
     <template v-else-if="thread">
@@ -144,14 +188,15 @@ const goBack = () => router.push({ name: 'community-forum' })
             >
               <div class="text-sm text-stone-600 truncate flex-grow mr-4">
                 <span class="font-medium text-stone-900"
-                  >Replying to {{ replyingToReply.author.name }}:</span
+                  >Replying to {{ replyingToReply.author?.name || 'Anonymous' }}:</span
                 >
                 "{{ replyingToReply.body }}"
               </div>
               <button
+                aria-label="Cancel reply to this answer"
                 type="button"
                 @click="replyingToId = null"
-                class="text-stone-400 hover:text-stone-600 transition-colors duration-200 flex-shrink-0"
+                class="min-h-11 min-w-11 text-stone-500 hover:text-stone-600 transition-colors duration-200 flex-shrink-0"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -169,20 +214,25 @@ const goBack = () => router.push({ name: 'community-forum' })
               >
               <span
                 class="text-[11px]"
-                :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
+                id="reply-body-counter"
               >
                 {{ replyBodyLength }}/{{ FORUM_CONSTANTS.REPLY_MAX_LENGTH }}
               </span>
             </div>
-            <textarea
+            <AppTextarea
+              :minlength="FORUM_CONSTANTS.REPLY_MIN_LENGTH"
               id="reply-body"
+              aria-describedby="reply-body-counter"
               v-model="replyBody"
               rows="4"
               :maxlength="FORUM_CONSTANTS.REPLY_MAX_LENGTH"
-              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white resize-y mb-3"
+              class="resize-y mb-3"
+              :disabled="isExecuting"
               placeholder="Add your knowledge or ask for clarification..."
               required
-            ></textarea>
+            ></AppTextarea>
+            <p v-if="replyError" role="alert" class="mb-3 text-sm text-red-600">{{ replyError }}</p>
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div class="flex items-center gap-2">
                 <input
@@ -197,8 +247,11 @@ const goBack = () => router.push({ name: 'community-forum' })
               </div>
               <AppButton
                 type="submit"
-                :disabled="isSubmitting || !replyBody.trim() || isReplyOverLimit"
-                class="bg-gradient-to-br from-moss-500 to-moss-600 text-white shadow-soft"
+                :disabled="
+                  isSubmitting ||
+                  replyBody.trim().length < FORUM_CONSTANTS.REPLY_MIN_LENGTH ||
+                  isReplyOverLimit
+                "
               >
                 Post Reply
               </AppButton>
@@ -209,7 +262,7 @@ const goBack = () => router.push({ name: 'community-forum' })
         <!-- Reply List -->
         <div class="space-y-4">
           <ReplyCard
-            v-for="reply in thread.replies"
+            v-for="reply in thread.replies || []"
             :key="reply.id"
             :reply="reply"
             :isThreadAuthor="authStore.user?.id === thread.user_id"
@@ -221,14 +274,19 @@ const goBack = () => router.push({ name: 'community-forum' })
       </div>
     </template>
 
+    <EmptyState
+      v-else
+      title="Discussion unavailable"
+      description="Return to the community to choose another discussion."
+    />
     <ConfirmModal
-      :is-open="pendingAcceptId !== null"
-      :title="acceptConfig.title"
-      :message="acceptConfig.message"
-      :confirm-text="acceptConfig.confirmText"
-      :type="acceptConfig.type"
-      @confirm="confirmAccept"
-      @cancel="pendingAcceptId = null"
+      :is-open="isOpen"
+      :title="config.title"
+      :message="config.message"
+      :confirm-text="config.confirmText"
+      :loading="isExecuting"
+      @confirm="execute"
+      @cancel="cancel"
     />
   </div>
 </template>

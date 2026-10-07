@@ -21,18 +21,18 @@ const emit = defineEmits(['vote'])
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
 
 function profileLink(author) {
-  return { name: 'user-profile', params: { userId: author.id ?? ANONYMOUS_ROUTE_PARAM } }
+  return { name: 'user-profile', params: { userId: author?.id ?? ANONYMOUS_ROUTE_PARAM } }
 }
 </script>
 
 <template>
-  <AppCard variant="default" :hover="true" padding="p-5">
+  <AppCard variant="default" padding="p-5">
     <div class="flex gap-4">
       <div class="flex-shrink-0 flex flex-col items-center gap-3">
         <VoteBadge
           :score="thread.vote_score"
           :userVote="thread.user_vote"
-          :disabled="authStore.user?.id === thread.author.id"
+          :disabled="authStore.user?.id === thread.author?.id"
           @vote="(val) => emit('vote', thread.id, val)"
         />
         <div class="text-center" v-if="thread.has_accepted_reply">
@@ -40,14 +40,14 @@ function profileLink(author) {
         </div>
       </div>
       <div class="flex-grow min-w-0">
-        <div class="flex justify-between items-start mb-2">
+        <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
           <RouterLink
             :to="{ name: 'forum-thread', params: { id: thread.id } }"
             class="font-serif text-xl font-bold text-stone-900 hover:text-moss-700 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
           >
             {{ thread.title }}
           </RouterLink>
-          <div class="flex-shrink-0 text-stone-400 text-sm whitespace-nowrap">
+          <div class="flex-shrink-0 text-stone-500 text-sm whitespace-nowrap">
             {{ formatDistanceToNow(new Date(thread.last_activity_at), { addSuffix: true }) }}
           </div>
         </div>
@@ -63,7 +63,6 @@ function profileLink(author) {
 
           <div class="flex items-center gap-4 text-sm text-stone-500">
             <div class="flex items-center gap-1.5" title="Category">
-              <span>{{ thread.category?.icon_emoji }}</span>
               <span class="font-medium">{{ thread.category?.name }}</span>
             </div>
 
@@ -72,19 +71,19 @@ function profileLink(author) {
               class="flex items-center gap-2 border-l border-stone-200 pl-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
             >
               <img
-                v-if="thread.author.avatar_url"
-                :src="thread.author.avatar_url"
+                v-if="thread.author?.avatar_url"
+                :src="thread.author?.avatar_url"
                 class="w-5 h-5 rounded-full bg-stone-200"
               />
               <div
                 v-else
                 class="w-5 h-5 rounded-full bg-soil-200 flex items-center justify-center text-soil-700 text-xs"
               >
-                {{ thread.author.name.charAt(0).toUpperCase() }}
+                {{ thread.author?.name?.charAt(0).toUpperCase() }}
               </div>
               <span
                 class="truncate max-w-[120px] hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
-                >{{ thread.author.name }}</span
+                >{{ thread.author?.name || 'Anonymous' }}</span
               >
             </RouterLink>
 

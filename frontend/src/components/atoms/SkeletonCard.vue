@@ -1,37 +1,18 @@
+<script setup>
+import AppCard from './AppCard.vue'
+import AppSkeleton from './AppSkeleton.vue'
+defineProps({ withAvatar: Boolean, withAction: Boolean })
+</script>
 <template>
-  <div class="bg-white overflow-hidden shadow-soft rounded-2xl border border-stone-200 p-6">
-    <div class="animate-pulse motion-reduce:animate-none flex space-x-4">
-      <!-- Icon/Avatar skeleton -->
-      <div v-if="withAvatar" class="rounded-full bg-stone-200 h-10 w-10 flex-shrink-0"></div>
-
-      <div class="flex-1 space-y-4 py-1">
-        <!-- Title skeleton -->
-        <div class="h-4 bg-stone-200 rounded-xl w-3/4"></div>
-
-        <!-- Content skeleton lines -->
-        <div class="space-y-2">
-          <div class="h-4 bg-stone-200 rounded-xl"></div>
-          <div class="h-4 bg-stone-200 rounded-xl w-5/6"></div>
-        </div>
-
-        <!-- Optional button/action skeleton -->
-        <div v-if="withAction" class="pt-4">
-          <div class="h-8 bg-stone-200 rounded-xl w-24"></div>
-        </div>
+  <AppCard aria-hidden="true">
+    <div class="flex gap-4">
+      <AppSkeleton v-if="withAvatar" shape="circle" class="h-10 w-10 shrink-0" />
+      <div class="flex-1 space-y-4">
+        <AppSkeleton class="w-3/4" />
+        <AppSkeleton />
+        <AppSkeleton class="w-5/6" />
+        <AppSkeleton v-if="withAction" shape="block" class="h-11 w-28" />
       </div>
     </div>
-  </div>
+  </AppCard>
 </template>
-
-<script setup>
-defineProps({
-  withAvatar: {
-    type: Boolean,
-    default: false,
-  },
-  withAction: {
-    type: Boolean,
-    default: false,
-  },
-})
-</script>

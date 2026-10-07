@@ -1,65 +1,61 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { CheckCircleIcon, ClockIcon } from '@heroicons/vue/24/solid'
+import { useRoute, useRouter } from 'vue-router'
+import { CheckCircleIcon, ClockIcon } from '@heroicons/vue/24/outline'
 import { useApi } from '@/composables/useApi'
-
+import { PAYMENT_STATUS } from '@/constants/payment'
+import AppCard from '@/components/atoms/AppCard.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+const VERIFYING = 'verifying'
 const route = useRoute()
+const router = useRouter()
 const api = useApi()
-const status = ref('verifying') // verifying, completed, pending
-
+const status = ref(VERIFYING)
 onMounted(async () => {
   const sessionId = route.query.session_id
-  if (sessionId) {
-    try {
-      const response = await api.get(`/checkout/${sessionId}/verify`)
-      status.value = response.data.status || 'completed'
-    } catch (err) {
-      console.error('Failed to verify checkout session:', err)
-      status.value = 'pending'
-    }
-  } else {
-    status.value = 'completed'
+  if (!sessionId) {
+    status.value = PAYMENT_STATUS.PENDING
+    return
+  }
+  try {
+    const response = await api.get(`/checkout/${sessionId}/verify`)
+    status.value = response.data.status || PAYMENT_STATUS.PENDING
+  } catch {
+    status.value = PAYMENT_STATUS.PENDING
   }
 })
 </script>
-
 <template>
-  <div class="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow-soft sm:rounded-xl sm:px-10 text-center">
-        <template v-if="status === 'verifying'">
-          <ClockIcon class="mx-auto h-16 w-16 text-harvest-500 mb-4 animate-pulse" />
-          <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Verifying Payment...</h2>
-          <p class="text-sm text-stone-500 mb-6">
-            Please wait while we confirm your payment with PayMongo.
-          </p>
-        </template>
-
-        <template v-else-if="status === 'completed'">
-          <CheckCircleIcon class="mx-auto h-16 w-16 text-moss-500 mb-4" />
-          <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Payment Successful!</h2>
-          <p class="text-sm text-stone-500 mb-6">
-            Your purchase has been processed. The farmer will be notified shortly.
-          </p>
-        </template>
-
-        <template v-else>
-          <ClockIcon class="mx-auto h-16 w-16 text-harvest-500 mb-4" />
-          <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Payment Pending</h2>
-          <p class="text-sm text-stone-500 mb-6">
-            Your payment is still being processed. It may take a few moments to confirm.
-          </p>
-        </template>
-
-        <router-link
-          v-if="status !== 'verifying'"
-          to="/dashboard/buyer/purchases"
-          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-soft text-sm font-medium text-white bg-moss-600 hover:bg-moss-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500"
-        >
-          View My Purchases
-        </router-link>
-      </div>
-    </div>
+  <div class="mx-auto max-w-xl px-4 py-16 sm:py-24">
+    <AppCard padding="p-6 sm:p-10" class="text-center space-y-6">
+      <template v-if="status === VERIFYING"
+        ><LoadingState label="Verifying Payment..." />
+        <h1 class="font-serif text-3xl font-bold text-stone-900">Verifying Payment...</h1>
+        <p class="text-base text-stone-600 leading-relaxed">
+          Please wait while we confirm your payment.
+        </p></template
+      >
+      <template v-else-if="status === PAYMENT_STATUS.COMPLETED"
+        ><CheckCircleIcon class="mx-auto h-12 w-12 text-moss-700" aria-hidden="true" />
+        <h1 class="font-serif text-3xl font-bold text-stone-900">Payment Successful!</h1>
+        <p class="text-base text-stone-600 leading-relaxed">
+          Your purchase has been processed. The farmer will be notified shortly.
+        </p></template
+      >
+      <template v-else
+        ><ClockIcon class="mx-auto h-12 w-12 text-harvest-700" aria-hidden="true" />
+        <h1 class="font-serif text-3xl font-bold text-stone-900">Payment Pending</h1>
+        <p class="text-base text-stone-600 leading-relaxed">
+          Check your purchases for the latest status. Your payment may still be processing.
+        </p></template
+      >
+      <AppButton
+        v-if="status !== VERIFYING"
+        class="w-full"
+        @click="router.push('/dashboard/buyer/purchases')"
+        >View My Purchases</AppButton
+      >
+    </AppCard>
   </div>
 </template>

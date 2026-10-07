@@ -1,8 +1,9 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import AppSelect from '../atoms/AppSelect.vue'
-import FormField from './FormField.vue'
-import LeafletPinPicker from '../organisms/LeafletPinPicker.vue'
+import FormField from '../molecules/FormField.vue'
+import LeafletPinPicker from './LeafletPinPicker.vue'
+import LoadingState from '../molecules/LoadingState.vue'
 import { useGeo } from '@/composables/useGeo'
 
 const ADDRESS_LABEL_MAX_LENGTH = 50
@@ -31,10 +32,10 @@ const loadingCenter = ref(false)
 const selectedNames = computed(() => {
   const find = (list, code) => list.find((item) => item.code === code)?.name || null
   return {
-    region: find(regions.value, props.modelValue.region_code),
-    province: find(provinces.value, props.modelValue.province_code),
-    city: find(cities.value, props.modelValue.city_municipality_code),
-    barangay: find(barangays.value, props.modelValue.barangay_code),
+    region: find(regions.value, props.modelValue?.region_code),
+    province: find(provinces.value, props.modelValue?.province_code),
+    city: find(cities.value, props.modelValue?.city_municipality_code),
+    barangay: find(barangays.value, props.modelValue?.barangay_code),
   }
 })
 
@@ -106,19 +107,19 @@ async function refreshMapCenter() {
   }
 }
 
-watch(() => props.modelValue.barangay_code, refreshMapCenter)
+watch(() => props.modelValue?.barangay_code, refreshMapCenter)
 
 async function initCascade() {
-  if (!props.modelValue.region_code) return
-  provinces.value = await geo.fetchProvinces(props.modelValue.region_code)
+  if (!props.modelValue?.region_code) return
+  provinces.value = await geo.fetchProvinces(props.modelValue?.region_code)
   hasProvinces.value = provinces.value.length > 0
   if (!hasProvinces.value) {
-    cities.value = await geo.fetchCities({ regionCode: props.modelValue.region_code })
-  } else if (props.modelValue.province_code) {
-    cities.value = await geo.fetchCities({ provinceCode: props.modelValue.province_code })
+    cities.value = await geo.fetchCities({ regionCode: props.modelValue?.region_code })
+  } else if (props.modelValue?.province_code) {
+    cities.value = await geo.fetchCities({ provinceCode: props.modelValue?.province_code })
   }
-  if (props.modelValue.city_municipality_code) {
-    barangays.value = await geo.fetchBarangays(props.modelValue.city_municipality_code)
+  if (props.modelValue?.city_municipality_code) {
+    barangays.value = await geo.fetchBarangays(props.modelValue?.city_municipality_code)
   }
   refreshMapCenter()
 }
@@ -135,17 +136,18 @@ loadRegions().then(initCascade)
         label="Label"
         placeholder="e.g. Home, Farm gate"
         :maxlength="ADDRESS_LABEL_MAX_LENGTH"
-        :model-value="modelValue.label || ''"
-        :error="errors.label || ''"
+        :model-value="modelValue?.label || ''"
+        :error="errors?.label || ''"
         @update:model-value="patch({ label: $event })"
       />
       <FormField
         :id="`${idPrefix}-street`"
+        autocomplete="street-address"
         label="Street / House No."
         placeholder="e.g. 123 Sampaguita St."
         :maxlength="ADDRESS_STREET_MAX_LENGTH"
-        :model-value="modelValue.street || ''"
-        :error="errors.street || ''"
+        :model-value="modelValue?.street || ''"
+        :error="errors?.street || ''"
         :class="{ 'sm:col-span-2': !showLabel }"
         @update:model-value="patch({ street: $event })"
       />
@@ -157,8 +159,8 @@ loadRegions().then(initCascade)
         label="Region"
         :required="true"
         :options="toOptions(regions)"
-        :model-value="modelValue.region_code || ''"
-        :error="errors.region_code || ''"
+        :model-value="modelValue?.region_code || ''"
+        :error="errors?.region_code || ''"
         @update:model-value="handleRegionSelect"
       />
       <AppSelect
@@ -166,10 +168,10 @@ loadRegions().then(initCascade)
         :id="`${idPrefix}-province`"
         label="Province"
         :required="true"
-        :disabled="!modelValue.region_code"
+        :disabled="!modelValue?.region_code"
         :options="toOptions(provinces)"
-        :model-value="modelValue.province_code || ''"
-        :error="errors.province_code || ''"
+        :model-value="modelValue?.province_code || ''"
+        :error="errors?.province_code || ''"
         @update:model-value="handleProvinceSelect"
       />
     </div>
@@ -179,36 +181,34 @@ loadRegions().then(initCascade)
         :id="`${idPrefix}-city`"
         label="City / Municipality"
         :required="true"
-        :disabled="hasProvinces ? !modelValue.province_code : !modelValue.region_code"
+        :disabled="hasProvinces ? !modelValue?.province_code : !modelValue?.region_code"
         :options="toOptions(cities)"
-        :model-value="modelValue.city_municipality_code || ''"
-        :error="errors.city_municipality_code || ''"
+        :model-value="modelValue?.city_municipality_code || ''"
+        :error="errors?.city_municipality_code || ''"
         @update:model-value="handleCitySelect"
       />
       <AppSelect
         :id="`${idPrefix}-barangay`"
         label="Barangay"
         :required="true"
-        :disabled="!modelValue.city_municipality_code"
+        :disabled="!modelValue?.city_municipality_code"
         :options="toOptions(barangays)"
-        :model-value="modelValue.barangay_code || ''"
-        :error="errors.barangay_code || ''"
+        :model-value="modelValue?.barangay_code || ''"
+        :error="errors?.barangay_code || ''"
         @update:model-value="patch({ barangay_code: $event })"
       />
     </div>
 
-    <div v-if="showPinPicker && modelValue.barangay_code">
+    <div v-if="showPinPicker && modelValue?.barangay_code">
       <p class="text-sm font-medium text-soil-700 mb-2">
-        Pin exact location <span class="text-stone-400 font-normal">(optional)</span>
+        Pin exact location <span class="text-stone-500 font-normal">(optional)</span>
       </p>
-      <p v-if="loadingCenter" class="text-sm text-stone-500 animate-pulse">
-        Locating your barangay on the map…
-      </p>
+      <LoadingState v-if="loadingCenter" label="Locating your barangay on the map…" />
       <LeafletPinPicker
         v-else
         :model-value="
-          modelValue.latitude != null && modelValue.longitude != null
-            ? { lat: modelValue.latitude, lng: modelValue.longitude }
+          modelValue?.latitude != null && modelValue?.longitude != null
+            ? { lat: modelValue?.latitude, lng: modelValue?.longitude }
             : null
         "
         :center="mapCenter"

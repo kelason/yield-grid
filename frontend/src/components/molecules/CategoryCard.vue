@@ -1,4 +1,5 @@
 <script setup>
+import { ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
 defineProps({
   category: {
     type: Object,
@@ -15,6 +16,8 @@ defineEmits(['select'])
 
 <template>
   <button
+    type="button"
+    :aria-pressed="isSelected"
     @click="$emit('select', category.slug)"
     class="flex items-center gap-3 w-full text-left p-3 rounded-xl transition-all duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
     :class="
@@ -23,7 +26,7 @@ defineEmits(['select'])
         : 'hover:bg-stone-50 text-stone-700 border border-transparent'
     "
   >
-    <span class="text-2xl">{{ category.icon_emoji }}</span>
+    <ChatBubbleLeftRightIcon class="h-5 w-5 shrink-0" aria-hidden="true" />
     <div class="flex-grow min-w-0">
       <div class="font-bold text-sm font-sans truncate">{{ category.name }}</div>
       <div class="text-xs text-stone-500 truncate" :class="{ 'text-moss-600': isSelected }">

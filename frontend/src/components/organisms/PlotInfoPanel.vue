@@ -18,7 +18,7 @@
           @click="$emit('analyze', plot)"
           class="w-full py-3 bg-moss-600 hover:bg-moss-700 text-white font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-soft flex items-center justify-center gap-2"
         >
-          <span>🌱</span> Analyze This Plot
+          Analyze This Plot
         </button>
       </div>
     </div>
