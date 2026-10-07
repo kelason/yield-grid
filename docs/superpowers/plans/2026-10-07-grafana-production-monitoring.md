@@ -68,7 +68,7 @@
 - Server create: `/swapfile`, `/usr/local/bin/{node_exporter,redis_exporter,blackbox_exporter,prometheus}`, `/etc/systemd/system/{node_exporter,redis_exporter,blackbox_exporter,prometheus}.service`, `/etc/prometheus/prometheus.yml`, `/etc/prometheus/blackbox.yml`
 
 **Interfaces:**
-- Consumes: `REDIS_PASSWORD` from `/var/www/yieldgrid/backend/.env` when set; Task 1 baselines.
+- Consumes: `REDIS_PASSWORD` from `/var/www/yieldgrid/backend/.env` when the server actually requires auth (prod Redis is nopass — verify with bare `redis-cli PING` first; a `.env` password the server doesn't know breaks the exporter); Task 1 baselines.
 - Produces: `http://127.0.0.1:9090/api/v1/targets` shows all 3 targets `up`; installed versions recorded.
 
 - [ ] **Step 1: Create and enable 1GB swap**
@@ -79,14 +79,14 @@
 
 - [ ] **Step 2: Install the 3 exporters (latest stable; record exact versions)**
 
-  Download linux-amd64 binaries to `/usr/local/bin`, create one systemd unit each. `redis_exporter` gets `--check-keys=queues:default` and `REDIS_PASSWORD` from the backend `.env` when set. `blackbox_exporter` gets a `blackbox.yml` with an `http_2xx` module.
+  Download linux-amd64 binaries to `/usr/local/bin`, create one systemd unit each. `redis_exporter` gets `--check-keys=laravel-database-queues:default` (key name verified on prod via MONITOR) and `REDIS_PASSWORD` from the backend `.env` only when the server requires auth (prod is nopass — omit the env file in that case). `blackbox_exporter` gets a `blackbox.yml` with an `http_2xx` module.
   Run: `systemctl enable --now node_exporter redis_exporter blackbox_exporter`
   Expected: all three `active (running)`.
 
 - [ ] **Step 3: Confirm the exact Redis queue key name**
 
-  Run: `redis-cli -a "$REDIS_PASSWORD" LLEN queues:default` (omit `-a` when no password)
-  Expected: integer reply — confirms `queues:default` before Task 6 relies on it. If the key is absent, list keys with `KEYS queues:*` and record the real name.
+  Run: `redis-cli LLEN laravel-database-queues:default` (add `-a "$REDIS_PASSWORD"` only when the server requires auth; note bare `LLEN` of a missing key returns 0, so confirm the key exists via MONITOR or `KEYS *queues:default*` first)
+  Expected: integer reply — confirms `laravel-database-queues:default` before Task 6 relies on it. Record the real name when different.
 
 - [ ] **Step 4: Install Prometheus (latest stable; record version) with retention caps**
 
@@ -232,12 +232,12 @@
 
 - [ ] **Step 1: Build the "Server" dashboard (Prometheus)**
 
-  Panels: CPU `1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))`; RAM `1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes`; disk `1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}`; load `node_load1`; service `node_systemd_unit_state{name=~"php8.3-fpm.service|supervisord.service",state="active"}` (enable the `systemd` collector on node_exporter if the metric is absent).
+  Panels: CPU `1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))`; RAM `1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes`; disk `1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}`; load `node_load1`; service `node_systemd_unit_state{name=~"php8.3-fpm.service|supervisor.service",state="active"}` (enable the `systemd` collector on node_exporter if the metric is absent; unit verified on prod — it is `supervisor.service`, not `supervisord.service`).
   Expected: all panels render current data.
 
 - [ ] **Step 2: Build the "Jobs & App" dashboard**
 
-  Queue depth: `redis_key_size{key="queues:default"}` (confirm metric name against `/api/v1/query?query={__name__=~"redis_key.*"}` output first). Probes: `probe_success{job="blackbox"}`, `probe_duration_seconds`, `(probe_ssl_earliest_cert_expiry - time()) / 86400`. Postgres panels: `SELECT COUNT(*) FROM failed_jobs WHERE failed_at > now() - INTERVAL '1 hour'` and `SELECT EXTRACT(EPOCH FROM (now() - MAX(beat_at))) FROM scheduler_heartbeats`.
+  Queue depth: `redis_key_size{key="laravel-database-queues:default"}` (confirm metric name against `/api/v1/query?query={__name__=~"redis_key.*"}` output first). Probes: `probe_success{job="probe-site"}`, `probe_duration_seconds`, `(probe_ssl_earliest_cert_expiry - time()) / 86400`. Postgres panels: `SELECT COUNT(*) FROM failed_jobs WHERE failed_at > now() - INTERVAL '1 hour'` and `SELECT EXTRACT(EPOCH FROM (now() - MAX(beat_at))) FROM scheduler_heartbeats`.
   Expected: all panels render; heartbeat age < 900.
 
 - [ ] **Step 3: Build the "Business" dashboard (Postgres, refresh >= 5m)**
@@ -264,7 +264,7 @@
 
 - [ ] **Step 4: Create the 8 alert rules (all to the email contact point)**
 
-  1. RAM: `1 - avg_over_time(node_memory_MemAvailable_bytes[5m]) / node_memory_MemTotal_bytes > 0.9` for 5m. 2. Disk: `1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} > 0.8`. 3. Service: `node_systemd_unit_state{state="active"} == 0` on either watched unit for 2m (scheduler/queue deaths are also caught by rules 4 and 6). 4. Queue: `redis_key_size{key="queues:default"} > 100` for 10m. 5. Failed jobs: Postgres count query from Step 2 `> 0` over a 1h window. 6. Heartbeat: Postgres age query from Step 2 `> 900`. 7. Probe: `probe_success == 0` for 2m; SSL: `(probe_ssl_earliest_cert_expiry - time()) / 86400 < 14`. Each rule carries a one-line "check this first" annotation.
+  1. RAM: `1 - avg_over_time(node_memory_MemAvailable_bytes[5m]) / node_memory_MemTotal_bytes > 0.9` for 5m. 2. Disk: `1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} > 0.8`. 3. Service: `node_systemd_unit_state{name=~"php8.3-fpm.service|supervisor.service",state="active"} == 0` on either watched unit for 2m (scheduler/queue deaths are also caught by rules 4 and 6). 4. Queue: `redis_key_size{key="laravel-database-queues:default"} > 100` for 10m. 5. Failed jobs: Postgres count query from Step 2 `> 0` over a 1h window. 6. Heartbeat: Postgres age query from Step 2 `> 900`. 7. Probe: `probe_success == 0` for 2m; SSL: `(probe_ssl_earliest_cert_expiry - time()) / 86400 < 14`. Each rule carries a one-line "check this first" annotation.
   Expected: all 8 listed `Normal` (or `Pending`) in Grafana alerting.
 
 - [ ] **Step 5: Fire a test alert and confirm inbox delivery within 5 minutes**
