@@ -1,14 +1,7 @@
-import { test, expect } from '@playwright/test'
-
-const farmer = {
-  id: 1,
-  name: 'Mang Juan',
-  role: 'farmer',
-  email_verified_at: '2026-01-01T00:00:00Z',
-}
+import { test, expect, mockSession } from '../fixtures/session'
 
 async function mockInsuranceApi(page) {
-  await page.route('**/api/v1/user', (route) => route.fulfill({ json: { data: farmer } }))
+  await mockSession(page)
   await page.route('**/api/v1/farmer/insurance/profile', (route) => {
     if (route.request().method() === 'PUT') {
       return route.fulfill({
@@ -51,14 +44,22 @@ test('redirects unauthenticated visitors to login', async ({ page }) => {
   await expect(page).toHaveURL(/\/auth\/login/)
 })
 
-test('guides a farmer through RSBSA save in both languages', async ({ page }) => {
+test('guides a farmer through RSBSA save in both languages', async ({
+  page,
+  isMobile,
+}, testInfo) => {
   await mockInsuranceApi(page)
   await page.addInitScript(() => localStorage.setItem('auth_token', 'e2e-fake-token'))
   await page.goto('/dashboard/insurance')
 
   await expect(page.getByRole('heading', { name: 'Crop Insurance' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Enrollment Guide' })).toBeVisible()
+  if (!isMobile) {
+    await expect(page.getByRole('link', { name: 'Mang Juan' }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Farm', exact: true })).toBeVisible()
+  }
 
+  await page.screenshot({ path: testInfo.outputPath('insurance.png'), fullPage: true })
   await page.getByTestId('locale-tl').click()
   await expect(page.getByRole('heading', { name: 'Seguro sa Pananim' })).toBeVisible()
   await page.getByTestId('locale-en').click()
@@ -72,5 +73,7 @@ test('guides a farmer through RSBSA save in both languages', async ({ page }) =>
   )
   await page.getByTestId('rsbsa-save').click()
   await page.getByRole('button', { name: 'Save RSBSA details' }).last().click()
-  await putRequest
+  const request = await putRequest
+  expect(request.postDataJSON()).toEqual({ rsbsa_number: 'RSBSA-1', rsbsa_status: 'registered' })
+  await expect(page.getByTestId('rsbsa-number').locator('input')).toHaveValue('RSBSA-1')
 })

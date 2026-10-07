@@ -1,0 +1,26 @@
+name: Frontend browser smoke
+on:
+  workflow_dispatch:
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.18.0"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install --with-deps firefox webkit
+      - run: npx playwright test e2e/IdentityAndAccess e2e/Shared --project=firefox --project=webkit
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: browser-smoke-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
