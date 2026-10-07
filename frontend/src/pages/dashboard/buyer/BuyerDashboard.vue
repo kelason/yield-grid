@@ -14,7 +14,7 @@ const marketStore = useMarketStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
 const totalSpent = computed(() =>
   marketStore.buyerPurchases.reduce((sum, p) => sum + parseFloat(p.amount_paid || 0), 0),
@@ -178,6 +178,7 @@ const cancelPurchase = (purchase) => {
       </div>
     </div>
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"

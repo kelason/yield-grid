@@ -65,15 +65,15 @@ test('guides a farmer through RSBSA save in both languages', async ({
   await page.getByTestId('locale-en').click()
   await expect(page.getByRole('heading', { name: 'Crop Insurance' })).toBeVisible()
 
-  await page.getByTestId('rsbsa-number').locator('input').fill('RSBSA-1')
-  await page.getByTestId('rsbsa-status').locator('select').selectOption('registered')
+  await page.getByLabel('RSBSA number').fill('RSBSA-1')
+  await page.getByLabel('Registration status').selectOption('registered')
 
   const putRequest = page.waitForRequest(
     (request) => request.method() === 'PUT' && request.url().includes('/farmer/insurance/profile'),
   )
   await page.getByTestId('rsbsa-save').click()
-  await page.getByRole('button', { name: 'Save RSBSA details' }).last().click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Save RSBSA details' }).click()
   const request = await putRequest
   expect(request.postDataJSON()).toEqual({ rsbsa_number: 'RSBSA-1', rsbsa_status: 'registered' })
-  await expect(page.getByTestId('rsbsa-number').locator('input')).toHaveValue('RSBSA-1')
+  await expect(page.getByLabel('RSBSA number')).toHaveValue('RSBSA-1')
 })

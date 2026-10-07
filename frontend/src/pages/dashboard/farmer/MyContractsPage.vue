@@ -10,7 +10,7 @@ import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
@@ -184,6 +184,7 @@ const handlePageChange = (page) => {
     />
     <!-- Cancel Confirmation Modal -->
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"

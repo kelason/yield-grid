@@ -7,7 +7,8 @@ export function useConfirmModal() {
   let confirmAction = null
 
   const confirm = (options, action) => {
-    config.value = { ...config.value, ...options }
+    if (isExecuting.value) return
+    config.value = { title: '', message: '', type: 'primary', ...options }
     confirmAction = action
     isOpen.value = true
   }

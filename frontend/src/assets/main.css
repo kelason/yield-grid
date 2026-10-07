@@ -43,3 +43,7 @@
     scroll-behavior: auto !important;
   }
 }
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}

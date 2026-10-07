@@ -272,6 +272,7 @@
       </div>
     </Teleport>
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"
@@ -307,7 +308,7 @@ const store = useRecommendationStore()
 const farmingStore = useFarmingStore()
 const marketStore = useMarketStore()
 const { listenToPlot, leavePlot } = useWebSocket()
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
 const selectedPlotId = ref(null)
 const isLoadingPlots = ref(true)

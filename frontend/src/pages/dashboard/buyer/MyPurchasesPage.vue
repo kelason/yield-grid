@@ -17,7 +17,7 @@ const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const api = useApi()
 const SEARCH_DEBOUNCE_MS = 300
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const { openChat } = useChatEntry()
 
 const PURCHASE_TABS = [
@@ -277,6 +277,7 @@ const cancelPurchase = (purchase) => {
       @page-change="marketStore.fetchBuyerPurchases"
     />
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"

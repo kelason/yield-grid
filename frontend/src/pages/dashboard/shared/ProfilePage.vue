@@ -419,7 +419,11 @@ watch(userId, fetchProfile, { immediate: true })
       </div>
     </template>
 
-    <AppModal :is-open="showAddressModal" @close="showAddressModal = false">
+    <AppModal
+      title="Delivery address"
+      :is-open="showAddressModal"
+      @close="showAddressModal = false"
+    >
       <div class="space-y-5">
         <h2 class="font-serif text-2xl font-bold text-stone-900">
           {{ editingAddress ? 'Edit address' : 'Add address' }}

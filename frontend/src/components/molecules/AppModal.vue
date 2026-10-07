@@ -1,58 +1,147 @@
 <script setup>
-defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true,
-  },
+import { ref, useId, watch, onMounted, onBeforeUnmount } from 'vue'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppButton from '../atoms/AppButton.vue'
+const props = defineProps({
+  isOpen: { type: Boolean, required: true },
+  title: { type: String, default: '' },
+  labelledby: { type: String, default: '' },
+  describedby: { type: String, default: '' },
+  size: { type: String, default: 'lg' },
+  placement: { type: String, default: 'center' },
+  busy: Boolean,
 })
+const emit = defineEmits(['close'])
+const dialog = ref(null)
+const titleId = `modal-${useId()}`
+const sizes = { sm: 'max-w-md', md: 'max-w-xl', lg: 'max-w-2xl' }
+let returnFocus = null
 
-defineEmits(['close'])
+function restoreFocus() {
+  if (returnFocus?.isConnected) returnFocus.focus()
+  else document.getElementById('main-content')?.focus()
+}
+function syncDialog() {
+  if (!dialog.value) return
+  if (props.isOpen && !dialog.value.open) {
+    returnFocus = document.activeElement
+    dialog.value.showModal?.()
+  } else if (!props.isOpen && dialog.value.open) {
+    dialog.value.close()
+    restoreFocus()
+  }
+}
+function requestClose() {
+  if (!props.busy) emit('close')
+}
+function handleBackdrop(event) {
+  if (event.target !== dialog.value) return
+  const bounds = dialog.value.getBoundingClientRect()
+  const outside =
+    event.clientX < bounds.left ||
+    event.clientX > bounds.right ||
+    event.clientY < bounds.top ||
+    event.clientY > bounds.bottom
+  if (outside) requestClose()
+}
+function handleNativeClose() {
+  if (props.isOpen) requestClose()
+}
+watch(() => props.isOpen, syncDialog, { flush: 'post' })
+onMounted(syncDialog)
+onBeforeUnmount(() => {
+  if (dialog.value?.open) {
+    dialog.value.close()
+    restoreFocus()
+  }
+})
 </script>
-
 <template>
   <Teleport to="body">
-    <Transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 scale-95 translate-y-2"
-      enter-to-class="opacity-100 scale-100 translate-y-0"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="opacity-100 scale-100 translate-y-0"
-      leave-to-class="opacity-0 scale-95 translate-y-2"
+    <dialog
+      ref="dialog"
+      :aria-labelledby="labelledby || (title ? titleId : undefined)"
+      :aria-describedby="describedby || undefined"
+      :aria-busy="busy ? 'true' : undefined"
+      :class="[
+        'app-dialog rounded-3xl border border-stone-200 bg-white p-0 text-stone-900 shadow-organic',
+        sizes[size],
+        placement === 'left' ? 'app-drawer' : '',
+      ]"
+      @cancel.prevent="requestClose"
+      @close="handleNativeClose"
+      @click="handleBackdrop"
     >
-      <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-        <!-- Backdrop -->
-        <div
-          class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none"
-          @click="$emit('close')"
-          aria-hidden="true"
-        ></div>
-
-        <!-- Modal Panel -->
-        <div
-          class="relative w-full max-w-2xl bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all motion-reduce:transition-none motion-reduce:transform-none border border-stone-100 max-h-[90vh] flex flex-col"
+      <div v-if="isOpen" class="relative flex max-h-[90dvh] flex-col">
+        <header
+          v-if="title"
+          class="flex items-start justify-between gap-4 border-b border-stone-200 px-6 py-4"
         >
-          <!-- Organic top accent strip -->
-          <div class="h-1.5 w-full bg-gradient-to-r from-moss-500 to-moss-600 shrink-0"></div>
-
-          <button
-            @click="$emit('close')"
-            class="absolute top-5 right-5 text-stone-400 hover:text-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 bg-stone-100 hover:bg-stone-200 rounded-full p-1.5 z-10 transition-colors motion-reduce:transition-none"
-          >
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
-          <div class="p-6 sm:p-8 overflow-y-auto">
-            <slot></slot>
-          </div>
-        </div>
+          <h2 :id="titleId" class="self-center font-serif text-2xl font-bold break-words">
+            {{ title }}
+          </h2>
+          <AppButton
+            variant="ghost"
+            size="sm"
+            :disabled="busy"
+            aria-label="Close dialog"
+            @click="requestClose"
+            ><XMarkIcon class="h-5 w-5" aria-hidden="true"
+          /></AppButton>
+        </header>
+        <AppButton
+          v-else
+          variant="ghost"
+          size="sm"
+          class="absolute right-3 top-3 z-10"
+          :disabled="busy"
+          aria-label="Close dialog"
+          @click="requestClose"
+          ><XMarkIcon class="h-5 w-5" aria-hidden="true"
+        /></AppButton>
+        <div class="min-h-0 overflow-y-auto p-6"><slot /></div>
+        <footer v-if="$slots.footer" class="border-t border-stone-200 p-6">
+          <slot name="footer" />
+        </footer>
       </div>
-    </Transition>
+    </dialog>
   </Teleport>
 </template>
+<style scoped>
+.app-dialog {
+  width: calc(100% - 2rem);
+}
+.app-dialog:not([open]) {
+  display: none;
+}
+.app-dialog::backdrop {
+  @apply bg-soil-900/50;
+}
+.app-dialog[open] {
+  animation: dialog-enter 200ms ease-out;
+}
+.app-drawer {
+  margin: 0;
+  width: min(22rem, 90vw);
+  height: 100dvh;
+  max-height: none;
+}
+.app-drawer > div {
+  max-height: 100dvh;
+}
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-dialog[open] {
+    animation: none;
+  }
+}
+</style>

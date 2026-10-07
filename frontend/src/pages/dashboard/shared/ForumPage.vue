@@ -249,7 +249,7 @@ const changePage = async (delta) => {
     </div>
 
     <!-- Composer Modal -->
-    <AppModal :isOpen="showComposer" @close="showComposer = false">
+    <AppModal title="New community post" :isOpen="showComposer" @close="showComposer = false">
       <ThreadComposer
         :categories="forumStore.categories"
         :tags="forumStore.tags"

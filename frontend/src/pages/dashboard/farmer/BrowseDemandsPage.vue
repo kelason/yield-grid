@@ -194,7 +194,7 @@ async function confirmPendingOffer() {
       class="mt-6"
     />
 
-    <AppModal :is-open="showOfferModal" @close="showOfferModal = false">
+    <AppModal title="Make an offer" :is-open="showOfferModal" @close="showOfferModal = false">
       <div v-if="demandStore.activeDemand" class="space-y-5">
         <div>
           <h2 class="font-serif text-2xl font-bold text-stone-900">

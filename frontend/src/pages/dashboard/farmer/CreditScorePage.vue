@@ -12,7 +12,7 @@ import { useCreditScoreStore } from '@/stores/creditScoreStore'
 import { CREDIT_TIER_STYLES } from '@/constants/creditScoring'
 
 const creditScoreStore = useCreditScoreStore()
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const entered = ref(false)
 
 const tierStyle = computed(
@@ -144,6 +144,7 @@ function handleRetry() {
     </div>
 
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"

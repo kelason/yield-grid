@@ -10,6 +10,13 @@ function deferred() {
 }
 
 describe('useConfirmModal', () => {
+  it('resets action-specific text before opening the next confirmation', () => {
+    const modal = useConfirmModal()
+    modal.confirm({ title: 'Pay', message: 'Pay?', confirmText: 'Pay now' }, () => {})
+    modal.cancel()
+    modal.confirm({ title: 'Save', message: 'Save?' }, () => {})
+    expect(modal.config.value.confirmText).toBeUndefined()
+  })
   it('tracks execution while the confirmed action runs', async () => {
     const modal = useConfirmModal()
     const gate = deferred()

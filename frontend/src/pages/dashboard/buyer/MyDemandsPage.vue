@@ -419,7 +419,7 @@ function offersFor(demand) {
       </div>
     </div>
 
-    <AppModal :is-open="showPayModal" @close="showPayModal = false">
+    <AppModal title="Payment options" :is-open="showPayModal" @close="showPayModal = false">
       <div v-if="payingOffer" class="space-y-5">
         <div>
           <h2 class="font-serif text-2xl font-bold text-stone-900">Pay for this offer</h2>
