@@ -32,7 +32,9 @@ describe('ThreadComposer.vue limits', () => {
   it('does not submit when details exceed 5000 characters', async () => {
     const wrapper = mountComposer()
 
-    await wrapper.find('textarea').setValue('a'.repeat(5001))
+    // Bypass native/shared input clamping to verify the submit-time guard.
+    wrapper.vm.form.body = 'a'.repeat(5001)
+    await wrapper.vm.$nextTick()
 
     await wrapper.find('form').trigger('submit.prevent')
 

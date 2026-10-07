@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '../../../stores/forumStore'
@@ -170,19 +171,22 @@ const goBack = () => router.push({ name: 'community-forum' })
               <span
                 class="text-[11px]"
                 :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                id="reply-body-counter"
               >
                 {{ replyBodyLength }}/{{ FORUM_CONSTANTS.REPLY_MAX_LENGTH }}
               </span>
             </div>
-            <textarea
+            <AppTextarea
+              minlength="0"
               id="reply-body"
+              aria-describedby="reply-body-counter"
               v-model="replyBody"
               rows="4"
               :maxlength="FORUM_CONSTANTS.REPLY_MAX_LENGTH"
-              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white resize-y mb-3"
+              class="resize-y mb-3"
               placeholder="Add your knowledge or ask for clarification..."
               required
-            ></textarea>
+            ></AppTextarea>
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div class="flex items-center gap-2">
                 <input

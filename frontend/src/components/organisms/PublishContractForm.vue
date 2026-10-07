@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { reactive, computed, watch } from 'vue'
 import PriceGuideHint from '@/components/molecules/PriceGuideHint.vue'
 import AppInput from '@/components/atoms/AppInput.vue'
@@ -122,18 +123,19 @@ function submit() {
             <label for="description" class="block text-sm font-medium text-soil-700"
               >Description</label
             >
-            <span class="text-[11px] text-stone-400">
+            <span class="text-sm text-stone-600" id="description-counter">
               {{ (form.description || '').length }}/{{ CONTRACT_DESCRIPTION_MAX_LENGTH }}
             </span>
           </div>
-          <textarea
+          <AppTextarea
+            minlength="0"
             id="description"
+            aria-describedby="description-counter"
             v-model="form.description"
             rows="3"
             :maxlength="CONTRACT_DESCRIPTION_MAX_LENGTH"
             placeholder="Add any details about your farming practices, crop quality, etc."
-            class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
-          ></textarea>
+          ></AppTextarea>
           <p v-if="errors.description" class="mt-1 text-sm text-red-600">
             {{ errors.description[0] }}
           </p>

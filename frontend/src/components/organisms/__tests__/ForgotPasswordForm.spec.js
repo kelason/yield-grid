@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import ForgotPasswordForm from '../ForgotPasswordForm.vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '../../../stores/auth'
@@ -31,6 +32,9 @@ describe('ForgotPasswordForm.vue', () => {
 
     await wrapper.find('input[type="email"]').setValue('test@example.com')
     await wrapper.find('form').trigger('submit.prevent')
+    expect(mockStore.sendPasswordResetLink).not.toHaveBeenCalled()
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
 
     expect(mockStore.sendPasswordResetLink).toHaveBeenCalledWith('test@example.com')
     expect(wrapper.html()).toContain('Link sent!')
@@ -44,6 +48,9 @@ describe('ForgotPasswordForm.vue', () => {
 
     await wrapper.find('input[type="email"]').setValue('test@example.com')
     await wrapper.find('form').trigger('submit.prevent')
+    expect(mockStore.sendPasswordResetLink).not.toHaveBeenCalled()
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
 
     expect(wrapper.html()).toContain('User not found')
   })

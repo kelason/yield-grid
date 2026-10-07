@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { ref, computed } from 'vue'
 import { FORUM_CONSTANTS } from '../../constants/forum'
 
@@ -107,23 +108,28 @@ const submit = () => {
 
       <div>
         <div class="flex items-center justify-between mb-1">
-          <label class="block text-sm font-medium text-soil-700">Details</label>
+          <label for="thread-details" class="block text-sm font-medium text-soil-700"
+            >Details</label
+          >
           <span
             class="text-[11px]"
             :class="isBodyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+            id="thread-details-counter"
           >
             {{ bodyLength }}/{{ FORUM_CONSTANTS.BODY_MAX_LENGTH }}
           </span>
         </div>
-        <textarea
+        <AppTextarea
+          id="thread-details"
+          aria-describedby="thread-details-counter"
           v-model="form.body"
           required
           rows="5"
           :minlength="FORUM_CONSTANTS.BODY_MIN_LENGTH"
           :maxlength="FORUM_CONSTANTS.BODY_MAX_LENGTH"
-          class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white resize-y"
+          class="resize-y"
           placeholder="Provide more details..."
-        ></textarea>
+        ></AppTextarea>
       </div>
 
       <div class="flex items-center gap-2">

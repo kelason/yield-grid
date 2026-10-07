@@ -55,10 +55,37 @@ describe('ContactForm.vue', () => {
     expect(mockPost).not.toHaveBeenCalled()
   })
 
+  it('holds confirmation while sending and retains the message on failure', async () => {
+    let reject
+    mockPost.mockImplementation(
+      () =>
+        new Promise((resolve, fail) => {
+          reject = fail
+        }),
+    )
+    const wrapper = mount(ContactForm)
+    await fillValid(wrapper)
+    await wrapper.find('form').trigger('submit')
+    const confirmation = wrapper.findComponent(ConfirmModal)
+    confirmation.vm.$emit('confirm')
+    await flushPromises()
+    expect(confirmation.props('isOpen')).toBe(true)
+    expect(confirmation.props('loading')).toBe(true)
+    confirmation.vm.$emit('confirm')
+    expect(mockPost).toHaveBeenCalledTimes(1)
+    reject({ response: { data: { message: 'Please retry your message.' } } })
+    await flushPromises()
+    expect(wrapper.get('#contact-message').element.value).toBe('A friendly test message.')
+    expect(wrapper.text()).toContain('Please retry your message.')
+    wrapper.unmount()
+  })
+
   it('blocks submit when the message exceeds the max length', async () => {
     const wrapper = mount(ContactForm)
     await fillValid(wrapper)
-    await wrapper.find('#contact-message').setValue('a'.repeat(2001))
+    // Bypass native/shared input clamping to verify the submit-time guard.
+    wrapper.vm.form.message = 'a'.repeat(2001)
+    await wrapper.vm.$nextTick()
 
     await wrapper.find('form').trigger('submit.prevent')
 

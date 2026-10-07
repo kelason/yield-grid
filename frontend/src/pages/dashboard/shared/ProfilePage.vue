@@ -14,7 +14,7 @@ import SkeletonCard from '../../../components/atoms/SkeletonCard.vue'
 import EmptyState from '../../../components/molecules/EmptyState.vue'
 import AppModal from '../../../components/molecules/AppModal.vue'
 import ConfirmModal from '../../../components/molecules/ConfirmModal.vue'
-import AddressFields from '../../../components/molecules/AddressFields.vue'
+import AddressFields from '../../../components/organisms/AddressFields.vue'
 import { MapPinIcon } from '@heroicons/vue/24/outline'
 
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'

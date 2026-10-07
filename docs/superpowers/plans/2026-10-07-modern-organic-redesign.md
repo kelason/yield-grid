@@ -151,11 +151,11 @@ The detailed specification owns exact palette values and component contracts. Ne
 
 **Interfaces:** AddressFields retains modelValue/idPrefix/showPinPicker/showLabel/errors plus update:modelValue and pin-validation. Form organisms retain submit/close events, existing limits and error handling. No map/geocoding behavior changes in this task.
 
-- [ ] Run existing address and form tests before moving files. Add FormField forwarding regressions at actual form integration points and localized long-label cases.
-- [ ] Move AddressFields intact to its correct Atomic Design layer; update imports and colocated test paths. Add a null guard where optional errors/transition data can arrive null. Do not change address payload shape, cascade resets, pin validation, or map bounds.
-- [ ] Replace repeated textareas with FormField multiline/AppTextarea and keep the exact existing counters/limits. Use shared form errors, loading and ConfirmModal; preserve submit-time validation and draft retention.
-- [ ] Check every migrated field against backend limits. If a mismatch requires changing a backend contract, record it as a distinct guarded change with boundary tests rather than silently widening inputs.
-- [ ] Run affected form/address tests and the corrected insurance browser flow. Verify password manager/autocomplete behavior and that disabled reset-email actually stays disabled. Commit the form migration.
+- [x] Run existing address and form tests before moving files. Add FormField forwarding regressions at actual form integration points and localized long-label cases.
+- [x] Move AddressFields intact to its correct Atomic Design layer; update imports and colocated test paths. Add a null guard where optional errors/transition data can arrive null. Do not change address payload shape, cascade resets, pin validation, or map bounds.
+- [x] Replace repeated textareas with FormField multiline/AppTextarea and keep the exact existing counters/limits. Use shared form errors, loading and ConfirmModal; preserve submit-time validation and draft retention.
+- [x] Check every migrated field against backend limits. If a mismatch requires changing a backend contract, record it as a distinct guarded change with boundary tests rather than silently widening inputs.
+- [x] Run affected form/address tests and the corrected insurance browser flow. Verify password manager/autocomplete behavior and that disabled reset-email actually stays disabled. Commit the form migration.
 
 ## Task 10: Migrate farming, advisory, insurance and credit screens
 

@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { ref, computed, watch } from 'vue'
@@ -200,7 +201,9 @@ const performConfirmedAction = async () => {
               </AppSelect>
             </div>
             <div v-if="isCustomCrop">
-              <label class="block text-sm font-medium text-soil-700 mb-1">Custom Crop Name</label>
+              <label for="custom_crop_name" class="block text-sm font-medium text-soil-700 mb-1"
+                >Custom Crop Name</label
+              >
               <AppInput
                 id="custom_crop_name"
                 v-model="form.custom_crop_name"
@@ -213,7 +216,9 @@ const performConfirmedAction = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1">Shelf Life (Days)</label>
+              <label for="shelf_life_days" class="block text-sm font-medium text-soil-700 mb-1"
+                >Shelf Life (Days)</label
+              >
               <p class="text-xs text-stone-500 mb-2">
                 Pre-populated from catalog, but you can edit it.
               </p>
@@ -237,7 +242,9 @@ const performConfirmedAction = async () => {
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-sm font-medium text-soil-700">Title (Optional)</label>
+              <label for="title" class="block text-sm font-medium text-soil-700"
+                >Title (Optional)</label
+              >
               <span
                 class="text-[11px]"
                 :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
@@ -255,25 +262,32 @@ const performConfirmedAction = async () => {
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-sm font-medium text-soil-700">Description (Optional)</label>
+              <label for="listing-description" class="block text-sm font-medium text-soil-700"
+                >Description (Optional)</label
+              >
               <span
                 class="text-[11px]"
                 :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                id="listing-description-counter"
               >
                 {{ descriptionLength }}/{{ DESCRIPTION_MAX_LENGTH }}
               </span>
             </div>
-            <textarea
+            <AppTextarea
+              id="listing-description"
+              aria-describedby="listing-description-counter"
+              minlength="0"
               v-model="form.description"
               rows="3"
               :maxlength="DESCRIPTION_MAX_LENGTH"
-              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
-            ></textarea>
+            ></AppTextarea>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1">Quantity (kg)</label>
+              <label for="quantity_kg" class="block text-sm font-medium text-soil-700 mb-1"
+                >Quantity (kg)</label
+              >
               <AppInput
                 id="quantity_kg"
                 type="number"
@@ -287,7 +301,9 @@ const performConfirmedAction = async () => {
             </div>
             <div>
               <div class="mb-1 flex items-center gap-1">
-                <label class="block text-sm font-medium text-soil-700">Price per kg (₱)</label>
+                <label for="price_per_kg" class="block text-sm font-medium text-soil-700"
+                  >Price per kg (₱)</label
+                >
                 <PriceGuidePopover
                   :crop-name="finalCropName"
                   :current-price="Number(form.price_per_kg) || null"
@@ -314,7 +330,9 @@ const performConfirmedAction = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1"
+              <label
+                for="estimated_harvest_date"
+                class="block text-sm font-medium text-soil-700 mb-1"
                 >Estimated Harvest Date</label
               >
               <AppInput

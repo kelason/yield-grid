@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { ref, computed } from 'vue'
 import { CHAT_CONSTANTS } from '../../constants/chat'
 
@@ -24,14 +25,18 @@ const send = () => {
       <div
         class="flex-grow bg-stone-50 rounded-2xl border border-stone-200 overflow-hidden focus-within:ring-2 focus-within:ring-moss-500 focus-within:border-moss-500 transition-all"
       >
-        <textarea
+        <AppTextarea
+          minlength="0"
+          id="chat-message"
+          aria-describedby="chat-message-counter"
+          aria-label="Message"
           v-model="message"
           rows="3"
           :maxlength="CHAT_CONSTANTS.MESSAGE_MAX_LENGTH"
-          class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-4 text-sm min-h-24 max-h-48 overflow-y-auto"
+          class="resize-none min-h-24 max-h-48 overflow-y-auto"
           placeholder="Type a message..."
           @keydown.enter.prevent="send"
-        ></textarea>
+        ></AppTextarea>
       </div>
       <button
         type="submit"
@@ -48,6 +53,7 @@ const send = () => {
     <div
       class="text-right text-[10px] mt-1 mr-14"
       :class="isOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+      id="chat-message-counter"
     >
       {{ messageLength }}/{{ CHAT_CONSTANTS.MESSAGE_MAX_LENGTH }}
     </div>

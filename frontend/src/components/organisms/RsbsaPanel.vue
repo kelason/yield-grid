@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
@@ -19,10 +19,10 @@ const { t } = useI18n()
 const rsbsaNumber = ref('')
 const rsbsaStatus = ref('not_registered')
 
-const statusOptions = [
+const statusOptions = computed(() => [
   { value: 'registered', label: t('insurance.rsbsa.registered') },
   { value: 'not_registered', label: t('insurance.rsbsa.not_registered') },
-]
+])
 
 watch(
   () => props.profile,

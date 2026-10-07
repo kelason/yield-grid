@@ -37,6 +37,21 @@ describe('CreateFarmForm.vue', () => {
     expect(wrapper.emitted('submit')).toBeUndefined()
   })
 
+  it('keeps confirmation busy while the parent saves and emits only one payload', async () => {
+    const wrapper = mount(CreateFarmForm)
+    await fillValid(wrapper)
+    await wrapper.find('form').trigger('submit')
+    const confirmation = wrapper.findComponent(ConfirmModal)
+    confirmation.vm.$emit('confirm')
+    confirmation.vm.$emit('confirm')
+    expect(wrapper.emitted('submit')).toHaveLength(1)
+    await wrapper.setProps({ loading: true })
+    expect(confirmation.props('loading')).toBe(true)
+    await wrapper.setProps({ loading: false, error: 'Please check the farm details.' })
+    expect(confirmation.props('isOpen')).toBe(false)
+    expect(wrapper.find('#farm-name').element.value).toBe('Green Acres')
+  })
+
   it('blocks total area outside 0..1000000', async () => {
     const wrapper = mount(CreateFarmForm)
     await wrapper.find('#farm-name').setValue('Green Acres')

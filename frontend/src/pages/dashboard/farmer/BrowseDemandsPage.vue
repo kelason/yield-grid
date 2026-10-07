@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -245,15 +246,16 @@ async function performConfirmedAction(pending) {
           <label for="offer-message" class="block text-sm font-medium text-soil-700 mb-1">
             Message to buyer (optional)
           </label>
-          <textarea
+          <AppTextarea
+            minlength="0"
             id="offer-message"
+            aria-describedby="offer-message-counter"
             v-model="offerForm.message"
             rows="3"
             :maxlength="OFFER_MESSAGE_MAX_LENGTH"
             placeholder="e.g. Fresh harvest, can deliver this week"
-            class="block w-full px-4 py-2.5 border rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 motion-reduce:transition-none sm:text-sm bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white border-stone-300 text-soil-700 hover:border-stone-400"
           />
-          <p class="text-xs text-stone-500 mt-1 text-right">
+          <p class="text-xs text-stone-500 mt-1 text-right" id="offer-message-counter">
             {{ (offerForm.message || '').length }} / {{ OFFER_MESSAGE_MAX_LENGTH }}
           </p>
         </div>

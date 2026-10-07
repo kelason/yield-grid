@@ -18,36 +18,29 @@ export function usePendingConfirmation(pending) {
   return { isExecuting, execute, cancel }
 }
 
+async function runModalAction(isOpen, action) {
+  try {
+    await action?.()
+  } finally {
+    isOpen.value = false
+  }
+}
 export function useConfirmModal() {
   const isOpen = ref(false)
-  const isExecuting = ref(false)
   const config = ref({ title: '', message: '', type: 'primary' })
-  let confirmAction = null
-
+  const pending = ref(null)
+  const { isExecuting, execute: run, cancel: clear } = usePendingConfirmation(pending)
   const confirm = (options, action) => {
     if (isExecuting.value) return
     config.value = { title: '', message: '', type: 'primary', ...options }
-    confirmAction = action
+    pending.value = { action }
     isOpen.value = true
   }
-
-  const execute = async () => {
-    if (isExecuting.value) return
-    isExecuting.value = true
-    try {
-      if (confirmAction) await confirmAction()
-    } finally {
-      isOpen.value = false
-      isExecuting.value = false
-      confirmAction = null
-    }
-  }
-
+  const execute = () => run(({ action }) => runModalAction(isOpen, action))
   const cancel = () => {
     if (isExecuting.value) return
+    clear()
     isOpen.value = false
-    confirmAction = null
   }
-
   return { isOpen, isExecuting, config, confirm, execute, cancel }
 }

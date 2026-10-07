@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, beforeEach } from 'vitest'
 import i18n, { setInsuranceLocale } from '@/i18n'
 import RsbsaPanel from '../RsbsaPanel.vue'
@@ -25,6 +25,17 @@ describe('RsbsaPanel', () => {
     expect(wrapper.emitted('save-profile')).toEqual([
       [{ rsbsa_number: 'RSBSA-1', rsbsa_status: 'registered' }],
     ])
+  })
+
+  it('updates translated select options after switching locale', async () => {
+    const wrapper = mountPanel()
+    const before = wrapper.get('#insurance-rsbsa-status option[value="registered"]').text()
+    setInsuranceLocale('tl')
+    await flushPromises()
+    expect(wrapper.get('#insurance-rsbsa-status option[value="registered"]').text()).not.toBe(
+      before,
+    )
+    wrapper.unmount()
   })
 
   it('shows MAO guidance when unregistered', () => {

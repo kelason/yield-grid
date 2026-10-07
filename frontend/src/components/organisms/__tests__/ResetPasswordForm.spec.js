@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
+import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import ResetPasswordForm from '../ResetPasswordForm.vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '../../../stores/auth'
@@ -48,6 +49,9 @@ describe('ResetPasswordForm.vue', () => {
     await wrapper.find('#reset-password').setValue('new-password')
     await wrapper.find('#reset-password-confirmation').setValue('new-password')
     await wrapper.find('form').trigger('submit.prevent')
+    expect(mockStore.resetPassword).not.toHaveBeenCalled()
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
 
     expect(mockStore.resetPassword).toHaveBeenCalledWith({
       email: 'test@example.com',
@@ -69,6 +73,9 @@ describe('ResetPasswordForm.vue', () => {
     await wrapper.find('#reset-password').setValue('new-password')
     await wrapper.find('#reset-password-confirmation').setValue('new-password')
     await wrapper.find('form').trigger('submit.prevent')
+    expect(mockStore.resetPassword).not.toHaveBeenCalled()
+    wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
 
     expect(wrapper.html()).toContain('Invalid token')
     expect(pushMock).not.toHaveBeenCalled()

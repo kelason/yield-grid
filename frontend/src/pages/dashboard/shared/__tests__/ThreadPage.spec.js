@@ -62,7 +62,9 @@ describe('ThreadPage.vue reply composer', () => {
     const forumStore = useForumStore()
     const createReply = vi.spyOn(forumStore, 'createReply')
 
-    await wrapper.find('textarea').setValue('a'.repeat(5001))
+    // Bypass native/shared input clamping to verify the submit-time guard.
+    wrapper.vm.replyBody = 'a'.repeat(5001)
+    await wrapper.vm.$nextTick()
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(createReply).not.toHaveBeenCalled()

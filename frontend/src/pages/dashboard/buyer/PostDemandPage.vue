@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { onMounted, ref, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
@@ -276,15 +277,17 @@ async function performConfirmedAction() {
           <label for="demand-desc" class="block text-sm font-medium text-soil-700">
             Notes for farmers
           </label>
-          <textarea
+          <AppTextarea
+            minlength="0"
             id="demand-desc"
+            aria-describedby="demand-desc-counter"
             v-model="form.description"
             rows="3"
             :maxlength="DEMAND_DESCRIPTION_MAX_LENGTH"
             placeholder="Quality requirements, delivery notes…"
-            class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
-          ></textarea>
-          <p class="text-xs text-stone-500 mt-1 text-right">
+            class="mt-1"
+          ></AppTextarea>
+          <p class="text-xs text-stone-500 mt-1 text-right" id="demand-desc-counter">
             {{ (form.description || '').length }} / {{ DEMAND_DESCRIPTION_MAX_LENGTH }}
           </p>
           <p v-if="errors.description" class="mt-1 text-sm text-red-600">

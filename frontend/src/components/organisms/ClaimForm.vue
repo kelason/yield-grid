@@ -1,4 +1,5 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/atoms/AppButton.vue'
@@ -75,15 +76,17 @@ const submit = () => {
         <label for="claim-description" class="text-sm font-medium text-soil-700">
           {{ t('insurance.claims.description_label') }}
         </label>
-        <textarea
+        <AppTextarea
+          minlength="0"
           id="claim-description"
+          aria-describedby="claim-description-counter"
           v-model="description"
           data-testid="claim-description"
           rows="3"
           :maxlength="INSURANCE_LIMITS.CLAIM_DESCRIPTION_MAX_LENGTH"
-          class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 text-stone-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
+          class="mt-1"
         />
-        <p class="mt-1 text-sm text-stone-600 font-light">
+        <p class="mt-1 text-sm text-stone-600 font-light" id="claim-description-counter">
           {{ description.length }} / {{ INSURANCE_LIMITS.CLAIM_DESCRIPTION_MAX_LENGTH }}
         </p>
       </div>
