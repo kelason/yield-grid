@@ -47,7 +47,7 @@ function profileLink(author) {
           >
             {{ thread.title }}
           </RouterLink>
-          <div class="flex-shrink-0 text-stone-400 text-sm whitespace-nowrap">
+          <div class="flex-shrink-0 text-stone-500 text-sm whitespace-nowrap">
             {{ formatDistanceToNow(new Date(thread.last_activity_at), { addSuffix: true }) }}
           </div>
         </div>

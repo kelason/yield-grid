@@ -86,7 +86,7 @@ const submit = () => {
           :maxlength="INSURANCE_LIMITS.CLAIM_DESCRIPTION_MAX_LENGTH"
           class="mt-1"
         />
-        <p class="mt-1 text-sm text-stone-600 font-light" id="claim-description-counter">
+        <p class="mt-1 text-sm text-stone-600 font-normal" id="claim-description-counter">
           {{ description.length }} / {{ INSURANCE_LIMITS.CLAIM_DESCRIPTION_MAX_LENGTH }}
         </p>
       </div>

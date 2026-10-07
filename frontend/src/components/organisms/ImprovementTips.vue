@@ -36,6 +36,12 @@ const groupedTips = computed(() => {
     }
   }
 
+  appendGeneralTips(groups)
+
+  return groups
+})
+
+function appendGeneralTips(groups) {
   const generalMessages = normalizedTips.value
     .filter((tip) => !CREDIT_DIMENSIONS.some((dimension) => dimension.key === tip.dimension))
     .map((tip) => tip.message)
@@ -48,9 +54,7 @@ const groupedTips = computed(() => {
       messages: generalMessages,
     })
   }
-
-  return groups
-})
+}
 
 const summary = computed(() => {
   const actionWord = normalizedTips.value.length === 1 ? 'action' : 'actions'

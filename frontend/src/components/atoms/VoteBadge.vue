@@ -28,7 +28,7 @@ defineEmits(['vote'])
       type="button"
       class="min-h-11 min-w-11 p-2 rounded-full transition-colors duration-200"
       :class="[
-        userVote === 1 ? 'text-moss-500' : 'text-stone-400',
+        userVote === 1 ? 'text-moss-500' : 'text-stone-500',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
       ]"
       title="Upvote"
@@ -59,7 +59,7 @@ defineEmits(['vote'])
       type="button"
       class="min-h-11 min-w-11 p-2 rounded-full transition-colors duration-200"
       :class="[
-        userVote === -1 ? 'text-red-500' : 'text-stone-400',
+        userVote === -1 ? 'text-red-500' : 'text-stone-500',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
       ]"
       title="Downvote"

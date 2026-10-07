@@ -1,11 +1,9 @@
 import { test, expect, mockSession } from '../fixtures/session'
+import { E2E } from '../constants'
 import { FARMS } from '../fixtures/data'
 
-test('mobile navigation exposes role routes and closes after navigating', async ({
-  page,
-  isMobile,
-}) => {
-  test.skip(!isMobile, 'Mobile drawer behavior')
+test('mobile navigation exposes role routes and closes after navigating', async ({ page }) => {
+  await page.setViewportSize(E2E.MOBILE)
   await mockSession(page)
   await page.route('**/api/v1/farms', (route) => route.fulfill({ json: { data: FARMS } }))
   await page.goto('/dashboard/farmer')

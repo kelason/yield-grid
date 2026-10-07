@@ -148,7 +148,7 @@ onBeforeUnmount(() => {
             :current-price="currentPrice"
             :region-code="regionCode"
           />
-          <p v-else class="text-sm font-light text-stone-600">
+          <p v-else class="text-sm font-normal text-stone-600">
             Enter a crop name to load the price guide.
           </p>
         </div>

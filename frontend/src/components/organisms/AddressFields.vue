@@ -201,7 +201,7 @@ loadRegions().then(initCascade)
 
     <div v-if="showPinPicker && modelValue?.barangay_code">
       <p class="text-sm font-medium text-soil-700 mb-2">
-        Pin exact location <span class="text-stone-400 font-normal">(optional)</span>
+        Pin exact location <span class="text-stone-500 font-normal">(optional)</span>
       </p>
       <LoadingState v-if="loadingCenter" label="Locating your barangay on the map…" />
       <LeafletPinPicker

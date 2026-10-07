@@ -52,6 +52,24 @@ function handleBackdrop(event) {
 function handleNativeClose() {
   if (props.isOpen && !dialog.value?.open) requestClose()
 }
+function containTab(event) {
+  if (event.key !== 'Tab' || event.ctrlKey || event.metaKey || event.altKey) return
+  const controls = Array.from(
+    dialog.value.querySelectorAll(
+      'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => element.getClientRects().length)
+  const first = controls.at(0)
+  const last = controls.at(-1)
+  if (
+    !first ||
+    (event.shiftKey ? document.activeElement === first : document.activeElement === last)
+  ) {
+    event.preventDefault()
+    ;(event.shiftKey ? last : first)?.focus()
+    if (!first) dialog.value.focus()
+  }
+}
 watch(() => props.isOpen, syncDialog, { flush: 'post' })
 onMounted(syncDialog)
 onBeforeUnmount(() => {
@@ -76,6 +94,7 @@ onBeforeUnmount(() => {
       @cancel.prevent="requestClose"
       @close="handleNativeClose"
       @click="handleBackdrop"
+      @keydown="containTab"
     >
       <div v-if="isOpen" class="relative flex max-h-[90dvh] flex-col">
         <header

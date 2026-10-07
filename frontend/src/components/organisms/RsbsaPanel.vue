@@ -43,7 +43,7 @@ const save = () => {
 <template>
   <AppCard>
     <h2 class="font-serif text-2xl font-bold text-stone-900">{{ t('insurance.rsbsa.title') }}</h2>
-    <p class="mt-1 text-base text-stone-600 font-light leading-relaxed">
+    <p class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
       {{ t('insurance.rsbsa.description') }}
     </p>
     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -64,7 +64,7 @@ const save = () => {
         :options="statusOptions"
       />
     </div>
-    <p v-if="rsbsaStatus === 'not_registered'" class="mt-2 text-sm text-stone-600 font-light">
+    <p v-if="rsbsaStatus === 'not_registered'" class="mt-2 text-sm text-stone-600 font-normal">
       {{ t('insurance.rsbsa.unregistered_guidance') }}
     </p>
     <AppButton

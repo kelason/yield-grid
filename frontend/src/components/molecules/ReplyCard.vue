@@ -94,7 +94,7 @@ function profileLink(author) {
               <div class="text-xs text-stone-500 capitalize">{{ reply.author?.role }}</div>
             </div>
           </RouterLink>
-          <div class="text-xs text-stone-400">
+          <div class="text-xs text-stone-500">
             {{ formatDistanceToNow(new Date(reply.created_at), { addSuffix: true }) }}
           </div>
         </div>

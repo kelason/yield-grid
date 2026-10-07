@@ -1,43 +1,5 @@
-import { test, expect, mockSession } from '../fixtures/session'
-
-async function mockInsuranceApi(page) {
-  await mockSession(page)
-  await page.route('**/api/v1/farmer/insurance/profile', (route) => {
-    if (route.request().method() === 'PUT') {
-      return route.fulfill({
-        json: { data: { rsbsa_number: 'RSBSA-1', rsbsa_status: 'registered' } },
-      })
-    }
-    return route.fulfill({ json: { data: { rsbsa_number: null, rsbsa_status: 'not_registered' } } })
-  })
-  await page.route('**/api/v1/farmer/insurance/enrollments', (route) =>
-    route.fulfill({ json: { data: [] } }),
-  )
-  await page.route('**/api/v1/farmer/insurance/reminders', (route) =>
-    route.fulfill({ json: { data: [] } }),
-  )
-  await page.route('**/api/v1/farmer/insurance/offices', (route) =>
-    route.fulfill({
-      json: {
-        data: [
-          {
-            name: 'PCIC Head Office',
-            region_code: null,
-            city: 'Quezon City',
-            address: 'NIA Complex',
-            phone: '(02) 8441-1323',
-            source_note: '',
-            is_head_office: true,
-            is_serving_region: false,
-          },
-        ],
-      },
-    }),
-  )
-  await page.route('**/api/v1/plots', (route) =>
-    route.fulfill({ json: { data: [{ id: 3, name: 'North Plot', calculated_area: 1.5 }] } }),
-  )
-}
+import { test, expect } from '../fixtures/session'
+import { mockInsuranceApi } from '../fixtures/insurance'
 
 test('redirects unauthenticated visitors to login', async ({ page }) => {
   await page.goto('/dashboard/insurance')
@@ -59,7 +21,12 @@ test('guides a farmer through RSBSA save in both languages', async ({
     await expect(page.getByRole('button', { name: 'Farm', exact: true })).toBeVisible()
   }
 
-  await page.screenshot({ path: testInfo.outputPath('insurance.png'), fullPage: true })
+  await page.evaluate(() => document.fonts.ready)
+  await page.screenshot({
+    path: testInfo.outputPath('insurance.png'),
+    fullPage: true,
+    animations: 'disabled',
+  })
   await page.getByTestId('locale-tl').click()
   await expect(page.getByRole('heading', { name: 'Seguro sa Pananim' })).toBeVisible()
   await page.getByTestId('locale-en').click()

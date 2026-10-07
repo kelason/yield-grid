@@ -142,7 +142,7 @@ async function changePage(delta) {
         id="forum-search"
         aria-label="Search discussions"
         v-model="searchQuery"
-        minlength="0"
+        :minlength="FORUM_CONSTANTS.SEARCH_MIN_LENGTH"
         :maxlength="FORUM_CONSTANTS.SEARCH_MAX_LENGTH"
         placeholder="Search discussions..."
         @update:model-value="handleSearch"

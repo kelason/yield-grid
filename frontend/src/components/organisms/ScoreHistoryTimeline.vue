@@ -37,7 +37,7 @@ const hasEnoughData = computed(() => points.value.length >= 2)
   <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
     <h3 class="font-serif text-2xl font-bold text-stone-900">Score History</h3>
     <div v-if="!hasEnoughData" class="mt-4 text-center py-8">
-      <p class="text-base text-stone-600 font-light leading-relaxed">
+      <p class="text-base text-stone-600 font-normal leading-relaxed">
         Your score trend will appear here after your next daily recalculation.
       </p>
     </div>

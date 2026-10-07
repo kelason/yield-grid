@@ -15,6 +15,7 @@ test('has title and can navigate to login', async ({ page, isMobile }) => {
 
   // Click the get started link.
   await getStarted.click()
+  await page.waitForURL('**/auth/login')
 
   // Expects page to have a heading with the name of Login.
   await expect(page.getByRole('heading', { name: 'Welcome Back' })).toBeVisible()

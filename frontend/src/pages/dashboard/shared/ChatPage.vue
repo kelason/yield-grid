@@ -148,7 +148,7 @@ const scrollToBottom = () => {
           </div>
           <div
             v-else-if="chatStore.conversations.length === 0"
-            class="text-center py-8 text-stone-400 text-sm"
+            class="text-center py-8 text-stone-500 text-sm"
           >
             <EmptyState
               title="No conversations yet"
@@ -247,7 +247,7 @@ const scrollToBottom = () => {
 
             <div
               v-else-if="chatStore.messages.length === 0"
-              class="h-full flex flex-col items-center justify-center text-stone-400 space-y-2"
+              class="h-full flex flex-col items-center justify-center text-stone-500 space-y-2"
             >
               <p>Say hello to start the conversation</p>
             </div>
@@ -281,7 +281,7 @@ const scrollToBottom = () => {
           </div>
         </template>
 
-        <div v-else class="h-full flex flex-col items-center justify-center text-stone-400">
+        <div v-else class="h-full flex flex-col items-center justify-center text-stone-500">
           <svg
             class="w-16 h-16 text-stone-300 mb-4"
             fill="none"

@@ -132,7 +132,7 @@ const submit = () => {
           >
           <span
             class="text-[11px]"
-            :class="isBodyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+            :class="isBodyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
             id="thread-details-counter"
           >
             {{ bodyLength }}/{{ FORUM_CONSTANTS.BODY_MAX_LENGTH }}

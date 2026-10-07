@@ -185,7 +185,7 @@ async function performRegister(payload) {
           />
           <span class="text-sm font-medium text-stone-900">
             Add my address now
-            <span class="text-stone-400 font-normal">(optional — required later for trading)</span>
+            <span class="text-stone-500 font-normal">(optional — required later for trading)</span>
           </span>
         </label>
         <div v-if="showAddress" class="mt-4">

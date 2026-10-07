@@ -83,7 +83,7 @@
           <div class="ml-4 flex-shrink-0 flex">
             <button
               @click="close"
-              class="bg-white rounded-xl inline-flex text-stone-400 hover:text-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-moss-500 transition-colors duration-150 motion-reduce:transition-none"
+              class="bg-white rounded-xl inline-flex text-stone-500 hover:text-stone-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-moss-500 transition-colors duration-150 motion-reduce:transition-none"
             >
               <span class="sr-only">Close</span>
               <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

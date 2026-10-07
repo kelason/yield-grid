@@ -44,7 +44,7 @@ function barValue(dimension) {
           <span class="inline-flex items-center gap-1">
             <span class="text-sm font-medium text-soil-700">
               {{ dimension.label }}
-              <span class="text-stone-400 font-light">({{ dimension.weightPct }}%)</span>
+              <span class="text-stone-500 font-normal">({{ dimension.weightPct }}%)</span>
             </span>
             <button
               type="button"
@@ -65,7 +65,7 @@ function barValue(dimension) {
         <p
           v-if="expandedKey === dimension.key"
           :id="`dimension-info-${dimension.key}`"
-          class="mt-1.5 rounded-xl border border-dew-100 bg-dew-50 px-3 py-2 text-sm font-light leading-relaxed text-stone-600"
+          class="mt-1.5 rounded-xl border border-dew-100 bg-dew-50 px-3 py-2 text-sm font-normal leading-relaxed text-stone-600"
         >
           {{ dimension.description }}
         </p>

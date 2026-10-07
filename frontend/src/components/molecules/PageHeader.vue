@@ -10,7 +10,7 @@ defineProps({
     <div class="min-w-0 max-w-2xl">
       <component
         :is="`h${headingLevel}`"
-        class="font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl"
+        class="font-serif break-words [overflow-wrap:anywhere] text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl"
         >{{ title }}</component
       >
       <p v-if="description" class="mt-3 text-base leading-relaxed text-stone-600">

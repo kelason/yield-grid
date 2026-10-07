@@ -22,9 +22,10 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'], viewport: E2E.DESKTOP } },
   ],
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4173 --strictPort',
+    command: 'npm run build && npm run preview -- --host 127.0.0.1 --port 4173 --strictPort',
     url: E2E.BASE_URL,
     reuseExistingServer: false,
+    timeout: E2E.SERVER_START_TIMEOUT_MS,
     env: {
       E2E_RUN: '1',
       VITE_API_URL: E2E.API_URL,

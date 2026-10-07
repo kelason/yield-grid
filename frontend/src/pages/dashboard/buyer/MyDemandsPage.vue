@@ -61,7 +61,7 @@ onMounted(() => demandStore.fetchMyDemands())
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <h1 class="font-serif text-3xl font-bold text-stone-900">My Demands</h1>
-        <p class="text-base text-stone-600 font-light mt-1">
+        <p class="text-base text-stone-600 font-normal mt-1">
           Review competing offers and pay for the ones you accept.
         </p>
       </div>

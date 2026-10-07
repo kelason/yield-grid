@@ -90,7 +90,7 @@ function handleRetry() {
       v-else-if="creditScoreStore.errorMessage && !creditScoreStore.score"
       class="mt-6 bg-white rounded-2xl shadow-soft border border-stone-200 p-6 text-center"
     >
-      <p class="text-base text-stone-600 font-light leading-relaxed">
+      <p class="text-base text-stone-600 font-normal leading-relaxed">
         {{ creditScoreStore.errorMessage }}
       </p>
       <AppButton variant="primary" class="mt-4" @click="handleRetry">Try Again</AppButton>

@@ -212,7 +212,7 @@ async function performSavePlot(payload) {
             class="px-4 py-3 border-b border-stone-100 bg-stone-50 flex items-center justify-between"
           >
             <h2 class="font-serif text-xl font-bold text-stone-900">Existing Plots</h2>
-            <span class="text-xs font-medium text-stone-400">
+            <span class="text-xs font-medium text-stone-500">
               {{ farmingStore.plots?.features?.length || 0 }} total
             </span>
           </div>

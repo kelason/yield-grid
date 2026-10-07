@@ -7,7 +7,7 @@ defineProps({ dark: Boolean, collapsed: Boolean })
     to="/"
     aria-label="YieldGrid home"
     :class="[
-      'inline-flex min-h-11 items-center gap-3 rounded-xl transition-colors duration-200',
+      'inline-flex min-w-0 min-h-11 items-center gap-3 rounded-xl transition-colors duration-200',
       dark ? 'text-stone-100' : 'text-moss-700',
     ]"
   >
@@ -25,6 +25,8 @@ defineProps({ dark: Boolean, collapsed: Boolean })
         d="M16 28V8M16 18C8 18 5 13 5 7c7 0 11 5 11 11ZM16 23c8 0 11-5 11-11-7 0-11 5-11 11ZM16 10c-4-3-4-6 0-8 4 2 4 5 0 8Z"
       />
     </svg>
-    <span v-if="!collapsed" class="font-serif text-2xl font-bold tracking-tight">YieldGrid</span>
+    <span v-if="!collapsed" class="truncate font-serif text-2xl font-bold tracking-tight"
+      >YieldGrid</span
+    >
   </RouterLink>
 </template>

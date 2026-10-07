@@ -17,6 +17,6 @@ final class ForumFilterRequest extends FormRequest
     /** @return array<string, list<string>> */
     public function rules(): array
     {
-        return ['search' => ['nullable', 'string', 'min:0', 'max:'.ForumConstants::SEARCH_MAX_LENGTH]];
+        return ['search' => ['nullable', 'string', 'min:'.ForumConstants::SEARCH_MIN_LENGTH, 'max:'.ForumConstants::SEARCH_MAX_LENGTH]];
     }
 }

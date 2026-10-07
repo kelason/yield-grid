@@ -155,7 +155,7 @@ const handleTabChange = (tabId) => {
                     :currency="contract.currency"
                     size="sm"
                   />
-                  <div class="text-xs text-stone-400 mt-1">@ ₱{{ contract.price_per_kg }}/kg</div>
+                  <div class="text-xs text-stone-500 mt-1">@ ₱{{ contract.price_per_kg }}/kg</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 align-top">
                   {{ contract.estimated_harvest_date }}
@@ -225,7 +225,7 @@ const handleTabChange = (tabId) => {
               <div>
                 <span class="block text-xs font-medium text-stone-500 mb-1">Total Value</span>
                 <PriceTag :amount="contract.total_price" :currency="contract.currency" size="sm" />
-                <div class="text-xs text-stone-400 mt-0.5">@ ₱{{ contract.price_per_kg }}/kg</div>
+                <div class="text-xs text-stone-500 mt-0.5">@ ₱{{ contract.price_per_kg }}/kg</div>
               </div>
               <div>
                 <span class="block text-xs font-medium text-stone-500 mb-1">Harvest Date</span>

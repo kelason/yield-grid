@@ -1,4 +1,5 @@
 import { test, expect, mockSession } from '../fixtures/session'
+import { E2E } from '../constants'
 import { PURCHASES, BUYER } from '../fixtures/data'
 
 async function openBuyer(page) {
@@ -115,4 +116,16 @@ test('nested address confirmation restores the form and preserves its draft', as
   await expect(form.getByLabel('Label', { exact: true })).toHaveValue('Farm gate')
   await form.getByRole('button', { name: 'Close dialog' }).click()
   await expect(trigger).toBeFocused()
+})
+
+test('public dialogs lock document scrolling and restore it when closed', async ({ page }) => {
+  await page.setViewportSize(E2E.MOBILE)
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Menu', exact: true })
+  await expect(dialog).toBeVisible()
+  expect(await page.evaluate(() => getComputedStyle(document.body).overflowY)).toBe('hidden')
+  await dialog.getByRole('button', { name: 'Close dialog', exact: true }).click()
+  await expect(dialog).not.toBeVisible()
+  expect(await page.evaluate(() => getComputedStyle(document.body).overflowY)).not.toBe('hidden')
 })

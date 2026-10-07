@@ -105,6 +105,11 @@ function validateDemandForm() {
   if (description.length > DEMAND_DESCRIPTION_MAX_LENGTH) {
     fieldErrors.description = `Notes cannot exceed ${DEMAND_DESCRIPTION_MAX_LENGTH} characters.`
   }
+  validateDemandTotal(fieldErrors, qty, target)
+  return fieldErrors
+}
+
+function validateDemandTotal(fieldErrors, qty, target) {
   if (
     Object.keys(fieldErrors).length === 0 &&
     qty > 0 &&
@@ -114,7 +119,6 @@ function validateDemandForm() {
     fieldErrors.quantity_kg =
       'The combined quantity and target price exceed the maximum order total.'
   }
-  return fieldErrors
 }
 
 function askDemandConfirm() {
@@ -162,7 +166,7 @@ async function performConfirmedAction() {
   <div class="space-y-6">
     <div>
       <h1 class="font-serif text-3xl font-bold text-stone-900">Post a Crop Demand</h1>
-      <p class="text-base text-stone-600 font-light mt-1">
+      <p class="text-base text-stone-600 font-normal mt-1">
         Tell farmers what you need — they compete with offers and you pick the best.
       </p>
     </div>

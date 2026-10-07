@@ -48,7 +48,7 @@ defineEmits(['view-details', 'purchase'])
 
       <div class="space-y-2 mb-6 flex-grow">
         <div class="flex items-center text-sm text-stone-600">
-          <CalendarIcon class="h-4 w-4 mr-2 text-stone-400" aria-hidden="true" />
+          <CalendarIcon class="h-4 w-4 mr-2 text-stone-500" aria-hidden="true" />
           <span
             >Harvest:
             <span class="font-medium text-stone-900">{{
@@ -58,12 +58,12 @@ defineEmits(['view-details', 'purchase'])
         </div>
 
         <div class="flex items-center text-sm text-stone-600">
-          <UserIcon class="h-4 w-4 mr-2 text-stone-400" aria-hidden="true" />
+          <UserIcon class="h-4 w-4 mr-2 text-stone-500" aria-hidden="true" />
           <span class="truncate">{{ contract.farmer?.name || 'Farmer' }}</span>
         </div>
 
         <div class="flex items-center text-sm text-stone-600">
-          <MapPinIcon class="h-4 w-4 mr-2 text-stone-400" aria-hidden="true" />
+          <MapPinIcon class="h-4 w-4 mr-2 text-stone-500" aria-hidden="true" />
           <span class="truncate">{{
             contract.farmer?.location || contract.farmer?.farm_name || 'Location'
           }}</span>

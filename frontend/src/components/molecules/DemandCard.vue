@@ -72,7 +72,7 @@ function remainingPercent(demand) {
           <span class="font-medium text-stone-700">{{ formatDate(demand.needed_by_date) }}</span>
         </p>
         <p v-if="demand.location_summary" class="flex items-center justify-end gap-1 mt-1">
-          <MapPinIcon class="h-3.5 w-3.5 text-stone-400" aria-hidden="true" />
+          <MapPinIcon class="h-3.5 w-3.5 text-stone-500" aria-hidden="true" />
           {{ demand.location_summary }}
           <span v-if="formatDistance(demand.distance_m)" class="text-moss-700 font-medium">
             · {{ formatDistance(demand.distance_m) }}

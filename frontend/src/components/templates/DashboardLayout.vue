@@ -74,7 +74,7 @@ async function resendVerification() {
       <AppSidebar :mobile-open="mobileOpen" @close="mobileOpen = false" />
       <div class="flex min-w-0 flex-1 flex-col">
         <header
-          class="flex min-h-20 shrink-0 items-center justify-between gap-3 border-b border-stone-200 bg-white px-4 sm:px-6 lg:px-8"
+          class="flex flex-wrap min-h-20 shrink-0 items-center justify-between gap-3 border-b border-stone-200 bg-white px-4 sm:px-6 lg:px-8"
         >
           <div class="flex min-w-0 items-center gap-3">
             <AppButton

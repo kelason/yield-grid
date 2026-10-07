@@ -36,126 +36,123 @@ const DELETE_CONFIG = {
   confirmText: 'Delete',
   type: 'danger',
 }
-export function useProfileAddresses({ addressStore, isOwnProfile, notificationStore, onSaved }) {
-  const showAddressModal = ref(false)
-  const editingAddress = ref(null)
-  const addressDraft = ref(blankAddress())
-  const addressErrors = ref({})
-  const pinValid = ref(true)
-  const pendingConfirm = ref(null)
-  const {
-    isExecuting: savingAddress,
-    execute,
-    cancel: cancelConfirm,
-  } = usePendingConfirmation(pendingConfirm)
-  const confirmConfig = computed(() => addressConfirmation(pendingConfirm.value))
-  function ownsAddress(id) {
-    return toValue(isOwnProfile) && addressStore.addresses.some((address) => address.id === id)
+function addressState() {
+  return {
+    showAddressModal: ref(false),
+    editingAddress: ref(null),
+    addressDraft: ref(blankAddress()),
+    addressErrors: ref({}),
+    pinValid: ref(true),
+    pendingConfirm: ref(null),
   }
-  function openAddAddress() {
-    if (!toValue(isOwnProfile) || savingAddress.value) return
-    openEditor(null, blankAddress())
-  }
-  function openEditAddress(address) {
-    if (!address || !ownsAddress(address.id) || savingAddress.value) return
-    const draft = Object.fromEntries(
-      Object.keys(blankAddress()).map((key) => [key, address[key] ?? blankAddress()[key]]),
-    )
-    openEditor(address, draft)
-  }
-  function openEditor(address, draft) {
-    editingAddress.value = address
-    addressDraft.value = draft
-    addressErrors.value = {}
-    pinValid.value = true
-    showAddressModal.value = true
-  }
-  function closeEditor() {
-    if (!savingAddress.value) showAddressModal.value = false
-  }
-  function requestDeleteAddress(id) {
-    if (ownsAddress(id) && !savingAddress.value) pendingConfirm.value = { action: 'delete', id }
-  }
-  function requestDefaultAddress(address) {
-    if (address && ownsAddress(address.id) && !savingAddress.value)
-      pendingConfirm.value = {
-        action: 'default',
-        id: address.id,
-        label: address.label,
-        payload: {
-          ...Object.fromEntries(Object.keys(blankAddress()).map((key) => [key, address[key]])),
-          is_default: true,
-        },
-      }
-  }
-  function requestSaveAddress() {
-    if (!toValue(isOwnProfile) || savingAddress.value) return
-    const error = !pinValid.value
-      ? 'Please place your pin within the selected area.'
-      : validationMessage(addressDraft.value)
-    addressErrors.value = {}
-    if (error) {
-      addressErrors.value.form = error
-      notificationStore.error(error)
-      return
-    }
-    pendingConfirm.value = {
-      action: 'save',
-      id: editingAddress.value?.id,
-      payload: addressPayload(addressDraft.value),
-    }
-  }
-  async function runAddressAction(pending) {
-    if (!toValue(isOwnProfile) || (pending.id && !ownsAddress(pending.id))) return
-    addressErrors.value = {}
-    try {
-      if (pending.action === 'delete') await addressStore.deleteAddress(pending.id)
-      else if (pending.id) await addressStore.updateAddress(pending.id, pending.payload)
-      else await addressStore.createAddress(pending.payload)
-      notificationStore.success(pending.action === 'delete' ? 'Address deleted.' : 'Address saved.')
-      if (pending.action === 'save') showAddressModal.value = false
-      await onSaved?.()
-    } catch (error) {
-      const errors = error.response?.data?.errors || {}
-      addressErrors.value = Object.fromEntries(
-        Object.entries(errors).map(([key, value]) => [
-          key,
-          Array.isArray(value) ? value[0] : value,
-        ]),
-      )
-      if (!Object.keys(errors).length)
-        addressErrors.value.form = error.response?.data?.message || 'Failed to save address.'
-      notificationStore.error(addressErrors.value.form || 'Please review the address details.')
-    }
-  }
-  const confirmPending = () => execute(runAddressAction)
+}
+export function useProfileAddresses(options) {
+  const state = addressState()
+  const guard = usePendingConfirmation(state.pendingConfirm)
+  const s = { ...options, ...state, savingAddress: guard.isExecuting }
+  const confirmConfig = computed(() => addressConfirmation(state.pendingConfirm.value))
   watch(
-    () => toValue(isOwnProfile),
+    () => toValue(options.isOwnProfile),
     (own) => {
       if (!own) {
-        showAddressModal.value = false
-        cancelConfirm()
+        state.showAddressModal.value = false
+        guard.cancel()
       }
     },
   )
+  return { ...state, savingAddress: guard.isExecuting, confirmConfig, ...addressActions(s, guard) }
+}
+function addressActions(s, guard) {
   return {
-    showAddressModal,
-    editingAddress,
-    addressDraft,
-    addressErrors,
-    pinValid,
-    savingAddress,
-    pendingConfirm,
-    confirmConfig,
-    openAddAddress,
-    openEditAddress,
-    closeEditor,
-    requestDeleteAddress,
-    requestDefaultAddress,
-    requestSaveAddress,
-    confirmPending,
-    cancelConfirm,
+    openAddAddress: () => openAddAddress(s),
+    openEditAddress: (address) => openEditAddress(s, address),
+    closeEditor: () => {
+      if (!s.savingAddress.value) s.showAddressModal.value = false
+    },
+    requestDeleteAddress: (id) => requestDeleteAddress(s, id),
+    requestDefaultAddress: (address) => requestDefaultAddress(s, address),
+    requestSaveAddress: () => requestSaveAddress(s),
+    confirmPending: () => guard.execute((pending) => runAddressAction(s, pending)),
+    cancelConfirm: guard.cancel,
   }
+}
+function ownsAddress(s, id) {
+  return toValue(s.isOwnProfile) && s.addressStore.addresses.some((address) => address.id === id)
+}
+function openAddAddress(s) {
+  if (!toValue(s.isOwnProfile) || s.savingAddress.value) return
+  openEditor(s, null, blankAddress())
+}
+function openEditAddress(s, address) {
+  if (!address || !ownsAddress(s, address.id) || s.savingAddress.value) return
+  const blank = blankAddress()
+  const draft = Object.fromEntries(
+    Object.keys(blank).map((key) => [key, address[key] ?? blank[key]]),
+  )
+  openEditor(s, address, draft)
+}
+function openEditor(s, address, draft) {
+  s.editingAddress.value = address
+  s.addressDraft.value = draft
+  s.addressErrors.value = {}
+  s.pinValid.value = true
+  s.showAddressModal.value = true
+}
+function requestDeleteAddress(s, id) {
+  if (ownsAddress(s, id) && !s.savingAddress.value)
+    s.pendingConfirm.value = { action: 'delete', id }
+}
+function requestDefaultAddress(s, address) {
+  if (address && ownsAddress(s, address.id) && !s.savingAddress.value)
+    s.pendingConfirm.value = {
+      action: 'default',
+      id: address.id,
+      label: address.label,
+      payload: {
+        ...Object.fromEntries(Object.keys(blankAddress()).map((key) => [key, address[key]])),
+        is_default: true,
+      },
+    }
+}
+function requestSaveAddress(s) {
+  if (!toValue(s.isOwnProfile) || s.savingAddress.value) return
+  const error = !s.pinValid.value
+    ? 'Please place your pin within the selected area.'
+    : validationMessage(s.addressDraft.value)
+  s.addressErrors.value = {}
+  if (error) {
+    s.addressErrors.value.form = error
+    s.notificationStore.error(error)
+    return
+  }
+  s.pendingConfirm.value = {
+    action: 'save',
+    id: s.editingAddress.value?.id,
+    payload: addressPayload(s.addressDraft.value),
+  }
+}
+async function runAddressAction(s, pending) {
+  if (!toValue(s.isOwnProfile) || (pending.id && !ownsAddress(s, pending.id))) return
+  s.addressErrors.value = {}
+  try {
+    if (pending.action === 'delete') await s.addressStore.deleteAddress(pending.id)
+    else if (pending.id) await s.addressStore.updateAddress(pending.id, pending.payload)
+    else await s.addressStore.createAddress(pending.payload)
+    s.notificationStore.success(pending.action === 'delete' ? 'Address deleted.' : 'Address saved.')
+    if (pending.action === 'save') s.showAddressModal.value = false
+    await s.onSaved?.()
+  } catch (error) {
+    showAddressError(s, error)
+  }
+}
+function showAddressError(s, error) {
+  const errors = error.response?.data?.errors || {}
+  s.addressErrors.value = Object.fromEntries(
+    Object.entries(errors).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value]),
+  )
+  if (!Object.keys(errors).length)
+    s.addressErrors.value.form = error.response?.data?.message || 'Failed to save address.'
+  s.notificationStore.error(s.addressErrors.value.form || 'Please review the address details.')
 }
 function addressConfirmation(pending) {
   if (!pending) return null

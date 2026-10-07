@@ -6,6 +6,8 @@ namespace App\Constants;
 
 final class ForumConstants
 {
+    public const int SEARCH_MIN_LENGTH = 0;
+
     public const int SEARCH_MAX_LENGTH = 100;
 
     public const int THREADS_PER_PAGE = 15;

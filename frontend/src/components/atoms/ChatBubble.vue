@@ -30,6 +30,6 @@ defineProps({
     >
       {{ body }}
     </div>
-    <span class="text-[10px] text-stone-400 mt-1 px-1">{{ time }}</span>
+    <span class="text-[10px] text-stone-500 mt-1 px-1">{{ time }}</span>
   </div>
 </template>

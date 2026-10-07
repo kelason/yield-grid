@@ -81,7 +81,7 @@ function getConfirmedPaid(purchase) {
         >
           <div class="text-left sm:text-right">
             <p
-              class="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-0.5 sm:mb-0"
+              class="text-[11px] font-medium text-stone-500 uppercase tracking-wider mb-0.5 sm:mb-0"
             >
               Total Due
             </p>
@@ -96,7 +96,7 @@ function getConfirmedPaid(purchase) {
 
           <div class="text-right">
             <p
-              class="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-0.5 sm:mb-0"
+              class="text-[11px] font-medium text-stone-500 uppercase tracking-wider mb-0.5 sm:mb-0"
             >
               Confirmed Paid
             </p>

@@ -101,7 +101,7 @@ const handleConfirmCheckout = () => execute(performCheckout)
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-6">
     <PageHeader
       title="The Harvest Exchange"
       description="Secure your supply directly from Filipino farmers at a fixed price."

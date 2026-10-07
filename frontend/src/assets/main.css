@@ -49,3 +49,20 @@
 body:has(dialog[open]) {
   overflow: hidden;
 }
+
+/* Keep third-party map controls in the shared typography and touch-target system. */
+.leaflet-container {
+  @apply font-sans text-stone-900;
+}
+.leaflet-bar a {
+  @apply min-h-11 min-w-11;
+}
+.leaflet-bar {
+  @apply !rounded-xl !border-stone-300 !shadow-soft;
+}
+.leaflet-popup-content-wrapper {
+  @apply !rounded-2xl !shadow-organic;
+}
+.leaflet-control-geosearch form input {
+  @apply min-h-11 rounded-xl;
+}

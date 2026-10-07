@@ -214,7 +214,7 @@ const goBack = () => router.push({ name: 'community-forum' })
               >
               <span
                 class="text-[11px]"
-                :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
                 id="reply-body-counter"
               >
                 {{ replyBodyLength }}/{{ FORUM_CONSTANTS.REPLY_MAX_LENGTH }}

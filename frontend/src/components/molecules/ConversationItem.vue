@@ -54,7 +54,7 @@ defineEmits(['select'])
         <div class="font-bold text-stone-900 truncate pr-2 font-sans">
           {{ conversation.other_participant?.name || 'Unknown' }}
         </div>
-        <div class="text-[10px] text-stone-400 whitespace-nowrap">
+        <div class="text-[10px] text-stone-500 whitespace-nowrap">
           {{
             conversation.last_message_at
               ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })

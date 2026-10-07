@@ -44,42 +44,47 @@ const emptyDescription = computed(() =>
     : 'Offers with this status will appear here.',
 )
 
+const OFFER_CONFIRMATIONS = {
+  message: {
+    title: 'Open conversation?',
+    message: () => 'Open a conversation with this buyer?',
+    confirmText: 'Open conversation',
+    type: 'primary',
+  },
+  withdraw: {
+    title: 'Withdraw offer?',
+    message: (offer) =>
+      `Withdraw your offer of ${offer.quantity_kg} kg? The buyer will no longer see it, but you can submit a new one while the demand is still open.`,
+    confirmText: 'Withdraw',
+    type: 'danger',
+  },
+  cancel: {
+    title: 'Cancel this offer?',
+    message: (offer) =>
+      `Cancel your accepted offer of ${offer.quantity_kg} kg? This releases the reserved quantity back to the buyer and cannot be undone.`,
+    confirmText: 'Cancel offer',
+    type: 'danger',
+  },
+  'mark-delivered': {
+    title: 'Mark as delivered?',
+    message: (offer) =>
+      `Confirm you have delivered ${offer.quantity_kg} kg to the buyer. The buyer will be asked to confirm receipt.`,
+    confirmText: 'Mark delivered',
+    type: 'primary',
+  },
+  'settle-balance': {
+    title: 'Confirm full payment?',
+    message: (offer) =>
+      `Confirm the buyer paid the remaining ₱${remainingBalance(offer).toLocaleString('en-PH')} on delivery for ${offer.quantity_kg} kg? This marks the order as paid in full.`,
+    confirmText: 'Confirm full payment',
+    type: 'primary',
+  },
+}
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   const { action, offer } = pendingConfirm.value
-  const configs = {
-    message: {
-      title: 'Open conversation?',
-      message: 'Open a conversation with this buyer?',
-      confirmText: 'Open conversation',
-      type: 'primary',
-    },
-    withdraw: {
-      title: 'Withdraw offer?',
-      message: `Withdraw your offer of ${offer.quantity_kg} kg? The buyer will no longer see it, but you can submit a new one while the demand is still open.`,
-      confirmText: 'Withdraw',
-      type: 'danger',
-    },
-    cancel: {
-      title: 'Cancel this offer?',
-      message: `Cancel your accepted offer of ${offer.quantity_kg} kg? This releases the reserved quantity back to the buyer and cannot be undone.`,
-      confirmText: 'Cancel offer',
-      type: 'danger',
-    },
-    'mark-delivered': {
-      title: 'Mark as delivered?',
-      message: `Confirm you have delivered ${offer.quantity_kg} kg to the buyer. The buyer will be asked to confirm receipt.`,
-      confirmText: 'Mark delivered',
-      type: 'primary',
-    },
-    'settle-balance': {
-      title: 'Confirm full payment?',
-      message: `Confirm the buyer paid the remaining ₱${remainingBalance(offer).toLocaleString('en-PH')} on delivery for ${offer.quantity_kg} kg? This marks the order as paid in full.`,
-      confirmText: 'Confirm full payment',
-      type: 'primary',
-    },
-  }
-  return configs[action]
+  const config = OFFER_CONFIRMATIONS[action]
+  return config ? { ...config, message: config.message(offer) } : null
 })
 
 function remainingBalance(offer) {
@@ -171,7 +176,7 @@ function handleMessage(offer) {
   <div class="space-y-6">
     <div>
       <h1 class="font-serif text-3xl font-bold text-stone-900">My Offers</h1>
-      <p class="text-base text-stone-600 font-light mt-1">
+      <p class="text-base text-stone-600 font-normal mt-1">
         Track your offers to buyers, from pending to delivered.
       </p>
     </div>

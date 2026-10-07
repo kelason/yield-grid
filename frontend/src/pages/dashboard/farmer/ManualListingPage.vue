@@ -97,9 +97,7 @@ const isTitleOverLimit = computed(() => (form.value.title || '').length > TITLE_
 const isDescriptionOverLimit = computed(() => descriptionLength.value > DESCRIPTION_MAX_LENGTH)
 
 const validateListingForm = () => {
-  if (isTitleOverLimit.value) {
-    return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
-  }
+  if (isTitleOverLimit.value) return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
   if (isDescriptionOverLimit.value) {
     return `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`
   }
@@ -120,16 +118,22 @@ const validateListingForm = () => {
   if (price > PRICE_MAX) {
     return `Price cannot exceed ${PRICE_MAX_DIGITS} digits (₱${PRICE_MAX.toLocaleString()}).`
   }
+  const shelfError = validateShelfLife()
+  if (shelfError) return shelfError
+  const needsDate = !form.value.is_harvest_available
+  if (!finalCropName.value || (needsDate && !form.value.estimated_harvest_date)) {
+    return 'Please fill in all required fields.'
+  }
+  return null
+}
+
+function validateShelfLife() {
   const shelf = parseInt(form.value.shelf_life_days)
   if (!shelf || shelf < SHELF_MIN_DAYS) {
     return 'Please enter a shelf life of at least 1 day.'
   }
   if (shelf > SHELF_MAX_DAYS) {
     return `Shelf life cannot exceed ${SHELF_MAX_DAYS.toLocaleString()} days.`
-  }
-  const needsDate = !form.value.is_harvest_available
-  if (!finalCropName.value || (needsDate && !form.value.estimated_harvest_date)) {
-    return 'Please fill in all required fields.'
   }
   return null
 }
@@ -247,7 +251,7 @@ const performConfirmedAction = async () => {
               >
               <span
                 class="text-[11px]"
-                :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
               >
                 {{ (form.title || '').length }}/{{ TITLE_MAX_LENGTH }}
               </span>
@@ -267,7 +271,7 @@ const performConfirmedAction = async () => {
               >
               <span
                 class="text-[11px]"
-                :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
                 id="listing-description-counter"
               >
                 {{ descriptionLength }}/{{ DESCRIPTION_MAX_LENGTH }}

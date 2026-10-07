@@ -122,7 +122,7 @@ function setAvailability(availability) {
           >
           <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <span class="text-stone-400 font-medium">₱</span>
+              <span class="text-stone-500 font-medium">₱</span>
             </div>
             <AppInput
               type="number"
@@ -144,7 +144,7 @@ function setAvailability(availability) {
           >
           <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <span class="text-stone-400 font-medium">₱</span>
+              <span class="text-stone-500 font-medium">₱</span>
             </div>
             <AppInput
               type="number"

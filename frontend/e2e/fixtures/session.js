@@ -37,8 +37,11 @@ export function assertNoUnexpectedApiRequests(page) {
 
 export const test = base.extend({
   page: async ({ page }, use) => {
+    const pageErrors = []
+    page.on('pageerror', (error) => pageErrors.push(error.message))
     await use(page)
     assertNoUnexpectedApiRequests(page)
+    expect(pageErrors).toEqual([])
   },
 })
 export { expect }

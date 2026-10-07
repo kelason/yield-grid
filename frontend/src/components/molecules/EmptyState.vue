@@ -2,7 +2,7 @@
   <AppCard class="text-center" padding="p-6 sm:p-10">
     <div
       v-if="$slots.icon"
-      class="mx-auto h-14 w-14 text-stone-400 mb-5 flex items-center justify-center"
+      class="mx-auto h-14 w-14 text-stone-500 mb-5 flex items-center justify-center"
     >
       <slot name="icon"></slot>
     </div>

@@ -79,33 +79,37 @@ export const useMarketStore = defineStore('market', () => {
     buyerPurchases.value.reduce((total, p) => total + parseFloat(p.amount_paid), 0),
   )
 
+  function marketQuery(page) {
+    const queryParams = new URLSearchParams()
+    queryParams.append('page', page)
+    queryParams.append('per_page', pagination.value.perPage)
+
+    if (filters.value.crop) queryParams.append('crop', filters.value.crop)
+    if (filters.value.minPrice) queryParams.append('min_price', filters.value.minPrice)
+    if (filters.value.maxPrice) queryParams.append('max_price', filters.value.maxPrice)
+    if (filters.value.harvestBefore)
+      queryParams.append('harvest_before', filters.value.harvestBefore)
+    if (filters.value.harvestAfter) queryParams.append('harvest_after', filters.value.harvestAfter)
+    if (filters.value.availability && filters.value.availability !== 'all') {
+      queryParams.append('availability', filters.value.availability)
+    }
+    if (filters.value.sort) queryParams.append('sort', filters.value.sort)
+    if (
+      filters.value.sort === 'nearest' &&
+      viewerLocation.value?.lat != null &&
+      viewerLocation.value?.lng != null
+    ) {
+      queryParams.append('lat', viewerLocation.value.lat)
+      queryParams.append('lng', viewerLocation.value.lng)
+    }
+
+    return queryParams
+  }
+
   async function fetchMarketContracts(page = 1) {
     loading.value.contracts = true
     try {
-      const queryParams = new URLSearchParams()
-      queryParams.append('page', page)
-      queryParams.append('per_page', pagination.value.perPage)
-
-      if (filters.value.crop) queryParams.append('crop', filters.value.crop)
-      if (filters.value.minPrice) queryParams.append('min_price', filters.value.minPrice)
-      if (filters.value.maxPrice) queryParams.append('max_price', filters.value.maxPrice)
-      if (filters.value.harvestBefore)
-        queryParams.append('harvest_before', filters.value.harvestBefore)
-      if (filters.value.harvestAfter)
-        queryParams.append('harvest_after', filters.value.harvestAfter)
-      if (filters.value.availability && filters.value.availability !== 'all') {
-        queryParams.append('availability', filters.value.availability)
-      }
-      if (filters.value.sort) queryParams.append('sort', filters.value.sort)
-      if (
-        filters.value.sort === 'nearest' &&
-        viewerLocation.value?.lat != null &&
-        viewerLocation.value?.lng != null
-      ) {
-        queryParams.append('lat', viewerLocation.value.lat)
-        queryParams.append('lng', viewerLocation.value.lng)
-      }
-
+      const queryParams = marketQuery(page)
       const { data, meta } = (await api.get(`/market/contracts?${queryParams.toString()}`)).data
 
       contracts.value = data

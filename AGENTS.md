@@ -8,13 +8,13 @@ surfaces, Lora headings, and Inter body text. Preserve Atomic Design and existin
 business behavior while improving component reuse and accessibility.
 
 - Read `docs/superpowers/specs/2026-10-07-modern-organic-redesign.md` for the frontend
-  assessment, proposed **Field & Linen** palette, component contracts, and design rules.
+  assessment, approved **Field & Linen** palette, component contracts, and design rules.
 - Follow `docs/superpowers/plans/2026-10-07-modern-organic-redesign.md` for the ordered
   implementation tasks and Playwright coverage. Start with shared foundations,
   then farmer and buyer dashboards, then remaining route families.
 - The design direction is requested by the user; the Field & Linen palette and detailed
   implementation plan were approved for execution on 2026-10-07. Follow the
-  specification and record verified progress in the implementation ledger.
+  specification and the plan’s recorded verification results.
 - Reuse and improve `AppButton`, `AppCard`, `AppInput`, `AppSelect`, `FormField`,
   `AppModal`, `ConfirmModal`, `SkeletonCard`, and `EmptyState`. Make confirmation
   dialogs compose the shared modal and button primitives. Add only the small
@@ -29,9 +29,13 @@ business behavior while improving component reuse and accessibility.
 - Every redesigned flow needs responsive and keyboard verification. Follow the
   plan's Playwright fixtures and visual-baseline policy; do not approve screenshot
   changes merely by regenerating them.
-- At implementation time, synchronize this file and
-  `.agents/skills/yieldgrid-design-system/SKILL.md` with the approved decisions.
-  This section takes precedence over older decorative guidance in that skill.
+- Keep this file and `.agents/skills/yieldgrid-design-system/SKILL.md` synchronized.
+  Palette values and shadows live in `frontend/src/constants/designTokens.js`;
+  Tailwind and JS charts/maps consume that source.
+- Browser checks serve the production build. Reviewed pixels use Chromium on
+  Ubuntu 24.04 / Playwright 1.63.0 Noble, self-hosted Inter/Lora and fixed fixtures.
+  Run Firefox/WebKit shared/auth smoke separately. See `frontend/README.md`
+  for environment and baseline commands. Verify real map tiles separately.
 
 ## Code Review Guidelines
 
@@ -374,7 +378,7 @@ Mirror the same defensiveness in `<script setup>` (`props.farm?.city`), and add 
 
 ## Design System: Modern Minimalist Organic Web Design
 
-YieldGrid uses a **Modern Minimalist Organic Web Design** language throughout the entire frontend. Follow it for all new components, pages, and modifications, using the redesign specification above for the proposed palette and migration status.
+YieldGrid uses a **Modern Minimalist Organic Web Design** language throughout the entire frontend. Follow it for all new components, pages, and modifications, using the approved Field & Linen specification above for palette and migration status.
 
 ### Philosophy
 
@@ -399,14 +403,14 @@ YieldGrid uses a **Modern Minimalist Organic Web Design** language throughout th
 | Page background (public) | `bg-stone-100` |
 | Page background (dashboard) | `bg-stone-50` |
 | Card surface | `bg-white border-stone-200` |
-| Sidebar / Footer | `from-soil-900 to-soil-800` gradient |
+| Sidebar / Footer | `bg-soil-900`; use a subtle gradient only where justified |
 | Accent badges, financial figures | `harvest-*` |
 | Weather / AI / Info cards | `dew-50` to `dew-100` |
 | Body text (primary) | `text-stone-900` |
 | Body text (secondary) | `text-stone-600` |
 | Labels | `text-soil-700` |
 | Text on dark backgrounds | `text-stone-300` / `text-stone-400` |
-| Error states | `red-500/600` only |
+| Error states | Semantic `red-*`; use `DESIGN_STATUS_COLORS` in JS charts/maps |
 | Focus rings | `focus:ring-moss-500` |
 
 ### Shape Language
@@ -443,7 +447,7 @@ All interactive elements MUST have motion feedback:
 
 | Interaction | Animation |
 |-------------|-----------|
-| Button hover | `hover:scale-[1.02] transition-all duration-300` |
+| Button hover | `hover:scale-[1.02] transition-all duration-300`, disabled under reduced motion |
 | Interactive card hover | Subtle border/elevation feedback with `transition-all duration-300`; static cards remain still |
 | Modal open | `scale-95 → scale-100` with `duration-300 ease-out` |
 | Page transition | Fade + slight Y translate (`opacity-0 translateY(6px)`) |
