@@ -50,11 +50,10 @@ describe('AppSelect.vue', () => {
     expect(select.attributes('disabled')).toBeDefined()
   })
 
-  it('carries the shared organic select look', () => {
-    const classes = mountSelect({ options: [] }).find('select').classes()
-
-    expect(classes).toContain('appearance-none')
-    expect(classes).toContain('rounded-xl')
-    expect(classes).toContain('bg-stone-50')
+  it('connects validation feedback to the select', () => {
+    const wrapper = mountSelect({ error: 'Choose a crop', options: [] })
+    expect(wrapper.get('select').attributes('aria-invalid')).toBe('true')
+    expect(wrapper.get('select').attributes('aria-describedby')).toContain('crop-select-error')
+    expect(wrapper.get('#crop-select-error').text()).toBe('Choose a crop')
   })
 })

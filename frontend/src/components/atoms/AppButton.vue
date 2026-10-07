@@ -1,4 +1,5 @@
 <script setup>
+import AppSpinner from './AppSpinner.vue'
 defineProps({
   variant: {
     type: String,
@@ -21,13 +22,13 @@ const variantClasses = {
   outline:
     'text-moss-700 border-2 border-moss-300 bg-transparent hover:bg-moss-50 hover:border-moss-500 hover:scale-[1.02] active:scale-[0.99]',
   danger:
-    'text-white bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-soft hover:shadow-organic hover:scale-[1.02] active:scale-[0.99]',
+    'text-white bg-gradient-to-br from-red-600 to-red-700 hover:from-red-600 hover:to-red-700 shadow-soft hover:shadow-organic hover:scale-[1.02] active:scale-[0.99]',
   ghost:
     'text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:scale-[1.02] active:scale-[0.99]',
   'ghost-dark':
     'text-stone-300 hover:text-white hover:bg-white/10 hover:scale-[1.02] active:scale-[0.99]',
   harvest:
-    'text-white bg-gradient-to-br from-harvest-500 to-harvest-600 hover:from-harvest-600 hover:to-harvest-700 shadow-harvest-glow hover:scale-[1.02] active:scale-[0.99]',
+    'text-white bg-gradient-to-br from-harvest-700 to-harvest-800 hover:from-harvest-800 hover:to-harvest-900 shadow-harvest-glow hover:scale-[1.02] active:scale-[0.99]',
 }
 
 const sizeClasses = {
@@ -46,29 +47,17 @@ const roundedClasses = {
   <button
     :type="type"
     :disabled="disabled || loading"
+    :aria-busy="loading ? 'true' : undefined"
     :class="[
-      'inline-flex items-center justify-center font-medium transition-all duration-300 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-moss-500',
+      'inline-flex min-h-11 min-w-11 items-center justify-center font-medium transition-all duration-300 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-moss-500',
       sizeClasses[size],
       roundedClasses[rounded],
       variantClasses[variant],
       disabled || loading ? 'opacity-50 cursor-not-allowed !transform-none !shadow-none' : '',
     ]"
   >
-    <svg
-      v-if="loading"
-      class="animate-spin h-4 w-4 flex-shrink-0"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
+    <AppSpinner v-if="loading" />
+    <slot v-else name="icon" />
     <slot />
   </button>
 </template>

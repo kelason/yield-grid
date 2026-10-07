@@ -31,8 +31,12 @@ function applyFilters() {
   <div class="bg-white border border-stone-200 shadow-soft rounded-2xl p-4 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-soil-700 mb-1">Search Crop</label>
+        <label for="demand-crop" class="block text-sm font-medium text-soil-700 mb-1"
+          >Search Crop</label
+        >
         <SearchInput
+          id="demand-crop"
+          label="Search Crop"
           v-model="localFilters.crop"
           placeholder="e.g. Tomato, Rice..."
           class="flex-grow w-full"
@@ -80,8 +84,11 @@ function applyFilters() {
       </div>
 
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-soil-700 mb-1">Sort By</label>
+        <label for="demand-sort" class="block text-sm font-medium text-soil-700 mb-1"
+          >Sort By</label
+        >
         <SortSelect
+          id="demand-sort"
           v-model="localFilters.sort"
           :options="[
             { value: 'newest', label: 'Newest Posted' },

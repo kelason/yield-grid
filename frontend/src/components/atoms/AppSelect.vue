@@ -1,74 +1,56 @@
 <script setup>
+import { computed } from 'vue'
 import AppLabel from './AppLabel.vue'
-
-defineProps({
+import { ChevronDownIcon } from '@heroicons/vue/24/outline'
+import { useControlAttrs } from '@/composables/useControlAttrs'
+import { CONTROL_CLASSES, CONTROL_BORDER, CONTROL_ERROR } from '@/constants/forms'
+defineOptions({ inheritAttrs: false })
+const props = defineProps({
   modelValue: { type: [String, Number], default: '' },
   id: { type: String, required: true },
   label: { type: String, default: '' },
   options: { type: Array, default: null },
-  required: { type: Boolean, default: false },
-  disabled: { type: Boolean, default: false },
+  required: Boolean,
+  disabled: Boolean,
   error: { type: String, default: '' },
 })
-
 defineEmits(['update:modelValue'])
+const { wrapperAttrs, controlAttrs } = useControlAttrs()
+const describedBy = computed(
+  () =>
+    [controlAttrs.value['aria-describedby'], props.error && `${props.id}-error`]
+      .filter(Boolean)
+      .join(' ') || undefined,
+)
 </script>
-
 <template>
-  <div>
+  <div v-bind="wrapperAttrs">
     <AppLabel v-if="label" :for="id" :required="required">{{ label }}</AppLabel>
-    <div class="mt-1 relative">
-      <!-- Custom chevron -->
-      <div
-        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
-        aria-hidden="true"
-      >
-        <svg class="h-4 w-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </div>
+    <div class="relative" :class="{ 'mt-1': label }">
       <select
+        v-bind="controlAttrs"
         :id="id"
         :value="modelValue"
-        @change="$emit('update:modelValue', $event.target.value)"
         :required="required"
         :disabled="disabled"
-        class="appearance-none block w-full px-4 py-2.5 pr-9 border rounded-xl shadow-soft bg-stone-50 text-stone-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200 motion-reduce:transition-none hover:border-stone-400"
-        :class="[
-          error
-            ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500'
-            : 'border-stone-300',
-          { 'bg-stone-200 cursor-not-allowed opacity-60': disabled },
-        ]"
+        :aria-invalid="error ? 'true' : undefined"
+        :aria-describedby="describedBy"
+        :class="[CONTROL_CLASSES, 'appearance-none pr-10', error ? CONTROL_ERROR : CONTROL_BORDER]"
+        @change="$emit('update:modelValue', $event.target.value)"
       >
         <slot v-if="$slots.default" />
-        <template v-else>
-          <option value="" disabled selected>Select an option</option>
-          <option v-for="option in options" :key="option.value" :value="option.value">
+        <template v-else
+          ><option value="" disabled>Select an option</option>
+          <option v-for="option in options ?? []" :key="option.value" :value="option.value">
             {{ option.label }}
-          </option>
-        </template>
+          </option></template
+        >
       </select>
-    </div>
-    <p v-if="error" class="mt-1.5 text-sm text-red-600 flex items-center gap-1">
-      <svg
-        class="h-3.5 w-3.5 flex-shrink-0"
-        fill="currentColor"
-        viewBox="0 0 20 20"
+      <ChevronDownIcon
+        class="pointer-events-none absolute right-3 top-3 h-5 w-5 text-stone-600"
         aria-hidden="true"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-          clip-rule="evenodd"
-        />
-      </svg>
-      {{ error }}
-    </p>
+      />
+    </div>
+    <p v-if="error" :id="`${id}-error`" class="mt-1 text-sm text-red-600">{{ error }}</p>
   </div>
 </template>

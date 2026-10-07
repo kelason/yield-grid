@@ -38,6 +38,7 @@ describe('ResetPasswordForm.vue', () => {
     const wrapper = mount(ResetPasswordForm)
     await wrapper.vm.$nextTick()
     expect(wrapper.find('input[type="email"]').element.value).toBe('test@example.com')
+    expect(wrapper.find('input[type="email"]').element.disabled).toBe(true)
   })
 
   it('handles successful password reset', async () => {

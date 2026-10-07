@@ -96,8 +96,12 @@ function setAvailability(availability) {
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
       <!-- Search -->
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-soil-700 mb-1">Search Crop</label>
+        <label for="contract-crop" class="block text-sm font-medium text-soil-700 mb-1"
+          >Search Crop</label
+        >
         <SearchInput
+          id="contract-crop"
+          label="Search Crop"
           v-model="localFilters.crop"
           placeholder="e.g. Rice, Corn..."
           class="flex-grow w-full"
@@ -146,8 +150,11 @@ function setAvailability(availability) {
 
       <!-- Sort -->
       <div class="md:col-span-4 flex flex-col">
-        <label class="block text-xs font-medium text-soil-700 mb-1">Sort By</label>
+        <label for="contract-sort" class="block text-sm font-medium text-soil-700 mb-1"
+          >Sort By</label
+        >
         <SortSelect
+          id="contract-sort"
           v-model="localFilters.sort"
           @update:modelValue="
             (val) => {
