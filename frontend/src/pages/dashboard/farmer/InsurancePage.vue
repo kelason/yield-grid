@@ -1,4 +1,7 @@
 <script setup>
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppAlert from '@/components/atoms/AppAlert.vue'
@@ -22,6 +25,7 @@ const insuranceStore = useInsuranceStore()
 const farmingStore = useFarmingStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
+const INSURANCE_SKELETON_COUNT = 2
 const entered = ref(false)
 const selectedEnrollmentId = ref(null)
 const filingClaim = ref(false)
@@ -79,17 +83,9 @@ onMounted(async () => {
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out"
     :class="entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1.5'"
   >
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-stone-900">
-          {{ t('insurance.page.title') }}
-        </h1>
-        <p class="text-base text-stone-600 font-light leading-relaxed mt-2">
-          {{ t('insurance.page.subtitle') }}
-        </p>
-      </div>
-      <LanguageToggle />
-    </div>
+    <PageHeader :title="t('insurance.page.title')" :description="t('insurance.page.subtitle')"
+      ><template #actions><LanguageToggle /></template
+    ></PageHeader>
 
     <div v-if="insuranceStore.errorMessage" class="mt-6">
       <AppAlert type="error">{{ insuranceStore.errorMessage }}</AppAlert>
@@ -98,10 +94,9 @@ onMounted(async () => {
       </AppButton>
     </div>
 
-    <div v-if="insuranceStore.isLoading" class="mt-6 space-y-6" aria-live="polite">
-      <div class="bg-stone-200 rounded-2xl h-40 animate-pulse" />
-      <div class="bg-stone-200 rounded-2xl h-64 animate-pulse" />
-    </div>
+    <LoadingState v-if="insuranceStore.isLoading" label="Loading insurance" class="mt-6 space-y-6"
+      ><SkeletonCard v-for="n in INSURANCE_SKELETON_COUNT" :key="n"
+    /></LoadingState>
 
     <div v-else class="mt-6 space-y-6">
       <RsbsaPanel

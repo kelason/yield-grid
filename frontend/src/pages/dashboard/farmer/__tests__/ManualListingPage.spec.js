@@ -93,7 +93,9 @@ describe('ManualListingPage.vue limits', () => {
   it('blocks submit when the description exceeds 5000 characters', async () => {
     const wrapper = mountPage()
 
-    await wrapper.find('textarea').setValue('a'.repeat(5001))
+    // Bypass native/shared input clamping to verify the submit-time guard.
+    wrapper.vm.form.description = 'a'.repeat(5001)
+    await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain('5001/5000')
     await wrapper.find('form').trigger('submit.prevent')
 

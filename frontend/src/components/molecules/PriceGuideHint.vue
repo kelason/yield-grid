@@ -6,8 +6,8 @@ import {
   BuildingStorefrontIcon,
   ShieldCheckIcon,
   SparklesIcon,
-  ArrowPathIcon,
 } from '@heroicons/vue/24/outline'
+import AppSpinner from '@/components/atoms/AppSpinner.vue'
 import { usePriceGuide } from '@/composables/usePriceGuide'
 import {
   PRICE_CHECK_STAGES,
@@ -87,9 +87,7 @@ async function runSequence(crop, seq) {
     }
   }
 
-  if (seq !== requestSeq) {
-    return
-  }
+  if (seq !== requestSeq) return
 
   if (shouldPollAi()) {
     pollAi(crop, seq)
@@ -295,27 +293,24 @@ const priceComparison = computed(() => {
           </div>
           <div
             v-if="sections.yieldgrid.status === 'loading'"
-            class="mt-2 flex items-center gap-2 text-sm font-light text-stone-600"
+            class="mt-2 flex items-center gap-2 text-sm font-normal text-stone-600"
             role="status"
             aria-label="Loading YieldGrid price"
           >
-            <ArrowPathIcon
-              class="loading-spinner h-4 w-4 text-moss-600 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
             <span>Loading…</span>
           </div>
           <p
             v-else-if="sections.yieldgrid.available"
             class="mt-1.5 flex items-baseline justify-between gap-4 text-sm"
           >
-            <span class="font-light text-stone-600">{{ sections.yieldgrid.market_name }}</span>
+            <span class="font-normal text-stone-600">{{ sections.yieldgrid.market_name }}</span>
             <span class="font-semibold tabular-nums text-stone-900 whitespace-nowrap">
               {{ formatPeso(sections.yieldgrid.price_per_kg) }}
-              <span class="font-light text-stone-600">/kg</span>
+              <span class="font-normal text-stone-600">/kg</span>
             </span>
           </p>
-          <p v-else class="mt-1.5 text-sm font-light italic text-stone-600">
+          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">
             No YieldGrid price yet.
           </p>
         </div>
@@ -331,14 +326,11 @@ const priceComparison = computed(() => {
           </div>
           <div
             v-if="sections.da.status === 'loading'"
-            class="mt-2 flex items-center gap-2 text-sm font-light text-stone-600"
+            class="mt-2 flex items-center gap-2 text-sm font-normal text-stone-600"
             role="status"
             aria-label="Loading DA price"
           >
-            <ArrowPathIcon
-              class="loading-spinner h-4 w-4 text-moss-600 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
             <span>Loading…</span>
           </div>
           <div v-else-if="sections.da.available">
@@ -351,7 +343,7 @@ const priceComparison = computed(() => {
                 <dt class="font-medium text-soil-700">{{ tier.label }}</dt>
                 <dd class="font-semibold tabular-nums text-stone-900 whitespace-nowrap">
                   {{ formatPeso(tier.price_per_kg) }}
-                  <span class="font-light text-stone-600">/kg</span>
+                  <span class="font-normal text-stone-600">/kg</span>
                 </dd>
               </div>
             </dl>
@@ -360,7 +352,7 @@ const priceComparison = computed(() => {
               <span v-if="sections.da.observed_at"> · as of {{ sections.da.observed_at }}</span>
             </p>
           </div>
-          <p v-else class="mt-1.5 text-sm font-light italic text-stone-600">No DA price yet.</p>
+          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">No DA price yet.</p>
         </div>
 
         <div v-if="sections.ai" class="py-3">
@@ -374,14 +366,11 @@ const priceComparison = computed(() => {
           </div>
           <div
             v-if="aiLoading"
-            class="mt-2 flex items-center gap-2 text-sm font-light text-stone-600"
+            class="mt-2 flex items-center gap-2 text-sm font-normal text-stone-600"
             role="status"
             aria-label="Loading AI estimate"
           >
-            <ArrowPathIcon
-              class="loading-spinner h-4 w-4 text-moss-600 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
             <span>Loading…</span>
           </div>
           <div v-else-if="sections.ai.available">
@@ -394,7 +383,7 @@ const priceComparison = computed(() => {
                 <dt class="font-medium text-soil-700">{{ tier.label }}</dt>
                 <dd class="font-semibold tabular-nums text-stone-900 whitespace-nowrap">
                   {{ formatPeso(tier.price_per_kg) }}
-                  <span class="font-light text-stone-600">/kg</span>
+                  <span class="font-normal text-stone-600">/kg</span>
                 </dd>
               </div>
             </dl>
@@ -404,18 +393,15 @@ const priceComparison = computed(() => {
             </p>
             <p
               v-if="sections.ai.pending"
-              class="mt-1 flex items-center gap-1.5 text-xs font-light text-stone-600"
+              class="mt-1 flex items-center gap-1.5 text-xs font-normal text-stone-600"
               role="status"
               aria-label="Refreshing AI estimate"
             >
-              <ArrowPathIcon
-                class="loading-spinner h-3.5 w-3.5 text-moss-600 motion-safe:animate-spin"
-                aria-hidden="true"
-              />
+              <AppSpinner class="loading-spinner h-3.5 w-3.5 text-moss-600" aria-hidden="true" />
               <span>Refreshing…</span>
             </p>
           </div>
-          <p v-else class="mt-1.5 text-sm font-light italic text-stone-600">No AI estimate yet.</p>
+          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">No AI estimate yet.</p>
         </div>
       </div>
 
@@ -430,7 +416,7 @@ const priceComparison = computed(() => {
       </div>
     </div>
 
-    <p v-else-if="showQuietNote" class="text-sm font-light text-stone-600">
+    <p v-else-if="showQuietNote" class="text-sm font-normal text-stone-600">
       No price guide for “{{ (cropName ?? '').trim() }}” yet.
     </p>
   </div>

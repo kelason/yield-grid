@@ -1,145 +1,59 @@
-<template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 scale-95 translate-y-2"
-      enter-to-class="opacity-100 scale-100 translate-y-0"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="opacity-100 scale-100 translate-y-0"
-      leave-to-class="opacity-0 scale-95 translate-y-2"
-    >
-      <div v-if="isOpen" class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
-        <!-- Backdrop -->
-        <div
-          class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none"
-          @click="handleCancel"
-          aria-hidden="true"
-        ></div>
-
-        <!-- Modal Panel -->
-        <div
-          class="relative w-full max-w-md bg-white rounded-3xl shadow-organic overflow-hidden transform transition-all motion-reduce:transition-none motion-reduce:transform-none border border-stone-100"
-        >
-          <!-- Organic top accent strip -->
-          <div
-            :class="[
-              'h-1.5 w-full',
-              type === 'danger'
-                ? 'bg-gradient-to-r from-red-500 to-red-600'
-                : 'bg-gradient-to-r from-moss-500 to-moss-600',
-            ]"
-          ></div>
-
-          <div class="p-7 text-center">
-            <!-- Icon -->
-            <div class="flex items-center justify-center mb-4">
-              <div
-                :class="[
-                  'w-14 h-14 rounded-full flex items-center justify-center text-2xl',
-                  type === 'danger' ? 'bg-red-100' : 'bg-moss-100',
-                ]"
-              >
-                <span>{{ type === 'danger' ? '⚠️' : '🌱' }}</span>
-              </div>
-            </div>
-
-            <h3 class="text-xl font-bold text-stone-900 mb-2 font-serif">{{ title }}</h3>
-            <p class="text-sm text-stone-500 mb-7 leading-relaxed">{{ message }}</p>
-
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-              <!-- Cancel -->
-              <button
-                type="button"
-                :disabled="loading"
-                @click="handleCancel"
-                class="w-full sm:w-auto rounded-xl bg-stone-100 px-5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                {{ cancelText }}
-              </button>
-              <!-- Confirm -->
-              <button
-                type="button"
-                :disabled="loading"
-                @click="handleConfirm"
-                :class="[
-                  'inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-[1.02] active:scale-[0.99] disabled:opacity-70 disabled:cursor-wait disabled:hover:scale-100',
-                  type === 'danger'
-                    ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus-visible:outline-red-600'
-                    : 'bg-gradient-to-br from-moss-500 to-moss-600 hover:from-moss-600 hover:to-moss-700 shadow-soft hover:shadow-organic focus-visible:outline-moss-600',
-                ]"
-              >
-                <svg
-                  v-if="loading"
-                  class="animate-spin h-4 w-4 flex-shrink-0"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  />
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                {{ confirmText }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
-</template>
-
 <script setup>
-defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true,
-  },
-  title: {
-    type: String,
-    default: 'Confirm Action',
-  },
-  message: {
-    type: String,
-    required: true,
-  },
-  confirmText: {
-    type: String,
-    default: 'Confirm',
-  },
-  cancelText: {
-    type: String,
-    default: 'Cancel',
-  },
+import { useId } from 'vue'
+import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
+import AppModal from './AppModal.vue'
+import AppButton from '../atoms/AppButton.vue'
+const props = defineProps({
+  isOpen: { type: Boolean, required: true },
+  title: { type: String, default: 'Confirm Action' },
+  message: { type: String, required: true },
+  confirmText: { type: String, default: 'Confirm' },
+  cancelText: { type: String, default: 'Cancel' },
   type: {
     type: String,
     default: 'primary',
     validator: (value) => ['primary', 'danger'].includes(value),
   },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  loading: Boolean,
 })
-
 const emit = defineEmits(['confirm', 'cancel'])
-
-const handleConfirm = () => {
-  emit('confirm')
+const messageId = `confirmation-${useId()}`
+function handleConfirm() {
+  if (!props.loading) emit('confirm')
 }
-
-const handleCancel = () => {
-  emit('cancel')
+function handleCancel() {
+  if (!props.loading) emit('cancel')
 }
 </script>
+<template>
+  <AppModal
+    :is-open="isOpen"
+    :title="title"
+    :describedby="messageId"
+    size="sm"
+    :busy="loading"
+    @close="handleCancel"
+  >
+    <div class="flex items-start gap-4">
+      <component
+        :is="type === 'danger' ? ExclamationTriangleIcon : CheckCircleIcon"
+        :class="['h-6 w-6 shrink-0', type === 'danger' ? 'text-red-600' : 'text-moss-600']"
+        aria-hidden="true"
+      />
+      <p :id="messageId" class="text-base leading-relaxed text-stone-600">{{ message }}</p>
+    </div>
+    <template #footer>
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <AppButton variant="secondary" :disabled="loading" autofocus @click="handleCancel">{{
+          cancelText
+        }}</AppButton>
+        <AppButton
+          :variant="type === 'danger' ? 'danger' : 'primary'"
+          :loading="loading"
+          @click="handleConfirm"
+          >{{ confirmText }}</AppButton
+        >
+      </div>
+    </template>
+  </AppModal>
+</template>

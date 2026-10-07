@@ -11,16 +11,21 @@ import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import CheckoutSummary from '@/components/organisms/CheckoutSummary.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { usePayment } from '@/composables/usePayment'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppModal from '@/components/molecules/AppModal.vue'
+import LoadingState from '@/components/molecules/LoadingState.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import AppAlert from '@/components/atoms/AppAlert.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
-const { startCheckout, loading: checkoutLoading } = usePayment()
+const { startCheckout, loading: checkoutLoading, error: checkoutError } = usePayment()
 
 const showCheckoutPanel = ref(false)
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
@@ -62,73 +67,48 @@ const handlePageChange = (page) => {
 }
 
 const handleViewContract = async (contract) => {
+  checkoutError.value = null
   await marketStore.fetchContractDetail(contract.id, contract.type)
   showCheckoutPanel.value = true
 }
 
 const askCheckoutConfirm = (checkoutData) => {
   if (authStore.isAuthenticated && !authStore.isEmailVerified) {
-    notificationStore.warning('Please verify your email address to purchase contracts.')
+    checkoutError.value = 'Please verify your email address to purchase contracts.'
+    notificationStore.warning(checkoutError.value)
     return
   }
   pendingConfirm.value = checkoutData
 }
 
-const handleConfirmCheckout = async () => {
-  const checkoutData = pendingConfirm.value
-  pendingConfirm.value = null
-  if (!checkoutData) return
-
-  if (checkoutData.paymentOption === PAYMENT_OPTION.CASH) {
-    try {
-      await startCheckout(
-        checkoutData.contractId,
-        checkoutData.type,
-        checkoutData.quantityKg,
-        PAYMENT_OPTION.CASH,
-      )
-      notificationStore.success('Cash payment request sent! Waiting for farmer approval.')
-      showCheckoutPanel.value = false
-      marketStore.fetchMarketContracts(marketStore.pagination.currentPage)
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || err.message || 'Failed to request cash payment'
-      notificationStore.error(errorMessage)
-    }
-    return
-  }
-
-  // PayMongo Flow
+const performCheckout = async (checkoutData) => {
   try {
     await startCheckout(
       checkoutData.contractId,
       checkoutData.type,
       checkoutData.quantityKg,
-      PAYMENT_OPTION.PAYMONGO,
+      checkoutData.paymentOption,
     )
+    if (checkoutData.paymentOption === PAYMENT_OPTION.CASH) {
+      notificationStore.success('Cash payment request sent! Waiting for farmer approval.')
+      showCheckoutPanel.value = false
+      marketStore.fetchMarketContracts(marketStore.pagination.currentPage)
+    }
   } catch (err) {
-    const errorMessage =
-      err.response?.data?.message || err.message || 'Failed to initialize checkout session'
-    notificationStore.error(errorMessage)
+    notificationStore.error(
+      err.response?.data?.message || err.message || 'Failed to initialize checkout session',
+    )
   }
 }
+const handleConfirmCheckout = () => execute(performCheckout)
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Page Header -->
-    <div
-      class="rounded-2xl bg-gradient-to-r from-moss-600 to-moss-800 p-6 text-white shadow-organic"
-    >
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 class="font-serif text-2xl font-bold">The Harvest Exchange</h1>
-          <p class="text-moss-200 text-sm mt-1">
-            Secure your supply directly from Filipino farmers at a fixed price.
-          </p>
-        </div>
-      </div>
-    </div>
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-6">
+    <PageHeader
+      title="The Harvest Exchange"
+      description="Secure your supply directly from Filipino farmers at a fixed price."
+    />
 
     <!-- Filter Bar -->
     <ContractFilter v-model="marketStore.filters" @search="handleSearch" />
@@ -149,74 +129,23 @@ const handleConfirmCheckout = async () => {
       class="mt-6"
     />
 
-    <!-- Centered Modal for Checkout -->
-    <Teleport to="body">
-      <div
-        v-if="showCheckoutPanel"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
-      >
-        <!-- Backdrop -->
-        <div
-          class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity"
-          @click="showCheckoutPanel = false"
-        ></div>
-
-        <!-- Modal Panel -->
-        <div
-          class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all"
-        >
-          <div class="h-2 bg-gradient-to-r from-moss-500 to-moss-700 w-full"></div>
-          <!-- Header -->
-          <div
-            class="flex items-center justify-between px-6 py-4 bg-white border-b border-stone-100 z-10"
-          >
-            <h2 class="font-serif text-xl font-semibold text-stone-900">Contract Details</h2>
-            <button
-              type="button"
-              @click="showCheckoutPanel = false"
-              class="rounded-full p-2 bg-stone-50 text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-moss-500 transition-colors duration-200"
-            >
-              <span class="sr-only">Close panel</span>
-              <XMarkIcon class="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
-
-          <!-- Content -->
-          <div class="flex-1 overflow-y-auto p-0 bg-white relative">
-            <div v-if="marketStore.loading.details" class="flex justify-center items-center h-64">
-              <svg
-                class="animate-spin h-8 w-8 text-moss-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-            </div>
-            <div v-else-if="marketStore.activeContract" class="p-6">
-              <CheckoutSummary
-                :contract="marketStore.activeContract"
-                :loading="checkoutLoading"
-                @confirm="askCheckoutConfirm"
-                @cancel="showCheckoutPanel = false"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <AppModal
+      title="Contract Details"
+      size="lg"
+      :is-open="showCheckoutPanel"
+      :busy="isExecuting"
+      @close="showCheckoutPanel = false"
+    >
+      <AppAlert v-if="checkoutError" type="error" class="mb-4">{{ checkoutError }}</AppAlert>
+      <LoadingState v-if="marketStore.loading.details" label="Loading contract details" />
+      <CheckoutSummary
+        v-else-if="marketStore.activeContract"
+        :contract="marketStore.activeContract"
+        :loading="checkoutLoading || isExecuting"
+        @confirm="askCheckoutConfirm"
+        @cancel="showCheckoutPanel = false"
+      />
+    </AppModal>
 
     <ConfirmModal
       v-if="confirmConfig"
@@ -226,7 +155,8 @@ const handleConfirmCheckout = async () => {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="handleConfirmCheckout"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

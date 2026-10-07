@@ -1,10 +1,8 @@
 <template>
-  <div
-    class="text-center bg-stone-50 overflow-hidden shadow-soft rounded-2xl border border-stone-200 p-12"
-  >
+  <AppCard class="text-center" padding="p-6 sm:p-10">
     <div
       v-if="$slots.icon"
-      class="mx-auto h-14 w-14 text-stone-400 mb-5 flex items-center justify-center"
+      class="mx-auto h-14 w-14 text-stone-500 mb-5 flex items-center justify-center"
     >
       <slot name="icon"></slot>
     </div>
@@ -31,19 +29,22 @@
       {{ description }}
     </p>
 
-    <div v-if="actionLabel" class="mt-6">
-      <AppButton @click="$emit('action')" variant="primary">
-        <template v-if="$slots.actionIcon" #icon>
-          <slot name="actionIcon"></slot>
-        </template>
-        {{ actionLabel }}
-      </AppButton>
+    <div v-if="actionLabel || $slots.action" class="mt-6">
+      <slot name="action">
+        <AppButton @click="$emit('action')" variant="primary">
+          <template v-if="$slots.actionIcon" #icon>
+            <slot name="actionIcon"></slot>
+          </template>
+          {{ actionLabel }}
+        </AppButton>
+      </slot>
     </div>
-  </div>
+  </AppCard>
 </template>
 
 <script setup>
 import AppButton from '@/components/atoms/AppButton.vue'
+import AppCard from '@/components/atoms/AppCard.vue'
 
 defineProps({
   title: {

@@ -6,6 +6,9 @@ import RecommendationsPage from '../RecommendationsPage.vue'
 import AnalysisPreferencesForm from '../../components/organisms/AnalysisPreferencesForm.vue'
 import { useRecommendationStore } from '../../stores/recommendationStore'
 import { useFarmingStore } from '../../stores/farming'
+import { useMarketStore } from '../../stores/marketStore'
+import RecommendationCard from '@/components/molecules/RecommendationCard.vue'
+import PublishContractForm from '@/components/organisms/PublishContractForm.vue'
 
 vi.mock('vue-router', () => ({
   useRoute: () => ({ params: { id: '4' }, query: {} }),
@@ -21,7 +24,8 @@ vi.mock('../../composables/useConfirmModal', async () => {
   return {
     useConfirmModal: () => ({
       isOpen: ref(false),
-      config: ref({}),
+      isExecuting: ref(false),
+      config: ref({ title: '', message: '' }),
       confirm: vi.fn((config, onConfirm) => onConfirm()),
       execute: vi.fn(),
       cancel: vi.fn(),
@@ -52,6 +56,7 @@ function mountPage() {
         AnalysisProgress: true,
         SkeletonCard: true,
         ConfirmModal: true,
+        RouterLink: true,
       },
     },
   })
@@ -64,6 +69,30 @@ function formStub(wrapper) {
 }
 
 describe('RecommendationsPage.vue', () => {
+  it('keeps publishing failures inside the open form with its recommendation draft', async () => {
+    const { wrapper, recStore } = mountPage()
+    await flushPromises()
+    recStore.recommendations = [
+      { id: 1, crop_name: 'Rice', projected_yield: '500 kg', status: 'pending' },
+    ]
+    useMarketStore().publishContract = vi.fn().mockRejectedValue({
+      response: { status: 409, data: { message: 'Please review the available quantity.' } },
+    })
+    await nextTick()
+    wrapper.findComponent(RecommendationCard).vm.$emit('accept', 1)
+    await nextTick()
+    const form = wrapper.findComponent(PublishContractForm)
+    form.vm.$emit('publish', {
+      title: 'Rice harvest',
+      description: '',
+      quantity_kg: 100,
+      price_per_kg: 50,
+    })
+    await flushPromises()
+    expect(form.props('errors').form).toEqual(['Please review the available quantity.'])
+    expect(form.props('recommendation').id).toBe(1)
+    wrapper.unmount()
+  })
   it('sends the fresh preferences emitted with run-analysis', async () => {
     const { wrapper, analyzePlot } = mountPage()
     await flushPromises()

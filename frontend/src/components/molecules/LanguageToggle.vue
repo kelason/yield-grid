@@ -23,7 +23,7 @@ const buttonClass = (code) =>
     <button
       type="button"
       data-testid="locale-en"
-      class="px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+      class="min-h-11 min-w-11 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
       :class="buttonClass('en')"
       :aria-pressed="locale === 'en'"
       @click="selectLocale('en')"
@@ -33,7 +33,7 @@ const buttonClass = (code) =>
     <button
       type="button"
       data-testid="locale-tl"
-      class="px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+      class="min-h-11 min-w-11 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
       :class="buttonClass('tl')"
       :aria-pressed="locale === 'tl'"
       @click="selectLocale('tl')"

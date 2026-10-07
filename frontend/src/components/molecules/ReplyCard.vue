@@ -23,7 +23,7 @@ const emit = defineEmits(['vote', 'accept', 'replyTo'])
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
 
 function profileLink(author) {
-  return { name: 'user-profile', params: { userId: author.id ?? ANONYMOUS_ROUTE_PARAM } }
+  return { name: 'user-profile', params: { userId: author?.id ?? ANONYMOUS_ROUTE_PARAM } }
 }
 </script>
 
@@ -37,16 +37,18 @@ function profileLink(author) {
         <VoteBadge
           :score="reply.vote_score"
           :userVote="reply.user_vote"
-          :disabled="authStore.user?.id === reply.author.id"
+          :disabled="authStore.user?.id === reply.author?.id"
           @vote="(val) => emit('vote', reply.id, val)"
         />
         <button
           v-if="isThreadAuthor || reply.is_accepted"
           @click="emit('accept', reply.id)"
-          class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-full transition-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-110"
+          class="min-h-11 min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-full transition-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-110"
           :class="{ 'cursor-default': !isThreadAuthor && reply.is_accepted }"
           :disabled="!isThreadAuthor"
           title="Accept Answer"
+          aria-label="Accept answer"
+          type="button"
         >
           <AcceptedBadge v-if="reply.is_accepted" />
           <svg
@@ -67,37 +69,39 @@ function profileLink(author) {
       </div>
 
       <div class="flex-grow min-w-0">
-        <div class="flex justify-between items-start mb-3">
+        <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
           <RouterLink
             :to="profileLink(reply.author)"
             class="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
           >
             <img
-              v-if="reply.author.avatar_url"
-              :src="reply.author.avatar_url"
+              v-if="reply.author?.avatar_url"
+              :src="reply.author?.avatar_url"
               class="w-8 h-8 rounded-full bg-stone-200"
             />
             <div
               v-else
               class="w-8 h-8 rounded-full bg-soil-200 flex items-center justify-center text-soil-700 font-bold"
             >
-              {{ reply.author.name.charAt(0).toUpperCase() }}
+              {{ reply.author?.name?.charAt(0).toUpperCase() }}
             </div>
             <div>
               <div
                 class="font-medium text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
               >
-                {{ reply.author.name }}
+                {{ reply.author?.name || 'Anonymous' }}
               </div>
-              <div class="text-xs text-stone-500 capitalize">{{ reply.author.role }}</div>
+              <div class="text-xs text-stone-500 capitalize">{{ reply.author?.role }}</div>
             </div>
           </RouterLink>
-          <div class="text-xs text-stone-400">
+          <div class="text-xs text-stone-500">
             {{ formatDistanceToNow(new Date(reply.created_at), { addSuffix: true }) }}
           </div>
         </div>
 
-        <div class="text-stone-700 text-base leading-relaxed whitespace-pre-wrap mb-4">
+        <div
+          class="text-stone-700 text-base leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] mb-4"
+        >
           {{ reply.body }}
         </div>
 
@@ -116,7 +120,7 @@ function profileLink(author) {
         <div class="flex gap-4 border-t border-stone-100 pt-3">
           <button
             @click="emit('replyTo', reply.id)"
-            class="text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+            class="min-h-11 px-2 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
           >
             Reply
           </button>

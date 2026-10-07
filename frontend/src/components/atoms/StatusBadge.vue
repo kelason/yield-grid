@@ -17,85 +17,85 @@ const sizeClasses = computed(() => {
   return props.size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm'
 })
 
-const statusConfig = computed(() => {
-  const map = {
-    available: {
-      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
-      label: 'Available',
-    },
-    reserved: {
-      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
-      label: 'Reserved',
-    },
-    partially_paid: {
-      classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
-      label: 'Partially Paid',
-    },
-    sold: {
-      classes: 'bg-soil-100 text-soil-800 border border-soil-200',
-      label: 'Sold',
-    },
-    expired: {
-      classes: 'bg-stone-100 text-stone-600 border border-stone-200',
-      label: 'Expired',
-    },
-    cancelled: {
-      classes: 'bg-red-100 text-red-800 border border-red-200',
-      label: 'Cancelled',
-    },
-    pending: {
-      classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
-      label: 'Pending Payment',
-    },
-    pending_approval: {
-      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
-      label: 'Pending Approval',
-    },
-    completed: {
-      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
-      label: 'Completed',
-    },
-    failed: { classes: 'bg-red-100 text-red-800 border border-red-200', label: 'Failed' },
-    fully_paid: {
-      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
-      label: 'Fully Paid',
-    },
-    open: {
-      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
-      label: 'Open',
-    },
-    fully_allocated: {
-      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
-      label: 'Fully Allocated',
-    },
-    fulfilled: {
-      classes: 'bg-moss-100 text-moss-800 border border-moss-200',
-      label: 'Fulfilled',
-    },
-    accepted: {
-      classes: 'bg-dew-100 text-dew-800 border border-dew-200',
-      label: 'Accepted',
-    },
-    rejected: {
-      classes: 'bg-stone-100 text-stone-600 border border-stone-200',
-      label: 'Rejected',
-    },
-    withdrawn: {
-      classes: 'bg-stone-100 text-stone-600 border border-stone-200',
-      label: 'Withdrawn',
-    },
-    paid: {
-      classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
-      label: 'Paid',
-    },
-    delivered: {
-      classes: 'bg-dew-100 text-dew-800 border border-dew-200',
-      label: 'Delivered',
-    },
-  }
+const STATUS_CONFIG = {
+  available: {
+    classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+    label: 'Available',
+  },
+  reserved: {
+    classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+    label: 'Reserved',
+  },
+  partially_paid: {
+    classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
+    label: 'Partially Paid',
+  },
+  sold: {
+    classes: 'bg-soil-100 text-soil-800 border border-soil-200',
+    label: 'Sold',
+  },
+  expired: {
+    classes: 'bg-stone-100 text-stone-600 border border-stone-200',
+    label: 'Expired',
+  },
+  cancelled: {
+    classes: 'bg-red-100 text-red-800 border border-red-200',
+    label: 'Cancelled',
+  },
+  pending: {
+    classes: 'bg-harvest-50 text-harvest-700 border border-harvest-200',
+    label: 'Pending Payment',
+  },
+  pending_approval: {
+    classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+    label: 'Pending Approval',
+  },
+  completed: {
+    classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+    label: 'Completed',
+  },
+  failed: { classes: 'bg-red-100 text-red-800 border border-red-200', label: 'Failed' },
+  fully_paid: {
+    classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+    label: 'Fully Paid',
+  },
+  open: {
+    classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+    label: 'Open',
+  },
+  fully_allocated: {
+    classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+    label: 'Fully Allocated',
+  },
+  fulfilled: {
+    classes: 'bg-moss-100 text-moss-800 border border-moss-200',
+    label: 'Fulfilled',
+  },
+  accepted: {
+    classes: 'bg-dew-100 text-dew-800 border border-dew-200',
+    label: 'Accepted',
+  },
+  rejected: {
+    classes: 'bg-stone-100 text-stone-600 border border-stone-200',
+    label: 'Rejected',
+  },
+  withdrawn: {
+    classes: 'bg-stone-100 text-stone-600 border border-stone-200',
+    label: 'Withdrawn',
+  },
+  paid: {
+    classes: 'bg-harvest-100 text-harvest-800 border border-harvest-200',
+    label: 'Paid',
+  },
+  delivered: {
+    classes: 'bg-dew-100 text-dew-800 border border-dew-200',
+    label: 'Delivered',
+  },
+}
 
+const statusConfig = computed(() => {
   return (
-    map[props.status.toLowerCase()] || {
+    STATUS_CONFIG[(props.status || '').toLowerCase()] || {
       classes: 'bg-stone-100 text-stone-700 border border-stone-200',
       label: props.status,
     }
@@ -105,7 +105,7 @@ const statusConfig = computed(() => {
 
 <template>
   <span
-    class="inline-flex items-center justify-center rounded-full font-medium shadow-soft"
+    class="inline-flex items-center justify-center rounded-full font-medium"
     :class="[sizeClasses, statusConfig.classes]"
   >
     {{ statusConfig.label }}

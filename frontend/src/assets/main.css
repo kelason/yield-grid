@@ -1,10 +1,12 @@
+@import './fonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply antialiased text-stone-800 bg-stone-100 m-0 p-0;
+    @apply antialiased font-sans font-normal text-stone-900 bg-stone-100 m-0 p-0;
   }
 
   :focus-visible {
@@ -42,4 +44,25 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* Keep third-party map controls in the shared typography and touch-target system. */
+.leaflet-container {
+  @apply font-sans text-stone-900;
+}
+.leaflet-bar a {
+  @apply min-h-11 min-w-11;
+}
+.leaflet-bar {
+  @apply !rounded-xl !border-stone-300 !shadow-soft;
+}
+.leaflet-popup-content-wrapper {
+  @apply !rounded-2xl !shadow-organic;
+}
+.leaflet-control-geosearch form input {
+  @apply min-h-11 rounded-xl;
 }

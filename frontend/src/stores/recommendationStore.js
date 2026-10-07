@@ -9,6 +9,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
   const isLoading = ref(false)
   const isAnalyzing = ref(false)
   const errorMessage = ref('')
+  const fetchError = ref('')
   const taxonomy = ref(null)
   const taxonomyLoading = ref(false)
   const typeFilter = ref('')
@@ -27,6 +28,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
 
   const fetchRecommendations = async (plotId) => {
     isLoading.value = true
+    fetchError.value = ''
     try {
       const response = await api.get(`/plots/${plotId}/recommendations`)
       recommendations.value = response.data.data || []
@@ -34,6 +36,8 @@ export const useRecommendationStore = defineStore('recommendation', () => {
         meta.value = response.data.meta
       }
     } catch (error) {
+      fetchError.value =
+        error.response?.data?.message || 'Could not load recommendations. Please retry.'
       console.error('Failed to fetch recommendations:', error)
     } finally {
       isLoading.value = false
@@ -97,6 +101,7 @@ export const useRecommendationStore = defineStore('recommendation', () => {
     isLoading,
     isAnalyzing,
     errorMessage,
+    fetchError,
     taxonomy,
     taxonomyLoading,
     typeFilter,

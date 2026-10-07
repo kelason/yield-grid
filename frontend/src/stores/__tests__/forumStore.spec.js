@@ -19,6 +19,25 @@ describe('forumStore', () => {
     vi.clearAllMocks()
   })
 
+  it('counts and deduplicates a confirmed reply when its socket event arrives before HTTP', async () => {
+    const store = useForumStore()
+    const reply = { id: 12, thread_id: 1, body: 'Helpful reply', parent_id: null }
+    store.currentThread = { id: 1, replies: [], reply_count: 0 }
+    let release
+    mockPost.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = resolve
+        }),
+    )
+    const request = store.createReply(1, { body: reply.body, is_anonymous: false })
+    store.handleNewReply(reply)
+    release({ data: { data: reply } })
+    await request
+    expect(store.currentThread.replies).toEqual([reply])
+    expect(store.currentThread.reply_count).toBe(1)
+  })
+
   it('fetches categories and updates state', async () => {
     const store = useForumStore()
     const mockCategories = [{ id: 1, name: 'General' }]

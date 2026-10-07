@@ -1,4 +1,6 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { onMounted, ref, computed } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useDemandStore } from '@/stores/demandStore'
@@ -32,6 +34,7 @@ const form = ref({
 const errors = ref({})
 const submitting = ref(false)
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const DEMAND_TOTAL_MAX = 9999999999.99
 const DEMAND_TITLE_MAX_LENGTH = 255
@@ -102,6 +105,11 @@ function validateDemandForm() {
   if (description.length > DEMAND_DESCRIPTION_MAX_LENGTH) {
     fieldErrors.description = `Notes cannot exceed ${DEMAND_DESCRIPTION_MAX_LENGTH} characters.`
   }
+  validateDemandTotal(fieldErrors, qty, target)
+  return fieldErrors
+}
+
+function validateDemandTotal(fieldErrors, qty, target) {
   if (
     Object.keys(fieldErrors).length === 0 &&
     qty > 0 &&
@@ -111,7 +119,6 @@ function validateDemandForm() {
     fieldErrors.quantity_kg =
       'The combined quantity and target price exceed the maximum order total.'
   }
-  return fieldErrors
 }
 
 function askDemandConfirm() {
@@ -124,8 +131,9 @@ function askDemandConfirm() {
   }
 }
 
-async function confirmPendingDemand() {
-  pendingConfirm.value = null
+const confirmPendingDemand = () => execute(performConfirmedAction)
+
+async function performConfirmedAction() {
   submitting.value = true
   try {
     await demandStore.postDemand({
@@ -158,7 +166,7 @@ async function confirmPendingDemand() {
   <div class="space-y-6">
     <div>
       <h1 class="font-serif text-3xl font-bold text-stone-900">Post a Crop Demand</h1>
-      <p class="text-base text-stone-600 font-light mt-1">
+      <p class="text-base text-stone-600 font-normal mt-1">
         Tell farmers what you need — they compete with offers and you pick the best.
       </p>
     </div>
@@ -206,7 +214,7 @@ async function confirmPendingDemand() {
             :error="errors.quantity_kg || ''"
           />
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>div>span]:flex [&>div>span]:min-h-11">
           <FormField
             id="demand-price"
             label="Target price per kg (₱)"
@@ -273,15 +281,17 @@ async function confirmPendingDemand() {
           <label for="demand-desc" class="block text-sm font-medium text-soil-700">
             Notes for farmers
           </label>
-          <textarea
+          <AppTextarea
+            minlength="0"
             id="demand-desc"
+            aria-describedby="demand-desc-counter"
             v-model="form.description"
             rows="3"
             :maxlength="DEMAND_DESCRIPTION_MAX_LENGTH"
             placeholder="Quality requirements, delivery notes…"
-            class="mt-1 block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white sm:text-sm transition-all duration-200"
-          ></textarea>
-          <p class="text-xs text-stone-500 mt-1 text-right">
+            class="mt-1"
+          ></AppTextarea>
+          <p class="text-xs text-stone-500 mt-1 text-right" id="demand-desc-counter">
             {{ (form.description || '').length }} / {{ DEMAND_DESCRIPTION_MAX_LENGTH }}
           </p>
           <p v-if="errors.description" class="mt-1 text-sm text-red-600">
@@ -294,7 +304,6 @@ async function confirmPendingDemand() {
           <AppButton
             type="submit"
             variant="primary"
-            :loading="submitting"
             :disabled="addressStore.addresses.length === 0"
           >
             Post demand
@@ -311,7 +320,8 @@ async function confirmPendingDemand() {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="confirmPendingDemand"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

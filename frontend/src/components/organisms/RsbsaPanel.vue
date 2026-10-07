@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
@@ -19,10 +19,10 @@ const { t } = useI18n()
 const rsbsaNumber = ref('')
 const rsbsaStatus = ref('not_registered')
 
-const statusOptions = [
+const statusOptions = computed(() => [
   { value: 'registered', label: t('insurance.rsbsa.registered') },
   { value: 'not_registered', label: t('insurance.rsbsa.not_registered') },
-]
+])
 
 watch(
   () => props.profile,
@@ -43,7 +43,7 @@ const save = () => {
 <template>
   <AppCard>
     <h2 class="font-serif text-2xl font-bold text-stone-900">{{ t('insurance.rsbsa.title') }}</h2>
-    <p class="mt-1 text-base text-stone-600 font-light leading-relaxed">
+    <p class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
       {{ t('insurance.rsbsa.description') }}
     </p>
     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -64,7 +64,7 @@ const save = () => {
         :options="statusOptions"
       />
     </div>
-    <p v-if="rsbsaStatus === 'not_registered'" class="mt-2 text-sm text-stone-600 font-light">
+    <p v-if="rsbsaStatus === 'not_registered'" class="mt-2 text-sm text-stone-600 font-normal">
       {{ t('insurance.rsbsa.unregistered_guidance') }}
     </p>
     <AppButton

@@ -1,25 +1,20 @@
+<script setup>
+import AppSpinner from './AppSpinner.vue'
+defineProps({ location: { type: String, default: '' } })
+</script>
 <template>
   <div
-    class="flex flex-col items-center justify-center p-8 bg-dew-50 rounded-xl border border-dew-200"
+    role="status"
+    aria-live="polite"
+    class="flex flex-col items-center justify-center gap-4 p-6 bg-dew-50 rounded-2xl border border-dew-200 text-center"
   >
-    <div class="animate-pulse flex flex-col items-center">
-      <div class="text-4xl mb-4 animate-bounce">🌱</div>
-      <h3 class="font-serif text-xl font-semibold text-dew-800">
-        Analyzing crops for {{ location || 'your region' }}...
-      </h3>
-      <p class="text-dew-600 mt-2 text-sm text-center max-w-sm">
-        Our AI agronomist is cross-referencing soil conditions and weather patterns against crops
-        commercially cultivated and available in {{ location || 'this location' }}.
-      </p>
-    </div>
+    <AppSpinner size="md" class="text-dew-700" />
+    <h2 class="font-serif text-2xl font-bold text-dew-800">
+      Analyzing crops for {{ location || 'your region' }}...
+    </h2>
+    <p class="text-dew-700 text-sm max-w-lg leading-relaxed">
+      Our AI agronomist is cross-referencing soil conditions and weather patterns against crops
+      commercially cultivated and available in {{ location || 'this location' }}.
+    </p>
   </div>
 </template>
-
-<script setup>
-defineProps({
-  location: {
-    type: String,
-    default: '',
-  },
-})
-</script>

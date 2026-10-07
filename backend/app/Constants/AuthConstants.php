@@ -6,6 +6,8 @@ namespace App\Constants;
 
 final class AuthConstants
 {
+    public const int LOGIN_PASSWORD_MIN_LENGTH = 1;
+
     public const int NAME_MAX_LENGTH = 255;
 
     public const int EMAIL_MAX_LENGTH = 255;

@@ -81,6 +81,15 @@ describe('AddressFields', () => {
     expect(regionSelect.findAll('option').length).toBeGreaterThan(1)
   })
 
+  it('keeps optional errors and transitioning address data null-safe', async () => {
+    const wrapper = mountFields()
+    await flushPromises()
+    await wrapper.setProps({ errors: null, modelValue: null })
+    expect(wrapper.find('#test-addr-street').element.value).toBe('')
+    expect(wrapper.find('#test-addr-city').element.disabled).toBe(true)
+    wrapper.unmount()
+  })
+
   it('skips province selection when the region has no provinces (NCR)', async () => {
     const wrapper = mountFields()
     await flushPromises()

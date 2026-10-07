@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
@@ -15,7 +15,7 @@ const FARM_TOTAL_AREA_MIN = 0
 const FARM_TOTAL_AREA_MAX = 1000000
 
 const emit = defineEmits(['submit', 'cancel'])
-defineProps({
+const props = defineProps({
   loading: { type: Boolean, default: false },
   error: { type: String, default: '' },
 })
@@ -32,6 +32,16 @@ const form = ref({
 
 const validationError = ref('')
 const pendingConfirm = ref(false)
+const confirmed = ref(false)
+watch(
+  () => props.loading,
+  (loading, wasLoading) => {
+    if (wasLoading && !loading) {
+      pendingConfirm.value = false
+      confirmed.value = false
+    }
+  },
+)
 
 const confirmConfig = computed(() => ({
   title: 'Create this farm?',
@@ -64,13 +74,15 @@ function validate() {
 }
 
 function handleSubmit() {
+  if (props.loading || confirmed.value) return
   validationError.value = validate()
   if (validationError.value) return
   pendingConfirm.value = true
 }
 
 function confirmSubmit() {
-  pendingConfirm.value = false
+  if (!pendingConfirm.value || confirmed.value || props.loading) return
+  confirmed.value = true
   emit('submit', { ...form.value })
 }
 </script>
@@ -140,12 +152,13 @@ function confirmSubmit() {
 
     <ConfirmModal
       :is-open="pendingConfirm"
+      :loading="loading || confirmed"
       :title="confirmConfig.title"
       :message="confirmConfig.message"
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="confirmSubmit"
-      @cancel="pendingConfirm = false"
+      @cancel="!confirmed && (pendingConfirm = false)"
     />
   </div>
 </template>

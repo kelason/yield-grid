@@ -5,7 +5,7 @@ import ThreadComposer from '../ThreadComposer.vue'
 describe('ThreadComposer.vue limits', () => {
   function mountComposer() {
     return mount(ThreadComposer, {
-      props: { categories: [], tags: [] },
+      props: { categories: [{ id: 1, name: 'Growing' }], tags: [] },
     })
   }
 
@@ -32,7 +32,9 @@ describe('ThreadComposer.vue limits', () => {
   it('does not submit when details exceed 5000 characters', async () => {
     const wrapper = mountComposer()
 
-    await wrapper.find('textarea').setValue('a'.repeat(5001))
+    // Bypass native/shared input clamping to verify the submit-time guard.
+    wrapper.vm.form.body = 'a'.repeat(5001)
+    await wrapper.vm.$nextTick()
 
     await wrapper.find('form').trigger('submit.prevent')
 
@@ -44,12 +46,13 @@ describe('ThreadComposer.vue limits', () => {
     const wrapper = mountComposer()
 
     await wrapper.find('input[type="text"]').setValue('A valid thread title')
-    await wrapper.find('textarea').setValue('Valid details body')
+    await wrapper.find('textarea').setValue('Valid discussion details for farmers.')
+    await wrapper.get('select').setValue('1')
     await wrapper.find('form').trigger('submit.prevent')
 
     expect(wrapper.emitted('submit')[0][0]).toMatchObject({
       title: 'A valid thread title',
-      body: 'Valid details body',
+      body: 'Valid discussion details for farmers.',
     })
   })
 })

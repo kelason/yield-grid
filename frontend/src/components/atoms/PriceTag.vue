@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 const props = defineProps({
   amount: {
-    type: Number,
+    type: [Number, String],
     required: true,
   },
   currency: {
@@ -35,7 +35,7 @@ const formattedAmount = computed(() => {
 </script>
 
 <template>
-  <span class="font-semibold text-stone-900 tracking-tight" :class="sizeClasses">
+  <span class="font-semibold text-stone-900 tracking-tight break-words" :class="sizeClasses">
     {{ formattedAmount }}
   </span>
 </template>

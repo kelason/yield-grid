@@ -6,8 +6,13 @@ import AppFooter from '../organisms/AppFooter.vue'
 
 <template>
   <div class="min-h-screen flex flex-col font-sans">
+    <a
+      href="#main-content"
+      class="sr-only z-50 rounded-xl bg-white p-3 focus:not-sr-only focus:absolute"
+      >Skip to main content</a
+    >
     <AppNavbar />
-    <main class="flex-grow">
+    <main id="main-content" tabindex="-1" class="flex-grow focus:outline-none">
       <RouterView v-slot="{ Component }">
         <Transition name="fade" mode="out-in">
           <component :is="Component" />

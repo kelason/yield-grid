@@ -71,7 +71,7 @@ const payoutAmountFor = (claimId) => {
         v-for="claim in claims"
         :key="claim.id"
         data-testid="claim-card"
-        class="rounded-2xl border p-4 transition-all duration-300 hover:shadow-organic"
+        class="rounded-2xl border p-4 transition-all duration-300"
         :class="
           claim.notice_of_loss_overdue
             ? 'border-harvest-300 bg-harvest-50'

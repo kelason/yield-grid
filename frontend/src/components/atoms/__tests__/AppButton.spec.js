@@ -3,6 +3,12 @@ import { mount } from '@vue/test-utils'
 import AppButton from '../AppButton.vue'
 
 describe('AppButton', () => {
+  it('announces its pending state without losing the action name', () => {
+    const wrapper = mount(AppButton, { props: { loading: true }, slots: { default: 'Save farm' } })
+    expect(wrapper.attributes('aria-busy')).toBe('true')
+    expect(wrapper.element.disabled).toBe(true)
+    expect(wrapper.text()).toContain('Save farm')
+  })
   it('renders correctly with default props', () => {
     const wrapper = mount(AppButton, {
       slots: {

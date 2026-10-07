@@ -6,6 +6,8 @@ namespace App\Constants;
 
 final class MarketplaceConstants
 {
+    public const FILTER_PRICE_MIN = 0;
+
     public const OFFER_QUANTITY_MIN_KG = 0.01;
 
     public const OFFER_QUANTITY_MAX_KG = 1000000;

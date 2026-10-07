@@ -1,31 +1,40 @@
 <script setup>
+import { computed, useId } from 'vue'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
-
-defineProps({
-  modelValue: {
-    type: String,
-    required: true,
-  },
-  placeholder: {
-    type: String,
-    default: 'Search...',
-  },
+import AppInput from '../atoms/AppInput.vue'
+defineOptions({ inheritAttrs: false })
+const props = defineProps({
+  modelValue: { type: String, default: '' },
+  placeholder: { type: String, default: 'Search...' },
+  id: { type: String, default: '' },
+  label: { type: String, default: 'Search' },
+  hiddenLabel: { type: Boolean, default: true },
 })
-
 defineEmits(['update:modelValue'])
+const generatedId = useId()
+const controlId = computed(() => props.id || `search-${generatedId}`)
 </script>
-
 <template>
-  <div class="relative w-full">
-    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-      <MagnifyingGlassIcon class="h-4 w-4 text-stone-400" aria-hidden="true" />
+  <div :class="$attrs.class" class="w-full">
+    <label
+      :for="controlId"
+      :class="hiddenLabel ? 'sr-only' : 'mb-1 block text-sm font-medium text-soil-700'"
+      >{{ label }}</label
+    >
+    <div class="relative">
+      <MagnifyingGlassIcon
+        class="pointer-events-none absolute left-4 top-3 z-10 h-5 w-5 text-stone-600"
+        aria-hidden="true"
+      />
+      <AppInput
+        :id="controlId"
+        v-bind="Object.fromEntries(Object.entries($attrs).filter(([key]) => key !== 'class'))"
+        :model-value="modelValue"
+        type="search"
+        :placeholder="placeholder"
+        class="!rounded-full pl-11"
+        @update:model-value="$emit('update:modelValue', $event)"
+      />
     </div>
-    <input
-      :value="modelValue"
-      @input="$emit('update:modelValue', $event.target.value)"
-      type="text"
-      class="block w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-full leading-5 bg-stone-50 placeholder-stone-400 text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus-visible:border-moss-500 focus-visible:bg-white sm:text-sm transition-all duration-200 motion-reduce:transition-none shadow-soft hover:border-stone-400"
-      :placeholder="placeholder"
-    />
   </div>
 </template>

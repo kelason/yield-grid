@@ -3,6 +3,24 @@ import { ref } from 'vue'
 import { useApi } from '../composables/useApi'
 import { useNotificationStore } from './notificationStore'
 
+function findReply(replies, id) {
+  for (const reply of replies || []) {
+    if (reply.id === id) return reply
+    const child = findReply(reply.children, id)
+    if (child) return child
+  }
+  return null
+}
+function appendReply(thread, reply) {
+  if (!reply?.id || findReply(thread.replies, reply.id)) return
+  const parent = reply.parent_id ? findReply(thread.replies, reply.parent_id) : thread
+  if (!parent) return
+  const key = reply.parent_id ? 'children' : 'replies'
+  parent[key] ||= []
+  parent[key].push(reply)
+  thread.reply_count = (thread.reply_count || 0) + 1
+}
+
 export const useForumStore = defineStore('forum', () => {
   const api = useApi()
   const notificationStore = useNotificationStore()
@@ -18,6 +36,7 @@ export const useForumStore = defineStore('forum', () => {
     total: 0,
   })
   const isLoading = ref(false)
+  const fetchError = ref('')
 
   // Actions
   async function fetchCategories() {
@@ -40,6 +59,7 @@ export const useForumStore = defineStore('forum', () => {
 
   async function fetchThreads(params = {}) {
     isLoading.value = true
+    fetchError.value = ''
     try {
       const response = await api.get('/forum/threads', { params })
       threads.value = response.data.data
@@ -50,6 +70,7 @@ export const useForumStore = defineStore('forum', () => {
       }
     } catch (error) {
       console.error(error)
+      fetchError.value = 'Failed to fetch discussions. Please retry.'
       notificationStore.error('Failed to fetch threads')
     } finally {
       isLoading.value = false
@@ -57,12 +78,15 @@ export const useForumStore = defineStore('forum', () => {
   }
 
   async function fetchThread(id) {
+    currentThread.value = null
     isLoading.value = true
+    fetchError.value = ''
     try {
       const response = await api.get(`/forum/threads/${id}`)
       currentThread.value = response.data.data || response.data
     } catch (error) {
       console.error(error)
+      fetchError.value = 'Failed to fetch this discussion. Please retry.'
       notificationStore.error('Failed to fetch thread')
     } finally {
       isLoading.value = false
@@ -86,23 +110,7 @@ export const useForumStore = defineStore('forum', () => {
 
       // If we are currently viewing this thread, add it locally before socket broadcast comes
       if (currentThread.value && currentThread.value.id === threadId) {
-        const replyData = response.data.data || response.data
-        if (!data.parent_id) {
-          currentThread.value.replies.push(replyData)
-        } else {
-          const appendRecursive = (replies) => {
-            for (const r of replies) {
-              if (r.id === data.parent_id) {
-                if (!r.children) r.children = []
-                r.children.push(replyData)
-                return true
-              }
-              if (r.children && appendRecursive(r.children)) return true
-            }
-            return false
-          }
-          appendRecursive(currentThread.value.replies)
-        }
+        appendReply(currentThread.value, response.data.data || response.data)
       }
       return response.data
     } catch (error) {
@@ -190,14 +198,7 @@ export const useForumStore = defineStore('forum', () => {
 
   // Handle incoming socket events
   function handleNewReply(reply) {
-    if (currentThread.value && currentThread.value.id === reply.thread_id) {
-      // Prevent duplicate if we just added it manually
-      const exists = currentThread.value.replies.some((r) => r.id === reply.id)
-      if (!exists && !reply.parent_id) {
-        currentThread.value.replies.push(reply)
-        currentThread.value.reply_count++
-      }
-    }
+    if (currentThread.value?.id === reply.thread_id) appendReply(currentThread.value, reply)
   }
 
   function handleThreadVote(threadId, score) {
@@ -217,6 +218,7 @@ export const useForumStore = defineStore('forum', () => {
     tags,
     pagination,
     isLoading,
+    fetchError,
     fetchCategories,
     fetchTags,
     fetchThreads,

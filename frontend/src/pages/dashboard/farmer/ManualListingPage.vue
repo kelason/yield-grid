@@ -1,4 +1,7 @@
 <script setup>
+import AppTextarea from '@/components/atoms/AppTextarea.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMarketStore } from '@/stores/marketStore'
@@ -77,6 +80,7 @@ const SHELF_MAX_DAYS = 9999
 const SHELF_MAX_DIGITS = 4
 
 const pendingConfirm = ref(null)
+const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
@@ -93,9 +97,7 @@ const isTitleOverLimit = computed(() => (form.value.title || '').length > TITLE_
 const isDescriptionOverLimit = computed(() => descriptionLength.value > DESCRIPTION_MAX_LENGTH)
 
 const validateListingForm = () => {
-  if (isTitleOverLimit.value) {
-    return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
-  }
+  if (isTitleOverLimit.value) return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
   if (isDescriptionOverLimit.value) {
     return `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`
   }
@@ -116,16 +118,22 @@ const validateListingForm = () => {
   if (price > PRICE_MAX) {
     return `Price cannot exceed ${PRICE_MAX_DIGITS} digits (₱${PRICE_MAX.toLocaleString()}).`
   }
+  const shelfError = validateShelfLife()
+  if (shelfError) return shelfError
+  const needsDate = !form.value.is_harvest_available
+  if (!finalCropName.value || (needsDate && !form.value.estimated_harvest_date)) {
+    return 'Please fill in all required fields.'
+  }
+  return null
+}
+
+function validateShelfLife() {
   const shelf = parseInt(form.value.shelf_life_days)
   if (!shelf || shelf < SHELF_MIN_DAYS) {
     return 'Please enter a shelf life of at least 1 day.'
   }
   if (shelf > SHELF_MAX_DAYS) {
     return `Shelf life cannot exceed ${SHELF_MAX_DAYS.toLocaleString()} days.`
-  }
-  const needsDate = !form.value.is_harvest_available
-  if (!finalCropName.value || (needsDate && !form.value.estimated_harvest_date)) {
-    return 'Please fill in all required fields.'
   }
   return null
 }
@@ -143,8 +151,9 @@ const askListingConfirm = () => {
   }
 }
 
-const handleSubmit = async () => {
-  pendingConfirm.value = null
+const handleSubmit = () => execute(performConfirmedAction)
+
+const performConfirmedAction = async () => {
   isSubmitting.value = true
   try {
     const payload = {
@@ -172,12 +181,10 @@ const handleSubmit = async () => {
 
 <template>
   <div class="space-y-6">
-    <div class="mb-8">
-      <h2 class="font-serif text-3xl font-bold text-stone-900">Post Manual Harvest</h2>
-      <p class="mt-1 text-sm text-stone-600">
-        List your harvest directly on the marketplace without AI crop planning.
-      </p>
-    </div>
+    <PageHeader
+      title="Post Manual Harvest"
+      description="List your harvest directly on the marketplace without AI crop planning."
+    />
 
     <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
       <form @submit.prevent="askListingConfirm" class="space-y-6">
@@ -198,7 +205,9 @@ const handleSubmit = async () => {
               </AppSelect>
             </div>
             <div v-if="isCustomCrop">
-              <label class="block text-sm font-medium text-soil-700 mb-1">Custom Crop Name</label>
+              <label for="custom_crop_name" class="block text-sm font-medium text-soil-700 mb-1"
+                >Custom Crop Name</label
+              >
               <AppInput
                 id="custom_crop_name"
                 v-model="form.custom_crop_name"
@@ -211,7 +220,9 @@ const handleSubmit = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1">Shelf Life (Days)</label>
+              <label for="shelf_life_days" class="block text-sm font-medium text-soil-700 mb-1"
+                >Shelf Life (Days)</label
+              >
               <p class="text-xs text-stone-500 mb-2">
                 Pre-populated from catalog, but you can edit it.
               </p>
@@ -235,10 +246,12 @@ const handleSubmit = async () => {
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-sm font-medium text-soil-700">Title (Optional)</label>
+              <label for="title" class="block text-sm font-medium text-soil-700"
+                >Title (Optional)</label
+              >
               <span
                 class="text-[11px]"
-                :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
               >
                 {{ (form.title || '').length }}/{{ TITLE_MAX_LENGTH }}
               </span>
@@ -253,25 +266,32 @@ const handleSubmit = async () => {
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-sm font-medium text-soil-700">Description (Optional)</label>
+              <label for="listing-description" class="block text-sm font-medium text-soil-700"
+                >Description (Optional)</label
+              >
               <span
                 class="text-[11px]"
-                :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-400'"
+                :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
+                id="listing-description-counter"
               >
                 {{ descriptionLength }}/{{ DESCRIPTION_MAX_LENGTH }}
               </span>
             </div>
-            <textarea
+            <AppTextarea
+              id="listing-description"
+              aria-describedby="listing-description-counter"
+              minlength="0"
               v-model="form.description"
               rows="3"
               :maxlength="DESCRIPTION_MAX_LENGTH"
-              class="block w-full px-4 py-2.5 border border-stone-300 rounded-xl shadow-soft placeholder-stone-400 transition-all duration-200 sm:text-sm bg-stone-50 text-soil-700 hover:border-stone-400 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white"
-            ></textarea>
+            ></AppTextarea>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1">Quantity (kg)</label>
+              <label for="quantity_kg" class="block text-sm font-medium text-soil-700 mb-1"
+                >Quantity (kg)</label
+              >
               <AppInput
                 id="quantity_kg"
                 type="number"
@@ -285,7 +305,9 @@ const handleSubmit = async () => {
             </div>
             <div>
               <div class="mb-1 flex items-center gap-1">
-                <label class="block text-sm font-medium text-soil-700">Price per kg (₱)</label>
+                <label for="price_per_kg" class="block text-sm font-medium text-soil-700"
+                  >Price per kg (₱)</label
+                >
                 <PriceGuidePopover
                   :crop-name="finalCropName"
                   :current-price="Number(form.price_per_kg) || null"
@@ -312,7 +334,9 @@ const handleSubmit = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-soil-700 mb-1"
+              <label
+                for="estimated_harvest_date"
+                class="block text-sm font-medium text-soil-700 mb-1"
                 >Estimated Harvest Date</label
               >
               <AppInput
@@ -341,7 +365,6 @@ const handleSubmit = async () => {
         <div class="pt-4 flex justify-end">
           <AppButton
             type="submit"
-            :loading="isSubmitting"
             class="bg-gradient-to-br from-moss-500 to-moss-600 text-white hover:from-moss-600 hover:to-moss-700"
           >
             Post Listing
@@ -358,7 +381,8 @@ const handleSubmit = async () => {
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
       @confirm="handleSubmit"
-      @cancel="pendingConfirm = null"
+      :loading="isExecuting"
+      @cancel="cancel"
     />
   </div>
 </template>

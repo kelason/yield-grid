@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white border border-stone-200 rounded-2xl shadow-soft p-6">
     <h2 class="font-serif text-2xl font-bold text-stone-900">What should the AI focus on?</h2>
-    <p class="mt-1 text-base text-stone-600 font-light leading-relaxed">
+    <p class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
       Leave everything unselected for the full analysis, or narrow it to the crops and conditions
       you care about.
     </p>

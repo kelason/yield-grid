@@ -72,7 +72,7 @@ const showSettledPill = computed(
       <StatusBadge :status="offer.status" size="sm" />
     </div>
 
-    <div class="flex items-center justify-between mt-3">
+    <div class="flex flex-wrap items-center justify-between gap-3 mt-3">
       <p>
         <PriceTag :amount="offer.price_per_kg" size="md" />
         <span class="text-sm text-stone-500">/kg</span>

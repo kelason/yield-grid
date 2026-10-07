@@ -2,6 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import PriceTag from '../atoms/PriceTag.vue'
 import AppAlert from '../atoms/AppAlert.vue'
+import AppButton from '../atoms/AppButton.vue'
+import AppInput from '../atoms/AppInput.vue'
 import {
   CalendarIcon,
   MapPinIcon,
@@ -57,19 +59,6 @@ watch(
 
 const qtyError = ref('')
 
-// Mirror AppInput: browsers ignore maxlength on number inputs, so clamp here.
-// Writing back to both the element and the ref keeps display and v-model in
-// sync regardless of listener order.
-const clampQuantity = (event) => {
-  const value = event.target.value
-  if (value.length > QUANTITY_MAX_LENGTH) {
-    const sliced = value.slice(0, QUANTITY_MAX_LENGTH)
-    event.target.value = sliced
-    const parsed = parseFloat(sliced)
-    quantityKg.value = Number.isNaN(parsed) ? sliced : parsed
-  }
-}
-
 const totalPriceForQuantity = computed(() => quantityKg.value * pricePerKg.value)
 
 const isDownpayment = computed(() => {
@@ -86,6 +75,7 @@ const amountToPay = computed(() => {
 })
 
 const handleConfirm = () => {
+  if (props.loading) return
   qtyError.value = ''
   const qty = parseFloat(quantityKg.value)
   if (!qty || qty < CHECKOUT_QTY_MIN_KG) {
@@ -99,7 +89,7 @@ const handleConfirm = () => {
   emit('confirm', {
     contractId: props.contract.id,
     type: props.contract.type,
-    quantityKg: quantityKg.value,
+    quantityKg: qty,
     paymentOption: paymentOption.value,
   })
 }
@@ -173,6 +163,7 @@ const handleConfirm = () => {
           <input
             type="range"
             id="quantity-slider"
+            aria-label="Purchase quantity slider"
             v-model.number="quantityKg"
             :min="CHECKOUT_QTY_SLIDER_MIN_KG"
             :max="maxOrderQty"
@@ -180,14 +171,13 @@ const handleConfirm = () => {
             class="flex-1 h-2 bg-stone-200 rounded-xl appearance-none cursor-pointer accent-moss-600"
           />
           <div class="relative w-24">
-            <input
+            <AppInput
               type="number"
               id="quantity"
-              v-model.number="quantityKg"
+              v-model="quantityKg"
               :min="CHECKOUT_QTY_MIN_KG"
               :max="maxOrderQty"
               :maxlength="QUANTITY_MAX_LENGTH"
-              @input="clampQuantity"
               class="block w-full rounded-xl border-stone-300 shadow-soft focus:border-moss-500 focus:ring-moss-500 sm:text-sm pr-8"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -197,8 +187,8 @@ const handleConfirm = () => {
         </div>
       </div>
 
-      <div class="border-t border-stone-100 pt-6">
-        <label class="block text-sm font-bold text-soil-700 mb-3">Payment Method</label>
+      <fieldset class="border-t border-stone-100 pt-6">
+        <legend class="text-sm font-bold text-soil-700 mb-3">Payment Method</legend>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label
             class="relative flex cursor-pointer rounded-2xl border bg-white p-4 shadow-soft focus:outline-none"
@@ -212,7 +202,8 @@ const handleConfirm = () => {
               type="radio"
               v-model="paymentOption"
               :value="PAYMENT_OPTION.PAYMONGO"
-              class="sr-only"
+              name="payment-method"
+              class="h-4 w-4 accent-moss-600 mr-3"
             />
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
@@ -240,7 +231,8 @@ const handleConfirm = () => {
               type="radio"
               v-model="paymentOption"
               :value="PAYMENT_OPTION.CASH"
-              class="sr-only"
+              name="payment-method"
+              class="h-4 w-4 accent-moss-600 mr-3"
             />
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
@@ -256,10 +248,10 @@ const handleConfirm = () => {
             </div>
           </label>
         </div>
-      </div>
+      </fieldset>
     </div>
 
-    <div class="flex flex-col sm:flex-row justify-between items-end mb-8">
+    <div class="flex flex-col sm:flex-row justify-between gap-4 mb-8">
       <div class="mb-4 sm:mb-0 w-full sm:w-auto">
         <h4 class="text-sm font-medium text-stone-500 mb-2">Total Contract Value</h4>
         <PriceTag
@@ -300,39 +292,8 @@ const handleConfirm = () => {
     </div>
 
     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
-      <button
-        @click="$emit('cancel')"
-        :disabled="loading"
-        class="px-5 py-2.5 border border-stone-300 shadow-soft text-sm font-medium rounded-xl text-stone-700 bg-white hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 transition-all duration-300 hover:scale-[1.02] w-full sm:w-auto text-center disabled:opacity-50"
-      >
-        Cancel
-      </button>
-      <button
-        @click="handleConfirm"
-        :disabled="loading || !authStore.isEmailVerified"
-        class="px-5 py-2.5 border border-transparent shadow-soft text-sm font-medium rounded-xl text-white bg-gradient-to-r from-moss-600 to-moss-700 hover:from-moss-700 hover:to-moss-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss-500 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 w-full sm:w-auto text-center flex justify-center items-center disabled:opacity-50 disabled:transform-none"
-      >
-        <svg
-          v-if="loading"
-          class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
+      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">Cancel</AppButton>
+      <AppButton :loading="loading" :disabled="!authStore.isEmailVerified" @click="handleConfirm">
         {{
           loading
             ? 'Preparing Checkout...'
@@ -340,7 +301,7 @@ const handleConfirm = () => {
               ? 'Verify Email to Purchase'
               : 'Proceed to Payment'
         }}
-      </button>
+      </AppButton>
     </div>
   </div>
 </template>

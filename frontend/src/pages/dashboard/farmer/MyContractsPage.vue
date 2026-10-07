@@ -5,12 +5,14 @@ import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
+import PageHeader from '@/components/molecules/PageHeader.vue'
+import StatCard from '@/components/molecules/StatCard.vue'
 import { BanknotesIcon, DocumentTextIcon, ChartBarIcon, ClockIcon } from '@heroicons/vue/24/outline'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
-const { isOpen, config, confirm, execute, cancel } = useConfirmModal()
+const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
   marketStore.fetchFarmerContracts()
@@ -63,106 +65,32 @@ const handlePageChange = (page) => {
 
 <template>
   <div class="py-6 space-y-6">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-      <div class="flex-1 min-w-0">
-        <h2 class="font-serif text-2xl font-bold leading-7 text-stone-900 sm:text-3xl sm:truncate">
-          My Forward Contracts
-        </h2>
-        <p class="mt-1 text-sm text-stone-500">
-          Manage your published crop listings and track sales.
-        </p>
-      </div>
-    </div>
-
-    <!-- Stats -->
+    <PageHeader
+      title="My Forward Contracts"
+      description="Manage your published crop listings and track sales."
+    />
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
-      >
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-dew-100 rounded-xl p-3">
-              <DocumentTextIcon class="h-6 w-6 text-dew-600" aria-hidden="true" />
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-stone-500 truncate">Total Listed</dt>
-                <dd>
-                  <div class="text-2xl font-semibold text-stone-900">
-                    {{ marketStore.farmerStats.total_listed }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
-      >
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-harvest-100 rounded-xl p-3">
-              <ClockIcon class="h-6 w-6 text-harvest-600" aria-hidden="true" />
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-stone-500 truncate">Total Reserved</dt>
-                <dd>
-                  <div class="text-2xl font-semibold text-stone-900">
-                    {{ marketStore.farmerStats.total_reserved }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
-      >
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-moss-100 rounded-xl p-3">
-              <ChartBarIcon class="h-6 w-6 text-moss-600" aria-hidden="true" />
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-stone-500 truncate">Total Sold</dt>
-                <dd>
-                  <div class="text-2xl font-semibold text-stone-900">
-                    {{ marketStore.farmerStats.total_sold }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-gradient-to-br from-white to-stone-50 overflow-hidden shadow-soft rounded-xl border border-stone-100"
-      >
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-red-100 rounded-xl p-3">
-              <BanknotesIcon class="h-6 w-6 text-red-600" aria-hidden="true" />
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-stone-500 truncate">Total Revenue</dt>
-                <dd>
-                  <div class="text-2xl font-semibold text-stone-900">
-                    ₱{{ parseFloat(marketStore.farmerStats.total_revenue || 0).toLocaleString() }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatCard
+        label="Total Listed"
+        :value="marketStore.farmerStats.total_listed"
+        :icon="DocumentTextIcon"
+      />
+      <StatCard
+        label="Total Reserved"
+        :value="marketStore.farmerStats.total_reserved"
+        :icon="ClockIcon"
+      />
+      <StatCard
+        label="Total Sold"
+        :value="marketStore.farmerStats.total_sold"
+        :icon="ChartBarIcon"
+      />
+      <StatCard
+        label="Total Revenue"
+        :value="`₱${Number(marketStore.farmerStats.total_revenue || 0).toLocaleString('en-PH')}`"
+        :icon="BanknotesIcon"
+        tone="harvest"
+      />
     </div>
 
     <!-- Contract List -->
@@ -184,6 +112,7 @@ const handlePageChange = (page) => {
     />
     <!-- Cancel Confirmation Modal -->
     <ConfirmModal
+      :loading="isExecuting"
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"
