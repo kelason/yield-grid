@@ -70,6 +70,12 @@ function backToConversations() {
   selectedConversationId.value = null
   chatStore.activeConversation = null
 }
+async function retryMessages() {
+  const id = selectedConversationId.value
+  if (!id) return
+  await chatStore.fetchMessages(id)
+  scrollToBottom()
+}
 function handleSend(text) {
   const id = selectedConversationId.value
   if (!id || !text.trim() || text.length > CHAT_CONSTANTS.MESSAGE_MAX_LENGTH) return
@@ -243,6 +249,15 @@ const scrollToBottom = () => {
                 :class="style"
                 aria-hidden="true"
               ></div>
+            </div>
+
+            <div
+              v-else-if="chatStore.messagesError"
+              role="alert"
+              class="space-y-3 text-sm text-red-600"
+            >
+              <p>{{ chatStore.messagesError }}</p>
+              <AppButton variant="outline" @click="retryMessages">Retry messages</AppButton>
             </div>
 
             <div

@@ -92,6 +92,34 @@ describe('ChatPage.vue inbox', () => {
     wrapper.unmount()
   })
 
+  it('shows a failed message load and retries the selected conversation', async () => {
+    let fail = true
+    mockGet.mockImplementation((url) => {
+      if (url === '/chat/conversations')
+        return Promise.resolve({ data: { data: structuredClone(conversations) } })
+      if (fail) return Promise.reject(new Error('Messages unavailable'))
+      return Promise.resolve({
+        data: {
+          data: [{ id: 7, body: 'Existing message', created_at: '2026-10-07T00:00:00Z' }],
+          meta: {},
+        },
+      })
+    })
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('Failed to load messages. Please retry.')
+    expect(wrapper.text()).not.toContain('Say hello to start the conversation')
+    fail = false
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Retry messages')
+      .trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'ChatBubble' }).props('body')).toBe('Existing message')
+    expect(wrapper.text()).not.toContain('Failed to load messages. Please retry.')
+    expect(useChatStore().activeConversation?.id).toBe(1)
+    wrapper.unmount()
+  })
+
   it('loads the inbox and auto-selects the first conversation', async () => {
     const wrapper = await mountPage()
     const store = useChatStore()

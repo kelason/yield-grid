@@ -54,6 +54,24 @@ describe('CashPaymentApprovalsPage.vue amount cap', () => {
     await partialButton.trigger('click')
   }
 
+  it.each([
+    [1234.56, '123.46'],
+    [999.99, '100'],
+    [0.01, '0.01'],
+    [9999999999.99, '99999999'],
+  ])('suggests a valid cent amount for total %s', async (total, expected) => {
+    useApi.mockReturnValue({
+      get: vi.fn().mockResolvedValue({ data: [{ ...purchase, total_contract_amount: total }] }),
+      post: vi.fn(),
+    })
+    const wrapper = await mountPage()
+    await openPartialModal(wrapper)
+    const input = wrapper.find('input[type="number"]')
+    expect(input.element.value).toBe(expected)
+    expect(input.element.checkValidity()).toBe(true)
+    wrapper.unmount()
+  })
+
   it('caps the approval amount at 8 characters', async () => {
     const wrapper = await mountPage()
     await openPartialModal(wrapper)

@@ -82,6 +82,16 @@ onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
         @toggle="toggleGroup"
         @navigate="closeMobile"
       />
+      <RouterLink
+        v-if="auth.user?.id"
+        :to="{ name: 'user-profile', params: { userId: auth.user.id } }"
+        :aria-label="`${auth.user.name} profile`"
+        class="mt-3 block min-h-11 rounded-xl border border-soil-600 px-3 py-3 text-sm text-stone-100 transition-colors hover:bg-soil-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-300"
+        @click="closeMobile"
+      >
+        <span class="block break-words">{{ auth.user.name }}</span>
+        <span class="mt-1 block text-stone-300">Profile</span>
+      </RouterLink>
     </div>
   </AppModal>
 </template>

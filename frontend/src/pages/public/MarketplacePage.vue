@@ -14,13 +14,14 @@ import { usePayment } from '@/composables/usePayment'
 import AppModal from '@/components/molecules/AppModal.vue'
 import LoadingState from '@/components/molecules/LoadingState.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
+import AppAlert from '@/components/atoms/AppAlert.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
-const { startCheckout, loading: checkoutLoading } = usePayment()
+const { startCheckout, loading: checkoutLoading, error: checkoutError } = usePayment()
 
 const showCheckoutPanel = ref(false)
 const pendingConfirm = ref(null)
@@ -66,13 +67,15 @@ const handlePageChange = (page) => {
 }
 
 const handleViewContract = async (contract) => {
+  checkoutError.value = null
   await marketStore.fetchContractDetail(contract.id, contract.type)
   showCheckoutPanel.value = true
 }
 
 const askCheckoutConfirm = (checkoutData) => {
   if (authStore.isAuthenticated && !authStore.isEmailVerified) {
-    notificationStore.warning('Please verify your email address to purchase contracts.')
+    checkoutError.value = 'Please verify your email address to purchase contracts.'
+    notificationStore.warning(checkoutError.value)
     return
   }
   pendingConfirm.value = checkoutData
@@ -133,6 +136,7 @@ const handleConfirmCheckout = () => execute(performCheckout)
       :busy="isExecuting"
       @close="showCheckoutPanel = false"
     >
+      <AppAlert v-if="checkoutError" type="error" class="mb-4">{{ checkoutError }}</AppAlert>
       <LoadingState v-if="marketStore.loading.details" label="Loading contract details" />
       <CheckoutSummary
         v-else-if="marketStore.activeContract"

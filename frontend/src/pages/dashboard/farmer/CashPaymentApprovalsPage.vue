@@ -13,6 +13,7 @@ import CashPaymentReviewPanel from '@/components/organisms/CashPaymentReviewPane
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 
 const PURCHASE_SKELETON_COUNT = 4
+const CASH_AMOUNT_DECIMAL_PLACES = 2
 
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
@@ -57,7 +58,17 @@ const openApproveModal = (purchase, type) => {
   approvalError.value = ''
   const suggestedAmount =
     type === CASH_PAYMENT_TYPE.PARTIAL
-      ? purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE
+      ? Math.min(
+          CASH_PAYMENT_LIMITS.MAX,
+          Math.max(
+            CASH_PAYMENT_LIMITS.MIN,
+            Number(
+              (purchase.total_contract_amount * PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE).toFixed(
+                CASH_AMOUNT_DECIMAL_PLACES,
+              ),
+            ),
+          ),
+        )
       : purchase.total_contract_amount
 
   promptModal.value = {

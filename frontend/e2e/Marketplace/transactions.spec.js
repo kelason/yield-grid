@@ -190,6 +190,7 @@ test('marketplace checkout preserves quantity and cash payload without external 
     quantity_kg: 25,
     payment_option: 'cash',
   })
-  await expect(page.getByText('Quantity changed. Please review and retry.').first()).toBeVisible()
+  await expect(form.getByRole('alert')).toContainText('Quantity changed. Please review and retry.')
+  await expect(form.getByRole('spinbutton')).toHaveValue('25')
   expect(page.url()).toBe(`${E2E.BASE_URL}/dashboard/buyer/marketplace`)
 })

@@ -21,6 +21,11 @@ business behavior while improving component reuse and accessibility.
   textarea/spinner/skeleton/status compositions specified in the plan.
 - Keep domain actions and confirmation ownership in pages/composables. Preserve
   native control semantics, validation limits, event contracts, and null safety.
+- Render request errors inside the active native dialog; a global toast outside
+  it is inert and cannot provide the only failure feedback. Preserve failed drafts
+  and provide a retry for failed data loads before showing an empty state.
+- Mobile navigation must expose the authenticated user’s own profile for both
+  roles, including access to address management.
 - Use existing `moss`, `harvest`, `soil`, `dew`, and `stone` token names with the
   approved palette. Keep actual color values centralized; never introduce raw
   colors in templates. Use SVG/Heroicons for structural UI icons.
