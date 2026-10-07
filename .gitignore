@@ -6,12 +6,22 @@
 !/frontend/
 !/docker-compose.yml
 !/README.md
+!/AGENTS.md
 !/.gitignore
 !/.pr_agent.toml
 !/.github/
 !/docs/
 /docs/*
 !/docs/RECENT_CHANGES.md
+!/docs/superpowers/
+/docs/superpowers/*
+!/docs/superpowers/plans/
+/docs/superpowers/plans/*
+!/docs/superpowers/plans/2026-10-07-modern-organic-redesign.md
+!/docs/superpowers/specs/
+/docs/superpowers/specs/*
+!/docs/superpowers/specs/2026-10-07-modern-organic-redesign.md
+!/docs/superpowers/specs/2026-10-07-grafana-production-monitoring-design.md
 
 # Environment files
 .env
