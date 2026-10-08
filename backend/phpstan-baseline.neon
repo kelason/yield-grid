@@ -157,54 +157,6 @@ parameters:
 			path: app/Domain/Marketplace/Actions/CancelCheckoutAction.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$currency\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/Marketplace/Actions/CreateCashPurchaseAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$price_per_kg\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Domain/Marketplace/Actions/SplitPurchasableAction.php
-
-		-
 			message: '#^Property App\\Domain\\Marketplace\\Actions\\VerifyPurchaseAction\:\:\$contractRepository is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
@@ -587,36 +539,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Marketplace/Controllers/PayMongoWebhookController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$currency\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Marketplace/Controllers/PurchaseController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Marketplace/Controllers/PurchaseController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_harvest_available\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Marketplace/Controllers/PurchaseController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$price_per_kg\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Marketplace/Controllers/PurchaseController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Marketplace/Controllers/PurchaseController.php
 
 		-
 			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$confidence_score\.$#'

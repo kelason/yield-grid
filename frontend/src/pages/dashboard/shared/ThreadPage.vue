@@ -5,9 +5,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '../../../stores/forumStore'
 import { useAuthStore } from '../../../stores/auth'
 import { useForumWebSocket } from '../../../composables/useForumWebSocket'
+import { useContentReport } from '@/composables/useContentReport'
 import ThreadCard from '../../../components/molecules/ThreadCard.vue'
 import ReplyCard from '../../../components/molecules/ReplyCard.vue'
+import ContentReportForm from '@/components/organisms/ContentReportForm.vue'
 import AppButton from '../../../components/atoms/AppButton.vue'
+import AppModal from '../../../components/molecules/AppModal.vue'
 import ConfirmModal from '../../../components/molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import PageHeader from '@/components/molecules/PageHeader.vue'
@@ -28,6 +31,24 @@ const isSubmitting = ref(false)
 const replyingToId = ref(null)
 const replyError = ref('')
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
+const showReportModal = ref(false)
+const {
+  target: reportTarget,
+  reason: reportReason,
+  description: reportDescription,
+  busy: reportBusy,
+  error: reportError,
+  fieldError: reportFieldError,
+  openReport,
+  closeReport,
+  validate: validateReport,
+  submit: submitContentReport,
+} = useContentReport()
+const reportAccess = computed(() => {
+  if (!authStore.isAuthenticated) return 'signin'
+  if (!authStore.isEmailVerified) return 'verify'
+  return 'ok'
+})
 
 const thread = computed(() => forumStore.currentThread)
 
@@ -134,6 +155,40 @@ function handleAccept(id) {
 }
 
 const goBack = () => router.push({ name: 'community-forum' })
+
+function openReportModal(payload) {
+  openReport(payload)
+  showReportModal.value = true
+}
+function closeReportModal() {
+  if (reportBusy.value || isExecuting.value) return
+  showReportModal.value = false
+  closeReport()
+}
+function requestReportSubmit() {
+  if (!reportTarget.value || reportBusy.value) return
+  if (!validateReport()) return
+  confirm(
+    {
+      title: 'Submit this report?',
+      message: 'Your report will be sent to the moderation team.',
+      confirmText: 'Send report',
+    },
+    submitReport,
+  )
+}
+async function submitReport() {
+  try {
+    await submitContentReport()
+    showReportModal.value = false
+  } catch {
+    // The inline form error and draft stay visible; the modal remains open.
+  }
+}
+function goLogin() {
+  closeReportModal()
+  router.push({ name: 'login' })
+}
 </script>
 
 <template>
@@ -170,7 +225,7 @@ const goBack = () => router.push({ name: 'community-forum' })
     <template v-else-if="thread">
       <!-- Original Thread Post -->
       <div class="mb-8">
-        <ThreadCard :thread="thread" @vote="handleVote" />
+        <ThreadCard :thread="thread" @vote="handleVote" @report="openReportModal" />
       </div>
 
       <!-- Replies Section -->
@@ -269,6 +324,7 @@ const goBack = () => router.push({ name: 'community-forum' })
             @vote="handleReplyVote"
             @accept="handleAccept"
             @replyTo="handleReplyTo"
+            @report="openReportModal"
           />
         </div>
       </div>
@@ -279,6 +335,43 @@ const goBack = () => router.push({ name: 'community-forum' })
       title="Discussion unavailable"
       description="Return to the community to choose another discussion."
     />
+    <AppModal
+      title="Report content"
+      :is-open="showReportModal"
+      :busy="reportBusy || isExecuting"
+      @close="closeReportModal"
+    >
+      <ContentReportForm
+        v-if="reportAccess === 'ok' && reportTarget"
+        :target="reportTarget"
+        :reason="reportReason"
+        :description="reportDescription"
+        :busy="reportBusy || isExecuting"
+        :error="reportError"
+        :field-error="reportFieldError"
+        @update:reason="reportReason = $event"
+        @update:description="reportDescription = $event"
+        @submit="requestReportSubmit"
+        @cancel="closeReportModal"
+      />
+      <div v-else-if="reportAccess === 'signin'" class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Sign in to report this content to the moderation team.
+        </p>
+        <div class="flex justify-end gap-3">
+          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
+          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+        </div>
+      </div>
+      <div v-else class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Verify your email address to report content to the moderation team.
+        </p>
+        <div class="flex justify-end">
+          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+        </div>
+      </div>
+    </AppModal>
     <ConfirmModal
       :is-open="isOpen"
       :title="config.title"

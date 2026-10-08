@@ -14,6 +14,15 @@ export const BUYER = {
   email: 'buyer@example.test',
   role: 'buyer',
 }
+export const ADMIN = {
+  id: 3,
+  name: 'Ramon Cruz',
+  email: 'admin@example.test',
+  role: 'admin',
+  email_verified_at: '2026-01-01T00:00:00Z',
+  phone: null,
+  avatar_url: null,
+}
 export const FARMS = [
   {
     id: 3,

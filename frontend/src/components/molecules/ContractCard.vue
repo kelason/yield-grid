@@ -1,19 +1,40 @@
 <script setup>
+import { computed } from 'vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppCard from '../atoms/AppCard.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 import PriceFairnessBadge from '../atoms/PriceFairnessBadge.vue'
-import { CalendarIcon, MapPinIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { CalendarIcon, FlagIcon, MapPinIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { useAuthStore } from '../../stores/auth'
 
-defineProps({
+const authStore = useAuthStore()
+
+const props = defineProps({
   contract: {
     type: Object,
     required: true,
   },
 })
 
-defineEmits(['view-details', 'purchase'])
+const emit = defineEmits(['view-details', 'purchase', 'report'])
+
+const reportableType = computed(() => (props.contract.type === 'listing' ? 'listing' : 'contract'))
+
+const isOwner = computed(() => {
+  const userId = authStore.user?.id
+  if (userId == null) return false
+  const ownerId = props.contract.farmer?.id ?? props.contract.farmer_id
+  return ownerId != null && String(userId) === String(ownerId)
+})
+
+function emitReport() {
+  emit('report', {
+    reportable_type: reportableType.value,
+    reportable_id: props.contract.id,
+    title: props.contract.title,
+  })
+}
 </script>
 
 <template>
@@ -84,9 +105,21 @@ defineEmits(['view-details', 'purchase'])
           </div>
         </div>
 
-        <AppButton variant="outline" size="sm" @click="$emit('view-details', contract)">
-          View Details
-        </AppButton>
+        <div class="flex flex-wrap items-center gap-2">
+          <AppButton variant="outline" size="sm" @click="$emit('view-details', contract)">
+            View Details
+          </AppButton>
+          <button
+            v-if="!isOwner"
+            type="button"
+            aria-label="Report this listing"
+            class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+            @click.stop="emitReport"
+          >
+            <FlagIcon class="w-4 h-4" aria-hidden="true" />
+            Report
+          </button>
+        </div>
       </div>
     </div>
   </AppCard>

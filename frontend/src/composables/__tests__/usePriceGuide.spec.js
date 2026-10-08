@@ -63,6 +63,16 @@ describe('usePriceGuide', () => {
     expect(guide).toEqual(riceGuide)
   })
 
+  it('resolves quietly when a prefetch request fails', async () => {
+    apiGet.mockRejectedValue(new Error('network down'))
+
+    const { prefetchCrops, error } = usePriceGuide()
+    await expect(prefetchCrops(['rice'])).resolves.toBeUndefined()
+
+    expect(error.value?.message).toBe('network down')
+    expect(apiGet).toHaveBeenCalledTimes(1)
+  })
+
   it('caches misses briefly, then refetches after the TTL', async () => {
     vi.useFakeTimers()
     try {

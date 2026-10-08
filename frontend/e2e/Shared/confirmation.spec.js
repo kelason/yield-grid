@@ -35,7 +35,8 @@ test('cancel confirmation preserves state and returns focus to its trigger', asy
     return route.fulfill({ json: {} })
   })
   const trigger = page.getByRole('button', { name: 'Cancel purchase', exact: true })
-  await trigger.click()
+  await trigger.focus()
+  await trigger.press('Enter')
   const dialog = page.getByRole('dialog', { name: 'Cancel Purchase', exact: true })
   await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused()
   await page.keyboard.press('Escape')
@@ -71,7 +72,10 @@ test('pending confirmation sends one request and blocks repeat or dismissal', as
   await expect(dialog).not.toBeVisible()
 })
 
-test('nested address confirmation restores the form and preserves its draft', async ({ page }) => {
+test('nested address confirmation restores the form and preserves its draft', async ({
+  page,
+  browserName,
+}) => {
   await mockSession(page, { role: 'buyer' })
   await page.route('**/api/v1/users/2', (route) =>
     route.fulfill({
@@ -96,7 +100,8 @@ test('nested address confirmation restores the form and preserves its draft', as
   await page.route(/tile\.openstreetmap\.org/, (route) => route.abort())
   await page.goto('/dashboard/users/2')
   const trigger = page.getByRole('button', { name: 'Add address', exact: true })
-  await trigger.click()
+  await trigger.focus()
+  await trigger.press('Enter')
   const form = page.getByRole('dialog', { name: 'Add address', exact: true })
   await form.getByLabel('Label', { exact: true }).fill('Farm gate')
   await form.getByRole('combobox', { name: 'Region', exact: true }).selectOption('region')
@@ -105,11 +110,16 @@ test('nested address confirmation restores the form and preserves its draft', as
     .selectOption('city')
   await form.getByRole('combobox', { name: 'Barangay', exact: true }).selectOption('barangay')
   const submit = form.getByRole('button', { name: 'Add address', exact: true })
-  await submit.click()
+  await submit.focus()
+  await submit.press('Enter')
   const confirmation = page.getByRole('dialog', { name: 'Add this address?', exact: true })
   await expect(confirmation).toBeVisible()
-  await page.keyboard.press('Tab')
-  await expect(confirmation.locator(':focus')).toHaveCount(1)
+  // Safari tabs past buttons without Full Keyboard Access, so native Tab order
+  // can only be asserted where the platform moves focus through every control.
+  if (browserName !== 'webkit') {
+    await page.keyboard.press('Tab')
+    await expect(confirmation.locator(':focus')).toHaveCount(1)
+  }
   await page.keyboard.press('Escape')
   await expect(confirmation).not.toBeVisible()
   await expect(submit).toBeFocused()

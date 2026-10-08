@@ -1,7 +1,13 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { FARMER_NAVIGATION, BUYER_NAVIGATION, RESTRICTED_FEATURES } from '@/constants/navigation'
+import {
+  FARMER_NAVIGATION,
+  BUYER_NAVIGATION,
+  ADMIN_NAVIGATION,
+  RESTRICTED_FEATURES,
+} from '@/constants/navigation'
+import { USER_ROLES } from '@/constants/roles'
 
 export function isNavigationActive(to, route) {
   if (to.name === 'recommendations')
@@ -15,8 +21,15 @@ function visibleEntry(entry, verified) {
   const children = entry.children.filter((child) => !RESTRICTED_FEATURES.includes(child.name))
   return children.length ? { ...entry, children } : null
 }
+function entriesForRole(role) {
+  if (role === USER_ROLES.ADMIN) return ADMIN_NAVIGATION
+  if (role === USER_ROLES.BUYER) return BUYER_NAVIGATION
+  if (role === USER_ROLES.FARMER) return FARMER_NAVIGATION
+  return []
+}
+
 function navigationFor(auth, route) {
-  const entries = auth.userRole === 'buyer' ? BUYER_NAVIGATION : FARMER_NAVIGATION
+  const entries = entriesForRole(auth.userRole)
   return entries
     .map((entry) => visibleEntry(entry, auth.isEmailVerified))
     .filter(Boolean)

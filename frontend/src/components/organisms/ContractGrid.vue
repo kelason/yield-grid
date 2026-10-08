@@ -23,7 +23,7 @@ const props = defineProps({
   },
 })
 
-defineEmits(['load-more', 'view-contract'])
+defineEmits(['load-more', 'view-contract', 'report'])
 
 const { prefetchCrops } = usePriceGuide()
 
@@ -57,6 +57,7 @@ watch(
         :key="contract.id"
         :contract="contract"
         @view-details="$emit('view-contract', contract)"
+        @report="$emit('report', $event)"
       />
     </div>
   </div>

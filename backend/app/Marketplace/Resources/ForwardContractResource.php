@@ -30,6 +30,7 @@ class ForwardContractResource extends JsonResource
             'expiry_date' => $this->expiry_date->format('Y-m-d'),
             'status' => $this->status->value,
             'is_purchasable' => $this->is_purchasable,
+            'is_hidden' => $this->resource->isEffectivelyHidden(),
             'farmer' => [
                 'id' => $this->farmer->id,
                 'name' => $this->farmer->name,

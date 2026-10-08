@@ -38,7 +38,13 @@ class ForumThread extends Model
             'is_locked' => 'boolean',
             'is_anonymous' => 'boolean',
             'last_activity_at' => 'datetime',
+            'hidden_at' => 'datetime',
         ];
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
     }
 
     /**
@@ -104,5 +110,17 @@ class ForumThread extends Model
     public function scopePinned(Builder $query): Builder
     {
         return $query->where('is_pinned', true);
+    }
+
+    /**
+     * Member-visible threads: not hidden. No global scope is used on purpose so
+     * administrative readers can still load hidden rows explicitly.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->whereNull('hidden_at');
     }
 }

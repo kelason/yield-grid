@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { PAYMENT_OPTION } from '@/constants/payment'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAddressStore } from '@/stores/addressStore'
@@ -9,9 +10,12 @@ import ContractFilter from '@/components/molecules/ContractFilter.vue'
 import ContractGrid from '@/components/organisms/ContractGrid.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import CheckoutSummary from '@/components/organisms/CheckoutSummary.vue'
+import ContentReportForm from '@/components/organisms/ContentReportForm.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { usePayment } from '@/composables/usePayment'
+import { useContentReport } from '@/composables/useContentReport'
 import AppModal from '@/components/molecules/AppModal.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
 import LoadingState from '@/components/molecules/LoadingState.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
@@ -21,14 +25,41 @@ const marketStore = useMarketStore()
 const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
+const router = useRouter()
 const { startCheckout, loading: checkoutLoading, error: checkoutError } = usePayment()
 
 const showCheckoutPanel = ref(false)
 const pendingConfirm = ref(null)
 const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
+const showReportModal = ref(false)
+const {
+  target: reportTarget,
+  reason: reportReason,
+  description: reportDescription,
+  busy: reportBusy,
+  error: reportError,
+  fieldError: reportFieldError,
+  openReport,
+  closeReport,
+  validate: validateReport,
+  submit: submitContentReport,
+} = useContentReport()
+const reportAccess = computed(() => {
+  if (!authStore.isAuthenticated) return 'signin'
+  if (!authStore.isEmailVerified) return 'verify'
+  return 'ok'
+})
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
+  if (pendingConfirm.value.kind === 'report') {
+    return {
+      title: 'Submit this report?',
+      message: 'Your report will be sent to the moderation team.',
+      confirmText: 'Send report',
+      type: 'primary',
+    }
+  }
   const cash = pendingConfirm.value.paymentOption === PAYMENT_OPTION.CASH
   return {
     title: cash ? 'Request cash payment?' : 'Proceed to payment?',
@@ -78,7 +109,38 @@ const askCheckoutConfirm = (checkoutData) => {
     notificationStore.warning(checkoutError.value)
     return
   }
-  pendingConfirm.value = checkoutData
+  pendingConfirm.value = { kind: 'checkout', ...checkoutData }
+}
+
+function openReportModal(payload) {
+  openReport(payload)
+  showReportModal.value = true
+}
+
+function closeReportModal() {
+  if (reportBusy.value || isExecuting.value) return
+  showReportModal.value = false
+  closeReport()
+}
+
+function requestReportSubmit() {
+  if (!reportTarget.value || reportBusy.value) return
+  if (!validateReport()) return
+  pendingConfirm.value = { kind: 'report' }
+}
+
+async function submitReport() {
+  try {
+    await submitContentReport()
+    showReportModal.value = false
+  } catch {
+    // The inline form error and draft stay visible; the modal remains open.
+  }
+}
+
+function goLogin() {
+  closeReportModal()
+  router.push({ name: 'login' })
 }
 
 const performCheckout = async (checkoutData) => {
@@ -100,7 +162,8 @@ const performCheckout = async (checkoutData) => {
     )
   }
 }
-const handleConfirmCheckout = () => execute(performCheckout)
+const handlePendingConfirm = () =>
+  execute((pending) => (pending.kind === 'report' ? submitReport() : performCheckout(pending)))
 </script>
 
 <template>
@@ -118,6 +181,7 @@ const handleConfirmCheckout = () => execute(performCheckout)
       :contracts="marketStore.contracts"
       :loading="marketStore.loading.contracts"
       @view-contract="handleViewContract"
+      @report="openReportModal"
     />
 
     <PaginationControls
@@ -147,6 +211,44 @@ const handleConfirmCheckout = () => execute(performCheckout)
       />
     </AppModal>
 
+    <AppModal
+      title="Report content"
+      :is-open="showReportModal"
+      :busy="reportBusy || isExecuting"
+      @close="closeReportModal"
+    >
+      <ContentReportForm
+        v-if="reportAccess === 'ok' && reportTarget"
+        :target="reportTarget"
+        :reason="reportReason"
+        :description="reportDescription"
+        :busy="reportBusy || isExecuting"
+        :error="reportError"
+        :field-error="reportFieldError"
+        @update:reason="reportReason = $event"
+        @update:description="reportDescription = $event"
+        @submit="requestReportSubmit"
+        @cancel="closeReportModal"
+      />
+      <div v-else-if="reportAccess === 'signin'" class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Sign in to report this content to the moderation team.
+        </p>
+        <div class="flex justify-end gap-3">
+          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
+          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+        </div>
+      </div>
+      <div v-else class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Verify your email address to report content to the moderation team.
+        </p>
+        <div class="flex justify-end">
+          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+        </div>
+      </div>
+    </AppModal>
+
     <ConfirmModal
       v-if="confirmConfig"
       :is-open="pendingConfirm !== null"
@@ -154,7 +256,7 @@ const handleConfirmCheckout = () => execute(performCheckout)
       :message="confirmConfig.message"
       :confirm-text="confirmConfig.confirmText"
       :type="confirmConfig.type"
-      @confirm="handleConfirmCheckout"
+      @confirm="handlePendingConfirm"
       :loading="isExecuting"
       @cancel="cancel"
     />

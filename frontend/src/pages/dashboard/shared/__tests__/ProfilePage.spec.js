@@ -131,4 +131,31 @@ describe('ProfilePage.vue', () => {
 
     expect(wrapper.text()).toContain('Profile not found')
   })
+
+  it('shows an admin profile without farmer or buyer metrics', async () => {
+    routeParams.userId = '3'
+    useApi.mockReturnValue({
+      get: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            id: 3,
+            name: 'Op Admin',
+            role: 'admin',
+            avatar_url: null,
+            stats: null,
+            posts: [],
+          },
+        },
+      }),
+    })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Op Admin')
+    expect(wrapper.text()).toContain('admin')
+    expect(wrapper.text()).not.toContain('Purchases')
+    expect(wrapper.text()).not.toContain('Total spent')
+    expect(wrapper.text()).not.toContain('Items sold')
+    expect(wrapper.text()).not.toContain('Revenue earned')
+  })
 })

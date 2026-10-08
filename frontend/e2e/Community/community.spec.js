@@ -160,6 +160,85 @@ test('chat keyboard send confirms and preserves failed drafts while clearing unr
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: testInfo.outputPath('chat.png'), animations: 'disabled' })
 })
+test('discussion report confirms once and retains the draft on failure', async ({ page }) => {
+  await forumFixtures(page)
+  const requests = []
+  let fail = true
+  await page.route('**/api/v1/reports', (route) => {
+    const payload = route.request().postDataJSON()
+    expect(route.request().method()).toBe('POST')
+    expect(payload).toEqual({
+      reportable_type: 'thread',
+      reportable_id: '8',
+      reason: 'spam',
+      description: 'This thread keeps advertising unrelated products.',
+    })
+    requests.push(payload)
+    return route.fulfill({
+      status: fail ? UNAVAILABLE : 201,
+      json: fail
+        ? { message: 'Report service unavailable.' }
+        : { data: { id: '5', status: 'open' } },
+    })
+  })
+  await page.goto('/dashboard/community/thread/8')
+  await page.getByRole('button', { name: 'Report this discussion' }).click()
+  const form = page.getByRole('dialog', { name: 'Report content', exact: true })
+  await form.getByRole('combobox', { name: 'Reason' }).selectOption('spam')
+  await form.getByLabel('Description').fill('This thread keeps advertising unrelated products.')
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Submit this report?', exact: true })
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  expect(requests).toEqual([])
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Send report', exact: true }).click()
+  await expect(form.getByRole('alert')).toContainText('Report service unavailable.')
+  await expect(form.getByLabel('Description')).toHaveValue(
+    'This thread keeps advertising unrelated products.',
+  )
+  fail = false
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Send report', exact: true }).click()
+  await expect(form).not.toBeVisible()
+  expect(requests).toHaveLength(2)
+  await noOverflow(page)
+})
+test('owners do not see report controls on their own replies', async ({ page }) => {
+  await mockSession(page, { role: 'buyer' })
+  await page.route('**/api/v1/forum/categories', (route) => route.fulfill({ json: { data: [] } }))
+  await page.route('**/api/v1/forum/tags', (route) => route.fulfill({ json: { data: [] } }))
+  await page.route('**/api/v1/forum/threads?**', (route) =>
+    route.fulfill({ json: { data: [THREAD], meta: { current_page: 1, last_page: 1, total: 1 } } }),
+  )
+  const ownReply = {
+    id: 21,
+    thread_id: 8,
+    author: { id: 2, name: 'Cara Santos', role: 'buyer', avatar_url: null },
+    body: 'My own reply about watering schedules.',
+    vote_score: 0,
+    user_vote: 0,
+    is_accepted: false,
+    children: [],
+    created_at: '2026-10-07T01:00:00Z',
+  }
+  const otherReply = {
+    ...ownReply,
+    id: 22,
+    author: AUTHOR,
+    body: 'A neighbor reply about watering schedules.',
+  }
+  await page.route('**/api/v1/forum/threads/8', (route) =>
+    route.fulfill({
+      json: { data: { ...THREAD, reply_count: 2, replies: [ownReply, otherReply] } },
+    }),
+  )
+  await page.goto('/dashboard/community/thread/8')
+  await expect(page.getByText('My own reply about watering schedules.')).toBeVisible()
+  await expect(page.getByText('A neighbor reply about watering schedules.')).toBeVisible()
+  const replyCards = page.locator('[aria-label="Report this reply"]')
+  await expect(replyCards).toHaveCount(1)
+  await noOverflow(page)
+})
 test('community discussion creation uses nested confirmation and retains failure details', async ({
   page,
 }) => {

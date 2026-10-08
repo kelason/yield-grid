@@ -1,6 +1,10 @@
 <?php
 
 use App\Constants\ForumConstants;
+use App\Domain\Community\Actions\ModerateForumContentAction;
+use App\Domain\Community\Models\ForumCategory;
+use App\Domain\Community\Models\ForumThread;
+use App\Domain\Shared\Enums\ReportTargetType;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -46,4 +50,47 @@ it('rejects an unknown attachable type', function () {
         'file' => UploadedFile::fake()->image('plot.jpg', 100, 100),
         'attachable_type' => 'user',
     ])->assertStatus(422)->assertJsonValidationErrors(['attachable_type']);
+});
+
+it('rejects attachments to hidden or foreign threads', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $author = User::factory()->create();
+    $category = ForumCategory::create([
+        'name' => 'Test',
+        'slug' => 'test-attachment-access',
+        'description' => 'Test',
+        'icon_emoji' => '📎',
+        'sort_order' => 1,
+    ]);
+    $thread = ForumThread::create([
+        'user_id' => $author->id,
+        'category_id' => $category->id,
+        'title' => 'A thread for attachment checks',
+        'body' => 'Thread body that is long enough to pass validation.',
+        'last_activity_at' => now(),
+    ]);
+
+    app(ModerateForumContentAction::class)->execute(
+        $admin, ReportTargetType::THREAD, (string) $thread->id, true, 'spam content'
+    );
+
+    $this->withHeaders(['Accept' => 'application/json'])->post('/api/v1/forum/attachments', [
+        'file' => UploadedFile::fake()->image('hidden.jpg', 100, 100),
+        'attachable_type' => 'thread',
+        'attachable_id' => $thread->id,
+    ])->assertNotFound();
+
+    $visible = ForumThread::create([
+        'user_id' => $author->id,
+        'category_id' => $category->id,
+        'title' => 'Another thread for attachment checks',
+        'body' => 'Thread body that is long enough to pass validation.',
+        'last_activity_at' => now(),
+    ]);
+
+    $this->withHeaders(['Accept' => 'application/json'])->post('/api/v1/forum/attachments', [
+        'file' => UploadedFile::fake()->image('foreign.jpg', 100, 100),
+        'attachable_type' => 'thread',
+        'attachable_id' => $visible->id,
+    ])->assertForbidden();
 });

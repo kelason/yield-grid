@@ -47,16 +47,24 @@ export const useAuthStore = defineStore('auth', () => {
   // Initialize cooldown check
   checkResendCooldown()
 
+  function clearSession() {
+    user.value = null
+    token.value = null
+    localStorage.removeItem('auth_token')
+    sessionStorage.removeItem('auth_token')
+    localStorage.removeItem('resend_cooldown_start')
+    resendCooldown.value = 0
+    if (cooldownInterval) clearInterval(cooldownInterval)
+    cooldownInterval = null
+  }
+
   async function fetchUser() {
     if (!token.value) return
     try {
       const response = await api.get('/user')
       user.value = response.data
     } catch {
-      user.value = null
-      token.value = null
-      localStorage.removeItem('auth_token')
-      sessionStorage.removeItem('auth_token')
+      clearSession()
     }
   }
 
@@ -88,13 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await api.post('/logout')
     } finally {
-      user.value = null
-      token.value = null
-      localStorage.removeItem('auth_token')
-      sessionStorage.removeItem('auth_token')
-      localStorage.removeItem('resend_cooldown_start')
-      resendCooldown.value = 0
-      if (cooldownInterval) clearInterval(cooldownInterval)
+      clearSession()
     }
   }
 
@@ -151,6 +153,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
+    clearSession,
     verifyEmail,
     resendVerificationEmail,
     sendPasswordResetLink,

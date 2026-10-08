@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Chat\Models\ChatParticipant;
+use App\Policies\ForumContentPolicy;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -18,9 +19,9 @@ Broadcast::channel('plot.{plotId}', function ($user, $plotId) {
     return (int) $plot->farm->user_id === (int) $user->id;
 });
 
-// Forum thread channel — any authenticated user can listen
+// Forum thread channel — active members on visible threads only
 Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
-    return $user !== null;
+    return ForumContentPolicy::canSubscribeToThread($user, (string) $threadId);
 });
 
 // Chat conversation — only participants

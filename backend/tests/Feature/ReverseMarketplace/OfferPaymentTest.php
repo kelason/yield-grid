@@ -1,13 +1,16 @@
 <?php
 
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Enums\CashPaymentStatus;
 use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\DemandStatus;
 use App\Domain\Marketplace\Enums\PaymentMethod;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Events\DemandOfferPaid;
+use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Marketplace\Services\PaymentGatewayInterface;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -59,6 +62,33 @@ function reversePostSignedWebhook(string $payload): TestResponse
         ['CONTENT_TYPE' => 'application/json', 'HTTP_PAYMONGO_SIGNATURE' => reversePaymongoSignature($payload)],
         $payload
     );
+}
+
+function paymodAdmin(): User
+{
+    return User::factory()->create(['role' => 'admin']);
+}
+
+function paymodHideDemand(User $admin, CropDemand $demand): void
+{
+    app(ModerateMarketplaceContentAction::class)->execute(
+        $admin, ReportTargetType::DEMAND, (string) $demand->id, true, 'suspected fraud'
+    );
+}
+
+function paymodAcceptedOffer(): array
+{
+    $buyer = User::factory()->buyer()->create();
+    $demand = Helper::makeDemand($buyer);
+    $farmer = User::factory()->farmer()->create();
+    $offer = Helper::makeOffer($demand, $farmer, [
+        'quantity_kg' => 150,
+        'price_per_kg' => 44,
+        'total_price' => 6600,
+        'status' => DemandOfferStatus::ACCEPTED,
+    ]);
+
+    return [$buyer, $demand, $farmer, $offer];
 }
 
 it('checks out an accepted offer with a downpayment when needed-by is in the future', function () {
@@ -611,4 +641,74 @@ it('filters the buyer purchase list by display status', function () {
     expect($idsFor('paid'))->toBe([$paid->id]);
     expect($idsFor('failed'))->toBe([$failed->id]);
     expect($idsFor('bogus'))->toHaveCount(5);
+});
+
+it('pays an accepted offer by cash after its demand is hidden', function () {
+    [$buyer, $demand, $farmer, $offer] = paymodAcceptedOffer();
+    paymodHideDemand(paymodAdmin(), $demand);
+
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$offer->id}/checkout", [
+        'payment_option' => 'cash',
+    ])->assertOk();
+
+    $this->assertDatabaseHas('purchases', [
+        'buyer_id' => $buyer->id,
+        'crop_demand_offer_id' => $offer->id,
+        'payment_status' => PaymentStatus::PENDING->value,
+    ]);
+
+    expect($demand->fresh()->hidden_at)->not->toBeNull();
+    expect($offer->fresh()->status)->toBe(DemandOfferStatus::ACCEPTED);
+});
+
+it('pays an accepted offer online after its demand is hidden', function () {
+    [$buyer, $demand, $farmer, $offer] = paymodAcceptedOffer();
+    paymodHideDemand(paymodAdmin(), $demand);
+
+    $mock = Mockery::mock(PayMongoService::class);
+    $mock->shouldReceive('createCheckoutSession')->once()->andReturn([
+        'checkout_url' => 'https://paymongo.com/checkout/hidden-demand',
+        'checkout_id' => 'cs_offer_hidden',
+    ]);
+    $this->app->instance(PayMongoService::class, $mock);
+
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$offer->id}/checkout", [
+        'payment_option' => 'paymongo',
+    ])->assertOk();
+
+    $this->app->forgetInstance(PayMongoService::class);
+
+    reversePostSignedWebhook(reversePaymongoPayload('cs_offer_hidden'))->assertOk();
+
+    expect($offer->fresh()->status)->toBe(DemandOfferStatus::PARTIALLY_PAID);
+    expect($demand->fresh()->hidden_at)->not->toBeNull();
+    expect($demand->fresh()->hidden_by)->not->toBeNull();
+    expect((float) $demand->fresh()->remaining_quantity_kg)->toBe(600.0);
+});
+
+it('retains deliver, settle, and complete on a hidden demand', function () {
+    [$buyer, $demand, $farmer, $offer] = paymodAcceptedOffer();
+    paymodHideDemand(paymodAdmin(), $demand);
+
+    $mock = Mockery::mock(PayMongoService::class);
+    $mock->shouldReceive('createCheckoutSession')->once()->andReturn([
+        'checkout_url' => 'https://paymongo.com/checkout/lifecycle',
+        'checkout_id' => 'cs_offer_lifecycle',
+    ]);
+    $this->app->instance(PayMongoService::class, $mock);
+
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$offer->id}/checkout", [
+        'payment_option' => 'paymongo',
+    ])->assertOk();
+
+    $this->app->forgetInstance(PayMongoService::class);
+
+    reversePostSignedWebhook(reversePaymongoPayload('cs_offer_lifecycle'))->assertOk();
+
+    $this->actingAs($farmer)->postJson("/api/v1/farmer/offers/{$offer->id}/mark-delivered")->assertOk();
+    $this->actingAs($farmer)->postJson("/api/v1/farmer/offers/{$offer->id}/settle-balance")->assertOk();
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$offer->id}/confirm-completed")->assertOk();
+
+    expect($offer->fresh()->status)->toBe(DemandOfferStatus::COMPLETED);
+    expect($demand->fresh()->hidden_at)->not->toBeNull();
 });

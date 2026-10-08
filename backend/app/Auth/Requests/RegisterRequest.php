@@ -29,7 +29,7 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string', 'max:'.AuthConstants::NAME_MAX_LENGTH],
             'email' => ['required', 'string', 'email', 'max:'.AuthConstants::EMAIL_MAX_LENGTH, 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults(), 'max:'.AuthConstants::PASSWORD_MAX_LENGTH],
-            'role' => ['required', Rule::enum(UserRole::class)],
+            'role' => ['required', Rule::in([UserRole::FARMER->value, UserRole::BUYER->value])],
             'address' => ['nullable', 'array'],
         ], UserAddressRules::rules('address', true));
     }

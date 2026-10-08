@@ -1,6 +1,9 @@
 <?php
 
 use App\Constants\AuthConstants;
+use Domain\Users\Actions\RegisterUserAction;
+use Domain\Users\DTOs\RegisterUserDTO;
+use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -47,10 +50,43 @@ it('rejects registration with a password one character over the max', function (
     ]))->assertStatus(422)->assertJsonValidationErrors(['password']);
 });
 
-it('rejects registration with an unknown role', function () {
+it('rejects registration with the admin role', function () {
     $this->postJson('/api/v1/register', array_merge($this->registerPayload, [
         'role' => 'admin',
     ]))->assertStatus(422)->assertJsonValidationErrors(['role']);
+});
+
+it('rejects registration with an unknown role', function () {
+    $this->postJson('/api/v1/register', array_merge($this->registerPayload, [
+        'role' => 'superuser',
+    ]))->assertStatus(422)->assertJsonValidationErrors(['role']);
+});
+
+it('rejects non-member roles in RegisterUserAction directly', function () {
+    $action = app(RegisterUserAction::class);
+
+    expect(fn () => $action(new RegisterUserDTO('Admin Attempt', 'admin-attempt@example.com', 'password123', 'admin')))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect(fn () => $action(new RegisterUserDTO('Unknown Attempt', 'unknown-attempt@example.com', 'password123', 'superuser')))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect(User::count())->toBe(0);
+});
+
+it('persists farmer and buyer roles for successful registrations', function () {
+    $this->postJson('/api/v1/register', array_merge($this->registerPayload, [
+        'email' => 'member-farmer@example.com',
+        'role' => 'farmer',
+    ]))->assertCreated();
+
+    $this->postJson('/api/v1/register', array_merge($this->registerPayload, [
+        'email' => 'member-buyer@example.com',
+        'role' => 'buyer',
+    ]))->assertCreated();
+
+    expect(User::where('email', 'member-farmer@example.com')->firstOrFail()->role)->toBe(UserRole::FARMER)
+        ->and(User::where('email', 'member-buyer@example.com')->firstOrFail()->role)->toBe(UserRole::BUYER);
 });
 
 it('rejects login with an email over the max', function () {

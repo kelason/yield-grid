@@ -3,10 +3,12 @@
 // OWASP A08:2021 — Software and Data Integrity Failures.
 
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
@@ -148,4 +150,53 @@ it('acknowledges unknown webhook event types without side effects', function () 
     postSignedWebhook($payload, $signature)->assertOk();
 
     expect($purchase->fresh()->payment_status)->toBe(PaymentStatus::PENDING);
+});
+
+it('keeps hidden flags and quantities stable across duplicate webhooks', function () {
+    $purchase = createWebhookPurchase('cs_test_hidden');
+    $contract = ForwardContract::findOrFail($purchase->forward_contract_id);
+    $quantityBefore = (float) $contract->quantity_kg;
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    app(ModerateMarketplaceContentAction::class)->execute(
+        $admin, ReportTargetType::CONTRACT, (string) $contract->id, true, 'hidden before settle'
+    );
+
+    $payload = securityPaymongoPayload('cs_test_hidden');
+    $signature = securityPaymongoSignature($payload, 'test-secret');
+
+    postSignedWebhook($payload, $signature)->assertOk();
+    postSignedWebhook($payload, $signature)->assertOk()->assertSee('Already processed');
+
+    $purchase = $purchase->fresh();
+    $contract = $contract->fresh();
+
+    expect($purchase->payment_status)->toBe(PaymentStatus::COMPLETED);
+    expect($contract->status)->toBe(ContractStatus::SOLD);
+    expect((float) $contract->quantity_kg)->toBe($quantityBefore);
+    expect($contract->hidden_at)->not->toBeNull();
+    expect($contract->hidden_by)->toBe($admin->id);
+});
+
+it('never republishes a hidden clone on payment failure or expiry', function () {
+    foreach (['checkout_session.payment.failed', 'checkout_session.expired'] as $index => $eventType) {
+        $purchase = createWebhookPurchase("cs_test_release_{$index}");
+        $contract = ForwardContract::findOrFail($purchase->forward_contract_id);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        app(ModerateMarketplaceContentAction::class)->execute(
+            $admin, ReportTargetType::CONTRACT, (string) $contract->id, true, 'hidden before failure'
+        );
+
+        $payload = securityPaymongoPayload("cs_test_release_{$index}", $eventType);
+        $signature = securityPaymongoSignature($payload, 'test-secret');
+
+        postSignedWebhook($payload, $signature)->assertOk();
+
+        expect($contract->fresh()->status)->toBe(ContractStatus::AVAILABLE);
+        expect($contract->fresh()->is_purchasable)->toBeFalse();
+        expect($contract->fresh()->hidden_at)->not->toBeNull();
+
+        $this->getJson("/api/v1/market/items/contract/{$contract->id}")->assertNotFound();
+    }
 });
