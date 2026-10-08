@@ -131,11 +131,15 @@ export function usePriceGuide() {
       params.region = region
     }
 
-    const response = await api.get(PRICE_GUIDE.BATCH_ENDPOINT, { params })
-    const guides = response.data?.guides ?? {}
+    try {
+      const response = await api.get(PRICE_GUIDE.BATCH_ENDPOINT, { params })
+      const guides = response.data?.guides ?? {}
 
-    for (const [crop, guide] of Object.entries(guides)) {
-      writeCache(cacheKey(crop, region), guide)
+      for (const [crop, guide] of Object.entries(guides)) {
+        writeCache(cacheKey(crop, region), guide)
+      }
+    } catch (err) {
+      error.value = err
     }
   }
 
