@@ -1,0 +1,63 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Farming\Controllers;
+
+use App\Constants\FloodRiskConstants;
+use App\Domain\Farming\Actions\AssessPlotFloodRiskAction;
+use App\Domain\Farming\Actions\PersistPlotFloodRiskAction;
+use App\Domain\Farming\DTOs\FloodRiskAssessment;
+use App\Domain\Farming\Enums\FloodRiskLevel;
+use App\Farming\Requests\PreviewFloodRiskRequest;
+use App\Farming\Resources\FloodRiskResource;
+use App\Shared\Controllers\Controller;
+use Carbon\CarbonImmutable;
+use Domain\Farming\Models\Plot;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class PlotFloodRiskController extends Controller
+{
+    public function preview(PreviewFloodRiskRequest $request, AssessPlotFloodRiskAction $assess): JsonResponse
+    {
+        $assessment = $assess($request->validated()['coordinates']);
+
+        return (new FloodRiskResource($assessment))->response();
+    }
+
+    public function show(Request $request, Plot $plot): JsonResponse
+    {
+        $this->authorize('view', $plot);
+
+        return (new FloodRiskResource($this->storedAssessment($plot)))->response();
+    }
+
+    public function refresh(
+        Request $request,
+        Plot $plot,
+        AssessPlotFloodRiskAction $assess,
+        PersistPlotFloodRiskAction $persist,
+    ): JsonResponse {
+        $this->authorize('update', $plot);
+
+        $assessment = $assess->forPlot($plot);
+        $persist($plot->id, $assessment);
+
+        return (new FloodRiskResource($assessment))->response();
+    }
+
+    private function storedAssessment(Plot $plot): FloodRiskAssessment
+    {
+        $level = FloodRiskLevel::tryFrom((string) ($plot->flood_risk_level ?? '')) ?? FloodRiskLevel::UNKNOWN;
+        $withinCoverage = (bool) ($plot->flood_within_coverage ?? false);
+        $assessedAt = $plot->flood_risk_assessed_at;
+
+        return new FloodRiskAssessment(
+            level: $level,
+            advice: FloodRiskConstants::adviceFor($level, $withinCoverage),
+            withinCoverage: $withinCoverage,
+            assessedAt: $assessedAt instanceof CarbonImmutable ? $assessedAt : null,
+        );
+    }
+}

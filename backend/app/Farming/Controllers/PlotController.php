@@ -8,6 +8,7 @@ use App\Constants\HttpCode;
 use App\Farming\Requests\StorePlotRequest;
 use App\Farming\Resources\PlotResource;
 use App\Shared\Controllers\Controller;
+use Carbon\Carbon;
 use Domain\Farming\Actions\CreatePlotAction;
 use Domain\Farming\DTOs\CreatePlotDTO;
 use Domain\Farming\Models\Farm;
@@ -27,7 +28,7 @@ class PlotController extends Controller
         // Return GeoJSON format for the map
         $plots = Plot::where('farm_id', $farm->id)
             ->withCount('recommendations')
-            ->selectRaw('id, name, soil_type, calculated_area, ST_AsGeoJSON(polygon) as geojson, created_at, updated_at')
+            ->selectRaw('id, name, soil_type, calculated_area, flood_risk_level, flood_within_coverage, flood_risk_assessed_at, ST_AsGeoJSON(polygon) as geojson, created_at, updated_at')
             ->get();
 
         $features = $plots->map(function ($plot) {
@@ -39,6 +40,9 @@ class PlotController extends Controller
                     'name' => $plot->name,
                     'soil_type' => $plot->soil_type?->value,
                     'calculated_area' => $plot->calculated_area,
+                    'flood_risk_level' => $plot->flood_risk_level,
+                    'flood_within_coverage' => $plot->flood_within_coverage,
+                    'flood_risk_assessed_at' => $plot->flood_risk_assessed_at ? Carbon::parse($plot->flood_risk_assessed_at)->toIso8601String() : null,
                     'recommendations_count' => $plot->recommendations_count,
                 ],
             ];

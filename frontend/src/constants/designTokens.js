@@ -69,3 +69,13 @@ export const DESIGN_SHADOWS = {
 
 // Semantic hazards remain distinct from brand colors in maps and confidence charts.
 export const DESIGN_STATUS_COLORS = { error: '#DC2626', errorFill: '#FEE2E2', surface: '#FFFFFF' }
+
+// Project NOAH flood overlay: map stroke + fill per hazard class. Templates
+// use static Tailwind classes; only JS map layers consume these values.
+export const DESIGN_FLOOD_COLORS = {
+  safe: { color: DESIGN_COLORS.moss[700], fill: DESIGN_COLORS.moss[300] },
+  low: { color: DESIGN_COLORS.harvest[600], fill: DESIGN_COLORS.harvest[200] },
+  medium: { color: DESIGN_COLORS.harvest[700], fill: DESIGN_COLORS.harvest[400] },
+  high: { color: DESIGN_STATUS_COLORS.error, fill: DESIGN_STATUS_COLORS.errorFill },
+  unknown: { color: DESIGN_COLORS.stone[400], fill: DESIGN_COLORS.stone[200] },
+}
