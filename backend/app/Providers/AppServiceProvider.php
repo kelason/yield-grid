@@ -23,6 +23,7 @@ use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use App\Domain\Marketplace\Services\SmsServiceInterface;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use App\Domain\Shared\Events\EventDispatcherInterface;
+use App\Domain\Shared\Repositories\AdminActionLogRepositoryInterface;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
 use App\Infrastructure\Insurance\Services\EnrollmentPackGeneratorService;
@@ -34,6 +35,7 @@ use App\Infrastructure\Marketplace\Services\TxtFlowSmsService;
 use App\Infrastructure\Services\PdfGeneratorService;
 use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
+use App\Infrastructure\Shared\Repositories\EloquentAdminActionLogRepository;
 use App\Policies\ConversationPolicy;
 use App\Policies\CreditScorePolicy;
 use App\Policies\CropDemandOfferPolicy;
@@ -79,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
         $this->app->bind(PdfGeneratorInterface::class, PdfGeneratorService::class);
         $this->app->bind(EnrollmentPackGeneratorInterface::class, EnrollmentPackGeneratorService::class);
+        $this->app->bind(AdminActionLogRepositoryInterface::class, EloquentAdminActionLogRepository::class);
     }
 
     public function boot(): void

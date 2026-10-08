@@ -6,4 +6,5 @@ enum UserRole: string
 {
     case FARMER = 'farmer';
     case BUYER = 'buyer';
+    case ADMIN = 'admin';
 }
