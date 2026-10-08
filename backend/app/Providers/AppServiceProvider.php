@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Contact\Repositories\ContactMessageReplyRepositoryInterface;
 use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
 use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
 use App\Domain\CropRecommendation\Actions\BuildAnalysisContextAction;
@@ -24,6 +25,7 @@ use App\Domain\Marketplace\Services\SmsServiceInterface;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use App\Domain\Shared\Events\EventDispatcherInterface;
 use App\Domain\Shared\Repositories\AdminActionLogRepositoryInterface;
+use App\Infrastructure\Contact\Repositories\EloquentContactMessageReplyRepository;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
 use App\Infrastructure\Insurance\Services\EnrollmentPackGeneratorService;
@@ -37,6 +39,7 @@ use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
 use App\Infrastructure\Shared\Repositories\EloquentAdminActionLogRepository;
 use App\Policies\AdminUserPolicy;
+use App\Policies\ContactMessagePolicy;
 use App\Policies\ConversationPolicy;
 use App\Policies\CreditScorePolicy;
 use App\Policies\CropDemandOfferPolicy;
@@ -48,6 +51,7 @@ use App\Policies\InsuranceEnrollmentPolicy;
 use App\Policies\InsuranceProfilePolicy;
 use App\Policies\PlotPolicy;
 use App\Policies\UserAddressPolicy;
+use Domain\Contact\Models\ContactMessage;
 use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use Domain\Users\Models\UserAddress;
@@ -84,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PdfGeneratorInterface::class, PdfGeneratorService::class);
         $this->app->bind(EnrollmentPackGeneratorInterface::class, EnrollmentPackGeneratorService::class);
         $this->app->bind(AdminActionLogRepositoryInterface::class, EloquentAdminActionLogRepository::class);
+        $this->app->bind(ContactMessageReplyRepositoryInterface::class, EloquentContactMessageReplyRepository::class);
     }
 
     public function boot(): void
@@ -119,6 +124,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(CropDemandOffer::class, CropDemandOfferPolicy::class);
         Gate::policy(CreditScoreSnapshot::class, CreditScorePolicy::class);
         Gate::policy(User::class, AdminUserPolicy::class);
+        Gate::policy(ContactMessage::class, ContactMessagePolicy::class);
         Gate::policy(InsuranceClaim::class, InsuranceClaimPolicy::class);
         Gate::policy(InsuranceEnrollment::class, InsuranceEnrollmentPolicy::class);
         Gate::policy(InsuranceProfile::class, InsuranceProfilePolicy::class);
