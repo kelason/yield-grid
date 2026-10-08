@@ -11,7 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @mixin User
  */
-class AdminUserResource extends JsonResource
+final class AdminUserResource extends JsonResource
 {
     /**
      * @return array<string, mixed>
