@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Constants\ReportingConstants;
 use App\Domain\Contact\Repositories\ContactMessageReplyRepositoryInterface;
 use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
 use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
@@ -24,7 +25,9 @@ use App\Domain\Marketplace\Services\PaymentGatewayInterface;
 use App\Domain\Marketplace\Services\SmsServiceInterface;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use App\Domain\Shared\Events\EventDispatcherInterface;
+use App\Domain\Shared\Models\ContentReport;
 use App\Domain\Shared\Repositories\AdminActionLogRepositoryInterface;
+use App\Domain\Shared\Repositories\ContentReportRepositoryInterface;
 use App\Infrastructure\Contact\Repositories\EloquentContactMessageReplyRepository;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
@@ -38,8 +41,10 @@ use App\Infrastructure\Services\PdfGeneratorService;
 use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
 use App\Infrastructure\Shared\Repositories\EloquentAdminActionLogRepository;
+use App\Infrastructure\Shared\Repositories\EloquentContentReportRepository;
 use App\Policies\AdminUserPolicy;
 use App\Policies\ContactMessagePolicy;
+use App\Policies\ContentReportPolicy;
 use App\Policies\ConversationPolicy;
 use App\Policies\CreditScorePolicy;
 use App\Policies\CropDemandOfferPolicy;
@@ -58,11 +63,13 @@ use Domain\Users\Models\UserAddress;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Opcodes\LogViewer\Facades\LogViewer;
@@ -89,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(EnrollmentPackGeneratorInterface::class, EnrollmentPackGeneratorService::class);
         $this->app->bind(AdminActionLogRepositoryInterface::class, EloquentAdminActionLogRepository::class);
         $this->app->bind(ContactMessageReplyRepositoryInterface::class, EloquentContactMessageReplyRepository::class);
+        $this->app->bind(ContentReportRepositoryInterface::class, EloquentContentReportRepository::class);
     }
 
     public function boot(): void
@@ -125,10 +133,23 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(CreditScoreSnapshot::class, CreditScorePolicy::class);
         Gate::policy(User::class, AdminUserPolicy::class);
         Gate::policy(ContactMessage::class, ContactMessagePolicy::class);
+        Gate::policy(ContentReport::class, ContentReportPolicy::class);
         Gate::policy(InsuranceClaim::class, InsuranceClaimPolicy::class);
         Gate::policy(InsuranceEnrollment::class, InsuranceEnrollmentPolicy::class);
         Gate::policy(InsuranceProfile::class, InsuranceProfilePolicy::class);
         Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
+
+        // One shared creation budget for the new and legacy report routes.
+        RateLimiter::for(
+            ReportingConstants::REPORT_MINUTE_LIMITER,
+            fn (Request $request): Limit => Limit::perMinute(ReportingConstants::REPORTS_PER_MINUTE)
+                ->by($request->user()?->getAuthIdentifier() ?? $request->ip())
+        );
+        RateLimiter::for(
+            ReportingConstants::REPORT_DAILY_LIMITER,
+            fn (Request $request): Limit => Limit::perDay(ReportingConstants::REPORTS_PER_DAY)
+                ->by($request->user()?->getAuthIdentifier() ?? $request->ip())
+        );
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route
         require base_path('routes/channels.php');

@@ -15,6 +15,7 @@ use App\Community\Controllers\ForumThreadController;
 use App\Community\Controllers\ForumVoteController;
 use App\Constants\CreditScoringConstants;
 use App\Constants\InsuranceConstants;
+use App\Constants\ReportingConstants;
 use App\Contact\Controllers\ContactController;
 use App\CreditScoring\Controllers\CreditScoreController;
 use App\CropRecommendation\Controllers\CropCompatibilityController;
@@ -33,6 +34,7 @@ use App\Marketplace\Controllers\PayMongoWebhookController;
 use App\Marketplace\Controllers\PriceComparisonController;
 use App\Marketplace\Controllers\PriceGuideController;
 use App\Marketplace\Controllers\PurchaseController;
+use App\Shared\Controllers\ContentReportController;
 use App\Shared\Middleware\AuthenticateIfTokenPresent;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use App\Shared\Middleware\EnsureUserHasRole;
@@ -215,10 +217,23 @@ Route::prefix('v1')->group(function () {
                 Route::post('/threads/{thread}/vote', [ForumVoteController::class, 'storeThreadVote']);
                 Route::post('/replies/{reply}/vote', [ForumVoteController::class, 'storeReplyVote']);
 
-                Route::post('/reports', [ForumReportController::class, 'store']);
+                Route::post('/reports', [ForumReportController::class, 'store'])
+                    ->middleware([
+                        'throttle:'.ReportingConstants::REPORT_MINUTE_LIMITER,
+                        'throttle:'.ReportingConstants::REPORT_DAILY_LIMITER,
+                    ]);
                 Route::post('/attachments', [ForumAttachmentController::class, 'store']);
             });
         });
+
+        // Unified content reports (verified members only; shares limits with the legacy forum adapter)
+        Route::post('/reports', [ContentReportController::class, 'store'])
+            ->middleware([
+                'verified',
+                EnsureUserHasRole::class.':farmer,buyer',
+                'throttle:'.ReportingConstants::REPORT_MINUTE_LIMITER,
+                'throttle:'.ReportingConstants::REPORT_DAILY_LIMITER,
+            ]);
 
         // Chat (verified members only)
         Route::prefix('chat')->middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
