@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Farming\Requests;
 
 use App\Constants\FarmingConstants;
+use Domain\Users\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
@@ -13,7 +14,7 @@ class PreviewFloodRiskRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->role->value === 'farmer';
+        return $this->user() && $this->user()->role === UserRole::FARMER;
     }
 
     /**

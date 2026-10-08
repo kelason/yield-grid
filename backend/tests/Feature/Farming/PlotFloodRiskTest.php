@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Farming;
 
+use App\Domain\Farming\Actions\AssessPlotFloodRiskAction;
 use Domain\Farming\Models\Farm;
 use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;
@@ -162,6 +163,33 @@ class PlotFloodRiskTest extends TestCase
             'soil_type' => 'loamy',
             'coordinates' => [[4, 4], [4, 8], [8, 8], [8, 4]],
         ])->assertCreated()->assertJsonPath('data.flood_risk_level', 'unknown');
+    }
+
+    public function test_creating_plot_marks_unknown_when_assessment_fails(): void
+    {
+        [$owner, $farm] = $this->makeFarmerWithFarm();
+        // Anonymous double: the action is final, so it cannot be mocked.
+        app()->bind(AssessPlotFloodRiskAction::class, fn () => new class
+        {
+            public function __invoke(): never
+            {
+                throw new RuntimeException('NOAH offline');
+            }
+        });
+
+        $response = $this->actingAs($owner)->postJson("/api/v1/farms/{$farm->id}/plots", [
+            'name' => 'Unlucky Field',
+            'soil_type' => 'loamy',
+            'coordinates' => [[4, 4], [4, 8], [8, 8], [8, 4]],
+        ]);
+
+        $response->assertCreated()->assertJsonPath('data.flood_risk_level', 'unknown');
+        $this->assertDatabaseHas('plots', [
+            'id' => $response->json('data.id'),
+            'flood_risk_level' => 'unknown',
+            'flood_within_coverage' => false,
+        ]);
+        $this->assertNotNull(DB::table('plots')->where('id', $response->json('data.id'))->value('flood_risk_assessed_at'));
     }
 
     /**

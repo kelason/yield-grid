@@ -6,6 +6,7 @@ namespace App\Farming\Controllers;
 
 use App\Constants\FloodRiskConstants;
 use App\Domain\Farming\Actions\AssessPlotFloodRiskAction;
+use App\Domain\Farming\Actions\PersistPlotFloodRiskAction;
 use App\Domain\Farming\DTOs\FloodRiskAssessment;
 use App\Domain\Farming\Enums\FloodRiskLevel;
 use App\Farming\Requests\PreviewFloodRiskRequest;
@@ -15,7 +16,6 @@ use Carbon\CarbonImmutable;
 use Domain\Farming\Models\Plot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PlotFloodRiskController extends Controller
 {
@@ -33,17 +33,16 @@ class PlotFloodRiskController extends Controller
         return (new FloodRiskResource($this->storedAssessment($plot)))->response();
     }
 
-    public function refresh(Request $request, Plot $plot, AssessPlotFloodRiskAction $assess): JsonResponse
-    {
+    public function refresh(
+        Request $request,
+        Plot $plot,
+        AssessPlotFloodRiskAction $assess,
+        PersistPlotFloodRiskAction $persist,
+    ): JsonResponse {
         $this->authorize('update', $plot);
 
         $assessment = $assess->forPlot($plot);
-
-        DB::table('plots')->where('id', $plot->id)->update([
-            'flood_risk_level' => $assessment->level->value,
-            'flood_within_coverage' => $assessment->withinCoverage,
-            'flood_risk_assessed_at' => $assessment->assessedAt,
-        ]);
+        $persist($plot->id, $assessment);
 
         return (new FloodRiskResource($assessment))->response();
     }

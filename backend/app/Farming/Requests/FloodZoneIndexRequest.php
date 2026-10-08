@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Farming\Requests;
 
 use App\Constants\FloodRiskConstants;
+use Domain\Users\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -12,7 +13,7 @@ class FloodZoneIndexRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->role->value === 'farmer';
+        return $this->user() && $this->user()->role === UserRole::FARMER;
     }
 
     /**
