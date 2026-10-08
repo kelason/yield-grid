@@ -1,13 +1,17 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import VoteBadge from '../atoms/VoteBadge.vue'
 import AcceptedBadge from '../atoms/AcceptedBadge.vue'
+import { FlagIcon } from '@heroicons/vue/24/outline'
 import { formatDistanceToNow } from 'date-fns'
 import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
 
-defineProps({
+const REPLY_TITLE_MAX_LENGTH = 80
+
+const props = defineProps({
   reply: {
     type: Object,
     required: true,
@@ -18,7 +22,22 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['vote', 'accept', 'replyTo'])
+const emit = defineEmits(['vote', 'accept', 'replyTo', 'report'])
+
+const isOwner = computed(() => {
+  const userId = authStore.user?.id
+  if (userId == null) return false
+  const ownerId = props.reply.author?.id ?? props.reply.user_id
+  return ownerId != null && String(userId) === String(ownerId)
+})
+
+function emitReport() {
+  emit('report', {
+    reportable_type: 'reply',
+    reportable_id: props.reply.id,
+    title: String(props.reply.body ?? 'Reply').slice(0, REPLY_TITLE_MAX_LENGTH),
+  })
+}
 
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
 
@@ -124,6 +143,16 @@ function profileLink(author) {
           >
             Reply
           </button>
+          <button
+            v-if="!isOwner"
+            type="button"
+            aria-label="Report this reply"
+            class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+            @click.stop="emitReport"
+          >
+            <FlagIcon class="w-4 h-4" aria-hidden="true" />
+            Report
+          </button>
         </div>
 
         <!-- Nested replies could go here if threaded -->
@@ -139,6 +168,7 @@ function profileLink(author) {
             @vote="(id, val) => emit('vote', id, val)"
             @accept="(id) => emit('accept', id)"
             @replyTo="(id) => emit('replyTo', id)"
+            @report="(payload) => emit('report', payload)"
           />
         </div>
       </div>

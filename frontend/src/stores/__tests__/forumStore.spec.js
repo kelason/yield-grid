@@ -67,4 +67,33 @@ describe('forumStore', () => {
     expect(store.currentThread.replies[0]).toEqual(newReply)
     expect(store.currentThread.reply_count).toBe(1)
   })
+
+  it('reports content through the unified endpoint with a decimal string id', async () => {
+    const store = useForumStore()
+    mockPost.mockResolvedValueOnce({ data: { data: { id: '1', status: 'open' } } })
+
+    const receipt = await store.reportContent('listing', 7, 'spam', 'Repeated ads')
+
+    expect(mockPost).toHaveBeenCalledWith('/reports', {
+      reportable_type: 'listing',
+      reportable_id: '7',
+      reason: 'spam',
+      description: 'Repeated ads',
+    })
+    expect(receipt).toEqual({ id: '1', status: 'open' })
+  })
+
+  it('rethrows report failures instead of swallowing them', async () => {
+    const store = useForumStore()
+    const failure = new Error('Request failed with status code 429')
+    mockPost.mockRejectedValueOnce(failure)
+
+    await expect(store.reportContent('thread', 1, 'spam', null)).rejects.toBe(failure)
+    expect(mockPost).toHaveBeenCalledWith('/reports', {
+      reportable_type: 'thread',
+      reportable_id: '1',
+      reason: 'spam',
+      description: null,
+    })
+  })
 })

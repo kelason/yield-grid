@@ -2,7 +2,9 @@
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
+import { useContentReport } from '@/composables/useContentReport'
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
 import { useAuthStore } from '@/stores/auth'
@@ -10,6 +12,7 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import { usePriceGuide } from '@/composables/usePriceGuide'
 import DemandFilter from '@/components/molecules/DemandFilter.vue'
 import DemandCard from '@/components/molecules/DemandCard.vue'
+import ContentReportForm from '@/components/organisms/ContentReportForm.vue'
 import PriceGuideHint from '@/components/molecules/PriceGuideHint.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import EmptyState from '@/components/molecules/EmptyState.vue'
@@ -41,6 +44,7 @@ watch(
 const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
+const router = useRouter()
 
 const showOfferModal = ref(false)
 const offerForm = ref({ quantity_kg: '', price_per_kg: '', message: '' })
@@ -48,9 +52,35 @@ const offerError = ref('')
 const submitting = ref(false)
 const pendingConfirm = ref(null)
 const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
+const showReportModal = ref(false)
+const {
+  target: reportTarget,
+  reason: reportReason,
+  description: reportDescription,
+  busy: reportBusy,
+  error: reportError,
+  fieldError: reportFieldError,
+  openReport,
+  closeReport,
+  validate: validateReport,
+  submit: submitContentReport,
+} = useContentReport()
+const reportAccess = computed(() => {
+  if (!authStore.isAuthenticated) return 'signin'
+  if (!authStore.isEmailVerified) return 'verify'
+  return 'ok'
+})
 
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
+  if (pendingConfirm.value.kind === 'report') {
+    return {
+      title: 'Submit this report?',
+      message: 'Your report will be sent to the moderation team.',
+      confirmText: 'Send report',
+      type: 'primary',
+    }
+  }
   const { qty, price } = pendingConfirm.value
   return {
     title: 'Send this offer?',
@@ -130,10 +160,44 @@ function askOfferConfirm() {
     offerError.value = validated
     return
   }
-  pendingConfirm.value = validated
+  pendingConfirm.value = { kind: 'offer', ...validated }
 }
 
-const confirmPendingOffer = () => execute(performConfirmedAction)
+const confirmPendingOffer = () =>
+  execute((pending) =>
+    pending.kind === 'report' ? submitReport() : performConfirmedAction(pending),
+  )
+
+function openReportModal(payload) {
+  openReport(payload)
+  showReportModal.value = true
+}
+
+function closeReportModal() {
+  if (reportBusy.value || isExecuting.value) return
+  showReportModal.value = false
+  closeReport()
+}
+
+function requestReportSubmit() {
+  if (!reportTarget.value || reportBusy.value) return
+  if (!validateReport()) return
+  pendingConfirm.value = { kind: 'report' }
+}
+
+async function submitReport() {
+  try {
+    await submitContentReport()
+    showReportModal.value = false
+  } catch {
+    // The inline form error and draft stay visible; the modal remains open.
+  }
+}
+
+function goLogin() {
+  closeReportModal()
+  router.push({ name: 'login' })
+}
 
 async function performConfirmedAction(pending) {
   submitting.value = true
@@ -183,6 +247,7 @@ async function performConfirmedAction(pending) {
         :key="demand.id"
         :demand="demand"
         @view="openOfferModal"
+        @report="openReportModal"
       />
     </div>
 
@@ -265,6 +330,44 @@ async function performConfirmedAction(pending) {
           <AppButton variant="primary" :loading="submitting" @click="askOfferConfirm">
             Send offer
           </AppButton>
+        </div>
+      </div>
+    </AppModal>
+
+    <AppModal
+      title="Report content"
+      :is-open="showReportModal"
+      :busy="reportBusy || isExecuting"
+      @close="closeReportModal"
+    >
+      <ContentReportForm
+        v-if="reportAccess === 'ok' && reportTarget"
+        :target="reportTarget"
+        :reason="reportReason"
+        :description="reportDescription"
+        :busy="reportBusy || isExecuting"
+        :error="reportError"
+        :field-error="reportFieldError"
+        @update:reason="reportReason = $event"
+        @update:description="reportDescription = $event"
+        @submit="requestReportSubmit"
+        @cancel="closeReportModal"
+      />
+      <div v-else-if="reportAccess === 'signin'" class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Sign in to report this content to the moderation team.
+        </p>
+        <div class="flex justify-end gap-3">
+          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
+          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+        </div>
+      </div>
+      <div v-else class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Verify your email address to report content to the moderation team.
+        </p>
+        <div class="flex justify-end">
+          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
         </div>
       </div>
     </AppModal>

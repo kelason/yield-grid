@@ -182,18 +182,16 @@ export const useForumStore = defineStore('forum', () => {
   }
 
   async function reportContent(type, id, reason, description) {
-    try {
-      await api.post('/forum/reports', {
-        reportable_type: type,
-        reportable_id: id,
-        reason,
-        description,
-      })
-      notificationStore.success('Report submitted. Thank you.')
-    } catch (error) {
-      console.error(error)
-      notificationStore.error('Failed to submit report')
-    }
+    // IDs keep their original representation in events; the unified request
+    // normalizes to a decimal string without lossy numeric coercion.
+    const response = await api.post('/reports', {
+      reportable_type: type,
+      reportable_id: String(id),
+      reason,
+      description,
+    })
+    notificationStore.success('Report submitted. Thank you.')
+    return response.data?.data ?? response.data
   }
 
   // Handle incoming socket events

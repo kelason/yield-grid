@@ -2,10 +2,13 @@
 import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '@/stores/forumStore'
+import { useAuthStore } from '@/stores/auth'
 import { useConfirmModal } from '@/composables/useConfirmModal'
+import { useContentReport } from '@/composables/useContentReport'
 import { FORUM_CONSTANTS, THREAD_SORT_OPTIONS } from '@/constants/forum'
 import { PAGINATION_DIRECTION } from '@/constants/pagination'
 import ThreadCard from '@/components/molecules/ThreadCard.vue'
+import ContentReportForm from '@/components/organisms/ContentReportForm.vue'
 import CategoryCard from '@/components/molecules/CategoryCard.vue'
 import ThreadComposer from '@/components/molecules/ThreadComposer.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
@@ -23,10 +26,29 @@ const SEARCH_DEBOUNCE_MS = 500
 const FIRST_PAGE = 1
 const DEFAULT_SORT = 'latest'
 const forumStore = useForumStore()
+const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const showComposer = ref(false)
 const composerError = ref('')
+const showReportModal = ref(false)
+const {
+  target: reportTarget,
+  reason: reportReason,
+  description: reportDescription,
+  busy: reportBusy,
+  error: reportError,
+  fieldError: reportFieldError,
+  openReport,
+  closeReport,
+  validate: validateReport,
+  submit: submitContentReport,
+} = useContentReport()
+const reportAccess = computed(() => {
+  if (!authStore.isAuthenticated) return 'signin'
+  if (!authStore.isEmailVerified) return 'verify'
+  return 'ok'
+})
 const selectedCategory = ref(route.query.category || '')
 const currentSort = ref(route.query.sort || DEFAULT_SORT)
 const searchQuery = ref(
@@ -110,6 +132,39 @@ function handleVote(id, value) {
     () => forumStore.voteThread(id, value),
   )
 }
+function openReportModal(payload) {
+  openReport(payload)
+  showReportModal.value = true
+}
+function closeReportModal() {
+  if (reportBusy.value || isExecuting.value) return
+  showReportModal.value = false
+  closeReport()
+}
+function requestReportSubmit() {
+  if (!reportTarget.value || reportBusy.value) return
+  if (!validateReport()) return
+  confirm(
+    {
+      title: 'Submit this report?',
+      message: 'Your report will be sent to the moderation team.',
+      confirmText: 'Send report',
+    },
+    submitReport,
+  )
+}
+async function submitReport() {
+  try {
+    await submitContentReport()
+    showReportModal.value = false
+  } catch {
+    // The inline form error and draft stay visible; the modal remains open.
+  }
+}
+function goLogin() {
+  closeReportModal()
+  router.push({ name: 'login' })
+}
 function openComposer() {
   composerError.value = ''
   showComposer.value = true
@@ -184,6 +239,7 @@ async function changePage(delta) {
             :key="thread.id"
             :thread="thread"
             @vote="handleVote"
+            @report="openReportModal"
           />
           <nav
             v-if="forumStore.pagination.lastPage > 1"
@@ -226,6 +282,43 @@ async function changePage(delta) {
         @submit="requestCreate"
         @cancel="closeComposer"
     /></AppModal>
+    <AppModal
+      title="Report content"
+      :is-open="showReportModal"
+      :busy="reportBusy || isExecuting"
+      @close="closeReportModal"
+    >
+      <ContentReportForm
+        v-if="reportAccess === 'ok' && reportTarget"
+        :target="reportTarget"
+        :reason="reportReason"
+        :description="reportDescription"
+        :busy="reportBusy || isExecuting"
+        :error="reportError"
+        :field-error="reportFieldError"
+        @update:reason="reportReason = $event"
+        @update:description="reportDescription = $event"
+        @submit="requestReportSubmit"
+        @cancel="closeReportModal"
+      />
+      <div v-else-if="reportAccess === 'signin'" class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Sign in to report this content to the moderation team.
+        </p>
+        <div class="flex justify-end gap-3">
+          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
+          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+        </div>
+      </div>
+      <div v-else class="space-y-4">
+        <p class="text-base leading-relaxed text-stone-600">
+          Verify your email address to report content to the moderation team.
+        </p>
+        <div class="flex justify-end">
+          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+        </div>
+      </div>
+    </AppModal>
     <ConfirmModal
       :is-open="isOpen"
       :title="config.title"
