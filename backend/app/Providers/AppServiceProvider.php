@@ -50,11 +50,14 @@ use Domain\Users\Models\UserAddress;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -117,5 +120,29 @@ class AppServiceProvider extends ServiceProvider
 
         // Load channel definitions without auto-registering the legacy web broadcasting/auth route
         require base_path('routes/channels.php');
+
+        // Log Viewer: nginx basic auth is the real gate in production; the app
+        // verifies the request arrived authenticated via REMOTE_USER.
+        LogViewer::auth(fn (Request $request) => $this->canViewLogs($request));
+    }
+
+    private function canViewLogs(Request $request): bool
+    {
+        if (! App::isProduction()) {
+            return true;
+        }
+
+        $expectedUser = (string) config('log-viewer.basic_auth_user');
+
+        if ($expectedUser === '') {
+            return false;
+        }
+
+        // Only REMOTE_USER is trusted: nginx sets it after successful basic auth.
+        // PHP_AUTH_USER is client-controlled (parsed from the Authorization
+        // header without password verification) and must never grant access.
+        $remoteUser = (string) ($request->server('REMOTE_USER') ?? '');
+
+        return $remoteUser !== '' && hash_equals($expectedUser, $remoteUser);
     }
 }
