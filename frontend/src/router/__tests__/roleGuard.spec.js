@@ -267,4 +267,73 @@ describe('router role guard', () => {
     await router.push('/dashboard/chat')
     expect(router.currentRoute.value.name).toBe('chat')
   })
+
+  it('lets verified farmers and buyers reach the shared issue page', async () => {
+    loginAs('farmer')
+
+    await router.push('/dashboard/issues')
+    expect(router.currentRoute.value.name).toBe('report-issue')
+
+    await router.push('/contact')
+    loginAs('buyer')
+
+    await router.push('/dashboard/issues')
+    expect(router.currentRoute.value.name).toBe('report-issue')
+  })
+
+  it('blocks admins from the shared issue page', async () => {
+    loginAs('admin')
+
+    await router.push('/dashboard/issues')
+
+    expect(router.currentRoute.value.name).toBe('forbidden')
+  })
+
+  it('sends unverified members on the issue page to their dashboard', async () => {
+    loginAs('farmer', { verified: false })
+
+    await router.push('/dashboard/issues')
+    expect(router.currentRoute.value.name).toBe('farmer-dashboard')
+
+    await router.push('/contact')
+    loginAs('buyer', { verified: false })
+
+    await router.push('/dashboard/issues')
+    expect(router.currentRoute.value.name).toBe('buyer-dashboard')
+  })
+
+  it('sends a guest on the issue page to login', async () => {
+    await router.push('/dashboard/issues')
+
+    expect(router.currentRoute.value.name).toBe('login')
+  })
+
+  it('allows a verified admin to reach the admin issues page', async () => {
+    loginAs('admin')
+
+    await router.push('/admin/issues')
+
+    expect(router.currentRoute.value.name).toBe('admin-issues')
+  })
+
+  it('blocks farmers and buyers from the admin issues page', async () => {
+    loginAs('farmer')
+
+    await router.push('/admin/issues')
+    expect(router.currentRoute.value.name).toBe('forbidden')
+
+    await router.push('/contact')
+    loginAs('buyer')
+
+    await router.push('/admin/issues')
+    expect(router.currentRoute.value.name).toBe('forbidden')
+  })
+
+  it('sends an unverified admin on the admin issues page to verification', async () => {
+    loginAs('admin', { verified: false })
+
+    await router.push('/admin/issues')
+
+    expect(router.currentRoute.value.name).toBe('verification-required')
+  })
 })

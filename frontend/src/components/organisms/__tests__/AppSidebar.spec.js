@@ -188,3 +188,46 @@ describe('AppSidebar mobile profile links', () => {
     expect(profileLinks(buyer).length).toBeGreaterThanOrEqual(2)
   })
 })
+
+describe('AppSidebar issue navigation', () => {
+  beforeEach(() => {
+    mockRoute.name = 'farmer-dashboard'
+    mockRoute.path = '/dashboard'
+  })
+
+  it('links Report an issue for farmers and buyers on desktop', () => {
+    for (const role of ['farmer', 'buyer']) {
+      const wrapper = mountSidebar({ role })
+      const text = wrapper.text()
+      expect(text).toContain('Report an issue')
+
+      const links = profileLinks(wrapper)
+      expect(links.length).toBeGreaterThanOrEqual(1)
+      expect(links[0].props('to')).toEqual({
+        name: 'user-profile',
+        params: { userId: 1 },
+      })
+    }
+  })
+
+  it('links Report an issue in mobile navigation with the profile preserved', () => {
+    const wrapper = mountSidebar({ role: 'farmer', mobileOpen: true })
+
+    expect(wrapper.text()).toContain('Report an issue')
+    expect(profileLinks(wrapper).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('hides Report an issue for unverified members', () => {
+    const wrapper = mountSidebar({ role: 'farmer', verified: false })
+
+    expect(wrapper.text()).not.toContain('Report an issue')
+  })
+
+  it('links the admin Issues inbox without member issue reporting', () => {
+    const wrapper = mountSidebar({ role: 'admin' })
+    const text = wrapper.text()
+
+    expect(text).toContain('Issues')
+    expect(text).not.toContain('Report an issue')
+  })
+})

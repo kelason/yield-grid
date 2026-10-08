@@ -213,6 +213,12 @@ const router = createRouter({
           meta: { requiresVerification: true },
         },
         {
+          path: 'issues',
+          name: 'report-issue',
+          component: () => import('@/pages/dashboard/shared/ReportIssuePage.vue'),
+          meta: { roles: [USER_ROLES.FARMER, USER_ROLES.BUYER], requiresVerification: true },
+        },
+        {
           path: 'users/:userId',
           name: 'user-profile',
           component: () => import('@/pages/dashboard/shared/ProfilePage.vue'),
@@ -254,6 +260,12 @@ const router = createRouter({
           component: () => import('../pages/dashboard/admin/AdminReportsPage.vue'),
           meta: { role: 'admin', requiresVerification: true },
         },
+        {
+          path: 'issues',
+          name: 'admin-issues',
+          component: () => import('../pages/dashboard/admin/AdminIssuesPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
       ],
     },
     {
@@ -290,6 +302,15 @@ router.beforeEach(async (to) => {
 
   // Block cross-role access (e.g. a buyer opening a farmer-only page)
   if (to.meta.role && authStore.userRole && authStore.userRole !== to.meta.role) {
+    return { name: 'forbidden' }
+  }
+
+  // Shared member pages (e.g. issue reporting) admit several roles but never admin.
+  if (
+    Array.isArray(to.meta.roles) &&
+    authStore.userRole &&
+    !to.meta.roles.includes(authStore.userRole)
+  ) {
     return { name: 'forbidden' }
   }
 
