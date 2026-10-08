@@ -7,6 +7,7 @@ use App\Domain\Community\Models\ForumThread;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Shared\Actions\DecideContentReportAction;
 use App\Domain\Shared\Actions\SubmitContentReportAction;
 use App\Domain\Shared\Enums\AdminAction;
@@ -438,6 +439,40 @@ it('requires a matching expected_version', function () {
         ->assertConflict();
 
     expect($report->fresh()->version)->toBe(2);
+});
+
+it('echoes the current version on stale-version and terminal conflicts', function () {
+    $admin = ardAdmin();
+    $owner = User::factory()->farmer()->create();
+    $token = ardTokenFor($admin);
+
+    $stale = ardThreadReport(User::factory()->buyer()->create(), ardThread($owner), [
+        'status' => ContentReportStatus::REVIEWING->value,
+        'version' => 2,
+    ]);
+
+    $staleConflict = $this->withToken($token)->postJson(
+        "/api/v1/admin/reports/{$stale->id}/decision",
+        ardDecision(['expected_version' => 1])
+    );
+    $staleConflict->assertConflict();
+    expect($staleConflict->json('message'))->not->toBeNull();
+    expect($staleConflict->json('current_version'))->toBe(2);
+    expect($staleConflict->json('current_version'))->toBe($stale->fresh()->version);
+
+    $terminal = ardThreadReport(User::factory()->buyer()->create(), ardThread($owner), [
+        'status' => ContentReportStatus::RESOLVED->value,
+        'version' => 3,
+        'outcome' => 'no_action',
+    ]);
+
+    $terminalConflict = $this->withToken($token)->postJson(
+        "/api/v1/admin/reports/{$terminal->id}/decision",
+        ardDecision(['status' => 'dismissed', 'expected_version' => 3])
+    );
+    $terminalConflict->assertConflict();
+    expect($terminalConflict->json('current_version'))->toBe(3);
+    expect($terminalConflict->json('current_version'))->toBe($terminal->fresh()->version);
 });
 
 it('requires an outcome only when resolving', function () {
@@ -905,6 +940,61 @@ it('maps repeated-state failures to 409 and skips hides for root-hidden splits',
     expect($report->fresh()->status)->toBe(ContentReportStatus::RESOLVED);
     expect(AdminActionLog::where('action', AdminAction::CONTENT_HIDDEN->value)->count())->toBe(1);
     expect(AdminActionLog::where('action', AdminAction::REPORT_DECIDED->value)->count())->toBe(1);
+});
+
+it('maps a repeated-state moderation race through the decision endpoint to 409', function () {
+    $admin = ardAdmin();
+    $farmer = User::factory()->farmer()->create();
+    $contract = ardContract($farmer);
+    $report = ContentReport::create([
+        'user_id' => User::factory()->buyer()->create()->id,
+        'reportable_type' => ReportTargetType::CONTRACT->value,
+        'reportable_id' => $contract->id,
+        'reason' => ContentReportReason::SUSPECTED_FRAUD->value,
+        'description' => null,
+    ]);
+    $token = ardTokenFor($admin);
+
+    // The decision resolves a visible target, but a concurrent hide wins
+    // between resolveTarget and the delegated hide: the repository double
+    // returns the now-hidden root, so the real marketplace Action throws
+    // its repeated-state LogicException through the decision controller.
+    $hiddenRoot = clone $contract;
+    $hiddenRoot->forceFill([
+        'hidden_at' => now(),
+        'hidden_by' => $admin->id,
+        'hidden_reason' => 'Concurrent hide.',
+    ]);
+
+    $contracts = Mockery::mock(ForwardContractRepositoryInterface::class);
+    $contracts->shouldReceive('findModerationRootLocked')->once()->with($contract->id)->andReturn($hiddenRoot);
+
+    $this->app->bind(DecideContentReportAction::class, fn ($app) => new DecideContentReportAction(
+        $app->make(ContentReportRepositoryInterface::class),
+        $app->make(ContentTargetResolver::class),
+        $app->make(ModerateForumContentAction::class),
+        new ModerateMarketplaceContentAction(
+            $app->make(AdminActionLogRepositoryInterface::class),
+            $contracts,
+        ),
+        $app->make(AdminActionLogRepositoryInterface::class),
+    ));
+
+    $response = $this->withToken($token)->postJson(
+        "/api/v1/admin/reports/{$report->id}/decision",
+        ardDecision(['status' => 'resolved', 'outcome' => 'hidden', 'note' => 'Fraud confirmed.'])
+    );
+
+    $response->assertConflict();
+    expect($response->json('message'))->toBe('Contract is already hidden.');
+    expect($response->json('current_version'))->toBe(1);
+    expect($response->json('current_version'))->toBe($report->fresh()->version);
+
+    $fresh = $report->fresh();
+    expect($fresh->status)->toBe(ContentReportStatus::OPEN);
+    expect($fresh->version)->toBe(1);
+    expect($contract->fresh()->hidden_at)->toBeNull();
+    expect(AdminActionLog::count())->toBe(0);
 });
 
 it('renders never-valid legacy rows in the review queue without failing', function () {

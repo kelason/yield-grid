@@ -80,7 +80,7 @@ final class AdminReportController extends Controller
         } catch (InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], HttpCode::UNPROCESSABLE_ENTITY);
         } catch (LogicException $e) {
-            return response()->json(['message' => $e->getMessage()], HttpCode::CONFLICT);
+            return $this->conflictResponse($report, $e);
         }
 
         return $this->reportResponse($decided);
@@ -138,5 +138,20 @@ final class AdminReportController extends Controller
     {
         return (new AdminReportResource($report))->response()
             ->header('Cache-Control', AdminConstants::CACHE_CONTROL_NO_STORE);
+    }
+
+    /**
+     * Every decision conflict re-reads the report so the client can reload
+     * against the version that actually won (stale, terminal, missing-target,
+     * and repeated-state races alike).
+     */
+    private function conflictResponse(int $reportId, LogicException $exception): JsonResponse
+    {
+        $currentVersion = (int) $this->reports->findById($reportId)->version;
+
+        return response()->json([
+            'message' => $exception->getMessage(),
+            'current_version' => $currentVersion,
+        ], HttpCode::CONFLICT);
     }
 }
