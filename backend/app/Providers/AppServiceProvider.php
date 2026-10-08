@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Constants\IssueConstants;
 use App\Constants\ReportingConstants;
+use App\Domain\Contact\Models\IssueTicket;
 use App\Domain\Contact\Repositories\ContactMessageReplyRepositoryInterface;
+use App\Domain\Contact\Repositories\IssueTicketRepositoryInterface;
 use App\Domain\CreditScoring\Models\CreditScoreSnapshot;
 use App\Domain\CreditScoring\Services\PdfGeneratorInterface;
 use App\Domain\CropRecommendation\Actions\BuildAnalysisContextAction;
@@ -29,6 +32,7 @@ use App\Domain\Shared\Models\ContentReport;
 use App\Domain\Shared\Repositories\AdminActionLogRepositoryInterface;
 use App\Domain\Shared\Repositories\ContentReportRepositoryInterface;
 use App\Infrastructure\Contact\Repositories\EloquentContactMessageReplyRepository;
+use App\Infrastructure\Contact\Repositories\EloquentIssueTicketRepository;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Infrastructure\CropRecommendation\Repositories\EloquentCropRecommendationRepository;
 use App\Infrastructure\Insurance\Services\EnrollmentPackGeneratorService;
@@ -55,6 +59,7 @@ use App\Policies\ForwardContractPolicy;
 use App\Policies\InsuranceClaimPolicy;
 use App\Policies\InsuranceEnrollmentPolicy;
 use App\Policies\InsuranceProfilePolicy;
+use App\Policies\IssueTicketPolicy;
 use App\Policies\PlotPolicy;
 use App\Policies\UserAddressPolicy;
 use Domain\Contact\Models\ContactMessage;
@@ -98,6 +103,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminActionLogRepositoryInterface::class, EloquentAdminActionLogRepository::class);
         $this->app->bind(ContactMessageReplyRepositoryInterface::class, EloquentContactMessageReplyRepository::class);
         $this->app->bind(ContentReportRepositoryInterface::class, EloquentContentReportRepository::class);
+        $this->app->bind(IssueTicketRepositoryInterface::class, EloquentIssueTicketRepository::class);
     }
 
     public function boot(): void
@@ -135,6 +141,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class, AdminUserPolicy::class);
         Gate::policy(ContactMessage::class, ContactMessagePolicy::class);
         Gate::policy(ContentReport::class, ContentReportPolicy::class);
+        Gate::policy(IssueTicket::class, IssueTicketPolicy::class);
         Gate::policy(InsuranceClaim::class, InsuranceClaimPolicy::class);
         Gate::policy(InsuranceEnrollment::class, InsuranceEnrollmentPolicy::class);
         Gate::policy(InsuranceProfile::class, InsuranceProfilePolicy::class);
@@ -151,6 +158,18 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for(
             ReportingConstants::REPORT_DAILY_LIMITER,
             fn (Request $request): Limit => Limit::perDay(ReportingConstants::REPORTS_PER_DAY)
+                ->by($request->user()?->getAuthIdentifier() ?? $request->ip())
+        );
+
+        // Member issue tickets share the same creation budget shape as reports.
+        RateLimiter::for(
+            IssueConstants::ISSUE_MINUTE_LIMITER,
+            fn (Request $request): Limit => Limit::perMinute(IssueConstants::ISSUES_PER_MINUTE)
+                ->by($request->user()?->getAuthIdentifier() ?? $request->ip())
+        );
+        RateLimiter::for(
+            IssueConstants::ISSUE_DAILY_LIMITER,
+            fn (Request $request): Limit => Limit::perDay(IssueConstants::ISSUES_PER_DAY)
                 ->by($request->user()?->getAuthIdentifier() ?? $request->ip())
         );
 

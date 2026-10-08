@@ -15,8 +15,10 @@ use App\Community\Controllers\ForumThreadController;
 use App\Community\Controllers\ForumVoteController;
 use App\Constants\CreditScoringConstants;
 use App\Constants\InsuranceConstants;
+use App\Constants\IssueConstants;
 use App\Constants\ReportingConstants;
 use App\Contact\Controllers\ContactController;
+use App\Contact\Controllers\IssueTicketController;
 use App\CreditScoring\Controllers\CreditScoreController;
 use App\CropRecommendation\Controllers\CropCompatibilityController;
 use App\CropRecommendation\Controllers\CropRecommendationController;
@@ -234,6 +236,17 @@ Route::prefix('v1')->group(function () {
                 'throttle:'.ReportingConstants::REPORT_MINUTE_LIMITER,
                 'throttle:'.ReportingConstants::REPORT_DAILY_LIMITER,
             ]);
+
+        // Member issue tickets (verified members only)
+        Route::middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
+            Route::post('/issues', [IssueTicketController::class, 'store'])
+                ->middleware([
+                    'throttle:'.IssueConstants::ISSUE_MINUTE_LIMITER,
+                    'throttle:'.IssueConstants::ISSUE_DAILY_LIMITER,
+                ]);
+            Route::get('/issues', [IssueTicketController::class, 'index']);
+            Route::get('/issues/{issue}', [IssueTicketController::class, 'show'])->whereNumber('issue');
+        });
 
         // Chat (verified members only)
         Route::prefix('chat')->middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {

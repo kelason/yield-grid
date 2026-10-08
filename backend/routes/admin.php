@@ -2,6 +2,7 @@
 
 use App\Admin\Controllers\AdminContactMessageController;
 use App\Admin\Controllers\AdminContentController;
+use App\Admin\Controllers\AdminIssueController;
 use App\Admin\Controllers\AdminReportController;
 use App\Admin\Controllers\AdminUserController;
 use App\Constants\AdminConstants;
@@ -37,6 +38,12 @@ Route::prefix('admin')->middleware(['verified', EnsureUserHasRole::class.':admin
     Route::get('/reports/{report}', [AdminReportController::class, 'show'])->whereNumber('report');
     Route::post('/reports/{report}/decision', [AdminReportController::class, 'decision'])
         ->whereNumber('report')
+        ->middleware($writeThrottle);
+
+    Route::get('/issues', [AdminIssueController::class, 'index']);
+    Route::get('/issues/{issue}', [AdminIssueController::class, 'show'])->whereNumber('issue');
+    Route::post('/issues/{issue}/transition', [AdminIssueController::class, 'transition'])
+        ->whereNumber('issue')
         ->middleware($writeThrottle);
 
     $contentTypes = array_map(fn (ReportTargetType $type): string => $type->value, ReportTargetType::cases());
