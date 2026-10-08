@@ -128,10 +128,12 @@ final class EloquentCropReferencePriceRepository implements CropReferencePriceRe
         $limit = MarketplaceConstants::PRICE_GUIDE_MARKETPLACE_AVG_MAX_ROWS;
 
         $contracts = ForwardContract::where('created_at', '>=', $since)
+            ->visible()
             ->limit($limit)
             ->get(['crop_name', 'price_per_kg']);
 
         $listings = HarvestListing::where('created_at', '>=', $since)
+            ->visible()
             ->limit($limit)
             ->get(['crop_name', 'price_per_kg']);
 

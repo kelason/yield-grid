@@ -1,16 +1,35 @@
 <script setup>
+import { computed } from 'vue'
 import AppCard from '../atoms/AppCard.vue'
 import AppButton from '../atoms/AppButton.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 import PriceFairnessBadge from '../atoms/PriceFairnessBadge.vue'
-import { MapPinIcon } from '@heroicons/vue/24/outline'
+import { FlagIcon, MapPinIcon } from '@heroicons/vue/24/outline'
+import { useAuthStore } from '../../stores/auth'
 
-defineProps({
+const authStore = useAuthStore()
+
+const props = defineProps({
   demand: { type: Object, required: true },
 })
 
-defineEmits(['view'])
+const emit = defineEmits(['view', 'report'])
+
+const isOwner = computed(() => {
+  const userId = authStore.user?.id
+  if (userId == null) return false
+  const ownerId = props.demand.buyer?.id ?? props.demand.buyer_id ?? props.demand.user_id
+  return ownerId != null && String(userId) === String(ownerId)
+})
+
+function emitReport() {
+  emit('report', {
+    reportable_type: 'demand',
+    reportable_id: props.demand.id,
+    title: props.demand.title,
+  })
+}
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
@@ -83,12 +102,24 @@ function remainingPercent(demand) {
         </p>
       </div>
     </div>
-    <AppButton
-      variant="outline"
-      class="mt-5 w-full"
-      @click="$emit('view', demand)"
-      :aria-label="`View demand: ${demand.title}`"
-      >View demand</AppButton
-    >
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <AppButton
+        variant="outline"
+        class="flex-1"
+        @click="$emit('view', demand)"
+        :aria-label="`View demand: ${demand.title}`"
+        >View demand</AppButton
+      >
+      <button
+        v-if="!isOwner"
+        type="button"
+        aria-label="Report this demand"
+        class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+        @click.stop="emitReport"
+      >
+        <FlagIcon class="w-4 h-4" aria-hidden="true" />
+        Report
+      </button>
+    </div>
   </AppCard>
 </template>

@@ -10,6 +10,7 @@ const TITLES = {
   'forgot-password': 'Forgot your password?',
   'reset-password': 'Reset your password',
   'verify-email': 'Email verification',
+  'verification-required': 'Verify your email',
 }
 const title = computed(() => TITLES[route.name] || 'Welcome Back')
 </script>

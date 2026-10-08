@@ -1,7 +1,9 @@
 <?php
 
+use App\Domain\Community\Actions\ModerateForumContentAction;
 use App\Domain\Community\Models\ForumCategory;
 use App\Domain\Community\Models\ForumThread;
+use App\Domain\Shared\Enums\ReportTargetType;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -155,4 +157,38 @@ it('rejects a reply with body over 5000 characters', function () {
 
     $response->assertStatus(422);
     $this->assertDatabaseCount('forum_replies', 0);
+});
+
+it('excludes hidden threads from the list and detail until restored', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create();
+    $category = ForumCategory::create([
+        'name' => 'Test',
+        'slug' => 'test-visibility',
+        'description' => 'Test',
+        'icon_emoji' => '🤔',
+        'sort_order' => 1,
+    ]);
+    $thread = ForumThread::create([
+        'user_id' => $user->id,
+        'category_id' => $category->id,
+        'title' => 'A thread pending moderation review',
+        'body' => 'This body is long enough to pass validation.',
+        'last_activity_at' => now(),
+    ]);
+
+    app(ModerateForumContentAction::class)->execute(
+        $admin, ReportTargetType::THREAD, (string) $thread->id, true, 'spam content'
+    );
+
+    Sanctum::actingAs($user, ['*']);
+
+    $this->getJson('/api/v1/forum/threads')->assertOk()->assertJsonMissing(['id' => $thread->id]);
+    $this->getJson("/api/v1/forum/threads/{$thread->id}")->assertNotFound();
+
+    app(ModerateForumContentAction::class)->execute(
+        $admin, ReportTargetType::THREAD, (string) $thread->id, false, 'appeal upheld'
+    );
+
+    $this->getJson("/api/v1/forum/threads/{$thread->id}")->assertOk();
 });

@@ -107,4 +107,6 @@ final class MarketplaceConstants
     public const PRICE_GUIDE_SYNC_REQUEST_TIMEOUT_SECONDS = 10;
 
     public const PRICE_GUIDE_SYNC_MAX_ATTEMPTS = 10;
+
+    public const MODERATION_REASON_MAX_LENGTH = 500;
 }

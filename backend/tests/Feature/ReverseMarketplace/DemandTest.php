@@ -1,7 +1,10 @@
 <?php
 
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\DemandStatus;
+use App\Domain\Marketplace\Models\CropDemand;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,6 +16,18 @@ uses(TestCase::class, RefreshDatabase::class);
 beforeEach(function () {
     Helper::fakePsgc();
 });
+
+function dmdmodAdmin(): User
+{
+    return User::factory()->create(['role' => 'admin']);
+}
+
+function dmdmodHide(User $admin, CropDemand $demand): void
+{
+    app(ModerateMarketplaceContentAction::class)->execute(
+        $admin, ReportTargetType::DEMAND, (string) $demand->id, true, 'suspected fraud'
+    );
+}
 
 it('allows a buyer with an address to post a demand', function () {
     $buyer = User::factory()->buyer()->create();
@@ -189,4 +204,75 @@ it('filters the buyer demand list by status', function () {
     $this->actingAs($buyer)->getJson('/api/v1/buyer/demands?status=bogus')
         ->assertOk()
         ->assertJsonCount(2, 'data');
+});
+
+it('excludes a hidden demand from public discovery while the owner keeps access', function () {
+    $admin = dmdmodAdmin();
+    $buyer = User::factory()->buyer()->create();
+    $visible = Helper::makeDemand($buyer);
+    $hidden = Helper::makeDemand($buyer);
+    $stranger = User::factory()->farmer()->create();
+
+    dmdmodHide($admin, $hidden);
+
+    $ids = collect($this->getJson('/api/v1/market/demands')->json('data'))->pluck('id')->all();
+    expect($ids)->toContain($visible->id)->not->toContain($hidden->id);
+
+    $this->getJson("/api/v1/market/demands/{$hidden->id}")->assertNotFound();
+    $this->actingAs($stranger)->getJson("/api/v1/market/demands/{$hidden->id}")->assertNotFound();
+
+    $this->actingAs($buyer)->getJson("/api/v1/market/demands/{$hidden->id}")
+        ->assertOk()
+        ->assertJsonPath('data.is_hidden', true);
+    $this->actingAs($buyer)->getJson('/api/v1/buyer/demands')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    expect($hidden->fresh()->status)->toBe(DemandStatus::OPEN);
+    expect((float) $hidden->fresh()->remaining_quantity_kg)->toBe(600.0);
+});
+
+it('keeps hidden demand detail available to an existing offer party', function () {
+    $admin = dmdmodAdmin();
+    $buyer = User::factory()->buyer()->create();
+    $demand = Helper::makeDemand($buyer);
+    $pendingFarmer = User::factory()->farmer()->create();
+    $acceptedFarmer = User::factory()->farmer()->create();
+    Helper::makeOffer($demand, $pendingFarmer, ['status' => DemandOfferStatus::PENDING]);
+    Helper::makeOffer($demand, $acceptedFarmer, ['status' => DemandOfferStatus::ACCEPTED]);
+
+    dmdmodHide($admin, $demand);
+
+    // Pending parties keep access but still do not see the delivery address.
+    $this->actingAs($pendingFarmer)->getJson("/api/v1/market/demands/{$demand->id}")
+        ->assertOk()
+        ->assertJsonPath('data.is_hidden', true)
+        ->assertJsonPath('data.delivery_address', null);
+
+    // Accepted parties keep their address access.
+    $acceptedView = $this->actingAs($acceptedFarmer)->getJson("/api/v1/market/demands/{$demand->id}")
+        ->assertOk()
+        ->assertJsonPath('data.is_hidden', true)
+        ->json();
+    expect($acceptedView['data']['delivery_address'])->not->toBeNull();
+
+    // Moderation notes never leak to members.
+    $payload = $this->actingAs($buyer)->getJson("/api/v1/market/demands/{$demand->id}")->assertOk()->json();
+    expect(json_encode($payload))->not->toContain('hidden_reason')
+        ->and(json_encode($payload))->not->toContain('hidden_by');
+});
+
+it('blocks reporting a hidden demand', function () {
+    $admin = dmdmodAdmin();
+    $buyer = User::factory()->buyer()->create();
+    $demand = Helper::makeDemand($buyer);
+    $reporter = User::factory()->farmer()->create();
+
+    dmdmodHide($admin, $demand);
+
+    $this->actingAs($reporter)->postJson('/api/v1/reports', [
+        'reportable_type' => 'demand',
+        'reportable_id' => $demand->id,
+        'reason' => 'suspected_fraud',
+    ])->assertNotFound();
 });

@@ -1,7 +1,11 @@
 <?php
 
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Enums\DemandOfferStatus;
 use App\Domain\Marketplace\Enums\DemandStatus;
+use App\Domain\Marketplace\Models\CropDemand;
+use App\Domain\Marketplace\Models\CropDemandOffer;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,6 +17,18 @@ uses(TestCase::class, RefreshDatabase::class);
 beforeEach(function () {
     Helper::fakePsgc();
 });
+
+function offmodAdmin(): User
+{
+    return User::factory()->create(['role' => 'admin']);
+}
+
+function offmodHide(User $admin, CropDemand $demand): void
+{
+    app(ModerateMarketplaceContentAction::class)->execute(
+        $admin, ReportTargetType::DEMAND, (string) $demand->id, true, 'suspected fraud'
+    );
+}
 
 it('allows a farmer with an address to submit a partial offer', function () {
     $buyer = User::factory()->buyer()->create();
@@ -277,4 +293,71 @@ it('filters the farmer offer list by status', function () {
     $this->actingAs($farmer)->getJson('/api/v1/farmer/offers?status=bogus')
         ->assertOk()
         ->assertJsonCount(1, 'data');
+});
+
+it('blocks new offers on a hidden demand', function () {
+    $admin = offmodAdmin();
+    $buyer = User::factory()->buyer()->create();
+    $demand = Helper::makeDemand($buyer);
+    $farmer = User::factory()->farmer()->create();
+    Helper::makeAddress($farmer);
+
+    offmodHide($admin, $demand);
+
+    $this->actingAs($farmer)->postJson("/api/v1/demands/{$demand->id}/offers", [
+        'quantity_kg' => 150,
+        'price_per_kg' => 44,
+        'message' => 'Fresh harvest',
+    ])->assertForbidden();
+
+    expect(CropDemandOffer::count())->toBe(0);
+    expect((float) $demand->fresh()->remaining_quantity_kg)->toBe(600.0);
+});
+
+it('blocks accepting a pending offer once its demand is hidden', function () {
+    $admin = offmodAdmin();
+    $buyer = User::factory()->buyer()->create();
+    $demand = Helper::makeDemand($buyer);
+    $farmer = User::factory()->farmer()->create();
+    $offer = Helper::makeOffer($demand, $farmer);
+
+    offmodHide($admin, $demand);
+
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$offer->id}/accept")->assertStatus(409);
+
+    expect($offer->fresh()->status)->toBe(DemandOfferStatus::PENDING);
+    expect((float) $demand->fresh()->remaining_quantity_kg)->toBe(600.0);
+});
+
+it('retains offer lifecycle operations on a hidden demand', function () {
+    $admin = offmodAdmin();
+    $buyer = User::factory()->buyer()->create();
+    $demand = Helper::makeDemand($buyer);
+    $rejectFarmer = User::factory()->farmer()->create();
+    $withdrawFarmer = User::factory()->farmer()->create();
+    $cancelFarmer = User::factory()->farmer()->create();
+    $rejected = Helper::makeOffer($demand, $rejectFarmer);
+    $withdrawn = Helper::makeOffer($demand, $withdrawFarmer);
+    $cancelled = Helper::makeOffer($demand, $cancelFarmer);
+
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$cancelled->id}/accept")->assertOk();
+    expect((float) $demand->fresh()->remaining_quantity_kg)->toBe(450.0);
+
+    offmodHide($admin, $demand);
+
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$rejected->id}/reject")->assertOk();
+    $this->actingAs($withdrawFarmer)->postJson("/api/v1/farmer/offers/{$withdrawn->id}/withdraw")->assertOk();
+    $this->actingAs($buyer)->postJson("/api/v1/buyer/offers/{$cancelled->id}/cancel")->assertOk();
+
+    expect($rejected->fresh()->status)->toBe(DemandOfferStatus::REJECTED);
+    expect($withdrawn->fresh()->status)->toBe(DemandOfferStatus::WITHDRAWN);
+    expect($cancelled->fresh()->status)->toBe(DemandOfferStatus::CANCELLED);
+
+    // Quantity restoration for the cancelled accepted offer is unchanged.
+    expect((float) $demand->fresh()->remaining_quantity_kg)->toBe(600.0);
+
+    // Both parties still read their own offer history.
+    $this->actingAs($buyer)->getJson("/api/v1/buyer/demands/{$demand->id}/offers")->assertOk()->assertJsonCount(3, 'data');
+    $this->actingAs($rejectFarmer)->getJson("/api/v1/offers/{$rejected->id}")->assertOk();
+    $this->actingAs($rejectFarmer)->getJson('/api/v1/farmer/offers')->assertOk()->assertJsonCount(1, 'data');
 });

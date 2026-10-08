@@ -1,11 +1,18 @@
 <?php
 
+use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Enums\PriceSource;
 use App\Domain\Marketplace\Enums\PriceTier;
 use App\Domain\Marketplace\Models\CropReferencePrice;
+use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Repositories\CropReferencePriceRepositoryInterface;
+use App\Domain\Shared\Enums\ReportTargetType;
+use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use App\Jobs\GenerateAiPriceEstimateJob;
+use Domain\Farming\Models\Farm;
+use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -144,6 +151,59 @@ it('logs YieldGrid and DA section completion with latency', function () {
         ->withArgs(fn (string $message, array $context): bool => $message === 'Crop price DA section completed'
             && isset($context['latency_ms']) && ($context['available'] ?? null) === true && ($context['tiers'] ?? null) === 2)
         ->once();
+});
+
+it('excludes hidden contracts and listings from marketplace price sampling', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $farmer = User::factory()->farmer()->create();
+    $action = app(ModerateMarketplaceContentAction::class);
+
+    HarvestListing::create([
+        'farmer_id' => $farmer->id,
+        'title' => 'Visible rice',
+        'crop_name' => 'Rice',
+        'quantity_kg' => 100,
+        'price_per_kg' => 30.00,
+        'total_price' => 3000.00,
+        'estimated_harvest_date' => now()->addDays(7)->toDateString(),
+        'expiry_date' => now()->addDays(30)->toDateString(),
+    ]);
+
+    $hiddenListing = HarvestListing::create([
+        'farmer_id' => $farmer->id,
+        'title' => 'Hidden rice',
+        'crop_name' => 'Rice',
+        'quantity_kg' => 100,
+        'price_per_kg' => 1000.00,
+        'total_price' => 100000.00,
+        'estimated_harvest_date' => now()->addDays(7)->toDateString(),
+        'expiry_date' => now()->addDays(30)->toDateString(),
+    ]);
+    $action->execute($admin, ReportTargetType::LISTING, (string) $hiddenListing->id, true, 'spam pricing');
+
+    $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Price Farm']);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Price Plot', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $recommendation = CropRecommendation::create([
+        'plot_id' => $plot->id,
+        'status' => RecommendationStatus::ACCEPTED,
+        'crop_name' => 'Rice',
+        'projected_yield' => 500,
+        'confidence_score' => 90,
+        'reasoning' => 'Good soil',
+    ]);
+    $hiddenContract = ForwardContract::factory()->available()->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+        'crop_name' => 'Rice',
+        'quantity_kg' => 100,
+        'price_per_kg' => 1000.00,
+        'total_price' => 100000.00,
+    ]);
+    $action->execute($admin, ReportTargetType::CONTRACT, (string) $hiddenContract->id, true, 'spam pricing');
+
+    $average = app(CropReferencePriceRepositoryInterface::class)->marketplaceAverage('rice', 30);
+
+    expect($average)->toBe(['price' => 30.0, 'count' => 1]);
 });
 
 it('logs and isolates a failing price source instead of failing the request', function () {

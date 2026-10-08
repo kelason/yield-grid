@@ -1,22 +1,39 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppCard from '../atoms/AppCard.vue'
 import ForumTag from '../atoms/ForumTag.vue'
 import VoteBadge from '../atoms/VoteBadge.vue'
 import AcceptedBadge from '../atoms/AcceptedBadge.vue'
+import { FlagIcon } from '@heroicons/vue/24/outline'
 import { formatDistanceToNow } from 'date-fns'
 import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
 
-defineProps({
+const props = defineProps({
   thread: {
     type: Object,
     required: true,
   },
 })
 
-const emit = defineEmits(['vote'])
+const emit = defineEmits(['vote', 'report'])
+
+const isOwner = computed(() => {
+  const userId = authStore.user?.id
+  if (userId == null) return false
+  const ownerId = props.thread.author?.id ?? props.thread.user_id
+  return ownerId != null && String(userId) === String(ownerId)
+})
+
+function emitReport() {
+  emit('report', {
+    reportable_type: 'thread',
+    reportable_id: props.thread.id,
+    title: props.thread.title,
+  })
+}
 
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
 
@@ -98,6 +115,17 @@ function profileLink(author) {
               </svg>
               <span>{{ thread.reply_count }}</span>
             </div>
+
+            <button
+              v-if="!isOwner"
+              type="button"
+              aria-label="Report this discussion"
+              class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+              @click.stop="emitReport"
+            >
+              <FlagIcon class="w-4 h-4" aria-hidden="true" />
+              Report
+            </button>
           </div>
         </div>
       </div>

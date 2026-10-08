@@ -3,10 +3,12 @@
 use App\Domain\CropRecommendation\Actions\BuildAnalysisContextAction;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Taxonomy\CropTaxonomy;
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
 use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Enums\DemandStatus;
 use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
@@ -133,4 +135,21 @@ it('handles plots without a farm', function () {
 
     expect($context)->not->toHaveKey('previous_crops')
         ->and($context['season'])->toBe(CropTaxonomy::currentSeason());
+});
+
+it('excludes hidden demands from fresh analysis context', function () {
+    makeDemand('Rice', 9000);
+    makeDemand('Hidden Corn', 12000);
+
+    $hidden = CropDemand::where('crop_name', 'Hidden Corn')->firstOrFail();
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    app(ModerateMarketplaceContentAction::class)->execute(
+        $admin, ReportTargetType::DEMAND, (string) $hidden->id, true, 'suspected fraud'
+    );
+
+    $context = app(BuildAnalysisContextAction::class)->execute(contextPlot(), null);
+
+    expect($context['demands'])->toHaveCount(1)
+        ->and($context['demands'][0]['crop'])->toBe('Rice');
 });

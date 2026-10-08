@@ -2,6 +2,14 @@
 import { test, expect, mockSession } from '../fixtures/session'
 import { FARMS, PURCHASES } from '../fixtures/data'
 import { mockInsuranceApi } from '../fixtures/insurance'
+import {
+  mockAdminSession,
+  overviewPayload,
+  paginated,
+  adminInquiry,
+  inquiryReply,
+  adminReport,
+} from '../fixtures/admin'
 import { E2E } from '../constants'
 const INVALID = 422
 const OK = 200
@@ -216,4 +224,58 @@ test('Tagalog insurance controls stay readable', async ({ page }, testInfo) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Seguro sa Pananim')
   await noOverflow(page)
   await capture(page, testInfo, 'insurance-tagalog')
+})
+test('admin operational overview visual', async ({ page }, testInfo) => {
+  await mockAdminSession(page)
+  await page.route('**/api/v1/admin/overview', (route) =>
+    route.fulfill({ json: overviewPayload() }),
+  )
+  await page.goto('/admin/overview')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Overview')
+  await expect(page.getByTestId('overview-users-total')).toContainText('120')
+  await noOverflow(page)
+  await capture(page, testInfo, 'admin-overview')
+})
+test('admin inquiry failure visual', async ({ page }, testInfo) => {
+  const failed = inquiryReply({
+    delivery_status: 'failed',
+    attempts: 3,
+    error_code: 'smtp_timeout',
+    created_at: '2026-10-07T00:00:00Z',
+  })
+  const detail = adminInquiry({ status: 'read', replies: [failed] })
+  await mockAdminSession(page)
+  await page.route('**/api/v1/admin/contact-messages?**', (route) =>
+    route.fulfill({ json: paginated([adminInquiry({ replies: [failed] })]) }),
+  )
+  await page.route('**/api/v1/admin/contact-messages/7', (route) =>
+    route.fulfill({ json: { data: detail } }),
+  )
+  await page.goto('/admin/inquiries')
+  await page.getByRole('button', { name: 'View inquiry from Guest Visitor', exact: true }).click()
+  await expect(page.getByText('Failed', { exact: true }).first()).toBeVisible()
+  await noOverflow(page)
+  await capture(page, testInfo, 'admin-inquiry-failed')
+})
+test('admin report review visual', async ({ page }, testInfo) => {
+  await mockAdminSession(page)
+  await page.route('**/api/v1/admin/reports?**', (route) =>
+    route.fulfill({ json: paginated([adminReport()]) }),
+  )
+  await page.route('**/api/v1/admin/reports/5', (route) =>
+    route.fulfill({ json: { data: adminReport() } }),
+  )
+  await page.goto('/admin/reports')
+  await page.getByRole('button', { name: 'Review report 5', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Report #5', exact: true })).toBeVisible()
+  await noOverflow(page)
+  await capture(page, testInfo, 'admin-report-review')
+})
+test('member issue form visual', async ({ page }, testInfo) => {
+  await mockSession(page, { role: 'buyer' })
+  await page.route('**/api/v1/issues?**', (route) => route.fulfill({ json: paginated([]) }))
+  await page.goto('/dashboard/issues')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Report an issue')
+  await noOverflow(page)
+  await capture(page, testInfo, 'member-issue-form')
 })

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Community\Resources;
 
 use App\Domain\Community\Models\ForumThread;
+use App\Policies\ForumContentPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 /**
  * @mixin ForumThread
@@ -47,7 +49,16 @@ class ForumThreadResource extends JsonResource
 
                 return $vote ? $vote->value : 0;
             }),
-            'replies' => ForumReplyResource::collection($this->whenLoaded('replies')),
+            'replies' => ForumReplyResource::collection($this->prunedReplies($this->whenLoaded('replies'))),
         ];
+    }
+
+    private function prunedReplies(mixed $loaded): mixed
+    {
+        if (! $loaded instanceof Collection) {
+            return $loaded;
+        }
+
+        return ForumContentPolicy::pruneLoadedTree($loaded);
     }
 }

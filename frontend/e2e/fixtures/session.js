@@ -1,6 +1,8 @@
 import { test as base, expect } from '@playwright/test'
 import { E2E } from '../constants'
-import { FARMER, BUYER } from './data'
+import { FARMER, BUYER, ADMIN } from './data'
+
+const SESSION_USERS = { farmer: FARMER, buyer: BUYER, admin: ADMIN }
 
 const unexpectedRequests = new WeakMap()
 
@@ -22,13 +24,19 @@ export async function mockSession(
   await page.routeWebSocket(/\/app\//, (socket) => socket.close())
   await page.clock.setFixedTime(new Date(E2E.FIXED_NOW))
   if (!authenticated) return
+  const template = SESSION_USERS[role]
+  if (!template) throw new Error(`Unknown e2e role: ${String(role)}`)
   const user = {
-    ...(role === 'buyer' ? BUYER : FARMER),
-    email_verified_at: verified ? FARMER.email_verified_at : null,
+    ...template,
+    email_verified_at: verified ? template.email_verified_at : null,
   }
   await page.addInitScript(() => localStorage.setItem('auth_token', 'synthetic-e2e-token'))
   await page.route('**/api/v1/user', (route) => route.fulfill({ json: user }))
-  await page.route('**/api/v1/chat/conversations', (route) => route.fulfill({ json: { data: [] } }))
+  if (role !== 'admin') {
+    await page.route('**/api/v1/chat/conversations', (route) =>
+      route.fulfill({ json: { data: [] } }),
+    )
+  }
 }
 
 export function assertNoUnexpectedApiRequests(page) {

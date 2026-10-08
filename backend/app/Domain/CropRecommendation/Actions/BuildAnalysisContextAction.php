@@ -93,6 +93,7 @@ final class BuildAnalysisContextAction implements BuildsAnalysisContext
     {
         return CropDemand::query()
             ->where('status', DemandStatus::OPEN)
+            ->visible()
             ->orderByDesc('total_budget')
             ->limit(self::MAX_DEMANDS)
             ->get(['crop_name', 'remaining_quantity_kg', 'target_price_per_kg', 'needed_by_date'])

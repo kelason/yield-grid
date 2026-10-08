@@ -1,14 +1,14 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import { useApi } from '../../composables/useApi'
 import AppButton from '../../components/atoms/AppButton.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import AppAlert from '../../components/atoms/AppAlert.vue'
 
 const authStore = useAuthStore()
-const api = useApi()
+const router = useRouter()
 
 const sending = ref(false)
 const message = ref('')
@@ -27,7 +27,10 @@ function requestResend() {
 function requestLogout() {
   confirm(
     { title: 'Log out?', message: 'End your current YieldGrid session?', confirmText: 'Log out' },
-    () => authStore.logout(),
+    async () => {
+      await authStore.logout()
+      router.push({ name: 'home' })
+    },
   )
 }
 
@@ -37,8 +40,8 @@ async function resendVerificationEmail() {
   error.value = ''
 
   try {
-    const res = await api.post('/email/verification-notification')
-    message.value = res.data.message
+    const data = await authStore.resendVerificationEmail()
+    message.value = data?.message || 'Verification link sent. Please check your inbox.'
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to send verification link.'
   } finally {

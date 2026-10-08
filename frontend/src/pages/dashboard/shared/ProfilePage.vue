@@ -21,6 +21,7 @@ import { MapPinIcon } from '@heroicons/vue/24/outline'
 
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
 const FARMER_ROLE = 'farmer'
+const BUYER_ROLE = 'buyer'
 
 const route = useRoute()
 const api = useApi()
@@ -37,6 +38,8 @@ let profileRequest = 0
 const userId = computed(() => route.params.userId)
 const isAnonymous = computed(() => userId.value === ANONYMOUS_ROUTE_PARAM)
 const isFarmer = computed(() => profile.value?.role === FARMER_ROLE)
+const isBuyer = computed(() => profile.value?.role === BUYER_ROLE)
+const showStats = computed(() => isFarmer.value || isBuyer.value)
 const isOwnProfile = computed(
   () => !isAnonymous.value && String(authStore.user?.id) === String(userId.value),
 )
@@ -155,7 +158,11 @@ watch(userId, fetchProfile, { immediate: true })
         </div>
       </AppCard>
 
-      <div class="grid grid-cols-1 gap-5" :class="isFarmer ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
+      <div
+        v-if="showStats"
+        class="grid grid-cols-1 gap-5"
+        :class="isFarmer ? 'sm:grid-cols-3' : 'sm:grid-cols-2'"
+      >
         <template v-if="isFarmer">
           <AppCard padding="p-6" class="text-center">
             <p class="text-3xl font-semibold text-moss-700">{{ profile.stats?.total_sold }}</p>

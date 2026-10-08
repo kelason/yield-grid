@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { USER_ROLES, roleHomeTarget } from '../constants/roles'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,12 @@ const router = createRouter({
           component: () => import('../pages/auth/EmailVerificationCallback.vue'),
         },
         {
+          path: 'verification-required',
+          name: 'verification-required',
+          component: () => import('../pages/auth/VerifyEmailPage.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
           path: 'forgot-password',
           name: 'forgot-password',
           component: () => import('../pages/auth/ForgotPasswordPage.vue'),
@@ -74,9 +81,7 @@ const router = createRouter({
       beforeEnter: (to) => {
         // Redirect bare /dashboard to the role-appropriate sub-route
         if (to.path === '/dashboard' || to.path === '/dashboard/') {
-          const authStore = useAuthStore()
-          if (authStore.userRole === 'buyer') return { name: 'buyer-dashboard' }
-          return { name: 'farmer-dashboard' }
+          return roleHomeTarget(useAuthStore().userRole)
         }
         return true
       },
@@ -208,9 +213,64 @@ const router = createRouter({
           meta: { requiresVerification: true },
         },
         {
+          path: 'issues',
+          name: 'report-issue',
+          component: () => import('@/pages/dashboard/shared/ReportIssuePage.vue'),
+          meta: { roles: [USER_ROLES.FARMER, USER_ROLES.BUYER], requiresVerification: true },
+        },
+        {
           path: 'users/:userId',
           name: 'user-profile',
           component: () => import('@/pages/dashboard/shared/ProfilePage.vue'),
+        },
+      ],
+    },
+    {
+      path: '/admin',
+      component: () => import('../components/templates/DashboardLayout.vue'),
+      meta: { requiresAuth: true },
+      beforeEnter: (to) => {
+        if (to.path === '/admin' || to.path === '/admin/') {
+          return { name: 'admin-overview' }
+        }
+        return true
+      },
+      children: [
+        {
+          path: 'overview',
+          name: 'admin-overview',
+          component: () => import('../pages/dashboard/admin/AdminOverviewPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('../pages/dashboard/admin/AdminUsersPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
+        {
+          path: 'inquiries',
+          name: 'admin-inquiries',
+          component: () => import('../pages/dashboard/admin/AdminInquiriesPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
+        {
+          path: 'content',
+          name: 'admin-content',
+          component: () => import('../pages/dashboard/admin/AdminContentPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
+        {
+          path: 'reports',
+          name: 'admin-reports',
+          component: () => import('../pages/dashboard/admin/AdminReportsPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
+        {
+          path: 'issues',
+          name: 'admin-issues',
+          component: () => import('../pages/dashboard/admin/AdminIssuesPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
         },
       ],
     },
@@ -243,15 +303,20 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login' }
   } else if ((to.name === 'home' || to.meta.requiresGuest) && authStore.isAuthenticated) {
-    if (authStore.userRole === 'buyer') {
-      return { name: 'buyer-dashboard' }
-    } else {
-      return { name: 'farmer-dashboard' }
-    }
+    return roleHomeTarget(authStore.userRole)
   }
 
   // Block cross-role access (e.g. a buyer opening a farmer-only page)
   if (to.meta.role && authStore.userRole && authStore.userRole !== to.meta.role) {
+    return { name: 'forbidden' }
+  }
+
+  // Shared member pages (e.g. issue reporting) admit several roles but never admin.
+  if (
+    Array.isArray(to.meta.roles) &&
+    authStore.userRole &&
+    !to.meta.roles.includes(authStore.userRole)
+  ) {
     return { name: 'forbidden' }
   }
 
@@ -262,12 +327,18 @@ router.beforeEach(async (to) => {
       notificationStore.warning('Please verify your email to access this feature.')
     })
 
-    // Redirect to their default dashboard
-    if (authStore.userRole === 'buyer') {
+    // Unverified admins land on the standalone verification page so they never
+    // bounce between /admin and a dashboard they cannot open.
+    if (authStore.userRole === USER_ROLES.ADMIN) {
+      return { name: 'verification-required' }
+    }
+    if (authStore.userRole === USER_ROLES.BUYER) {
       return { name: 'buyer-dashboard' }
-    } else {
+    }
+    if (authStore.userRole === USER_ROLES.FARMER) {
       return { name: 'farmer-dashboard' }
     }
+    return { name: 'forbidden' }
   }
 
   return true

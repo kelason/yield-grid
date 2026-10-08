@@ -31,12 +31,14 @@ test('sign-in confirms once and retains credentials on failure', async ({ page }
   await expect(password).toHaveAttribute('maxlength', '255')
   await password.fill(PASSWORD)
   const trigger = page.getByRole('button', { name: 'Sign in', exact: true })
-  await trigger.click()
+  await trigger.focus()
+  await trigger.press('Enter')
   const dialog = page.getByRole('dialog', { name: 'Sign in?', exact: true })
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
   expect(requests).toBe(0)
   await expect(trigger).toBeFocused()
-  await trigger.click()
+  await trigger.focus()
+  await trigger.press('Enter')
   const requested = page.waitForRequest('**/api/v1/login')
   await dialog.getByRole('button', { name: 'Sign in', exact: true }).click()
   await requested
@@ -82,6 +84,16 @@ test('registration confirms the selected role and retains validation feedback', 
   await expect(page.getByRole('alert')).toContainText('This email is already registered.')
   await expect(page.getByRole('textbox', { name: 'Full Name' })).toHaveValue('Juan Santos')
   expect(requests).toBe(1)
+})
+
+test('registration offers only trading roles and never admin', async ({ page }) => {
+  await guest(page)
+  await page.goto('/auth/register')
+  const roles = page.getByRole('radio')
+  await expect(roles).toHaveCount(2)
+  await expect(page.getByRole('radio', { name: 'Farmer', exact: true })).toBeVisible()
+  await expect(page.getByRole('radio', { name: 'Buyer', exact: true })).toBeVisible()
+  await expect(page.getByRole('radio', { name: 'Admin', exact: true })).toHaveCount(0)
 })
 
 test('reset-email remains disabled and new password autocomplete reaches the control', async ({
