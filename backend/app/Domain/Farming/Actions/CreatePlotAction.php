@@ -2,6 +2,8 @@
 
 namespace Domain\Farming\Actions;
 
+use App\Domain\Farming\Actions\AssessPlotFloodRiskAction;
+use App\Domain\Farming\Enums\FloodRiskLevel;
 use Domain\Farming\DTOs\CreatePlotDTO;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +57,32 @@ class CreatePlotAction
             'updated_at' => now(),
         ]);
 
+        $this->persistFloodRisk((int) $plotId, $dto->coordinates);
+
         return Plot::findOrFail($plotId);
+    }
+
+    /**
+     * @param  array<int, array{float, float}>  $coordinates
+     */
+    private function persistFloodRisk(int $plotId, array $coordinates): void
+    {
+        try {
+            $assessment = (new AssessPlotFloodRiskAction)($coordinates);
+
+            DB::table('plots')->where('id', $plotId)->update([
+                'flood_risk_level' => $assessment->level->value,
+                'flood_within_coverage' => $assessment->withinCoverage,
+                'flood_risk_assessed_at' => $assessment->assessedAt,
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            DB::table('plots')->where('id', $plotId)->update([
+                'flood_risk_level' => FloodRiskLevel::UNKNOWN->value,
+                'flood_within_coverage' => false,
+                'flood_risk_assessed_at' => now(),
+            ]);
+        }
     }
 }

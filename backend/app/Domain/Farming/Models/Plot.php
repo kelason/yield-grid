@@ -28,6 +28,8 @@ class Plot extends Model
     {
         return [
             'soil_type' => SoilType::class,
+            'flood_within_coverage' => 'boolean',
+            'flood_risk_assessed_at' => 'immutable_datetime',
         ];
     }
 

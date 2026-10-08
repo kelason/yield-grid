@@ -16,6 +16,6 @@ readonly class FloodRiskAssessment
         public FloodRiskLevel $level,
         public array $advice,
         public bool $withinCoverage,
-        public CarbonImmutable $assessedAt,
+        public ?CarbonImmutable $assessedAt,
     ) {}
 }
