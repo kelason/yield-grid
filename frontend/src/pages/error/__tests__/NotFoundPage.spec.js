@@ -28,6 +28,8 @@ describe('NotFoundPage.vue home link', () => {
           component: { template: '<div />' },
         },
         { path: '/contact', name: 'contact', component: { template: '<div />' } },
+        { path: '/admin/users', name: 'admin-users', component: { template: '<div />' } },
+        { path: '/403', name: 'forbidden', component: { template: '<div />' } },
       ],
     })
   }
@@ -73,6 +75,26 @@ describe('NotFoundPage.vue home link', () => {
 
     await vi.waitFor(() => {
       expect(router.currentRoute.value.path).toBe('/')
+    })
+  })
+
+  it('sends an admin home to the admin users page', async () => {
+    const { router, wrapper } = await mountPage('admin')
+
+    await wrapper.findAll('button')[0].trigger('click')
+
+    await vi.waitFor(() => {
+      expect(router.currentRoute.value.name).toBe('admin-users')
+    })
+  })
+
+  it('fails closed to forbidden for an unknown role', async () => {
+    const { router, wrapper } = await mountPage('superadmin')
+
+    await wrapper.findAll('button')[0].trigger('click')
+
+    await vi.waitFor(() => {
+      expect(router.currentRoute.value.name).toBe('forbidden')
     })
   })
 

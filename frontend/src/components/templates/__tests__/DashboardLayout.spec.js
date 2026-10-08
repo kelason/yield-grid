@@ -114,4 +114,19 @@ describe('DashboardLayout.vue chat sync', () => {
     expect(mockGet).not.toHaveBeenCalled()
     expect(listenToConversation).not.toHaveBeenCalled()
   })
+
+  it('makes zero chat or bootstrap requests for a verified admin', async () => {
+    const authStore = useAuthStore()
+    authStore.user = {
+      id: 1,
+      name: 'Op Admin',
+      role: 'admin',
+      email_verified_at: '2026-01-01T00:00:00Z',
+    }
+
+    await mountLayout()
+
+    expect(mockGet).not.toHaveBeenCalled()
+    expect(listenToConversation).not.toHaveBeenCalled()
+  })
 })

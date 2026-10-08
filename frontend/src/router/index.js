@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { USER_ROLES, roleHomeTarget } from '../constants/roles'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,12 @@ const router = createRouter({
           component: () => import('../pages/auth/EmailVerificationCallback.vue'),
         },
         {
+          path: 'verification-required',
+          name: 'verification-required',
+          component: () => import('../pages/auth/VerifyEmailPage.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
           path: 'forgot-password',
           name: 'forgot-password',
           component: () => import('../pages/auth/ForgotPasswordPage.vue'),
@@ -74,9 +81,7 @@ const router = createRouter({
       beforeEnter: (to) => {
         // Redirect bare /dashboard to the role-appropriate sub-route
         if (to.path === '/dashboard' || to.path === '/dashboard/') {
-          const authStore = useAuthStore()
-          if (authStore.userRole === 'buyer') return { name: 'buyer-dashboard' }
-          return { name: 'farmer-dashboard' }
+          return roleHomeTarget(useAuthStore().userRole)
         }
         return true
       },
@@ -215,6 +220,25 @@ const router = createRouter({
       ],
     },
     {
+      path: '/admin',
+      component: () => import('../components/templates/DashboardLayout.vue'),
+      meta: { requiresAuth: true },
+      beforeEnter: (to) => {
+        if (to.path === '/admin' || to.path === '/admin/') {
+          return { name: 'admin-users' }
+        }
+        return true
+      },
+      children: [
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('../pages/dashboard/admin/AdminUsersPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
+      ],
+    },
+    {
       path: '/500',
       name: 'server-error',
       component: () => import('@/pages/error/ServerErrorPage.vue'),
@@ -243,11 +267,7 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login' }
   } else if ((to.name === 'home' || to.meta.requiresGuest) && authStore.isAuthenticated) {
-    if (authStore.userRole === 'buyer') {
-      return { name: 'buyer-dashboard' }
-    } else {
-      return { name: 'farmer-dashboard' }
-    }
+    return roleHomeTarget(authStore.userRole)
   }
 
   // Block cross-role access (e.g. a buyer opening a farmer-only page)
@@ -262,12 +282,18 @@ router.beforeEach(async (to) => {
       notificationStore.warning('Please verify your email to access this feature.')
     })
 
-    // Redirect to their default dashboard
-    if (authStore.userRole === 'buyer') {
+    // Unverified admins land on the standalone verification page so they never
+    // bounce between /admin and a dashboard they cannot open.
+    if (authStore.userRole === USER_ROLES.ADMIN) {
+      return { name: 'verification-required' }
+    }
+    if (authStore.userRole === USER_ROLES.BUYER) {
       return { name: 'buyer-dashboard' }
-    } else {
+    }
+    if (authStore.userRole === USER_ROLES.FARMER) {
       return { name: 'farmer-dashboard' }
     }
+    return { name: 'forbidden' }
   }
 
   return true
