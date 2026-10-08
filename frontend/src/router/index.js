@@ -236,6 +236,12 @@ const router = createRouter({
           component: () => import('../pages/dashboard/admin/AdminUsersPage.vue'),
           meta: { role: 'admin', requiresVerification: true },
         },
+        {
+          path: 'inquiries',
+          name: 'admin-inquiries',
+          component: () => import('../pages/dashboard/admin/AdminInquiriesPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
       ],
     },
     {
