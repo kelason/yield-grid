@@ -13,13 +13,19 @@ use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Shared\Enums\ReportTargetType;
 use App\Policies\ForumContentPolicy;
 use Domain\Users\Models\User;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 
 final class ContentTargetResolver
 {
+    public function __construct(
+        private readonly AdminContentPaginator $paginator,
+    ) {}
+
     public function find(ReportTargetType $type, string $id): Model
     {
         $key = (int) $id;
@@ -37,6 +43,59 @@ final class ContentTargetResolver
     {
         $this->assertAccessible($target);
         $this->assertNotOwned($reporter, $target);
+    }
+
+    /**
+     * Admin detail dispatch: reads hidden rows, returns null for missing or
+     * malformed targets instead of throwing. Soft-deleted forum rows read as
+     * missing, matching member visibility.
+     */
+    public function findForAdmin(ReportTargetType $type, string $id): ?Model
+    {
+        if (! ctype_digit($id)) {
+            return null;
+        }
+
+        try {
+            return $this->find($type, $id);
+        } catch (ModelNotFoundException) {
+            return null;
+        }
+    }
+
+    /**
+     * Batch detail dispatch for admin lists; avoids one query per row.
+     *
+     * @param  array<int, int|string>  $ids
+     * @return EloquentCollection<int, ForumThread>|EloquentCollection<int, ForumReply>|EloquentCollection<int, ForwardContract>|EloquentCollection<int, HarvestListing>|EloquentCollection<int, CropDemand>
+     */
+    public function findManyForAdmin(ReportTargetType $type, array $ids): EloquentCollection
+    {
+        $keys = array_values(array_unique(array_map(intval(...), $ids)));
+
+        if ($keys === []) {
+            return new EloquentCollection;
+        }
+
+        return match ($type) {
+            ReportTargetType::THREAD => ForumThread::with('author')->whereIntegerInRaw('id', $keys)->get(),
+            ReportTargetType::REPLY => ForumReply::with(['author', 'thread'])->whereIntegerInRaw('id', $keys)->get(),
+            ReportTargetType::CONTRACT => ForwardContract::with(['farmer', 'moderationRoot'])->whereIntegerInRaw('id', $keys)->get(),
+            ReportTargetType::LISTING => HarvestListing::with(['farmer', 'moderationRoot'])->whereIntegerInRaw('id', $keys)->get(),
+            ReportTargetType::DEMAND => CropDemand::with('buyer')->whereIntegerInRaw('id', $keys)->get(),
+        };
+    }
+
+    /**
+     * Allowlisted admin pagination over one content type. Only the five
+     * reportable types resolve; no arbitrary table input is accepted.
+     *
+     * @param  array{search?: ?string, visibility?: ?string}  $filters
+     * @return LengthAwarePaginator<int, Model>
+     */
+    public function paginate(ReportTargetType $type, array $filters, int $perPage): LengthAwarePaginator
+    {
+        return $this->paginator->paginate($type, $filters, $perPage);
     }
 
     /**

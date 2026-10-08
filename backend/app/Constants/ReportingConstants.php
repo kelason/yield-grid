@@ -21,4 +21,16 @@ final class ReportingConstants
     public const string SELF_REPORT_MESSAGE = 'You cannot report your own content.';
 
     public const string OTHER_REASON_DESCRIPTION_MESSAGE = 'A description is required when the reason is other.';
+
+    public const int DECISION_NOTE_MAX_LENGTH = 500;
+
+    public const int EXPECTED_VERSION_MAX = 2147483647;
+
+    public const string OUTCOME_HIDDEN = 'hidden';
+
+    public const string OUTCOME_NO_ACTION = 'no_action';
+
+    public const string VISIBILITY_VISIBLE = 'visible';
+
+    public const string VISIBILITY_HIDDEN = 'hidden';
 }

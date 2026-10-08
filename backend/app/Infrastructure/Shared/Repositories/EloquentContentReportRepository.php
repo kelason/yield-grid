@@ -32,6 +32,11 @@ final class EloquentContentReportRepository implements ContentReportRepositoryIn
         return ContentReport::where('id', $id)->lockForUpdate()->firstOrFail();
     }
 
+    public function findById(int $id): ContentReport
+    {
+        return ContentReport::with(['reporter', 'reviewer'])->where('id', $id)->firstOrFail();
+    }
+
     public function save(ContentReport $report): void
     {
         $report->save();
@@ -43,7 +48,7 @@ final class EloquentContentReportRepository implements ContentReportRepositoryIn
      */
     public function paginate(array $filters, int $perPage): LengthAwarePaginator
     {
-        $query = ContentReport::query()->orderBy('created_at')->orderBy('id');
+        $query = ContentReport::query()->with(['reporter', 'reviewer'])->orderBy('created_at')->orderBy('id');
 
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);

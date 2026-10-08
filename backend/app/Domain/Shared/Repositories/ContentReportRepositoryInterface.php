@@ -6,6 +6,7 @@ namespace App\Domain\Shared\Repositories;
 
 use App\Domain\Shared\Enums\ReportTargetType;
 use App\Domain\Shared\Models\ContentReport;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ContentReportRepositoryInterface
@@ -22,6 +23,13 @@ interface ContentReportRepositoryInterface
      * Must be called inside a transaction.
      */
     public function findLockedById(int $id): ContentReport;
+
+    /**
+     * Find a report for admin review with reporter and reviewer loaded.
+     *
+     * @throws ModelNotFoundException
+     */
+    public function findById(int $id): ContentReport;
 
     public function save(ContentReport $report): void;
 

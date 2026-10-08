@@ -42,6 +42,7 @@ use App\Infrastructure\Shared\Database\LaravelTransactionManager;
 use App\Infrastructure\Shared\Events\LaravelEventDispatcher;
 use App\Infrastructure\Shared\Repositories\EloquentAdminActionLogRepository;
 use App\Infrastructure\Shared\Repositories\EloquentContentReportRepository;
+use App\Policies\AdminContentPolicy;
 use App\Policies\AdminUserPolicy;
 use App\Policies\ContactMessagePolicy;
 use App\Policies\ContentReportPolicy;
@@ -138,6 +139,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(InsuranceEnrollment::class, InsuranceEnrollmentPolicy::class);
         Gate::policy(InsuranceProfile::class, InsuranceProfilePolicy::class);
         Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
+        Gate::define(AdminContentPolicy::VIEW_ABILITY, [AdminContentPolicy::class, 'viewAny']);
+        Gate::define(AdminContentPolicy::MODERATE_ABILITY, [AdminContentPolicy::class, 'moderate']);
 
         // One shared creation budget for the new and legacy report routes.
         RateLimiter::for(

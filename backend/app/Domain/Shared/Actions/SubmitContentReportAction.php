@@ -14,6 +14,7 @@ use App\Domain\Shared\Services\ContentTargetResolver;
 use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 final class SubmitContentReportAction
@@ -55,8 +56,11 @@ final class SubmitContentReportAction
         ?string $description,
         Model $target,
     ): ContentReport {
+        // Safe to call inside or outside a transaction: the savepoint keeps a
+        // unique violation from aborting an enclosing PostgreSQL transaction,
+        // so the recovery read below always runs on a usable connection.
         try {
-            return $this->reports->create([
+            return DB::transaction(fn (): ContentReport => $this->reports->create([
                 'user_id' => $reporter->id,
                 'reportable_type' => $type->value,
                 'reportable_id' => (int) $targetId,
@@ -64,7 +68,7 @@ final class SubmitContentReportAction
                 'description' => $description,
                 'status' => ContentReportStatus::OPEN->value,
                 'target_snapshot' => $this->targets->snapshot($target),
-            ]);
+            ]));
         } catch (QueryException $e) {
             if (! $this->isUniqueViolation($e)) {
                 throw $e;
@@ -80,9 +84,9 @@ final class SubmitContentReportAction
         string $targetId,
         QueryException $conflict,
     ): ContentReport {
-        // The insert runs in autocommit (no enclosing transaction), so this
-        // recovery read runs outside the failed statement, never inside an
-        // aborted PostgreSQL transaction.
+        // The insert above runs behind a savepoint, so this recovery read
+        // never runs inside an aborted PostgreSQL transaction, whether or
+        // not the caller holds an enclosing transaction.
         $recovered = $this->reports->findByReporterTarget($reporterId, $type, $targetId);
 
         if (! $recovered instanceof ContentReport) {
