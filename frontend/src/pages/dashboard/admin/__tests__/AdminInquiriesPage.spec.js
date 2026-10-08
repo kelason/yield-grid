@@ -157,6 +157,15 @@ describe('AdminInquiriesPage.vue', () => {
     })
   })
 
+  it('seeds the reply delivery filter from the route query', async () => {
+    mockRoute.query = { delivery: 'failed' }
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/contact-messages', {
+      params: expect.objectContaining({ delivery: 'failed' }),
+    })
+  })
+
   it('loads the first page of inquiries on entry', async () => {
     const wrapper = await mountPage()
 

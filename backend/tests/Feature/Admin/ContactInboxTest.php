@@ -138,6 +138,24 @@ it('filters the inbox by status and search with bounded pagination', function ()
     $this->withToken($token)->getJson('/api/v1/admin/contact-messages?per_page=101')->assertStatus(422);
 });
 
+it('filters the inbox by reply delivery status', function () {
+    $token = contactInboxAdminToken();
+    $failed = contactInboxMessage(['email' => 'failed@example.com']);
+    contactInboxReply($failed, ['delivery_status' => ReplyDeliveryStatus::FAILED]);
+    $sent = contactInboxMessage(['email' => 'sent@example.com']);
+    contactInboxReply($sent, ['delivery_status' => ReplyDeliveryStatus::SENT]);
+    contactInboxMessage(['email' => 'noreply@example.com']);
+
+    $response = $this->withToken($token)->getJson('/api/v1/admin/contact-messages?delivery=failed');
+
+    $response->assertOk()->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.email', 'failed@example.com')
+        ->assertJsonPath('meta.total', 1);
+
+    Auth::forgetGuards();
+    $this->withToken($token)->getJson('/api/v1/admin/contact-messages?delivery=bogus')->assertStatus(422);
+});
+
 it('respects per_page while reporting the full total', function () {
     $token = contactInboxAdminToken();
     contactInboxMessage(['email' => 'one@example.com']);

@@ -40,11 +40,19 @@ export const REPLY_DELIVERY_LABELS = {
   failed: 'Failed',
 }
 
+export const ADMIN_INQUIRY_DELIVERY_OPTIONS = [
+  { value: '', label: 'All deliveries' },
+  { value: REPLY_DELIVERY_STATUS.FAILED, label: 'Failed replies' },
+]
+
 export const DUPLICATE_DELIVERY_CAUTION =
   'The previous attempt may already have been delivered; retrying can send a duplicate.'
 
+export const ADMIN_USER_ROLE_MEMBERS = 'members'
+
 export const ADMIN_USER_ROLE_OPTIONS = [
   { value: '', label: 'All roles' },
+  { value: ADMIN_USER_ROLE_MEMBERS, label: 'Members' },
   { value: 'farmer', label: 'Farmer' },
   { value: 'buyer', label: 'Buyer' },
   { value: 'admin', label: 'Admin' },

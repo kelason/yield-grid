@@ -260,6 +260,14 @@ it('filters the admin user list by role and suspension state', function () {
     $activeOnly->assertOk();
     expect($activeIds)->toContain((string) $farmer->id, (string) $buyer->id)
         ->and($activeIds)->not->toContain((string) $suspended->id);
+
+    Auth::forgetGuards();
+    $members = $this->withToken($token)->getJson('/api/v1/admin/users?role=members');
+    $memberIds = array_column($members->json('data'), 'id');
+
+    $members->assertOk();
+    expect($memberIds)->toContain((string) $farmer->id, (string) $buyer->id, (string) $suspended->id)
+        ->and($memberIds)->not->toContain((string) $admin->id);
 });
 
 it('searches users by name or email as a literal substring', function () {

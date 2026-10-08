@@ -23,4 +23,6 @@ final class AdminConstants
     public const string SUSPENDED_CODE = 'account_suspended';
 
     public const string CACHE_CONTROL_NO_STORE = 'private, no-store';
+
+    public const string ADMIN_USER_ROLE_MEMBERS = 'members';
 }

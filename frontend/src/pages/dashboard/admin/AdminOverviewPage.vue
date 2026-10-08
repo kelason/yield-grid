@@ -2,7 +2,11 @@
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAdminOverview } from '@/composables/useAdminOverview'
-import { ADMIN_INQUIRY_STATUS_OPTIONS } from '@/constants/admin'
+import {
+  ADMIN_INQUIRY_STATUS_OPTIONS,
+  ADMIN_USER_ROLE_MEMBERS,
+  REPLY_DELIVERY_STATUS,
+} from '@/constants/admin'
 import { ISSUE_STATUS_LABELS } from '@/constants/issues'
 import { CONTENT_TYPE_OPTIONS, REPORT_STATUS, REPORT_STATUS_LABELS } from '@/constants/reporting'
 import PageHeader from '@/components/molecules/PageHeader.vue'
@@ -36,7 +40,7 @@ const memberCards = computed(() => {
       testid: 'overview-users-total',
       label: 'Members',
       value: count(users.members_total),
-      to: { name: 'admin-users' },
+      to: { name: 'admin-users', query: { role: ADMIN_USER_ROLE_MEMBERS } },
       aria: 'View all members',
       tone: 'default',
       sub: null,
@@ -89,7 +93,7 @@ const inquiryCards = computed(() => {
     testid: 'overview-inquiries-failed',
     label: 'Failed replies',
     value: count(inquiries.failed_replies),
-    to: { name: 'admin-inquiries' },
+    to: { name: 'admin-inquiries', query: { delivery: REPLY_DELIVERY_STATUS.FAILED } },
     aria: 'View inquiries with failed replies',
     tone: 'harvest',
     sub: null,

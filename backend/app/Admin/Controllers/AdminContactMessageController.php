@@ -204,6 +204,11 @@ final class AdminContactMessageController extends Controller
             $query->where('status', $filters['status']);
         }
 
+        if (($filters['delivery'] ?? null) !== null) {
+            $delivery = (string) $filters['delivery'];
+            $query->whereHas('replies', fn (Builder $replies): Builder => $replies->where('delivery_status', $delivery));
+        }
+
         if (($filters['search'] ?? null) !== null && $filters['search'] !== '') {
             $query->where(function (Builder $nested) use ($filters): void {
                 $like = '%'.$this->escapeLike((string) $filters['search']).'%';

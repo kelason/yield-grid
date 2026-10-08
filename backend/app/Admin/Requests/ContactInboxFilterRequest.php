@@ -7,6 +7,7 @@ namespace App\Admin\Requests;
 use App\Constants\AdminConstants;
 use App\Constants\PaginationConstants;
 use App\Domain\Contact\Enums\ContactStatus;
+use App\Domain\Contact\Enums\ReplyDeliveryStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,6 +29,12 @@ final class ContactInboxFilterRequest extends FormRequest
                 ContactStatus::READ->value,
                 ContactStatus::REPLIED->value,
                 ContactStatus::CLOSED->value,
+            ])],
+            'delivery' => ['nullable', Rule::in([
+                ReplyDeliveryStatus::QUEUED->value,
+                ReplyDeliveryStatus::SENDING->value,
+                ReplyDeliveryStatus::SENT->value,
+                ReplyDeliveryStatus::FAILED->value,
             ])],
             'search' => ['nullable', 'string', 'max:'.AdminConstants::ADMIN_SEARCH_MAX_LENGTH],
             'page' => ['nullable', 'integer', 'min:'.PaginationConstants::PAGE_MIN, 'max:'.PaginationConstants::PAGE_MAX],

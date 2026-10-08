@@ -85,7 +85,10 @@ describe('AdminOverviewPage.vue', () => {
   it('links every card to its matching filtered list', async () => {
     const wrapper = await mountPage()
 
-    expect(linkTarget(wrapper, 'overview-users-total')).toEqual({ name: 'admin-users' })
+    expect(linkTarget(wrapper, 'overview-users-total')).toEqual({
+      name: 'admin-users',
+      query: { role: 'members' },
+    })
     expect(linkTarget(wrapper, 'overview-users-suspended')).toEqual({
       name: 'admin-users',
       query: { suspended: 'suspended' },
@@ -102,7 +105,10 @@ describe('AdminOverviewPage.vue', () => {
         query: { status },
       })
     }
-    expect(linkTarget(wrapper, 'overview-inquiries-failed')).toEqual({ name: 'admin-inquiries' })
+    expect(linkTarget(wrapper, 'overview-inquiries-failed')).toEqual({
+      name: 'admin-inquiries',
+      query: { delivery: 'failed' },
+    })
     for (const status of ['open', 'reviewing', 'resolved', 'dismissed']) {
       expect(linkTarget(wrapper, `overview-reports-${status}`)).toEqual({
         name: 'admin-reports',

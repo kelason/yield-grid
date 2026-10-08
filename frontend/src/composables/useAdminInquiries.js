@@ -23,7 +23,7 @@ export function useAdminInquiries() {
   const loading = ref(false)
   const error = ref('')
   const mutating = ref(false)
-  const filters = ref({ search: '', status: '' })
+  const filters = ref({ search: '', status: '', delivery: '' })
   const pagination = ref({ currentPage: 1, lastPage: 1, total: 0 })
   const selected = ref(null)
   const detailLoading = ref(false)
@@ -34,6 +34,7 @@ export function useAdminInquiries() {
     const params = { page, per_page: PaginationConstants.DEFAULT_PER_PAGE }
     if (filters.value.search) params.search = filters.value.search
     if (filters.value.status) params.status = filters.value.status
+    if (filters.value.delivery) params.delivery = filters.value.delivery
     return params
   }
 

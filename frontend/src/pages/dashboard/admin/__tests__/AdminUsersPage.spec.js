@@ -107,6 +107,16 @@ describe('AdminUsersPage.vue', () => {
     })
   })
 
+  it('seeds the combined members role from the route query', async () => {
+    mockRoute.query = { role: 'members' }
+    apiGet.mockResolvedValueOnce(listResponse([]))
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/users', {
+      params: expect.objectContaining({ role: 'members' }),
+    })
+  })
+
   it('loads the first page of users on entry', async () => {
     const wrapper = await mountPage()
 

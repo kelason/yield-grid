@@ -13,6 +13,7 @@ use App\Constants\PaginationConstants;
 use App\Domain\Users\Actions\SuspendUserAction;
 use App\Domain\Users\Actions\UnsuspendUserAction;
 use App\Shared\Controllers\Controller;
+use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -99,7 +100,7 @@ final class AdminUserController extends Controller
         }
 
         if (($filters['role'] ?? null) !== null) {
-            $query->where('role', $filters['role']);
+            $this->applyRoleFilter($query, (string) $filters['role']);
         }
 
         if (array_key_exists('suspended', $filters) && $filters['suspended'] !== null) {
@@ -111,6 +112,20 @@ final class AdminUserController extends Controller
         }
 
         return $query;
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     */
+    private function applyRoleFilter(Builder $query, string $role): void
+    {
+        if ($role === AdminConstants::ADMIN_USER_ROLE_MEMBERS) {
+            $query->whereIn('role', [UserRole::FARMER->value, UserRole::BUYER->value]);
+
+            return;
+        }
+
+        $query->where('role', $role);
     }
 
     private function escapeLike(string $search): string

@@ -5,6 +5,7 @@ import { useAdminInquiries } from '@/composables/useAdminInquiries'
 import { queryFilterValue } from '@/utils/adminQueryFilters'
 import { useNotificationStore } from '@/stores/notificationStore'
 import {
+  ADMIN_INQUIRY_DELIVERY_OPTIONS,
   ADMIN_INQUIRY_STATUS_OPTIONS,
   ADMIN_SEARCH_MAX_LENGTH,
   CONTACT_INQUIRY_STATUS,
@@ -84,6 +85,10 @@ const route = useRoute()
 function seedFiltersFromQuery() {
   const query = route?.query ?? {}
   filters.value.status = queryFilterValue(query, 'status', Object.values(CONTACT_INQUIRY_STATUS))
+  const deliveries = ADMIN_INQUIRY_DELIVERY_OPTIONS.map((option) => option.value).filter(
+    (value) => value !== '',
+  )
+  filters.value.delivery = queryFilterValue(query, 'delivery', deliveries)
 }
 
 const filterError = ref('')
@@ -152,8 +157,13 @@ function onStatusChange(value) {
   fetchInquiries(1)
 }
 
+function onDeliveryChange(value) {
+  filters.value.delivery = value
+  fetchInquiries(1)
+}
+
 function resetFilters() {
-  filters.value = { search: '', status: '' }
+  filters.value = { search: '', status: '', delivery: '' }
   filterError.value = ''
   fetchInquiries(1)
 }
@@ -289,6 +299,20 @@ onMounted(() => {
         >
           <option
             v-for="option in ADMIN_INQUIRY_STATUS_OPTIONS"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </AppSelect>
+        <AppSelect
+          id="admin-inquiry-delivery"
+          :model-value="filters.delivery"
+          label="Reply delivery"
+          @update:model-value="onDeliveryChange"
+        >
+          <option
+            v-for="option in ADMIN_INQUIRY_DELIVERY_OPTIONS"
             :key="option.value"
             :value="option.value"
           >

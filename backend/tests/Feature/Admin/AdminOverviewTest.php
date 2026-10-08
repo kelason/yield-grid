@@ -377,7 +377,8 @@ it('matches admin list totals and performs no writes', function () {
     aoIssue($buyer);
     aoIssue($farmer, ['status' => IssueStatus::IN_PROGRESS->value]);
     aoReport($buyer, ReportTargetType::THREAD, 424001);
-    aoMessage(['status' => ContactStatus::UNREAD->value]);
+    $failedInbox = aoMessage(['status' => ContactStatus::UNREAD->value]);
+    aoMessageReply($failedInbox, ['delivery_status' => ReplyDeliveryStatus::FAILED->value]);
 
     $logCount = AdminActionLog::count();
 
@@ -396,6 +397,8 @@ it('matches admin list totals and performs no writes', function () {
     $farmerTotal = $this->getJson('/api/v1/admin/users?role=farmer', $headers)->json('meta.total');
     $buyerTotal = $this->getJson('/api/v1/admin/users?role=buyer', $headers)->json('meta.total');
     expect($farmerTotal + $buyerTotal)->toBe($overview['users']['members_total']);
+    expect($this->getJson('/api/v1/admin/users?role=members', $headers)->json('meta.total'))
+        ->toBe($overview['users']['members_total']);
 
     expect($this->getJson('/api/v1/admin/content/thread', $headers)->json('meta.total'))
         ->toBe($overview['content']['thread']['total']);
@@ -405,4 +408,11 @@ it('matches admin list totals and performs no writes', function () {
         ->toBe($overview['reports']['open']);
     expect($this->getJson('/api/v1/admin/contact-messages?status=unread', $headers)->json('meta.total'))
         ->toBe($overview['inquiries']['unread']);
+    // failed_replies stays a reply-row count per spec ("failed outbound reply count").
+    // List totals match in all UI-reachable states because retry reuses the same
+    // row via a delivery_generation bump; direct-API multi-queue can still hold
+    // 2 failed rows on 1 inquiry, in which case the filtered list counts affected
+    // inquiries rather than reply rows.
+    expect($this->getJson('/api/v1/admin/contact-messages?delivery=failed', $headers)->json('meta.total'))
+        ->toBe($overview['inquiries']['failed_replies']);
 });
