@@ -517,6 +517,24 @@ parameters:
 			path: app/Farming/Resources/PlotResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$flood_risk_assessed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Farming/Resources/PlotResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$flood_risk_level\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Farming/Resources/PlotResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$flood_within_coverage\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Farming/Resources/PlotResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
