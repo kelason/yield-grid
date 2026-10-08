@@ -33,6 +33,7 @@ describe('FloodRiskLegend', () => {
 
     const button = wrapper.get('[aria-label="Toggle flood overlay"]')
     expect(button.attributes('aria-pressed')).toBeDefined()
+    expect(button.classes()).toContain('motion-reduce:transition-none')
     await button.trigger('click')
 
     expect(wrapper.emitted('toggle')).toHaveLength(1)
