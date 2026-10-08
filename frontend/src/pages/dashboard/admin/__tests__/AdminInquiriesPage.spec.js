@@ -10,6 +10,12 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
+const mockRoute = { query: {} }
+
+vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
+}))
+
 const AppModalStub = {
   name: 'AppModal',
   props: ['isOpen', 'title', 'busy'],
@@ -85,6 +91,7 @@ describe('AdminInquiriesPage.vue', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockRoute.query = {}
     localStorage.clear()
     sessionStorage.clear()
     unreadInquiry = makeUnreadInquiry()
@@ -140,6 +147,15 @@ describe('AdminInquiriesPage.vue', () => {
     await findButton(dialog(wrapper), text).trigger('click')
     await flushPromises()
   }
+
+  it('seeds the inquiry status from the route query', async () => {
+    mockRoute.query = { status: 'unread' }
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/contact-messages', {
+      params: expect.objectContaining({ status: 'unread' }),
+    })
+  })
 
   it('loads the first page of inquiries on entry', async () => {
     const wrapper = await mountPage()

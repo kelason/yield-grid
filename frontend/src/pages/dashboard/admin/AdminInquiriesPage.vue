@@ -1,10 +1,13 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAdminInquiries } from '@/composables/useAdminInquiries'
+import { queryFilterValue } from '@/utils/adminQueryFilters'
 import { useNotificationStore } from '@/stores/notificationStore'
 import {
   ADMIN_INQUIRY_STATUS_OPTIONS,
   ADMIN_SEARCH_MAX_LENGTH,
+  CONTACT_INQUIRY_STATUS,
   CONTACT_REPLY_BODY_MAX_LENGTH,
   DUPLICATE_DELIVERY_CAUTION,
   REPLY_DELIVERY_STATUS,
@@ -75,6 +78,13 @@ const {
   queueReply,
   retryReply,
 } = useAdminInquiries()
+
+const route = useRoute()
+
+function seedFiltersFromQuery() {
+  const query = route?.query ?? {}
+  filters.value.status = queryFilterValue(query, 'status', Object.values(CONTACT_INQUIRY_STATUS))
+}
 
 const filterError = ref('')
 const selectedId = ref(null)
@@ -246,6 +256,7 @@ async function submitDialog() {
 }
 
 onMounted(() => {
+  seedFiltersFromQuery()
   fetchInquiries(1)
 })
 </script>

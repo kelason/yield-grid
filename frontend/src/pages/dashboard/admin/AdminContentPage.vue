@@ -1,12 +1,16 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAdminContent } from '@/composables/useAdminContent'
+import { queryFilterValue } from '@/utils/adminQueryFilters'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { ADMIN_SEARCH_MAX_LENGTH, SUSPENSION_REASON_MAX_LENGTH } from '@/constants/admin'
 import {
   CONTENT_TYPE_OPTIONS,
+  CONTENT_VISIBILITY,
   CONTENT_VISIBILITY_FILTER_OPTIONS,
   REPORT_TARGET_LABELS,
+  REPORT_TARGET_TYPE,
 } from '@/constants/reporting'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
@@ -42,6 +46,19 @@ const {
   hide,
   restore,
 } = useAdminContent()
+
+const route = useRoute()
+
+function seedFiltersFromQuery() {
+  const query = route?.query ?? {}
+  const type = queryFilterValue(query, 'type', Object.values(REPORT_TARGET_TYPE))
+  if (type) activeType.value = type
+  filters.value.visibility = queryFilterValue(
+    query,
+    'visibility',
+    Object.values(CONTENT_VISIBILITY),
+  )
+}
 
 const selectedKey = ref(null)
 const filterError = ref('')
@@ -186,6 +203,7 @@ async function submitDialog() {
 }
 
 onMounted(() => {
+  seedFiltersFromQuery()
   fetchContent(activeType.value, 1)
 })
 </script>

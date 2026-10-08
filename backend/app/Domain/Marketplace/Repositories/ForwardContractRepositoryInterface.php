@@ -39,4 +39,13 @@ interface ForwardContractRepositoryInterface
      * @return LengthAwarePaginator<int, ForwardContract>
      */
     public function paginateForAdmin(array $filters, int $perPage): LengthAwarePaginator;
+
+    /**
+     * Database-wide record counts using the same effective (root-aware)
+     * visibility scopes as the admin list. Split clones and roots all count
+     * as records; root-suppressed clones count as hidden.
+     *
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    public function visibilityCounts(): array;
 }

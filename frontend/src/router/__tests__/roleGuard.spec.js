@@ -86,12 +86,12 @@ describe('router role guard', () => {
     expect(router.currentRoute.value.name).toBe('buyer-dashboard')
   })
 
-  it('sends bare /dashboard to the admin users page for a verified admin', async () => {
+  it('sends bare /dashboard to the admin overview page for a verified admin', async () => {
     loginAs('admin')
 
     await router.push('/dashboard')
 
-    expect(router.currentRoute.value.name).toBe('admin-users')
+    expect(router.currentRoute.value.name).toBe('admin-overview')
   })
 
   it('fails closed to forbidden for an unknown role on bare /dashboard', async () => {
@@ -124,12 +124,12 @@ describe('router role guard', () => {
     expect(router.currentRoute.value.name).toBe('buyer-dashboard')
   })
 
-  it('sends an authenticated admin on home to the admin users page', async () => {
+  it('sends an authenticated admin on home to the admin overview page', async () => {
     loginAs('admin')
 
     await router.push('/')
 
-    expect(router.currentRoute.value.name).toBe('admin-users')
+    expect(router.currentRoute.value.name).toBe('admin-overview')
   })
 
   it('fails closed to forbidden for an unknown role on home, never farmer', async () => {
@@ -146,12 +146,12 @@ describe('router role guard', () => {
     expect(router.currentRoute.value.name).toBe('home')
   })
 
-  it('sends an authenticated admin on the login page to the admin users page', async () => {
+  it('sends an authenticated admin on the login page to the admin overview page', async () => {
     loginAs('admin')
 
     await router.push('/auth/login')
 
-    expect(router.currentRoute.value.name).toBe('admin-users')
+    expect(router.currentRoute.value.name).toBe('admin-overview')
   })
 
   it('sends an authenticated farmer on the login page to the farmer dashboard', async () => {
@@ -209,12 +209,33 @@ describe('router role guard', () => {
     expect(router.currentRoute.value.name).toBe('admin-users')
   })
 
-  it('sends a verified admin on the admin root to the admin users page', async () => {
+  it('allows a verified admin to reach the admin overview page', async () => {
+    loginAs('admin')
+
+    await router.push('/admin/overview')
+
+    expect(router.currentRoute.value.name).toBe('admin-overview')
+  })
+
+  it('blocks farmers and buyers from the admin overview page', async () => {
+    loginAs('farmer')
+
+    await router.push('/admin/overview')
+    expect(router.currentRoute.value.name).toBe('forbidden')
+
+    await router.push('/contact')
+    loginAs('buyer')
+
+    await router.push('/admin/overview')
+    expect(router.currentRoute.value.name).toBe('forbidden')
+  })
+
+  it('sends a verified admin on the admin root to the admin overview page', async () => {
     loginAs('admin')
 
     await router.push('/admin')
 
-    expect(router.currentRoute.value.name).toBe('admin-users')
+    expect(router.currentRoute.value.name).toBe('admin-overview')
   })
 
   it('sends an unverified admin on the admin users page to verification', async () => {

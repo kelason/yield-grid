@@ -231,11 +231,17 @@ const router = createRouter({
       meta: { requiresAuth: true },
       beforeEnter: (to) => {
         if (to.path === '/admin' || to.path === '/admin/') {
-          return { name: 'admin-users' }
+          return { name: 'admin-overview' }
         }
         return true
       },
       children: [
+        {
+          path: 'overview',
+          name: 'admin-overview',
+          component: () => import('../pages/dashboard/admin/AdminOverviewPage.vue'),
+          meta: { role: 'admin', requiresVerification: true },
+        },
         {
           path: 'users',
           name: 'admin-users',

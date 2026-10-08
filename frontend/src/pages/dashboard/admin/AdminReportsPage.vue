@@ -1,16 +1,20 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAdminReports } from '@/composables/useAdminReports'
+import { queryFilterValue } from '@/utils/adminQueryFilters'
 import { useNotificationStore } from '@/stores/notificationStore'
 import {
   CONTENT_TYPE_FILTER_OPTIONS,
   DECISION_NOTE_MAX_LENGTH,
   REPORT_OUTCOME,
+  REPORT_REASON,
   REPORT_REASON_FILTER_OPTIONS,
   REPORT_STATUS,
   REPORT_STATUS_FILTER_OPTIONS,
   REPORT_STATUS_LABELS,
   REPORT_TARGET_LABELS,
+  REPORT_TARGET_TYPE,
 } from '@/constants/reporting'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
@@ -64,6 +68,15 @@ const {
   clearSelection,
   decide,
 } = useAdminReports()
+
+const route = useRoute()
+
+function seedFiltersFromQuery() {
+  const query = route?.query ?? {}
+  filters.value.status = queryFilterValue(query, 'status', Object.values(REPORT_STATUS))
+  filters.value.type = queryFilterValue(query, 'type', Object.values(REPORT_TARGET_TYPE))
+  filters.value.reason = queryFilterValue(query, 'reason', Object.values(REPORT_REASON))
+}
 
 const selectedId = ref(null)
 const pendingDecision = ref(null)
@@ -196,6 +209,7 @@ async function reloadReport() {
 }
 
 onMounted(() => {
+  seedFiltersFromQuery()
   fetchReports(1)
 })
 </script>

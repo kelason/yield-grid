@@ -7,7 +7,7 @@ export const USER_ROLES = {
 export const ROLE_HOME = {
   farmer: { name: 'farmer-dashboard' },
   buyer: { name: 'buyer-dashboard' },
-  admin: { name: 'admin-users' },
+  admin: { name: 'admin-overview' },
 }
 
 export function isKnownRole(role) {

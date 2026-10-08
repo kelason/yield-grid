@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Contact\Repositories;
 
+use App\Domain\Contact\Enums\IssueStatus;
 use App\Domain\Contact\Models\IssueTicket;
 use App\Domain\Contact\Repositories\IssueTicketRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -86,6 +87,20 @@ final class EloquentIssueTicketRepository implements IssueTicketRepositoryInterf
         }
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function countsByStatus(): array
+    {
+        $counts = [];
+
+        foreach (IssueStatus::cases() as $status) {
+            $counts[$status->value] = IssueTicket::where('status', $status->value)->count();
+        }
+
+        return $counts;
     }
 
     private function escapeLike(string $search): string

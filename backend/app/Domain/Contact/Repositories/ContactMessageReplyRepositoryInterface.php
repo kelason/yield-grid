@@ -32,4 +32,12 @@ interface ContactMessageReplyRepositoryInterface
      * @return Collection<int, ContactMessageReply>
      */
     public function forMessage(int $messageId): Collection;
+
+    /**
+     * Database-wide reply totals keyed by delivery-status value. Every
+     * delivery status is present even when its count is zero.
+     *
+     * @return array<string, int>
+     */
+    public function countsByStatus(): array;
 }

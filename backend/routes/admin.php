@@ -3,6 +3,7 @@
 use App\Admin\Controllers\AdminContactMessageController;
 use App\Admin\Controllers\AdminContentController;
 use App\Admin\Controllers\AdminIssueController;
+use App\Admin\Controllers\AdminOverviewController;
 use App\Admin\Controllers\AdminReportController;
 use App\Admin\Controllers\AdminUserController;
 use App\Constants\AdminConstants;
@@ -11,6 +12,8 @@ use App\Shared\Middleware\EnsureUserHasRole;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware(['verified', EnsureUserHasRole::class.':admin'])->group(function () {
+    Route::get('/overview', AdminOverviewController::class);
+
     Route::get('/users', [AdminUserController::class, 'index']);
     Route::get('/users/{user}', [AdminUserController::class, 'show']);
     Route::post('/users/{user}/suspend', [AdminUserController::class, 'suspend'])

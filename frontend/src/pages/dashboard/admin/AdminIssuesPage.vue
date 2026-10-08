@@ -1,9 +1,12 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAdminIssues } from '@/composables/useAdminIssues'
+import { queryFilterValue } from '@/utils/adminQueryFilters'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { ADMIN_SEARCH_MAX_LENGTH } from '@/constants/admin'
 import {
+  ISSUE_CATEGORY,
   ISSUE_CATEGORY_FILTER_OPTIONS,
   ISSUE_CATEGORY_LABELS,
   ISSUE_CLOSING_STATUSES,
@@ -41,6 +44,14 @@ const {
   clearSelection,
   transitionIssue,
 } = useAdminIssues()
+
+const route = useRoute()
+
+function seedFiltersFromQuery() {
+  const query = route?.query ?? {}
+  filters.value.status = queryFilterValue(query, 'status', Object.values(ISSUE_STATUS))
+  filters.value.category = queryFilterValue(query, 'category', Object.values(ISSUE_CATEGORY))
+}
 
 const selectedId = ref(null)
 const filterError = ref('')
@@ -226,6 +237,7 @@ async function reloadTicket() {
 }
 
 onMounted(() => {
+  seedFiltersFromQuery()
   fetchIssues(1)
 })
 </script>

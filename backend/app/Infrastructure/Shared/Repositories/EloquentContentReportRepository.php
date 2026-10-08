@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Shared\Repositories;
 
+use App\Domain\Shared\Enums\ContentReportStatus;
 use App\Domain\Shared\Enums\ReportTargetType;
 use App\Domain\Shared\Models\ContentReport;
 use App\Domain\Shared\Repositories\ContentReportRepositoryInterface;
@@ -63,5 +64,19 @@ final class EloquentContentReportRepository implements ContentReportRepositoryIn
         }
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function countsByStatus(): array
+    {
+        $counts = [];
+
+        foreach (ContentReportStatus::cases() as $status) {
+            $counts[$status->value] = ContentReport::where('status', $status->value)->count();
+        }
+
+        return $counts;
     }
 }

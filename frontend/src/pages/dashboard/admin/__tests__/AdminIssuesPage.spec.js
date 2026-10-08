@@ -8,6 +8,12 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
+const mockRoute = { query: {} }
+
+vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
+}))
+
 const AppModalStub = {
   name: 'AppModal',
   props: ['isOpen', 'title', 'busy'],
@@ -59,6 +65,7 @@ describe('AdminIssuesPage.vue', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockRoute.query = {}
     localStorage.clear()
     sessionStorage.clear()
     apiGet = vi.fn()
@@ -87,6 +94,15 @@ describe('AdminIssuesPage.vue', () => {
   function dialog(wrapper) {
     return wrapper.find('[data-testid="issue-transition-dialog"]')
   }
+
+  it('seeds issue filters from the route query', async () => {
+    mockRoute.query = { status: 'open', category: 'payment' }
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/issues', {
+      params: expect.objectContaining({ status: 'open', category: 'payment' }),
+    })
+  })
 
   it('renders an explicit accessible title', async () => {
     const wrapper = await mountPage()

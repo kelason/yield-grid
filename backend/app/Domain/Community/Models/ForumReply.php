@@ -50,11 +50,14 @@ class ForumReply extends Model
      */
     public function scopeVisible(Builder $query): Builder
     {
+        // The parent column stays unqualified on purpose: the self-join
+        // aliases the parent table, so a table-qualified name would resolve
+        // to the outer reply row and never filter hidden parents.
         return $query->whereNull('forum_replies.hidden_at')
             ->whereHas('thread', fn (Builder $thread) => $thread->visible())
             ->where(function (Builder $nested): void {
                 $nested->whereNull('forum_replies.parent_id')
-                    ->orWhereHas('parent', fn (Builder $parent) => $parent->whereNull('forum_replies.hidden_at'));
+                    ->orWhereHas('parent', fn (Builder $parent) => $parent->whereNull('hidden_at'));
             });
     }
 

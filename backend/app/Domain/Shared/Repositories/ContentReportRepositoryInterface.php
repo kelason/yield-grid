@@ -38,4 +38,12 @@ interface ContentReportRepositoryInterface
      * @return LengthAwarePaginator<int, ContentReport>
      */
     public function paginate(array $filters, int $perPage): LengthAwarePaginator;
+
+    /**
+     * Database-wide report totals keyed by status value. Every status is
+     * present even when its count is zero.
+     *
+     * @return array<string, int>
+     */
+    public function countsByStatus(): array;
 }

@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAdminUsers } from '@/composables/useAdminUsers'
+import { queryFilterValue } from '@/utils/adminQueryFilters'
 import { useNotificationStore } from '@/stores/notificationStore'
 import {
   ADMIN_SEARCH_MAX_LENGTH,
@@ -48,6 +50,20 @@ const {
   suspendUser,
   unsuspendUser,
 } = useAdminUsers()
+
+const route = useRoute()
+
+function seedFiltersFromQuery() {
+  const query = route?.query ?? {}
+  const roles = ADMIN_USER_ROLE_OPTIONS.map((option) => option.value).filter(
+    (value) => value !== '',
+  )
+  filters.value.role = queryFilterValue(query, 'role', roles)
+  filters.value.suspended = queryFilterValue(query, 'suspended', [
+    ADMIN_USER_STATUS_FILTER.ACTIVE,
+    ADMIN_USER_STATUS_FILTER.SUSPENDED,
+  ])
+}
 
 const filterError = ref('')
 const pendingConfirm = ref(null)
@@ -150,6 +166,7 @@ async function submitDialog() {
 }
 
 onMounted(() => {
+  seedFiltersFromQuery()
   fetchUsers(1)
 })
 </script>

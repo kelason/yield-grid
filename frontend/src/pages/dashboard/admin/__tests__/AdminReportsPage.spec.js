@@ -8,6 +8,12 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
+const mockRoute = { query: {} }
+
+vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
+}))
+
 const AppModalStub = {
   name: 'AppModal',
   props: ['isOpen', 'title', 'busy'],
@@ -68,6 +74,7 @@ describe('AdminReportsPage.vue', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockRoute.query = {}
     localStorage.clear()
     sessionStorage.clear()
     apiGet = vi.fn()
@@ -96,6 +103,15 @@ describe('AdminReportsPage.vue', () => {
     await reviewButton(wrapper, id).trigger('click')
     await flushPromises()
   }
+
+  it('seeds report filters from the route query', async () => {
+    mockRoute.query = { status: 'reviewing', type: 'thread', reason: 'spam' }
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/reports', {
+      params: expect.objectContaining({ status: 'reviewing', type: 'thread', reason: 'spam' }),
+    })
+  })
 
   it('fetches the queue with status, type, and reason filters', async () => {
     const wrapper = await mountPage()

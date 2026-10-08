@@ -10,6 +10,7 @@ use App\Domain\Community\Models\ForumThread;
 use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Shared\Enums\ReportTargetType;
 use App\Policies\ForumContentPolicy;
 use Domain\Users\Models\User;
@@ -24,6 +25,7 @@ final class ContentTargetResolver
 {
     public function __construct(
         private readonly AdminContentPaginator $paginator,
+        private readonly ForwardContractRepositoryInterface $contracts,
     ) {}
 
     public function find(ReportTargetType $type, string $id): Model
@@ -99,6 +101,25 @@ final class ContentTargetResolver
     }
 
     /**
+     * Database-wide record counts with effective visibility semantics:
+     * suppressed replies (hidden thread or hidden parent) and
+     * root-suppressed contract/listing clones count as hidden. Totals
+     * exclude soft-deleted rows; hidden is always total minus visible.
+     *
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    public function visibilityCounts(ReportTargetType $type): array
+    {
+        return match ($type) {
+            ReportTargetType::THREAD => $this->threadVisibilityCounts(),
+            ReportTargetType::REPLY => $this->replyVisibilityCounts(),
+            ReportTargetType::CONTRACT => $this->contracts->visibilityCounts(),
+            ReportTargetType::LISTING => $this->listingVisibilityCounts(),
+            ReportTargetType::DEMAND => $this->demandVisibilityCounts(),
+        };
+    }
+
+    /**
      * @return array{type: string, id: string, owner_id: string, title: string, excerpt: string, status: ?string, captured_at: string}
      */
     public function snapshot(Model $target): array
@@ -120,6 +141,50 @@ final class ContentTargetResolver
             ),
             default => throw new InvalidArgumentException('Unsupported report target.'),
         };
+    }
+
+    /**
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    private function threadVisibilityCounts(): array
+    {
+        $total = ForumThread::query()->count();
+        $visible = ForumThread::query()->visible()->count();
+
+        return ['total' => $total, 'visible' => $visible, 'hidden' => $total - $visible];
+    }
+
+    /**
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    private function replyVisibilityCounts(): array
+    {
+        $total = ForumReply::query()->count();
+        $visible = ForumReply::query()->visible()->count();
+
+        return ['total' => $total, 'visible' => $visible, 'hidden' => $total - $visible];
+    }
+
+    /**
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    private function listingVisibilityCounts(): array
+    {
+        $total = HarvestListing::query()->count();
+        $visible = HarvestListing::query()->visible()->count();
+
+        return ['total' => $total, 'visible' => $visible, 'hidden' => $total - $visible];
+    }
+
+    /**
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    private function demandVisibilityCounts(): array
+    {
+        $total = CropDemand::query()->count();
+        $visible = CropDemand::query()->visible()->count();
+
+        return ['total' => $total, 'visible' => $visible, 'hidden' => $total - $visible];
     }
 
     private function assertAccessible(Model $target): void

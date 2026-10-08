@@ -56,4 +56,18 @@ final class EloquentContactMessageReplyRepository implements ContactMessageReply
     {
         return ContactMessageReply::where('message_id', $messageId)->orderBy('id')->get();
     }
+
+    /**
+     * @return array<string, int>
+     */
+    public function countsByStatus(): array
+    {
+        $counts = [];
+
+        foreach (ReplyDeliveryStatus::cases() as $status) {
+            $counts[$status->value] = ContactMessageReply::where('delivery_status', $status->value)->count();
+        }
+
+        return $counts;
+    }
 }

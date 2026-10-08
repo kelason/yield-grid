@@ -5,6 +5,8 @@ export const SUSPENDED_MESSAGE = 'This account is suspended. Contact support for
 
 export const ADMIN_USERS_PATH = '/admin/users'
 
+export const ADMIN_OVERVIEW_PATH = '/admin/overview'
+
 export const ADMIN_INQUIRIES_PATH = '/admin/contact-messages'
 export const CONTACT_REPLY_BODY_MAX_LENGTH = 5000
 export const CONTACT_REPLY_STALE_SECONDS = 300

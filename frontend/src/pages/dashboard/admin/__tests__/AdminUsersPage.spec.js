@@ -9,6 +9,12 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
+const mockRoute = { query: {} }
+
+vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
+}))
+
 const AppModalStub = {
   name: 'AppModal',
   props: ['isOpen', 'title', 'busy'],
@@ -53,6 +59,7 @@ describe('AdminUsersPage.vue', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockRoute.query = {}
     localStorage.clear()
     sessionStorage.clear()
     apiGet = vi.fn().mockResolvedValue(listResponse([activeUser, suspendedUser]))
@@ -89,6 +96,16 @@ describe('AdminUsersPage.vue', () => {
     await wrapper.find(`button[aria-label="${label}"]`).trigger('click')
     await flushPromises()
   }
+
+  it('seeds role and suspended filters from the route query', async () => {
+    mockRoute.query = { role: 'buyer', suspended: 'suspended' }
+    apiGet.mockResolvedValueOnce(listResponse([]))
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/users', {
+      params: expect.objectContaining({ role: 'buyer', suspended: true }),
+    })
+  })
 
   it('loads the first page of users on entry', async () => {
     const wrapper = await mountPage()

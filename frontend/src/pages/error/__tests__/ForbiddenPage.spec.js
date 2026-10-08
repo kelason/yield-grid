@@ -29,6 +29,7 @@ describe('ForbiddenPage.vue home link', () => {
         },
         { path: '/contact', name: 'contact', component: { template: '<div />' } },
         { path: '/admin/users', name: 'admin-users', component: { template: '<div />' } },
+        { path: '/admin/overview', name: 'admin-overview', component: { template: '<div />' } },
         { path: '/403', name: 'forbidden', component: { template: '<div />' } },
       ],
     })
@@ -78,13 +79,13 @@ describe('ForbiddenPage.vue home link', () => {
     })
   })
 
-  it('sends an admin home to the admin users page', async () => {
+  it('sends an admin home to the admin overview page', async () => {
     const { router, wrapper } = await mountPage('admin')
 
     await wrapper.findAll('button')[0].trigger('click')
 
     await vi.waitFor(() => {
-      expect(router.currentRoute.value.name).toBe('admin-users')
+      expect(router.currentRoute.value.name).toBe('admin-overview')
     })
   })
 

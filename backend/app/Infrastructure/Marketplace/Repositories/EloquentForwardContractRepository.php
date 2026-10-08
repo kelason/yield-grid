@@ -98,6 +98,17 @@ class EloquentForwardContractRepository implements ForwardContractRepositoryInte
         return $query->orderByDesc('created_at')->orderByDesc('id')->paginate($perPage);
     }
 
+    /**
+     * @return array{total: int, visible: int, hidden: int}
+     */
+    public function visibilityCounts(): array
+    {
+        $total = ForwardContract::query()->count();
+        $visible = ForwardContract::query()->visible()->count();
+
+        return ['total' => $total, 'visible' => $visible, 'hidden' => $total - $visible];
+    }
+
     private function escapeLike(string $search): string
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);

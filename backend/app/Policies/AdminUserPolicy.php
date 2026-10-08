@@ -29,6 +29,11 @@ final class AdminUserPolicy
         return $this->isVerifiedAdmin($user);
     }
 
+    public function viewOverview(User $user): bool
+    {
+        return $this->isVerifiedAdmin($user);
+    }
+
     private function isVerifiedAdmin(User $user): bool
     {
         return $user->role === UserRole::ADMIN && $user->hasVerifiedEmail();

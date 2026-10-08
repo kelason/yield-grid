@@ -8,6 +8,12 @@ vi.mock('@/composables/useApi', () => ({
   useApi: vi.fn(),
 }))
 
+const mockRoute = { query: {} }
+
+vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
+}))
+
 const AppModalStub = {
   name: 'AppModal',
   props: ['isOpen', 'title', 'busy'],
@@ -59,6 +65,7 @@ describe('AdminContentPage.vue', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockRoute.query = {}
     localStorage.clear()
     sessionStorage.clear()
     apiGet = vi.fn()
@@ -91,6 +98,15 @@ describe('AdminContentPage.vue', () => {
     await wrapper.find(`[data-testid="content-inspect-${id}"]`).trigger('click')
     await flushPromises()
   }
+
+  it('seeds the content type and visibility from the route query', async () => {
+    mockRoute.query = { type: 'contract', visibility: 'hidden' }
+    await mountPage()
+
+    expect(apiGet).toHaveBeenCalledWith('/admin/content/contract', {
+      params: expect.objectContaining({ visibility: 'hidden' }),
+    })
+  })
 
   it('browses each of the five content types', async () => {
     const wrapper = await mountPage()
