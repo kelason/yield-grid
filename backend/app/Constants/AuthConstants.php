@@ -15,4 +15,6 @@ final class AuthConstants
     public const int PASSWORD_MAX_LENGTH = 255;
 
     public const int RESET_TOKEN_MAX_LENGTH = 255;
+
+    public const int SANCTUM_TOKEN_CAP_MINUTES = 43200;
 }

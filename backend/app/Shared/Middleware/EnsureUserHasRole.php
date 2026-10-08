@@ -14,9 +14,11 @@ class EnsureUserHasRole
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (! $request->user() || $request->user()->role->value !== $role) {
+        $role = $request->user()?->role?->value;
+
+        if ($role === null || ! in_array($role, $roles, true)) {
             return response()->json(['message' => 'Unauthorized or insufficient permissions.'], HttpCode::FORBIDDEN);
         }
 

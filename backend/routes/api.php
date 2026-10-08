@@ -36,6 +36,7 @@ use App\Marketplace\Controllers\PurchaseController;
 use App\Shared\Middleware\AuthenticateIfTokenPresent;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use App\Shared\Middleware\EnsureUserHasRole;
+use App\Shared\Middleware\EnsureUserNotSuspended;
 use App\Users\Controllers\GeoController;
 use App\Users\Controllers\UserAddressController;
 use App\Users\Controllers\UserProfileController;
@@ -79,7 +80,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/verify-report/{token}', [CreditScoreController::class, 'verifyReport'])->middleware('throttle:60,1');
 
     // Protected Auth routes
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', EnsureUserNotSuspended::class])->group(function () {
+        require __DIR__.'/admin.php';
+
         // WebSocket auth - manual endpoint to avoid 'login' route redirect (API-only app)
         Route::post('/broadcasting/auth', function (Request $request) {
             return Broadcast::auth($request);
@@ -199,7 +202,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/threads', [ForumThreadController::class, 'index']);
             Route::get('/threads/{thread}', [ForumThreadController::class, 'show']);
 
-            Route::middleware('verified')->group(function () {
+            Route::middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
                 Route::post('/threads', [ForumThreadController::class, 'store']);
                 Route::put('/threads/{thread}', [ForumThreadController::class, 'update']);
                 Route::delete('/threads/{thread}', [ForumThreadController::class, 'destroy']);
@@ -217,8 +220,8 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        // Chat (all authenticated users)
-        Route::prefix('chat')->middleware('verified')->group(function () {
+        // Chat (verified members only)
+        Route::prefix('chat')->middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
             Route::get('/conversations', [ChatConversationController::class, 'index']);
             Route::post('/conversations', [ChatConversationController::class, 'store']);
             Route::get('/conversations/{conversation}', [ChatConversationController::class, 'show']);
