@@ -160,6 +160,105 @@ test('cash review retains the bounded draft after a rejected approval', async ({
   await page.screenshot({ path: testInfo.outputPath('cash-review.png'), animations: 'disabled' })
 })
 
+test('marketplace listing report confirms without starting checkout', async ({ page }) => {
+  await mockSession(page, { role: 'buyer' })
+  await priceGuide(page)
+  await page.route('**/api/v1/user/addresses', (route) => route.fulfill({ json: { data: [] } }))
+  await page.route('**/api/v1/market/contracts?**', (route) =>
+    route.fulfill({
+      json: { data: [CONTRACT], meta: { current_page: 1, last_page: 1, total: 1, per_page: 12 } },
+    }),
+  )
+  const reports = []
+  await page.route('**/api/v1/reports', (route) => {
+    const payload = route.request().postDataJSON()
+    expect(route.request().method()).toBe('POST')
+    expect(payload).toEqual({
+      reportable_type: 'listing',
+      reportable_id: '3',
+      reason: 'suspected_fraud',
+      description: 'The price and photos do not match this harvest.',
+    })
+    reports.push(payload)
+    return route.fulfill({ status: 201, json: { data: { id: '5', status: 'open' } } })
+  })
+  let checkouts = 0
+  await page.route('**/api/v1/market/listing/3/checkout', (route) => {
+    checkouts += 1
+    return route.fulfill({ json: {} })
+  })
+  await page.goto('/marketplace')
+  await page.getByRole('button', { name: 'Report this listing' }).click()
+  const form = page.getByRole('dialog', { name: 'Report content', exact: true })
+  await form.getByRole('combobox', { name: 'Reason' }).selectOption('suspected_fraud')
+  await form.getByLabel('Description').fill('The price and photos do not match this harvest.')
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Submit this report?', exact: true })
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  expect(reports).toEqual([])
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Send report', exact: true }).click()
+  await expect(form).not.toBeVisible()
+  expect(reports).toHaveLength(1)
+  expect(checkouts).toBe(0)
+  expect(page.url()).toBe(`${E2E.BASE_URL}/marketplace`)
+})
+
+test('farmer demand report confirms without placing an offer', async ({ page }) => {
+  await mockSession(page)
+  await priceGuide(page)
+  await page.route('**/api/v1/user/addresses', (route) => route.fulfill({ json: { data: [] } }))
+  await page.route('**/api/v1/market/demands?**', (route) =>
+    route.fulfill({
+      json: {
+        data: [
+          {
+            ...DEMAND,
+            description: 'Rice needed for a community kitchen.',
+            needed_by_date: '2026-11-15',
+            buyer: { id: 2, name: 'Cara' },
+          },
+        ],
+        meta: { current_page: 1, last_page: 1, total: 1, per_page: 12 },
+      },
+    }),
+  )
+  await page.route('**/api/v1/market/prices/guide/batch**', (route) =>
+    route.fulfill({ json: { guides: {} } }),
+  )
+  const reports = []
+  await page.route('**/api/v1/reports', (route) => {
+    const payload = route.request().postDataJSON()
+    expect(route.request().method()).toBe('POST')
+    expect(payload).toEqual({
+      reportable_type: 'demand',
+      reportable_id: '9',
+      reason: 'prohibited_item',
+      description: null,
+    })
+    reports.push(payload)
+    return route.fulfill({ status: 201, json: { data: { id: '6', status: 'open' } } })
+  })
+  let offers = 0
+  await page.route('**/api/v1/demands/9/offers', (route) => {
+    offers += 1
+    return route.fulfill({ json: {} })
+  })
+  await page.goto('/dashboard/demands/browse')
+  await page.getByRole('button', { name: 'Report this demand' }).click()
+  const form = page.getByRole('dialog', { name: 'Report content', exact: true })
+  await form.getByRole('combobox', { name: 'Reason' }).selectOption('prohibited_item')
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Submit this report?', exact: true })
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  expect(reports).toEqual([])
+  await form.getByRole('button', { name: 'Submit report', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Send report', exact: true }).click()
+  await expect(form).not.toBeVisible()
+  expect(reports).toHaveLength(1)
+  expect(offers).toBe(0)
+})
+
 test('marketplace checkout preserves quantity and cash payload without external navigation', async ({
   page,
 }, testInfo) => {
