@@ -22,3 +22,11 @@ it('opens log viewer in production with matching web-server user', function () {
     $this->call('GET', '/log-viewer', [], [], [], ['REMOTE_USER' => 'deployer'])
         ->assertOk();
 });
+
+it('denies log viewer in production with only client-supplied basic auth user', function () {
+    App::detectEnvironment(fn () => 'production');
+    config()->set('log-viewer.basic_auth_user', 'deployer');
+
+    $this->call('GET', '/log-viewer', [], [], [], ['PHP_AUTH_USER' => 'deployer'])
+        ->assertForbidden();
+});

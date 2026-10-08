@@ -138,7 +138,10 @@ class AppServiceProvider extends ServiceProvider
             return false;
         }
 
-        $remoteUser = (string) ($request->server('REMOTE_USER') ?? $request->server('PHP_AUTH_USER') ?? '');
+        // Only REMOTE_USER is trusted: nginx sets it after successful basic auth.
+        // PHP_AUTH_USER is client-controlled (parsed from the Authorization
+        // header without password verification) and must never grant access.
+        $remoteUser = (string) ($request->server('REMOTE_USER') ?? '');
 
         return $remoteUser !== '' && hash_equals($expectedUser, $remoteUser);
     }
