@@ -15,7 +15,10 @@ use App\Community\Controllers\ForumThreadController;
 use App\Community\Controllers\ForumVoteController;
 use App\Constants\CreditScoringConstants;
 use App\Constants\InsuranceConstants;
+use App\Constants\IssueConstants;
+use App\Constants\ReportingConstants;
 use App\Contact\Controllers\ContactController;
+use App\Contact\Controllers\IssueTicketController;
 use App\CreditScoring\Controllers\CreditScoreController;
 use App\CropRecommendation\Controllers\CropCompatibilityController;
 use App\CropRecommendation\Controllers\CropRecommendationController;
@@ -33,9 +36,11 @@ use App\Marketplace\Controllers\PayMongoWebhookController;
 use App\Marketplace\Controllers\PriceComparisonController;
 use App\Marketplace\Controllers\PriceGuideController;
 use App\Marketplace\Controllers\PurchaseController;
+use App\Shared\Controllers\ContentReportController;
 use App\Shared\Middleware\AuthenticateIfTokenPresent;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use App\Shared\Middleware\EnsureUserHasRole;
+use App\Shared\Middleware\EnsureUserNotSuspended;
 use App\Users\Controllers\GeoController;
 use App\Users\Controllers\UserAddressController;
 use App\Users\Controllers\UserProfileController;
@@ -79,7 +84,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/verify-report/{token}', [CreditScoreController::class, 'verifyReport'])->middleware('throttle:60,1');
 
     // Protected Auth routes
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', EnsureUserNotSuspended::class])->group(function () {
+        require __DIR__.'/admin.php';
+
         // WebSocket auth - manual endpoint to avoid 'login' route redirect (API-only app)
         Route::post('/broadcasting/auth', function (Request $request) {
             return Broadcast::auth($request);
@@ -199,7 +206,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/threads', [ForumThreadController::class, 'index']);
             Route::get('/threads/{thread}', [ForumThreadController::class, 'show']);
 
-            Route::middleware('verified')->group(function () {
+            Route::middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
                 Route::post('/threads', [ForumThreadController::class, 'store']);
                 Route::put('/threads/{thread}', [ForumThreadController::class, 'update']);
                 Route::delete('/threads/{thread}', [ForumThreadController::class, 'destroy']);
@@ -212,13 +219,37 @@ Route::prefix('v1')->group(function () {
                 Route::post('/threads/{thread}/vote', [ForumVoteController::class, 'storeThreadVote']);
                 Route::post('/replies/{reply}/vote', [ForumVoteController::class, 'storeReplyVote']);
 
-                Route::post('/reports', [ForumReportController::class, 'store']);
+                Route::post('/reports', [ForumReportController::class, 'store'])
+                    ->middleware([
+                        'throttle:'.ReportingConstants::REPORT_MINUTE_LIMITER,
+                        'throttle:'.ReportingConstants::REPORT_DAILY_LIMITER,
+                    ]);
                 Route::post('/attachments', [ForumAttachmentController::class, 'store']);
             });
         });
 
-        // Chat (all authenticated users)
-        Route::prefix('chat')->middleware('verified')->group(function () {
+        // Unified content reports (verified members only; shares limits with the legacy forum adapter)
+        Route::post('/reports', [ContentReportController::class, 'store'])
+            ->middleware([
+                'verified',
+                EnsureUserHasRole::class.':farmer,buyer',
+                'throttle:'.ReportingConstants::REPORT_MINUTE_LIMITER,
+                'throttle:'.ReportingConstants::REPORT_DAILY_LIMITER,
+            ]);
+
+        // Member issue tickets (verified members only)
+        Route::middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
+            Route::post('/issues', [IssueTicketController::class, 'store'])
+                ->middleware([
+                    'throttle:'.IssueConstants::ISSUE_MINUTE_LIMITER,
+                    'throttle:'.IssueConstants::ISSUE_DAILY_LIMITER,
+                ]);
+            Route::get('/issues', [IssueTicketController::class, 'index']);
+            Route::get('/issues/{issue}', [IssueTicketController::class, 'show'])->whereNumber('issue');
+        });
+
+        // Chat (verified members only)
+        Route::prefix('chat')->middleware(['verified', EnsureUserHasRole::class.':farmer,buyer'])->group(function () {
             Route::get('/conversations', [ChatConversationController::class, 'index']);
             Route::post('/conversations', [ChatConversationController::class, 'store']);
             Route::get('/conversations/{conversation}', [ChatConversationController::class, 'show']);

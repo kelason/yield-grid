@@ -1,7 +1,11 @@
 <?php
 
+use App\Domain\Community\Actions\ModerateForumContentAction;
+use App\Domain\Community\Events\NewReplyPosted;
 use App\Domain\Community\Models\ForumCategory;
+use App\Domain\Community\Models\ForumReply;
 use App\Domain\Community\Models\ForumThread;
+use App\Domain\Shared\Enums\ReportTargetType;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -83,4 +87,39 @@ it('hides the author identity on anonymous replies from other users', function (
         ->assertOk()
         ->assertJsonPath('data.replies.0.author.name', 'Anonymous Farmer')
         ->assertJsonMissingPath('data.replies.0.author.id');
+});
+
+it('returns 404 for hidden anonymous threads to everyone', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $author = User::factory()->create();
+    $thread = createAnonymousTestThread($author);
+    $stranger = User::factory()->create();
+
+    app(ModerateForumContentAction::class)->execute(
+        $admin, ReportTargetType::THREAD, (string) $thread->id, true, 'spam content'
+    );
+
+    $this->actingAs($stranger)->getJson("/api/v1/forum/threads/{$thread->id}")->assertNotFound();
+    $this->actingAs($author)->getJson("/api/v1/forum/threads/{$thread->id}")->assertNotFound();
+});
+
+it('keeps anonymous authors confidential in broadcast payloads', function () {
+    $author = User::factory()->create();
+    $thread = createAnonymousTestThread($author, false);
+
+    $reply = ForumReply::create([
+        'thread_id' => $thread->id,
+        'user_id' => $author->id,
+        'body' => 'An anonymous broadcast reply.',
+        'is_anonymous' => true,
+    ]);
+
+    $payload = (new NewReplyPosted($reply->id, $thread->id))->broadcastWith();
+
+    expect($payload['reply']['author'])->toBe([
+        'name' => 'Anonymous Farmer',
+        'avatar_url' => null,
+        'role' => 'farmer',
+    ]);
+    expect((string) json_encode($payload))->not->toContain($author->email);
 });

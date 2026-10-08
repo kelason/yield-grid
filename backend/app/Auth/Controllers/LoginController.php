@@ -6,6 +6,9 @@ namespace App\Auth\Controllers;
 
 use App\Auth\Requests\LoginRequest;
 use App\Auth\Resources\UserResource;
+use App\Constants\AdminConstants;
+use App\Constants\HttpCode;
+use App\Domain\Users\Exceptions\UserSuspendedException;
 use App\Shared\Controllers\Controller;
 use Domain\Users\Actions\LoginUserAction;
 use Domain\Users\DTOs\LoginUserDTO;
@@ -18,7 +21,15 @@ class LoginController extends Controller
     public function login(LoginRequest $request, LoginUserAction $action): JsonResponse
     {
         $dto = LoginUserDTO::fromRequest($request->validated());
-        $result = $action($dto);
+
+        try {
+            $result = $action($dto);
+        } catch (UserSuspendedException) {
+            return response()->json([
+                'message' => AdminConstants::SUSPENDED_MESSAGE,
+                'code' => AdminConstants::SUSPENDED_CODE,
+            ], HttpCode::FORBIDDEN);
+        }
 
         return response()->json([
             'user' => new UserResource($result['user']),

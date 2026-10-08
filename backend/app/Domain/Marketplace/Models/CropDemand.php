@@ -38,7 +38,13 @@ class CropDemand extends Model
         'needed_by_date' => 'date',
         'expiry_date' => 'date',
         'status' => DemandStatus::class,
+        'hidden_at' => 'datetime',
     ];
+
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
 
     /**
      * @return BelongsTo<User, $this>
@@ -80,6 +86,27 @@ class CropDemand extends Model
     public function scopeByBuyer(Builder $query, int $buyerId): Builder
     {
         return $query->where('crop_demands.buyer_id', $buyerId);
+    }
+
+    /**
+     * Member-visible demands: not hidden. No global scope on purpose so
+     * administrative readers and existing parties can still load hidden rows.
+     *
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->whereNull('crop_demands.hidden_at');
+    }
+
+    /**
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeHidden(Builder $query): Builder
+    {
+        return $query->whereNotNull('crop_demands.hidden_at');
     }
 
     /**

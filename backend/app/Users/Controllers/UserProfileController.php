@@ -26,6 +26,7 @@ final class UserProfileController extends Controller
         $isOwnProfile = $request->user()?->id === $user->id;
 
         $postsQuery = ForumThread::where('user_id', $user->id)
+            ->visible()
             ->latest()
             ->limit(PaginationConstants::PROFILE_POSTS_LIMIT);
 

@@ -8,6 +8,14 @@ final class PaginationConstants
 {
     public const DEFAULT_PER_PAGE = 10;
 
+    public const PAGE_MIN = 1;
+
+    public const PAGE_MAX = 10000;
+
+    public const PER_PAGE_MIN = 1;
+
+    public const PER_PAGE_MAX = 100;
+
     public const MARKETPLACE_PER_PAGE = 12;
 
     public const PURCHASES_PER_PAGE = 10;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Community\Actions\ModerateForumContentAction;
 use App\Domain\Community\Models\ForumCategory;
 use App\Domain\Community\Models\ForumThread;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
@@ -8,6 +9,7 @@ use App\Domain\Marketplace\Enums\PaymentStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
@@ -163,4 +165,31 @@ it('shows anonymous posts on your own profile', function () {
     $response->assertOk()
         ->assertJsonCount(1, 'data.posts')
         ->assertJsonPath('data.posts.0.title', 'My anonymous post');
+});
+
+it('excludes hidden posts from every profile view', function () {
+    [$farmer] = createProfileFarmerChain();
+    $viewer = User::factory()->buyer()->create();
+    $admin = User::factory()->create(['role' => 'admin']);
+    $category = createProfileCategory();
+
+    $hidden = ForumThread::create([
+        'user_id' => $farmer->id,
+        'category_id' => $category->id,
+        'title' => 'A hidden profile post title',
+        'body' => 'Hidden body content here.',
+        'last_activity_at' => now(),
+    ]);
+
+    app(ModerateForumContentAction::class)->execute(
+        $admin, ReportTargetType::THREAD, (string) $hidden->id, true, 'spam content'
+    );
+
+    $this->actingAs($viewer)->getJson("/api/v1/users/{$farmer->id}")
+        ->assertOk()
+        ->assertJsonCount(0, 'data.posts');
+
+    $this->actingAs($farmer)->getJson("/api/v1/users/{$farmer->id}")
+        ->assertOk()
+        ->assertJsonCount(0, 'data.posts');
 });

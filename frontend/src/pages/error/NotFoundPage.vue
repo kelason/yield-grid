@@ -24,14 +24,14 @@ import AppCard from '@/components/atoms/AppCard.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import { useAuthStore } from '@/stores/auth'
+import { roleHomeTarget } from '@/constants/roles'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const homeTarget = computed(() => {
-  if (authStore.userRole === 'buyer') return { name: 'buyer-dashboard' }
-  if (authStore.userRole === 'farmer') return { name: 'farmer-dashboard' }
-  return '/'
+  if (!authStore.isAuthenticated) return '/'
+  return roleHomeTarget(authStore.userRole)
 })
 
 const goHome = () => router.push(homeTarget.value)

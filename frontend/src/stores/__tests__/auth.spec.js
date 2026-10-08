@@ -128,4 +128,28 @@ describe('Auth Store', () => {
     expect(api.post).toHaveBeenCalledWith('/reset-password', payload)
     expect(result).toEqual({ message: 'Password reset' })
   })
+
+  it('clearSession clears storage and reactive auth state without an API call', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+
+    api.post.mockResolvedValueOnce({ data: { message: 'Sent' } })
+    await store.resendVerificationEmail()
+
+    store.user = { id: 1, role: 'admin' }
+    store.token = 'stale-token'
+    localStorage.setItem('auth_token', 'stale-token')
+    sessionStorage.setItem('auth_token', 'stale-token')
+
+    store.clearSession()
+
+    expect(store.user).toBeNull()
+    expect(store.token).toBeNull()
+    expect(store.isAuthenticated).toBe(false)
+    expect(store.resendCooldown).toBe(0)
+    expect(localStorage.getItem('auth_token')).toBeNull()
+    expect(sessionStorage.getItem('auth_token')).toBeNull()
+    expect(localStorage.getItem('resend_cooldown_start')).toBeNull()
+    expect(api.post).toHaveBeenCalledTimes(1)
+  })
 })

@@ -1,5 +1,6 @@
 <?php
 
+use App\Constants\AuthConstants;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Laravel\Sanctum\Http\Middleware\AuthenticateSession;
@@ -50,7 +51,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => AuthConstants::SANCTUM_TOKEN_CAP_MINUTES,
 
     /*
     |--------------------------------------------------------------------------

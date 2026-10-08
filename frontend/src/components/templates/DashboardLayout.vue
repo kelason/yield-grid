@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useChatStore } from '@/stores/chatStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useConfirmModal } from '@/composables/useConfirmModal'
+import { USER_ROLES } from '@/constants/roles'
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 const router = useRouter()
@@ -19,7 +20,11 @@ const isResending = ref(false)
 const notificationStore = useNotificationStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 onMounted(async () => {
-  if (authStore.isAuthenticated && authStore.isEmailVerified) {
+  if (
+    authStore.isAuthenticated &&
+    authStore.isEmailVerified &&
+    authStore.userRole !== USER_ROLES.ADMIN
+  ) {
     await chatStore.ensureConversationsLoaded()
     chatStore.startRealtimeSync()
   }

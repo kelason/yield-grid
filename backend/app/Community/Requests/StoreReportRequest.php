@@ -16,13 +16,21 @@ class StoreReportRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
             'reportable_type' => ['required', 'string', Rule::in(ForumConstants::REPORTABLE_TYPES)],
             'reportable_id' => ['required', 'integer'],
             'reason' => ['required', 'string', Rule::enum(ReportReason::class)],
-            'description' => ['nullable', 'string', 'max:'.ForumConstants::REPORT_DESCRIPTION_MAX_LENGTH],
+            'description' => [
+                'nullable',
+                'string',
+                'max:'.ForumConstants::REPORT_DESCRIPTION_MAX_LENGTH,
+                Rule::requiredIf(fn (): bool => $this->input('reason') === ReportReason::OTHER->value),
+            ],
         ];
     }
 }

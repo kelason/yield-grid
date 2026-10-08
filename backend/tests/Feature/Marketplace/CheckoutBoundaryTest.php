@@ -2,7 +2,10 @@
 
 use App\Constants\MarketplaceConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
+use App\Domain\Marketplace\Actions\ModerateMarketplaceContentAction;
+use App\Domain\Marketplace\Enums\ContractStatus;
 use App\Domain\Marketplace\Models\ForwardContract;
+use App\Domain\Shared\Enums\ReportTargetType;
 use App\Infrastructure\CropRecommendation\Models\CropRecommendation;
 use Domain\Farming\Models\Farm;
 use Domain\Farming\Models\Plot;
@@ -88,4 +91,21 @@ it('rejects checkout quantity above availability with conflict', function () {
         'quantity_kg' => 500,
         'payment_option' => 'cash',
     ])->assertStatus(409);
+});
+
+it('rejects checkout on a hidden contract with conflict', function () {
+    $contract = ($this->makeContract)(100);
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    app(ModerateMarketplaceContentAction::class)->execute(
+        $admin, ReportTargetType::CONTRACT, (string) $contract->id, true, 'suspected fraud'
+    );
+
+    $this->actingAs($this->buyer)->postJson("/api/v1/market/contracts/{$contract->id}/checkout", [
+        'quantity_kg' => 10,
+        'payment_option' => 'cash',
+    ])->assertStatus(409);
+
+    expect(ForwardContract::findOrFail($contract->id)->status)->toBe(ContractStatus::AVAILABLE);
+    expect((float) ForwardContract::findOrFail($contract->id)->quantity_kg)->toBe(100.0);
 });

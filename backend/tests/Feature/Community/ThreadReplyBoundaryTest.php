@@ -99,3 +99,17 @@ it('rejects a reply below min and above max', function () {
         'body' => str_repeat('a', ForumConstants::REPLY_MAX_LENGTH + 1),
     ])->assertStatus(422)->assertJsonValidationErrors(['body']);
 });
+
+it('rejects a reply parent that belongs to another thread', function () {
+    $thread = ($this->makeThread)();
+    $other = ($this->makeThread)();
+
+    $parentId = $this->postJson("/api/v1/forum/threads/{$other->id}/replies", [
+        'body' => 'A parent reply in another thread.',
+    ])->assertCreated()->json('data.id');
+
+    $this->postJson("/api/v1/forum/threads/{$thread->id}/replies", [
+        'body' => 'A reply with a foreign parent id.',
+        'parent_id' => $parentId,
+    ])->assertStatus(422)->assertJsonValidationErrors(['parent_id']);
+});
