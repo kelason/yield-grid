@@ -11,8 +11,13 @@ Pick a username (e.g. `deployer`) and generate the password file:
 ```bash
 sudo apt-get install -y apache2-utils   # provides htpasswd (once)
 sudo htpasswd -c /etc/nginx/.htpasswd-logviewer deployer
-sudo chmod 640 /etc/nginx/.htpasswd-logviewer
+sudo chmod 644 /etc/nginx/.htpasswd-logviewer
 ```
+
+The file must stay readable by the nginx worker user (`www-data`); mode
+644 is standard for htpasswd files since they store hashes, not
+passwords. A tighter mode (e.g. 640 root-owned) makes every
+authenticated request fail with 500.
 
 ## 2. Gate the route in nginx
 
