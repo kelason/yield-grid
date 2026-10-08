@@ -30,6 +30,8 @@ final class ForumConstants
 
     public const int REPORT_DESCRIPTION_MAX_LENGTH = 1000;
 
+    public const int MODERATION_REASON_MAX_LENGTH = 500;
+
     public const int ATTACHMENT_MAX_SIZE_KB = 10240;
 
     public const string ATTACHMENT_ALLOWED_MIMES = 'jpeg,png,jpg,gif,webp';

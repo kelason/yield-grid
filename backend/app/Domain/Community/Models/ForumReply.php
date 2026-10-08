@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Community\Models;
 
 use Domain\Users\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,7 +31,31 @@ class ForumReply extends Model
         return [
             'is_accepted' => 'boolean',
             'is_anonymous' => 'boolean',
+            'hidden_at' => 'datetime',
         ];
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
+
+    /**
+     * Member-visible replies: not hidden, on a visible thread, with a visible
+     * (or absent) direct parent. Deeper ancestry is enforced by
+     * ForumContentPolicy pruning, which every member reader applies.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->whereNull('forum_replies.hidden_at')
+            ->whereHas('thread', fn (Builder $thread) => $thread->visible())
+            ->where(function (Builder $nested): void {
+                $nested->whereNull('forum_replies.parent_id')
+                    ->orWhereHas('parent', fn (Builder $parent) => $parent->whereNull('forum_replies.hidden_at'));
+            });
     }
 
     /**

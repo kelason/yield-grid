@@ -11,6 +11,7 @@ use App\Domain\Marketplace\Models\CropDemand;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Shared\Enums\ReportTargetType;
+use App\Policies\ForumContentPolicy;
 use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -64,32 +65,20 @@ final class ContentTargetResolver
 
     private function assertAccessible(Model $target): void
     {
+        if ($target instanceof ForumThread) {
+            if (! ForumContentPolicy::isThreadVisible($target)) {
+                throw (new ModelNotFoundException)->setModel(ForumThread::class);
+            }
+
+            return;
+        }
+
         if (! $target instanceof ForumReply) {
             return;
         }
 
-        ForumThread::whereKey($target->thread_id)->firstOrFail();
-        $this->assertReplyAncestry($target);
-    }
-
-    private function assertReplyAncestry(ForumReply $reply): void
-    {
-        $seen = [$reply->getKey()];
-        $parentId = $reply->parent_id;
-
-        while ($parentId !== null) {
-            if (in_array($parentId, $seen, true)) {
-                throw (new ModelNotFoundException)->setModel(ForumReply::class);
-            }
-
-            $seen[] = $parentId;
-            $parent = ForumReply::whereKey($parentId)->first();
-
-            if (! $parent instanceof ForumReply) {
-                throw (new ModelNotFoundException)->setModel(ForumReply::class);
-            }
-
-            $parentId = $parent->parent_id;
+        if (! ForumContentPolicy::isReplyVisible($target)) {
+            throw (new ModelNotFoundException)->setModel(ForumReply::class);
         }
     }
 
