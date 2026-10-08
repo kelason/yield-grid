@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Domain\Community\Actions\ModerateForumContentAction;
 use App\Domain\Community\Models\ForumCategory;
 use App\Domain\Community\Models\ForumReply;
