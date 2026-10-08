@@ -61,6 +61,7 @@ class CropDemandResource extends JsonResource
             'expiry_date' => $this->expiry_date,
             'status' => $this->status->value,
             'is_open' => $this->is_open,
+            'is_hidden' => $this->resource->isHidden(),
             'location_summary' => $locationSummary,
             'distance_m' => $this->resource->distance_m !== null ? (int) round((float) $this->resource->distance_m) : null,
             'offers_count' => $this->whenCounted('offers'),

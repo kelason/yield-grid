@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class ForwardContract extends Model
 {
@@ -45,7 +46,37 @@ class ForwardContract extends Model
         'estimated_harvest_date' => 'date',
         'expiry_date' => 'date',
         'status' => ContractStatus::class,
+        'hidden_at' => 'datetime',
+        'moderation_root_id' => 'integer',
     ];
+
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
+
+    /**
+     * Effective visibility: hidden directly or suppressed through a hidden
+     * moderation root. Null root means self. A missing root row fails closed.
+     */
+    public function isEffectivelyHidden(): bool
+    {
+        if ($this->hidden_at !== null) {
+            return true;
+        }
+
+        $rootId = $this->moderation_root_id;
+
+        if ($rootId === null || (int) $rootId === (int) $this->getKey()) {
+            return false;
+        }
+
+        $root = $this->relationLoaded('moderationRoot')
+            ? $this->getRelation('moderationRoot')
+            : $this->moderationRoot()->first();
+
+        return ! $root instanceof self || $root->hidden_at !== null;
+    }
 
     /**
      * @return BelongsTo<User, $this>
@@ -71,6 +102,14 @@ class ForwardContract extends Model
         return $this->hasOne(Purchase::class);
     }
 
+    /**
+     * @return BelongsTo<ForwardContract, $this>
+     */
+    public function moderationRoot(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'moderation_root_id');
+    }
+
     public function scopeAvailable(Builder $query): Builder
     {
         return $query->where('status', ContractStatus::AVAILABLE);
@@ -87,6 +126,52 @@ class ForwardContract extends Model
         return $query->where('farmer_id', $farmerId);
     }
 
+    /**
+     * Member-visible rows: neither directly hidden nor suppressed through a
+     * hidden moderation root. No global scope on purpose so administrative
+     * readers and owner history can still load hidden rows explicitly.
+     *
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeVisible(Builder $query): Builder
+    {
+        $table = $this->getTable();
+
+        return $query->whereNull("{$table}.hidden_at")
+            ->where(function (Builder $nested) use ($table): void {
+                $nested->whereNull("{$table}.moderation_root_id")
+                    ->orWhereExists(function (QueryBuilder $exists) use ($table): void {
+                        $exists->selectRaw('1')
+                            ->from("{$table} as roots")
+                            ->whereColumn('roots.id', "{$table}.moderation_root_id")
+                            ->whereNull('roots.hidden_at');
+                    });
+            });
+    }
+
+    /**
+     * Effectively hidden rows: directly hidden or suppressed through a
+     * hidden moderation root.
+     *
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeHidden(Builder $query): Builder
+    {
+        $table = $this->getTable();
+
+        return $query->where(function (Builder $nested) use ($table): void {
+            $nested->whereNotNull("{$table}.hidden_at")
+                ->orWhereExists(function (QueryBuilder $exists) use ($table): void {
+                    $exists->selectRaw('1')
+                        ->from("{$table} as roots")
+                        ->whereColumn('roots.id', "{$table}.moderation_root_id")
+                        ->whereNotNull('roots.hidden_at');
+                });
+        });
+    }
+
     public function getIsExpiredAttribute(): bool
     {
         return $this->expiry_date->isPast();
@@ -94,6 +179,6 @@ class ForwardContract extends Model
 
     public function getIsPurchasableAttribute(): bool
     {
-        return $this->status === ContractStatus::AVAILABLE && ! $this->is_expired;
+        return $this->status === ContractStatus::AVAILABLE && ! $this->is_expired && ! $this->isEffectivelyHidden();
     }
 }

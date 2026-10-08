@@ -15,6 +15,7 @@ use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
 use App\Domain\Shared\Database\TransactionManagerInterface;
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 use LogicException;
 
 final class CreateCashPurchaseAction
@@ -27,9 +28,13 @@ final class CreateCashPurchaseAction
     public function execute(Model $purchasable, int $buyerId, float $quantityKg): Purchase
     {
         $purchase = $this->transactionManager->run(function () use ($purchasable, $buyerId, $quantityKg) {
-            // Re-fetch with lock
-            $modelClass = get_class($purchasable);
-            $lockedItem = $modelClass::where('id', $purchasable->id)->lockForUpdate()->firstOrFail();
+            if (! $purchasable instanceof ForwardContract && ! $purchasable instanceof HarvestListing) {
+                throw new InvalidArgumentException('Only forward contracts and harvest listings can be checked out.');
+            }
+
+            // Re-fetch with root-before-item locks and recheck visibility first
+            // so a hidden item reports unavailability instead of a quantity error.
+            $lockedItem = $this->splitPurchasableAction->lockVisible($purchasable::class, (int) $purchasable->id);
 
             if ($lockedItem->status !== ContractStatus::AVAILABLE || $quantityKg > (float) $lockedItem->quantity_kg) {
                 throw new LogicException('Requested quantity is not available.');

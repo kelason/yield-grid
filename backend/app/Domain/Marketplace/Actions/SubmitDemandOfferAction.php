@@ -21,6 +21,10 @@ final class SubmitDemandOfferAction
         $offer = DB::transaction(function () use ($dto): CropDemandOffer {
             $demand = CropDemand::where('id', $dto->demandId)->lockForUpdate()->firstOrFail();
 
+            if ($demand->isHidden()) {
+                throw new LogicException('This demand is no longer accepting offers.');
+            }
+
             if ($demand->status !== DemandStatus::OPEN || $demand->is_expired) {
                 throw new LogicException('This demand is no longer accepting offers.');
             }

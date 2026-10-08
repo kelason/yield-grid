@@ -21,13 +21,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 use LogicException;
 
 final class CropDemandController extends Controller
 {
     public function index(CatalogFilterRequest $request): AnonymousResourceCollection
     {
-        $query = CropDemand::open()->with(['buyer', 'deliveryAddress'])->withCount('offers');
+        $query = CropDemand::open()->visible()->with(['buyer', 'deliveryAddress'])->withCount('offers');
 
         if ($request->filled('crop')) {
             $query->where('crop_demands.crop_name', 'ilike', '%'.$request->query('crop').'%');
@@ -89,6 +90,10 @@ final class CropDemandController extends Controller
 
     public function show(Request $request, CropDemand $demand): CropDemandResource
     {
+        // Hidden demands read as missing to everyone except the owner and
+        // existing offer parties (see CropDemandPolicy::view).
+        abort_unless(Gate::allows('view', $demand), HttpCode::NOT_FOUND);
+
         $viewer = $request->user();
         $isBuyer = $viewer !== null && $viewer->id === $demand->buyer_id;
 

@@ -25,6 +25,10 @@ final class DecideDemandOfferAction
 
             $demand = CropDemand::where('id', $lockedOffer->crop_demand_id)->lockForUpdate()->firstOrFail();
 
+            if ($demand->isHidden()) {
+                throw new LogicException('This demand is no longer open for acceptance.');
+            }
+
             if ($demand->status !== DemandStatus::OPEN || $demand->is_expired) {
                 throw new LogicException('This demand is no longer open for acceptance.');
             }

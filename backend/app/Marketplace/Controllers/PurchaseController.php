@@ -22,6 +22,7 @@ use App\Domain\Marketplace\Models\CropDemandOffer;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
 use App\Domain\Marketplace\Models\Purchase;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Infrastructure\Marketplace\Services\PayMongoService;
 use App\Marketplace\Requests\ApproveCashPaymentRequest;
@@ -46,7 +47,8 @@ final class PurchaseController extends Controller
         private readonly CreateCashPurchaseAction $createCashPurchaseAction,
         private readonly CreateOfferCashPurchaseAction $createOfferCashPurchaseAction,
         private readonly ApproveCashPaymentAction $approveCashPaymentAction,
-        private readonly SplitPurchasableAction $splitPurchasableAction
+        private readonly SplitPurchasableAction $splitPurchasableAction,
+        private readonly ForwardContractRepositoryInterface $contractRepository
     ) {}
 
     public function index(CatalogFilterRequest $request): AnonymousResourceCollection
@@ -77,7 +79,7 @@ final class PurchaseController extends Controller
             abort(HttpCode::FORBIDDEN, 'You do not own this purchase.');
         }
 
-        $purchase->load(['contract.farmer.farms', 'harvestListing.farmer.farms', 'demandOffer.demand', 'demandOffer.farmer']);
+        $purchase->load(['contract.farmer.farms', 'contract.moderationRoot', 'harvestListing.farmer.farms', 'harvestListing.moderationRoot', 'demandOffer.demand', 'demandOffer.farmer']);
 
         return new PurchaseResource($purchase);
     }
@@ -182,7 +184,9 @@ final class PurchaseController extends Controller
         $validated = $request->validated();
 
         $purchasableClass = ($type === 'listing' || $type === 'listings') ? HarvestListing::class : ForwardContract::class;
-        $purchasable = $purchasableClass::findOrFail($id);
+        $purchasable = $purchasableClass === ForwardContract::class
+            ? $this->contractRepository->findById($id)
+            : HarvestListing::with('moderationRoot')->findOrFail($id);
 
         if (! $purchasable->is_purchasable) {
             return response()->json(['message' => 'Item is no longer available.'], HttpCode::CONFLICT);
@@ -206,18 +210,22 @@ final class PurchaseController extends Controller
         // PayMongo Flow
         $quantityKg = (float) $validated['quantity_kg'];
 
-        $lockedPurchasable = DB::transaction(function () use ($purchasableClass, $id, $quantityKg) {
-            $inner = $purchasableClass::where('id', $id)->lockForUpdate()->firstOrFail();
-            if (! $inner->is_purchasable || $quantityKg > (float) $inner->quantity_kg) {
-                return null;
-            }
+        try {
+            $lockedPurchasable = DB::transaction(function () use ($purchasableClass, $id, $quantityKg) {
+                $inner = $this->splitPurchasableAction->lockVisible($purchasableClass, $id);
+                if (! $inner->is_purchasable || $quantityKg > (float) $inner->quantity_kg) {
+                    return null;
+                }
 
-            $splitItem = $this->splitPurchasableAction->execute($inner, $quantityKg);
-            $splitItem->status = ContractStatus::RESERVED;
-            $splitItem->save();
+                $splitItem = $this->splitPurchasableAction->execute($inner, $quantityKg);
+                $splitItem->status = ContractStatus::RESERVED;
+                $splitItem->save();
 
-            return $splitItem;
-        });
+                return $splitItem;
+            });
+        } catch (LogicException) {
+            return response()->json(['message' => 'Item is no longer available or quantity insufficient.'], HttpCode::CONFLICT);
+        }
 
         if (! $lockedPurchasable) {
             return response()->json(['message' => 'Item is no longer available or quantity insufficient.'], HttpCode::CONFLICT);
@@ -322,7 +330,7 @@ final class PurchaseController extends Controller
         $perPage = (int) $request->query('per_page', PaginationConstants::PURCHASES_PER_PAGE);
         $farmerId = $request->user()->id;
 
-        $purchases = Purchase::with(['buyer', 'contract', 'harvestListing', 'demandOffer.demand'])
+        $purchases = Purchase::with(['buyer', 'contract', 'contract.moderationRoot', 'harvestListing', 'harvestListing.moderationRoot', 'demandOffer.demand'])
             ->where(function ($query) use ($farmerId) {
                 $query->whereHas('contract', fn ($q) => $q->where('farmer_id', $farmerId))
                     ->orWhereHas('harvestListing', fn ($q) => $q->where('farmer_id', $farmerId))

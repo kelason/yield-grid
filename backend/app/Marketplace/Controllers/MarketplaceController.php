@@ -8,6 +8,7 @@ use App\Constants\GeoConstants;
 use App\Constants\PaginationConstants;
 use App\Domain\Marketplace\Models\ForwardContract;
 use App\Domain\Marketplace\Models\HarvestListing;
+use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Infrastructure\Services\PsgcService;
 use App\Marketplace\Requests\CatalogFilterRequest;
 use App\Marketplace\Resources\MarketplaceItemResource;
@@ -21,6 +22,10 @@ use Illuminate\Support\Collection;
 
 final class MarketplaceController extends Controller
 {
+    public function __construct(
+        private readonly ForwardContractRepositoryInterface $contractRepository
+    ) {}
+
     public function index(CatalogFilterRequest $request): AnonymousResourceCollection
     {
         $sort = $request->query('sort', 'newest');
@@ -28,8 +33,9 @@ final class MarketplaceController extends Controller
             ? ['farmer.farms', 'farmer.addresses' => fn ($q) => $q->where('is_default', true)]
             : ['farmer.farms'];
 
-        $contractsQuery = ForwardContract::available()->with(array_merge($withFarmer, ['recommendation']));
-        $listingsQuery = HarvestListing::available()->with($withFarmer);
+        $contractsQuery = $this->contractRepository->queryPublicItems()
+            ->with(array_merge($withFarmer, ['recommendation', 'moderationRoot']));
+        $listingsQuery = HarvestListing::available()->visible()->with(array_merge($withFarmer, ['moderationRoot']));
 
         // Apply filters to both queries
         $queries = [$contractsQuery, $listingsQuery];
@@ -133,9 +139,11 @@ final class MarketplaceController extends Controller
     public function show(Request $request, string $type, int $id): MarketplaceItemResource
     {
         if ($type === 'listing') {
-            $item = HarvestListing::available()->with('farmer.farms')->findOrFail($id);
+            $item = HarvestListing::available()->visible()->with(['farmer.farms', 'moderationRoot'])->findOrFail($id);
         } else {
-            $item = ForwardContract::available()->with(['farmer.farms', 'recommendation'])->findOrFail($id);
+            $item = $this->contractRepository->queryPublicItems()
+                ->with(['farmer.farms', 'recommendation', 'moderationRoot'])
+                ->findOrFail($id);
         }
 
         return new MarketplaceItemResource($item);

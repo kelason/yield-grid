@@ -73,12 +73,32 @@ final class ContentTargetResolver
             return;
         }
 
-        if (! $target instanceof ForumReply) {
+        if ($target instanceof ForumReply) {
+            if (! ForumContentPolicy::isReplyVisible($target)) {
+                throw (new ModelNotFoundException)->setModel(ForumReply::class);
+            }
+
             return;
         }
 
-        if (! ForumContentPolicy::isReplyVisible($target)) {
-            throw (new ModelNotFoundException)->setModel(ForumReply::class);
+        if ($target instanceof ForwardContract) {
+            if ($target->isEffectivelyHidden()) {
+                throw (new ModelNotFoundException)->setModel(ForwardContract::class);
+            }
+
+            return;
+        }
+
+        if ($target instanceof HarvestListing) {
+            if ($target->isEffectivelyHidden()) {
+                throw (new ModelNotFoundException)->setModel(HarvestListing::class);
+            }
+
+            return;
+        }
+
+        if ($target instanceof CropDemand && $target->isHidden()) {
+            throw (new ModelNotFoundException)->setModel(CropDemand::class);
         }
     }
 

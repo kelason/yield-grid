@@ -25,7 +25,7 @@ final class EloquentPurchaseRepository implements PurchaseRepositoryInterface
     public function getBuyerPurchases(int $buyerId, array $filters = [], int $perPage = PaginationConstants::PURCHASES_PER_PAGE): LengthAwarePaginator
     {
         $query = Purchase::where('buyer_id', $buyerId)
-            ->with(['contract.farmer.farms', 'harvestListing.farmer.farms', 'demandOffer.demand', 'demandOffer.farmer']);
+            ->with(['contract.farmer.farms', 'contract.moderationRoot', 'harvestListing.farmer.farms', 'harvestListing.moderationRoot', 'demandOffer.demand', 'demandOffer.farmer']);
 
         if (! empty($filters['search'])) {
             $search = $filters['search'];
