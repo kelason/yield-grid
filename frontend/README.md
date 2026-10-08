@@ -95,3 +95,13 @@ npx playwright test e2e/IdentityAndAccess e2e/Shared --project=firefox --project
 ```
 
 The `Browser smoke` workflow also provides an explicit manual run.
+
+## Admin release checks
+
+Admin, trust, and safety release verification, against the production
+build served by the Playwright webServer:
+
+```sh
+npx playwright test e2e/Admin e2e/Community e2e/Marketplace e2e/Shared --project=chromium --project=mobile-chromium
+npx playwright test e2e/IdentityAndAccess e2e/Shared e2e/Admin/access.spec.js --project=firefox --project=webkit
+```

@@ -13,6 +13,9 @@
 !/docs/
 /docs/*
 !/docs/RECENT_CHANGES.md
+!/docs/operations/
+/docs/operations/*
+!/docs/operations/admin-operations.md
 !/docs/superpowers/
 /docs/superpowers/*
 !/docs/superpowers/plans/
