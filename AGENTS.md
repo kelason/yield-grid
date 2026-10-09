@@ -70,6 +70,20 @@ them with longer timeouts or blind `--update-snapshots`. Diagnose first.
   browser suite before committing.
 - Unit specs mounting layouts whose children call `useI18n` must install the
   `i18n` plugin (see `AppSidebar.spec.js`); a bare mount fails in `setup`.
+- Shared-chrome changes (sidebar nav entries, headers, layouts) shift visual
+  snapshots on every page rendering that chrome. macOS runs never compare
+  pixels (`capture()` is Linux-only), so a fully green local suite still
+  fails CI. Before pushing, sweep `e2e/Visual` for specs covering pages that
+  render the changed chrome and regen those baselines in the pinned
+  container — never push chrome changes with untouched snapshots.
+- Identical pixel counts across failing visual tests mean a shared-chrome
+  change until proven otherwise. Prove the region first: temporarily revert
+  only the chrome change, screenshot the same page both ways, and confirm
+  the diff image shows nothing but the intended element — then regen.
+- A container re-run that fails with navigation timeouts or missing
+  elements on tests CI passed is a sick local Docker host, not a
+  regression. Restart the daemon and re-run just those tests before
+  investigating the code.
 
 ## Code Review Guidelines
 
