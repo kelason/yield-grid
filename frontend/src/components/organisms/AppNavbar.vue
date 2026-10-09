@@ -8,6 +8,7 @@ import AppLogo from '../atoms/AppLogo.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppModal from '../molecules/AppModal.vue'
 import ConfirmModal from '../molecules/ConfirmModal.vue'
+import LanguageDropdown from '../molecules/LanguageDropdown.vue'
 import NavLink from '../molecules/NavLink.vue'
 const authStore = useAuthStore()
 const route = useRoute()
@@ -40,6 +41,7 @@ function requestLogout() {
         />
       </nav>
       <div class="hidden items-center gap-3 md:flex">
+        <LanguageDropdown />
         <template v-if="!authStore.isAuthenticated"
           ><RouterLink
             to="/auth/login"
@@ -72,7 +74,7 @@ function requestLogout() {
         <NavLink to="/" label="Home" /><NavLink to="/about" label="About" /><NavLink
           to="/contact"
           label="Contact"
-        /><template v-if="!authStore.isAuthenticated"
+        /><LanguageDropdown /><template v-if="!authStore.isAuthenticated"
           ><RouterLink to="/auth/login" class="rounded-xl p-3 text-moss-700">Log in</RouterLink
           ><RouterLink to="/auth/register" class="rounded-xl p-3 text-moss-700"
             >Get Started</RouterLink

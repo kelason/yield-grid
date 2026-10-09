@@ -1,3 +1,4 @@
+import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -65,7 +66,9 @@ describe('InsurancePage', () => {
   it('switches the whole page to Tagalog', async () => {
     const wrapper = await mountPage()
 
-    await wrapper.get('[data-testid="locale-tl"]').trigger('click')
+    // Switching now lives in the navbar; the page follows the global locale.
+    setLocale('tl')
+    await nextTick()
 
     expect(wrapper.text()).toContain('Seguro sa Pananim')
     expect(wrapper.text()).toContain('Gabay sa Enrollment')

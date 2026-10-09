@@ -5,11 +5,6 @@ export default {
       subtitle:
         'Prepare your PCIC enrollment, track policies and claims, and never miss a deadline.',
     },
-    language: {
-      label: 'Language',
-      english: 'English',
-      tagalog: 'Tagalog',
-    },
     rsbsa: {
       title: 'RSBSA Registration',
       description:

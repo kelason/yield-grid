@@ -5,11 +5,6 @@ export default {
       subtitle:
         'Ihanda ang PCIC enrollment, subaybayan ang mga polisa at claim, at huwag palampasin ang deadline.',
     },
-    language: {
-      label: 'Wika',
-      english: 'English',
-      tagalog: 'Tagalog',
-    },
     rsbsa: {
       title: 'Rehistro sa RSBSA',
       description:

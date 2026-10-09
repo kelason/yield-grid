@@ -5,11 +5,6 @@ export default {
       subtitle:
         'Andama ang imong PCIC enrollment, subaya ang mga polisiya ug claim, ug ayaw palabya ang deadline.',
     },
-    language: {
-      label: 'Pinulongan',
-      english: 'English',
-      tagalog: 'Tagalog',
-    },
     rsbsa: {
       title: 'Pagparehistro sa RSBSA',
       description:

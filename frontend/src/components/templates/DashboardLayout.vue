@@ -7,6 +7,7 @@ import AppLogo from '../atoms/AppLogo.vue'
 import AppButton from '../atoms/AppButton.vue'
 import ConfirmModal from '../molecules/ConfirmModal.vue'
 import EmailVerificationBanner from '../molecules/EmailVerificationBanner.vue'
+import LanguageDropdown from '../molecules/LanguageDropdown.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useChatStore } from '@/stores/chatStore'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -94,6 +95,7 @@ async function resendVerification() {
             >
           </div>
           <div class="flex shrink-0 items-center gap-2 sm:gap-4">
+            <LanguageDropdown />
             <RouterLink
               v-if="authStore.user?.id"
               :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"

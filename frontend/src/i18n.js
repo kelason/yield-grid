@@ -70,16 +70,4 @@ export function setLocale(locale) {
   writeStored(LOCALE_KEY, locale)
 }
 
-/**
- * @deprecated Use setLocale. Removed with LanguageToggle.
- */
-export function setInsuranceLocale(locale) {
-  setLocale(locale)
-}
-
-/**
- * @deprecated Use LOCALE_KEY. Removed with LanguageToggle.
- */
-export const INSURANCE_LOCALE_KEY = LOCALE_KEY
-
 export default i18n
