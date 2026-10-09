@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Jobs;
 
+use App\Constants\LocaleConstants;
 use App\Domain\CropRecommendation\Enums\RecommendationStatus;
 use App\Domain\CropRecommendation\Events\AnalysisCompleted;
 use App\Domain\CropRecommendation\Services\AgroMonitoringService;
@@ -26,11 +27,14 @@ class AnalyzePlotJob implements ShouldQueue
     /** @var array<string, mixed>|null */
     public readonly ?array $preferences;
 
+    public readonly string $locale;
+
     /** @param array<string, mixed>|null $preferences */
-    public function __construct(int $plotId, ?array $preferences = null)
+    public function __construct(int $plotId, ?array $preferences = null, string $locale = LocaleConstants::DEFAULT)
     {
         $this->plotId = $plotId;
         $this->preferences = $preferences;
+        $this->locale = $locale;
     }
 
     public function handle(AgroMonitoringService $agroService, CropAdvisorService $advisorService): void
@@ -45,7 +49,7 @@ class AnalyzePlotJob implements ShouldQueue
             }
 
             // 2. Get AI Recommendations
-            $recommendations = $advisorService->getRecommendations($plot, $agroData, $this->preferences);
+            $recommendations = $advisorService->getRecommendations($plot, $agroData, $this->preferences, $this->locale);
 
             // 3. Save to Database (remove previous pending recommendations so fresh analysis is displayed)
             CropRecommendation::where('plot_id', $plot->id)

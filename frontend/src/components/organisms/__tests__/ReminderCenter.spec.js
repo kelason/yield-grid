@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach } from 'vitest'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import ReminderCenter from '../ReminderCenter.vue'
 
 describe('ReminderCenter', () => {
   beforeEach(() => {
-    setInsuranceLocale('en')
+    setLocale('en')
   })
 
   function mountCenter(reminders) {
@@ -36,7 +36,7 @@ describe('ReminderCenter', () => {
   })
 
   it('renders translated reminders in Tagalog', () => {
-    setInsuranceLocale('tl')
+    setLocale('tl')
     const wrapper = mountCenter([
       {
         type: 'renewal',

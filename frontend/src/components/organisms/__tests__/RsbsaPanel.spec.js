@@ -1,11 +1,11 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, beforeEach } from 'vitest'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import RsbsaPanel from '../RsbsaPanel.vue'
 
 describe('RsbsaPanel', () => {
   beforeEach(() => {
-    setInsuranceLocale('en')
+    setLocale('en')
   })
 
   function mountPanel(profile = { rsbsa_number: null, rsbsa_status: 'not_registered' }) {
@@ -30,7 +30,7 @@ describe('RsbsaPanel', () => {
   it('updates translated select options after switching locale', async () => {
     const wrapper = mountPanel()
     const before = wrapper.get('#insurance-rsbsa-status option[value="registered"]').text()
-    setInsuranceLocale('tl')
+    setLocale('tl')
     await flushPromises()
     expect(wrapper.get('#insurance-rsbsa-status option[value="registered"]').text()).not.toBe(
       before,

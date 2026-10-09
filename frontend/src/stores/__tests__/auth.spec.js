@@ -2,16 +2,19 @@ import { setActivePinia, createPinia } from 'pinia'
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { useAuthStore } from '../auth'
 import { useApi } from '@/composables/useApi'
+import i18n, { setLocale, LOCALE_KEY } from '@/i18n'
 
 // Mock the API client
 vi.mock('@/composables/useApi', () => {
   const getMock = vi.fn()
   const postMock = vi.fn()
+  const patchMock = vi.fn()
 
   return {
     useApi: () => ({
       get: getMock,
       post: postMock,
+      patch: patchMock,
       defaults: {
         baseURL: 'http://localhost:3000/api/v1',
       },
@@ -23,6 +26,8 @@ describe('Auth Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     localStorage.clear()
+    sessionStorage.clear()
+    setLocale('en')
     vi.clearAllMocks()
     vi.useFakeTimers()
   })
@@ -151,5 +156,73 @@ describe('Auth Store', () => {
     expect(sessionStorage.getItem('auth_token')).toBeNull()
     expect(localStorage.getItem('resend_cooldown_start')).toBeNull()
     expect(api.post).toHaveBeenCalledTimes(1)
+  })
+
+  it('prefers the profile locale over the local one on login', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+    setLocale('tl')
+
+    api.post.mockResolvedValueOnce({
+      data: { user: { id: 1, locale: 'ceb', email_verified_at: '2026-09-17' }, token: 't' },
+    })
+    await store.login({})
+
+    expect(i18n.global.locale.value).toBe('ceb')
+    expect(localStorage.getItem(LOCALE_KEY)).toBe('ceb')
+    expect(api.patch).not.toHaveBeenCalled()
+  })
+
+  it('pushes the local locale to the profile when unset on login', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+    setLocale('ceb')
+
+    api.post.mockResolvedValueOnce({
+      data: { user: { id: 1, email_verified_at: '2026-09-17' }, token: 't' },
+    })
+    await store.login({})
+
+    expect(api.patch).toHaveBeenCalledWith('/user/locale', { locale: 'ceb' })
+  })
+
+  it('sends the local locale with registration', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+    setLocale('tl')
+
+    api.post.mockResolvedValueOnce({
+      data: { user: { id: 1, locale: 'tl' }, token: 't' },
+    })
+    await store.register({ name: 'A' })
+
+    expect(api.post).toHaveBeenCalledWith('/register', { name: 'A', locale: 'tl' })
+  })
+
+  it('switches language immediately and retries a failed sync on next fetch', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+    store.token = 't'
+
+    api.patch.mockRejectedValueOnce(new Error('offline'))
+    await store.switchLocale('ceb')
+
+    expect(i18n.global.locale.value).toBe('ceb')
+
+    api.get.mockResolvedValueOnce({ data: { id: 1 } })
+    await store.fetchUser()
+
+    expect(api.patch).toHaveBeenCalledTimes(2)
+    expect(api.patch).toHaveBeenNthCalledWith(2, '/user/locale', { locale: 'ceb' })
+  })
+
+  it('does not sync when guests switch language', async () => {
+    const store = useAuthStore()
+    const api = useApi()
+
+    await store.switchLocale('tl')
+
+    expect(i18n.global.locale.value).toBe('tl')
+    expect(api.patch).not.toHaveBeenCalled()
   })
 })

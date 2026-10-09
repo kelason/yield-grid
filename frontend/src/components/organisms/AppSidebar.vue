@@ -7,6 +7,7 @@ import { useDashboardNavigation } from '@/composables/useDashboardNavigation'
 import AppLogo from '../atoms/AppLogo.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppModal from '../molecules/AppModal.vue'
+import LanguageDropdown from '../molecules/LanguageDropdown.vue'
 import SidebarNavigation from '../molecules/SidebarNavigation.vue'
 defineProps({ mobileOpen: Boolean })
 const emit = defineEmits(['close'])
@@ -92,6 +93,9 @@ onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
         <span class="block break-words">{{ auth.user.name }}</span>
         <span class="mt-1 block text-stone-300">Profile</span>
       </RouterLink>
+      <div class="mt-3">
+        <LanguageDropdown />
+      </div>
     </div>
   </AppModal>
 </template>

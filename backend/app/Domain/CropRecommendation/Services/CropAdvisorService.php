@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Services;
 
+use App\Constants\LocaleConstants;
 use App\Domain\CropRecommendation\Actions\BuildsAnalysisContext;
 use App\Domain\CropRecommendation\Catalog\MockCropCatalog;
 use App\Domain\CropRecommendation\Prompts\CropAnalysisPrompt;
@@ -39,11 +40,11 @@ class CropAdvisorService
     }
 
     /** @param array<string, mixed>|null $preferences */
-    public function getRecommendations(Plot $plot, array $agroData, ?array $preferences = null): array
+    public function getRecommendations(Plot $plot, array $agroData, ?array $preferences = null, string $locale = LocaleConstants::DEFAULT): array
     {
         $location = $this->geocoding->resolvePlotLocation($plot);
         $context = $this->buildContext($plot, $preferences);
-        $prompt = CropAnalysisPrompt::render($plot, $agroData, $location, $context);
+        $prompt = CropAnalysisPrompt::render($plot, $agroData, $location, $context, $this->normalizeLocale($locale));
 
         // 1. Check AI recommendation cache first to avoid re-querying Gemini for identical plot inputs
         $cacheKey = 'gemini_crop_rec_'.md5($plot->id.'_'.$prompt);
@@ -127,6 +128,13 @@ class CropAdvisorService
     private function buildContext(Plot $plot, ?array $preferences): array
     {
         return $this->contextBuilder->execute($plot, $preferences);
+    }
+
+    private function normalizeLocale(string $locale): string
+    {
+        return in_array($locale, LocaleConstants::SUPPORTED, true)
+            ? $locale
+            : LocaleConstants::DEFAULT;
     }
 
     /**

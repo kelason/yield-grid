@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import i18n from '@/i18n'
 import AppSidebar from '../AppSidebar.vue'
 
 const mockRoute = { name: 'farmer-dashboard', path: '/dashboard' }
@@ -31,6 +32,7 @@ function mountSidebar({ role = 'farmer', verified = true, mobileOpen = false } =
   return mount(AppSidebar, {
     props: { mobileOpen },
     global: {
+      plugins: [i18n],
       stubs: { AppLogo: true, UnreadBadge: true },
     },
   })

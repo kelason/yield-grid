@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Users\Models;
 
+use App\Constants\LocaleConstants;
 use App\Domain\Chat\Models\ChatParticipant;
 use App\Domain\Community\Models\ForumThread;
 use Database\Factories\UserFactory;
@@ -39,6 +40,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar_url',
         'phone',
         'address',
+        'locale',
+    ];
+
+    /**
+     * The model's default attribute values.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'locale' => LocaleConstants::DEFAULT,
     ];
 
     /**

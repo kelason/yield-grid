@@ -65,6 +65,7 @@ test('registration confirms the selected role and retains validation feedback', 
       password: PASSWORD,
       password_confirmation: PASSWORD,
       role: 'farmer',
+      locale: 'en',
     })
     return route.fulfill({
       status: INVALID,

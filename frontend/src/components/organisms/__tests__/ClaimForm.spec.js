@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach } from 'vitest'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import ClaimForm from '../ClaimForm.vue'
 
 describe('ClaimForm', () => {
   beforeEach(() => {
-    setInsuranceLocale('en')
+    setLocale('en')
   })
 
   function mountForm() {

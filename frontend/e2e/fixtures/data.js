@@ -6,6 +6,7 @@ export const FARMER = {
   email_verified_at: '2026-01-01T00:00:00Z',
   phone: null,
   avatar_url: null,
+  locale: 'en',
 }
 export const BUYER = {
   ...FARMER,
@@ -22,6 +23,7 @@ export const ADMIN = {
   email_verified_at: '2026-01-01T00:00:00Z',
   phone: null,
   avatar_url: null,
+  locale: 'en',
 }
 export const FARMS = [
   {

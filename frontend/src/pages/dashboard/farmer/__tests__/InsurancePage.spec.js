@@ -1,8 +1,9 @@
+import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import InsurancePage from '../InsurancePage.vue'
 
@@ -16,7 +17,7 @@ describe('InsurancePage', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    setInsuranceLocale('en')
+    setLocale('en')
 
     apiGet = vi.fn((url) => {
       if (url === '/farmer/insurance/profile') {
@@ -65,7 +66,9 @@ describe('InsurancePage', () => {
   it('switches the whole page to Tagalog', async () => {
     const wrapper = await mountPage()
 
-    await wrapper.get('[data-testid="locale-tl"]').trigger('click')
+    // Switching now lives in the navbar; the page follows the global locale.
+    setLocale('tl')
+    await nextTick()
 
     expect(wrapper.text()).toContain('Seguro sa Pananim')
     expect(wrapper.text()).toContain('Gabay sa Enrollment')

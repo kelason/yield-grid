@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useApi } from '../composables/useApi'
+import i18n, { setLocale, SUPPORTED_LOCALES } from '@/i18n'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token'))
   const api = useApi()
+  const pendingLocaleSync = ref(false)
 
   const isAuthenticated = computed(() => !!token.value)
   const userRole = computed(() => user.value?.role)
@@ -58,11 +60,38 @@ export const useAuthStore = defineStore('auth', () => {
     cooldownInterval = null
   }
 
+  async function pushLocalePreference(locale) {
+    try {
+      await api.patch('/user/locale', { locale })
+      pendingLocaleSync.value = false
+    } catch {
+      pendingLocaleSync.value = true
+    }
+  }
+
+  function applyProfileLocale(profileLocale) {
+    if (SUPPORTED_LOCALES.includes(profileLocale)) {
+      pendingLocaleSync.value = false
+      setLocale(profileLocale)
+      return
+    }
+    pushLocalePreference(i18n.global.locale.value)
+  }
+
+  async function switchLocale(locale) {
+    setLocale(locale)
+    if (!SUPPORTED_LOCALES.includes(locale) || !isAuthenticated.value) {
+      return
+    }
+    await pushLocalePreference(locale)
+  }
+
   async function fetchUser() {
     if (!token.value) return
     try {
       const response = await api.get('/user')
       user.value = response.data
+      applyProfileLocale(user.value?.locale)
     } catch {
       clearSession()
     }
@@ -79,16 +108,18 @@ export const useAuthStore = defineStore('auth', () => {
       sessionStorage.setItem('auth_token', token.value)
       localStorage.removeItem('auth_token')
     }
+    applyProfileLocale(user.value?.locale)
     if (!isEmailVerified.value) {
       resendVerificationEmail().catch(() => {})
     }
   }
 
   async function register(data) {
-    const response = await api.post('/register', data)
+    const response = await api.post('/register', { ...data, locale: i18n.global.locale.value })
     user.value = response.data.user
     token.value = response.data.token
     localStorage.setItem('auth_token', token.value)
+    applyProfileLocale(user.value?.locale)
     startResendCooldown()
   }
 
@@ -152,6 +183,7 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUser,
     login,
     register,
+    switchLocale,
     logout,
     clearSession,
     verifyEmail,

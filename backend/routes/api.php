@@ -41,6 +41,7 @@ use App\Shared\Middleware\AuthenticateIfTokenPresent;
 use App\Shared\Middleware\EnsureUserHasMarketplaceAddress;
 use App\Shared\Middleware\EnsureUserHasRole;
 use App\Shared\Middleware\EnsureUserNotSuspended;
+use App\Shared\Middleware\SetUserLocale;
 use App\Users\Controllers\GeoController;
 use App\Users\Controllers\UserAddressController;
 use App\Users\Controllers\UserProfileController;
@@ -84,7 +85,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/verify-report/{token}', [CreditScoreController::class, 'verifyReport'])->middleware('throttle:60,1');
 
     // Protected Auth routes
-    Route::middleware(['auth:sanctum', EnsureUserNotSuspended::class])->group(function () {
+    Route::middleware(['auth:sanctum', SetUserLocale::class, EnsureUserNotSuspended::class])->group(function () {
         require __DIR__.'/admin.php';
 
         // WebSocket auth - manual endpoint to avoid 'login' route redirect (API-only app)
@@ -94,6 +95,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/logout', [LoginController::class, 'logout']);
         Route::get('/user', [LoginController::class, 'user']);
+        Route::patch('/user/locale', [UserProfileController::class, 'updateLocale']);
 
         // Public user profiles (all authenticated users)
         Route::get('/users/{user}', [UserProfileController::class, 'show']);

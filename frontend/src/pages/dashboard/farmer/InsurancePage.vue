@@ -11,7 +11,6 @@ import ClaimTracker from '@/components/organisms/ClaimTracker.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import EnrollmentGuide from '@/components/organisms/EnrollmentGuide.vue'
 import EnrollmentTracker from '@/components/organisms/EnrollmentTracker.vue'
-import LanguageToggle from '@/components/molecules/LanguageToggle.vue'
 import OfficeDirectory from '@/components/organisms/OfficeDirectory.vue'
 import ReminderCenter from '@/components/organisms/ReminderCenter.vue'
 import RsbsaPanel from '@/components/organisms/RsbsaPanel.vue'
@@ -83,9 +82,7 @@ onMounted(async () => {
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out"
     :class="entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1.5'"
   >
-    <PageHeader :title="t('insurance.page.title')" :description="t('insurance.page.subtitle')"
-      ><template #actions><LanguageToggle /></template
-    ></PageHeader>
+    <PageHeader :title="t('insurance.page.title')" :description="t('insurance.page.subtitle')" />
 
     <div v-if="insuranceStore.errorMessage" class="mt-6">
       <AppAlert type="error">{{ insuranceStore.errorMessage }}</AppAlert>
