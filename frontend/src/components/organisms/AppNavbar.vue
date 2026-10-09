@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
 import { useConfirmModal } from '@/composables/useConfirmModal'
@@ -12,6 +13,7 @@ import LanguageDropdown from '../molecules/LanguageDropdown.vue'
 import NavLink from '../molecules/NavLink.vue'
 const authStore = useAuthStore()
 const route = useRoute()
+const { t } = useI18n()
 const menuOpen = ref(false)
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 watch(
@@ -35,10 +37,10 @@ function requestLogout() {
     >
       <AppLogo />
       <nav aria-label="Main navigation" class="hidden items-center gap-7 md:flex">
-        <NavLink to="/" label="Home" /><NavLink to="/about" label="About" /><NavLink
-          to="/contact"
-          label="Contact"
-        />
+        <NavLink to="/" :label="t('common.nav.home')" /><NavLink
+          to="/about"
+          :label="t('common.nav.about')"
+        /><NavLink to="/contact" :label="t('common.nav.contact')" />
       </nav>
       <div class="hidden items-center gap-3 md:flex">
         <LanguageDropdown />
@@ -46,18 +48,20 @@ function requestLogout() {
           ><RouterLink
             to="/auth/login"
             class="rounded-xl px-3 py-3 text-sm font-medium text-stone-700 transition-colors hover:text-moss-700"
-            >Log in</RouterLink
+            >{{ t('common.auth.login') }}</RouterLink
           ><RouterLink
             to="/auth/register"
             class="inline-flex min-h-11 items-center rounded-xl bg-gradient-to-br from-moss-500 to-moss-600 px-5 text-sm font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:from-moss-600 hover:to-moss-700 motion-reduce:transform-none"
-            >Get Started</RouterLink
+            >{{ t('common.auth.get_started') }}</RouterLink
           ></template
         ><template v-else
           ><RouterLink
             to="/dashboard"
             class="rounded-xl px-3 py-3 text-sm font-medium text-moss-700"
-            >Dashboard</RouterLink
-          ><AppButton variant="ghost" size="sm" @click="requestLogout">Logout</AppButton></template
+            >{{ t('common.nav.dashboard') }}</RouterLink
+          ><AppButton variant="ghost" size="sm" @click="requestLogout">{{
+            t('common.auth.logout')
+          }}</AppButton></template
         >
       </div>
       <AppButton
@@ -71,17 +75,24 @@ function requestLogout() {
     </div>
     <AppModal :is-open="menuOpen" title="Menu" size="sm" @close="menuOpen = false"
       ><nav aria-label="Mobile navigation" class="flex flex-col gap-3">
-        <NavLink to="/" label="Home" /><NavLink to="/about" label="About" /><NavLink
-          to="/contact"
-          label="Contact"
-        /><LanguageDropdown /><template v-if="!authStore.isAuthenticated"
-          ><RouterLink to="/auth/login" class="rounded-xl p-3 text-moss-700">Log in</RouterLink
-          ><RouterLink to="/auth/register" class="rounded-xl p-3 text-moss-700"
-            >Get Started</RouterLink
-          ></template
+        <NavLink to="/" :label="t('common.nav.home')" /><NavLink
+          to="/about"
+          :label="t('common.nav.about')"
+        /><NavLink to="/contact" :label="t('common.nav.contact')" /><LanguageDropdown /><template
+          v-if="!authStore.isAuthenticated"
+          ><RouterLink to="/auth/login" class="rounded-xl p-3 text-moss-700">{{
+            t('common.auth.login')
+          }}</RouterLink
+          ><RouterLink to="/auth/register" class="rounded-xl p-3 text-moss-700">{{
+            t('common.auth.get_started')
+          }}</RouterLink></template
         ><template v-else
-          ><RouterLink to="/dashboard" class="rounded-xl p-3 text-moss-700">Dashboard</RouterLink
-          ><AppButton variant="ghost" @click="requestLogout">Logout</AppButton></template
+          ><RouterLink to="/dashboard" class="rounded-xl p-3 text-moss-700">{{
+            t('common.nav.dashboard')
+          }}</RouterLink
+          ><AppButton variant="ghost" @click="requestLogout">{{
+            t('common.auth.logout')
+          }}</AppButton></template
         >
       </nav></AppModal
     >

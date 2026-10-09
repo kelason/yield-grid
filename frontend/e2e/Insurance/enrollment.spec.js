@@ -27,8 +27,10 @@ test('guides a farmer through RSBSA save in both languages', async ({
     fullPage: true,
     animations: 'disabled',
   })
+  await page.getByTestId('language-menu').click()
   await page.getByTestId('locale-tl').click()
   await expect(page.getByRole('heading', { name: 'Seguro sa Pananim' })).toBeVisible()
+  await page.getByTestId('language-menu').click()
   await page.getByTestId('locale-en').click()
   await expect(page.getByRole('heading', { name: 'Crop Insurance' })).toBeVisible()
 

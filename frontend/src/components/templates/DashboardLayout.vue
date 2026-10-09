@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import AppSidebar from '../organisms/AppSidebar.vue'
 import AppLogo from '../atoms/AppLogo.vue'
@@ -16,6 +17,7 @@ import { USER_ROLES } from '@/constants/roles'
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 const router = useRouter()
+const { t } = useI18n()
 const mobileOpen = ref(false)
 const isResending = ref(false)
 const notificationStore = useNotificationStore()
@@ -105,7 +107,9 @@ async function resendVerification() {
               :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"
               class="hidden max-w-48 break-words rounded-xl text-sm font-medium text-stone-900 transition-colors hover:text-moss-700 sm:block"
               >{{ authStore.user.name }}</RouterLink
-            ><AppButton variant="ghost" size="sm" @click="requestLogout">Logout</AppButton>
+            ><AppButton variant="ghost" size="sm" @click="requestLogout">{{
+              t('common.auth.logout')
+            }}</AppButton>
           </div>
         </header>
         <main
