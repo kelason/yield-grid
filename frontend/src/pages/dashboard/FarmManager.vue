@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useFarmingStore } from '../../stores/farming'
 import { useAuthStore } from '../../stores/auth'
@@ -15,6 +16,7 @@ import { HomeModernIcon } from '@heroicons/vue/24/outline'
 import AppCard from '../../components/atoms/AppCard.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 const farmingStore = useFarmingStore()
 const authStore = useAuthStore()
 
@@ -29,7 +31,7 @@ async function loadFarms() {
   try {
     await farmingStore.fetchFarms()
   } catch (error) {
-    farmsError.value = error.response?.data?.message || 'Could not load your farms. Please retry.'
+    farmsError.value = error.response?.data?.message || t('farmer.farms.load_error')
   }
 }
 onMounted(loadFarms)
@@ -41,7 +43,7 @@ async function handleCreateFarm(payload) {
     await farmingStore.createFarm(payload)
     showCreateForm.value = false
   } catch (e) {
-    createError.value = e.response?.data?.message || 'Failed to create farm'
+    createError.value = e.response?.data?.message || t('farmer.farms.create_error')
   } finally {
     isCreating.value = false
   }
@@ -63,11 +65,11 @@ function handleViewRecommendations(farmId) {
 <template>
   <div class="space-y-6">
     <PageHeader
-      title="My Farms"
+      :title="t('farmer.farms.title')"
       :description="
         farmingStore.loading
-          ? 'Loading your registered farms…'
-          : `${farmingStore.farms.length} farm(s) registered`
+          ? t('farmer.farms.loading_desc')
+          : t('farmer.farms.count', { count: farmingStore.farms.length })
       "
     >
       <template #actions
@@ -75,7 +77,7 @@ function handleViewRecommendations(farmId) {
           v-if="farmingStore.farms.length"
           :disabled="!authStore.isEmailVerified"
           @click="showCreateForm = !showCreateForm"
-          >{{ showCreateForm ? 'Cancel' : 'Add Farm' }}</AppButton
+          >{{ showCreateForm ? t('shell.cancel') : t('farmer.farms.add') }}</AppButton
         ></template
       >
     </PageHeader>
@@ -90,7 +92,9 @@ function handleViewRecommendations(farmId) {
         <AppCard variant="muted">
           <div class="flex items-center gap-2 mb-5">
             <HomeModernIcon class="h-6 w-6 text-moss-700" aria-hidden="true" />
-            <h3 class="font-serif text-base font-bold text-stone-900">Create New Farm</h3>
+            <h3 class="font-serif text-base font-bold text-stone-900">
+              {{ t('farmer.farms.create_title') }}
+            </h3>
           </div>
           <CreateFarmForm
             :loading="isCreating"
@@ -104,23 +108,23 @@ function handleViewRecommendations(farmId) {
 
     <LoadingState
       v-if="farmingStore.loading && !farmingStore.farms.length"
-      label="Loading farms"
+      :label="t('farmer.farms.loading')"
       class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
       ><SkeletonCard v-for="n in SKELETON_COUNT" :key="n" withAction
     /></LoadingState>
     <div v-else-if="farmsError" class="space-y-3">
       <AppAlert type="error">{{ farmsError }}</AppAlert
-      ><AppButton @click="loadFarms">Retry</AppButton>
+      ><AppButton @click="loadFarms">{{ t('shell.retry') }}</AppButton>
     </div>
     <EmptyState
       v-else-if="!farmingStore.farms.length && !showCreateForm"
-      title="No farms yet"
-      description="Create your first farm to start planning plots and getting crop recommendations."
+      :title="t('farmer.common.no_farms')"
+      :description="t('farmer.farms.empty_description')"
     >
       <template #action
-        ><AppButton :disabled="!authStore.isEmailVerified" @click="showCreateForm = true"
-          >Create First Farm</AppButton
-        ></template
+        ><AppButton :disabled="!authStore.isEmailVerified" @click="showCreateForm = true">{{
+          t('farmer.farms.create_first')
+        }}</AppButton></template
       >
     </EmptyState>
 

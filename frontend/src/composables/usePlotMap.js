@@ -8,6 +8,7 @@ import 'leaflet-geosearch/dist/geosearch.css'
 import booleanIntersects from '@turf/boolean-intersects'
 import { polygon as turfPolygon } from '@turf/helpers'
 import { useApi } from '@/composables/useApi'
+import i18n from '@/i18n'
 import { GEO_CONSTANTS } from '@/constants/geo'
 import { DESIGN_COLORS, DESIGN_STATUS_COLORS } from '@/constants/designTokens'
 
@@ -157,7 +158,9 @@ function zoneStyle(feature) {
 function zoneTooltip(feature, layer) {
   const container = document.createElement('div')
   const title = document.createElement('strong')
-  title.textContent = String(feature.properties?.name || 'Restricted Area')
+  title.textContent = String(
+    feature.properties?.name || i18n.global.t('farmer.map.restricted_area'),
+  )
   const description = document.createElement('p')
   description.textContent = `Type: ${feature.properties?.type || 'restricted'} — No plotting allowed`
   container.append(title, description)
@@ -237,8 +240,8 @@ function boundaryError(s, layer) {
     s.allowedCityBounds.value.contains(point),
   )
   if (isWithin) return ''
-  const city = toValue(s.farm)?.city || 'the registered farm city'
-  return `Plots for this farm must be drawn within ${city}. The drawn shape is outside the allowed city area.`
+  const city = toValue(s.farm)?.city || i18n.global.t('farmer.map.default_city')
+  return i18n.global.t('farmer.map.outside_city', { city })
 }
 async function handleDraw(s, event) {
   if (event.layerType !== 'polygon') return
@@ -257,7 +260,7 @@ async function handleDraw(s, event) {
     if (conflict) {
       s.map.removeLayer(layer)
       s.onPlotError(
-        `Cannot plot here — your area overlaps a ${conflict.type} ("${conflict.name}"). Please draw only on vacant, agricultural land.`,
+        i18n.global.t('farmer.map.overlap', { type: conflict.type, name: conflict.name }),
       )
       return
     }
@@ -270,18 +273,18 @@ function plotPopup(feature, layer) {
   const container = document.createElement('div')
   container.className = 'text-center'
   const name = document.createElement('b')
-  name.textContent = String(feature.properties?.name || 'Plot')
+  name.textContent = String(feature.properties?.name || i18n.global.t('farmer.map.popup_plot'))
   const area = document.createElement('p')
   area.className = 'text-stone-600'
   const value = feature.properties?.calculated_area
     ? `${Number(feature.properties.calculated_area).toFixed(2)} ha`
-    : 'Unknown area'
-  area.textContent = `Area: ${value}`
+    : i18n.global.t('farmer.map.unknown_area')
+  area.textContent = i18n.global.t('farmer.map.popup_area', { value })
   const link = document.createElement('a')
   link.href = `/dashboard/plots/${encodeURIComponent(String(feature.properties?.id ?? ''))}/recommendations`
   link.className =
     'inline-flex min-h-11 items-center mt-3 px-4 bg-moss-600 !text-white rounded-xl text-sm font-semibold hover:bg-moss-700 transition-colors no-underline'
-  link.textContent = 'View Recommendations'
+  link.textContent = i18n.global.t('farmer.map.view_recommendations')
   container.append(name, area, link)
   layer.bindPopup(container)
 }

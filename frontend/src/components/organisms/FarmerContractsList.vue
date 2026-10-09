@@ -1,5 +1,7 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import StatusBadge from '../atoms/StatusBadge.vue'
+const { t } = useI18n()
 import PriceTag from '../atoms/PriceTag.vue'
 import AppButton from '../atoms/AppButton.vue'
 import SkeletonCard from '../atoms/SkeletonCard.vue'
@@ -31,11 +33,11 @@ const emit = defineEmits(['cancel-contract', 'tab-change'])
 const CONTRACT_SKELETON_ROW_COUNT = 5
 
 const tabs = [
-  { id: 'all', name: 'All Contracts' },
-  { id: 'available', name: 'Available' },
-  { id: 'reserved', name: 'Reserved' },
-  { id: 'sold', name: 'Sold' },
-  { id: 'expired', name: 'Expired/Cancelled' },
+  { id: 'all', name: 'All Contracts', labelKey: 'farmer.contracts_list.tab_all' },
+  { id: 'available', name: 'Available', labelKey: 'farmer.contracts_list.tab_available' },
+  { id: 'reserved', name: 'Reserved', labelKey: 'farmer.contracts_list.tab_reserved' },
+  { id: 'sold', name: 'Sold', labelKey: 'farmer.contracts_list.tab_sold' },
+  { id: 'expired', name: 'Expired/Cancelled', labelKey: 'farmer.contracts_list.tab_expired' },
 ]
 
 const handleTabChange = (tabId) => {
@@ -48,7 +50,10 @@ const handleTabChange = (tabId) => {
 <template>
   <div class="bg-white shadow-soft rounded-2xl border border-stone-200">
     <div class="border-b border-stone-200">
-      <nav class="-mb-px flex space-x-8 px-6 overflow-x-auto no-scrollbar" aria-label="Tabs">
+      <nav
+        class="-mb-px flex space-x-8 px-6 overflow-x-auto no-scrollbar"
+        :aria-label="t('farmer.contracts_list.tabs_aria')"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.id"
@@ -60,7 +65,7 @@ const handleTabChange = (tabId) => {
             'min-h-11 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
           ]"
         >
-          {{ tab.name }}
+          {{ t(tab.labelKey) }}
         </button>
       </nav>
     </div>
@@ -68,14 +73,14 @@ const handleTabChange = (tabId) => {
     <div class="p-0">
       <LoadingState
         v-if="loading && !contracts?.length"
-        label="Loading contracts"
+        :label="t('farmer.contract_grid.loading')"
         class="p-5 space-y-4"
         ><SkeletonCard v-for="n in CONTRACT_SKELETON_ROW_COUNT" :key="n" withAction
       /></LoadingState>
       <EmptyState
         v-else-if="!contracts?.length"
-        title="No contracts found in this category."
-        description="Listings with this status will appear here."
+        :title="t('farmer.contracts_list.empty_title')"
+        :description="t('farmer.contracts_list.empty_desc')"
       />
 
       <div v-else>
@@ -88,31 +93,31 @@ const handleTabChange = (tabId) => {
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
-                  Contract Details
+                  {{ t('farmer.contracts_list.col_details') }}
                 </th>
                 <th
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
-                  Status
+                  {{ t('farmer.contracts_list.col_status') }}
                 </th>
                 <th
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
-                  Total Value
+                  {{ t('farmer.contracts_list.col_total') }}
                 </th>
                 <th
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
-                  Harvest Date
+                  {{ t('farmer.contracts_list.col_harvest') }}
                 </th>
                 <th
                   scope="col"
                   class="px-6 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider"
                 >
-                  Actions
+                  {{ t('farmer.contracts_list.col_actions') }}
                 </th>
               </tr>
             </thead>
@@ -131,19 +136,22 @@ const handleTabChange = (tabId) => {
                         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 text-xs font-medium border border-stone-200 whitespace-nowrap"
                       >
                         <DocumentTextIcon class="w-3.5 h-3.5" />
-                        Manual Listing
+                        {{ t('farmer.contracts.type_listing') }}
                       </span>
                       <span
                         v-else
                         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-dew-100 text-dew-700 text-xs font-medium border border-dew-200 whitespace-nowrap"
                       >
                         <SparklesIcon class="w-3.5 h-3.5" />
-                        AI Recommended
+                        {{ t('farmer.contracts_list.ai_recommended') }}
                       </span>
                     </div>
-                    <span class="text-sm text-stone-500"
-                      >{{ contract.quantity_kg }}kg {{ contract.crop_name }}</span
-                    >
+                    <span class="text-sm text-stone-500">{{
+                      t('farmer.contracts_list.qty_crop', {
+                        qty: contract.quantity_kg,
+                        crop: contract.crop_name,
+                      })
+                    }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap align-top">
@@ -155,7 +163,9 @@ const handleTabChange = (tabId) => {
                     :currency="contract.currency"
                     size="sm"
                   />
-                  <div class="text-xs text-stone-500 mt-1">@ ₱{{ contract.price_per_kg }}/kg</div>
+                  <div class="text-xs text-stone-500 mt-1">
+                    {{ t('farmer.contracts_list.per_kg', { price: contract.price_per_kg }) }}
+                  </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 align-top">
                   {{ contract.estimated_harvest_date }}
@@ -168,7 +178,7 @@ const handleTabChange = (tabId) => {
                       @click="$emit('cancel-contract', contract)"
                       class="text-red-600 hover:text-red-900"
                     >
-                      Cancel
+                      {{ t('shell.cancel') }}
                     </AppButton>
                     <router-link
                       v-else-if="
@@ -177,7 +187,7 @@ const handleTabChange = (tabId) => {
                       :to="{ name: 'farmer-cash-approvals' }"
                       class="inline-flex min-h-11 items-center rounded-xl text-moss-700 transition-colors hover:text-moss-900"
                     >
-                      Review Payment
+                      {{ t('farmer.contracts_list.review_payment') }}
                     </router-link>
                   </div>
                 </td>
@@ -196,23 +206,26 @@ const handleTabChange = (tabId) => {
             <div class="flex justify-between items-start mb-3">
               <div class="flex flex-col pr-4">
                 <span class="text-sm font-bold text-stone-900">{{ contract.title }}</span>
-                <span class="text-xs text-stone-500 mt-0.5"
-                  >{{ contract.quantity_kg }}kg {{ contract.crop_name }}</span
-                >
+                <span class="text-xs text-stone-500 mt-0.5">{{
+                  t('farmer.contracts_list.qty_crop', {
+                    qty: contract.quantity_kg,
+                    crop: contract.crop_name,
+                  })
+                }}</span>
                 <div class="mt-2">
                   <span
                     v-if="contract.type === 'listing'"
                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 text-xs font-medium border border-stone-200"
                   >
                     <DocumentTextIcon class="w-3.5 h-3.5" />
-                    Manual Listing
+                    {{ t('farmer.contracts.type_listing') }}
                   </span>
                   <span
                     v-else
                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-dew-100 text-dew-700 text-xs font-medium border border-dew-200"
                   >
                     <SparklesIcon class="w-3.5 h-3.5" />
-                    AI Recommended
+                    {{ t('farmer.contracts_list.ai_recommended') }}
                   </span>
                 </div>
               </div>
@@ -223,12 +236,18 @@ const handleTabChange = (tabId) => {
               class="grid grid-cols-2 gap-4 mt-4 text-sm bg-stone-50 p-3 rounded-xl border border-stone-100"
             >
               <div>
-                <span class="block text-xs font-medium text-stone-500 mb-1">Total Value</span>
+                <span class="block text-xs font-medium text-stone-500 mb-1">{{
+                  t('farmer.contracts_list.col_total')
+                }}</span>
                 <PriceTag :amount="contract.total_price" :currency="contract.currency" size="sm" />
-                <div class="text-xs text-stone-500 mt-0.5">@ ₱{{ contract.price_per_kg }}/kg</div>
+                <div class="text-xs text-stone-500 mt-0.5">
+                  {{ t('farmer.contracts_list.per_kg', { price: contract.price_per_kg }) }}
+                </div>
               </div>
               <div>
-                <span class="block text-xs font-medium text-stone-500 mb-1">Harvest Date</span>
+                <span class="block text-xs font-medium text-stone-500 mb-1">{{
+                  t('farmer.contracts_list.col_harvest')
+                }}</span>
                 <span class="text-stone-900">{{ contract.estimated_harvest_date }}</span>
               </div>
             </div>
@@ -247,14 +266,14 @@ const handleTabChange = (tabId) => {
                 @click="$emit('cancel-contract', contract)"
                 class="inline-flex items-center justify-center px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] w-full sm:w-auto"
               >
-                Cancel Listing
+                {{ t('farmer.contracts.cancel_listing') }}
               </AppButton>
               <router-link
                 v-else
                 :to="{ name: 'farmer-cash-approvals' }"
                 class="inline-flex items-center justify-center px-4 py-2 border border-moss-200 rounded-xl text-sm font-medium text-moss-600 bg-moss-50 hover:bg-moss-100 transition-all duration-300 hover:scale-[1.02] w-full sm:w-auto"
               >
-                Review Payment
+                {{ t('farmer.contracts_list.review_payment') }}
               </router-link>
             </div>
           </div>

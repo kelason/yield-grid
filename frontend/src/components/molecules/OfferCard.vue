@@ -1,10 +1,12 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppCard from '../atoms/AppCard.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 import AppButton from '../atoms/AppButton.vue'
 
+const { t } = useI18n()
 const props = defineProps({
   offer: { type: Object, required: true },
   viewerRole: { type: String, required: true },
@@ -61,9 +63,11 @@ const showSettledPill = computed(
       <div class="min-w-0">
         <p class="font-semibold text-stone-900">
           {{ offer.quantity_kg }} kg
-          <span class="font-normal text-stone-500"
-            >from {{ offer.farmer?.name || 'a farmer' }}</span
-          >
+          <span class="font-normal text-stone-500">{{
+            t('farmer.offer_card.from_farmer', {
+              name: offer.farmer?.name || t('farmer.offer_card.a_farmer'),
+            })
+          }}</span>
         </p>
         <p v-if="offer.message" class="text-sm text-stone-600 mt-1 leading-relaxed">
           “{{ offer.message }}”
@@ -78,7 +82,7 @@ const showSettledPill = computed(
         <span class="text-sm text-stone-500">/kg</span>
       </p>
       <p class="text-sm text-stone-500">
-        Total
+        {{ t('farmer.offer_card.total') }}
         <span class="font-semibold text-stone-900"
           >₱{{ Number(offer.total_price).toLocaleString('en-PH') }}</span
         >
@@ -88,21 +92,21 @@ const showSettledPill = computed(
     <div class="flex flex-wrap gap-2 mt-4">
       <template v-if="isBuyer() && offer.status === 'pending'">
         <AppButton size="sm" variant="primary" :loading="loading" @click="$emit('accept', offer)">
-          Accept offer
+          {{ t('farmer.offer_card.accept') }}
         </AppButton>
         <AppButton size="sm" variant="ghost" :loading="loading" @click="$emit('reject', offer)">
-          Reject
+          {{ t('farmer.offer_card.reject') }}
         </AppButton>
       </template>
       <template v-if="isBuyer() && offer.status === 'accepted'">
         <AppButton size="sm" variant="primary" :loading="loading" @click="$emit('pay', offer)">
-          Pay now
+          {{ t('farmer.offer_card.pay_now') }}
         </AppButton>
         <AppButton size="sm" variant="ghost" :loading="loading" @click="$emit('cancel', offer)">
-          Cancel
+          {{ t('shell.cancel') }}
         </AppButton>
         <AppButton size="sm" variant="secondary" @click="$emit('message', offer)">
-          Message farmer
+          {{ t('farmer.offer_card.message_farmer') }}
         </AppButton>
       </template>
       <template
@@ -117,30 +121,30 @@ const showSettledPill = computed(
           :loading="loading"
           @click="$emit('confirm-completed', offer)"
         >
-          Confirm receipt
+          {{ t('farmer.offer_card.confirm_receipt') }}
         </AppButton>
         <AppButton size="sm" variant="secondary" @click="$emit('message', offer)">
-          Message farmer
+          {{ t('farmer.offer_card.message_farmer') }}
         </AppButton>
         <span
           v-if="showSettledPill"
           class="inline-flex items-center rounded-full bg-moss-100 text-moss-800 text-xs font-medium px-2.5 py-1"
         >
-          Fully settled
+          {{ t('farmer.offer_card.settled') }}
         </span>
       </template>
 
       <template v-if="isFarmer() && offer.status === 'pending'">
         <AppButton size="sm" variant="ghost" :loading="loading" @click="$emit('withdraw', offer)">
-          Withdraw
+          {{ t('farmer.offer_card.withdraw') }}
         </AppButton>
       </template>
       <template v-if="isFarmer() && offer.status === 'accepted'">
         <AppButton size="sm" variant="ghost" :loading="loading" @click="$emit('cancel', offer)">
-          Cancel
+          {{ t('shell.cancel') }}
         </AppButton>
         <AppButton size="sm" variant="secondary" @click="$emit('message', offer)">
-          Message buyer
+          {{ t('farmer.offer_card.message_buyer') }}
         </AppButton>
       </template>
       <template v-if="isFarmer() && ['partially_paid', 'paid'].includes(offer.status)">
@@ -150,10 +154,10 @@ const showSettledPill = computed(
           :loading="loading"
           @click="$emit('mark-delivered', offer)"
         >
-          Mark delivered
+          {{ t('farmer.offer_card.mark_delivered') }}
         </AppButton>
         <AppButton size="sm" variant="secondary" @click="$emit('message', offer)">
-          Message buyer
+          {{ t('farmer.offer_card.message_buyer') }}
         </AppButton>
       </template>
       <template v-if="isFarmer() && ['delivered', 'completed'].includes(offer.status)">
@@ -164,16 +168,16 @@ const showSettledPill = computed(
           :loading="loading"
           @click="$emit('settle-balance', offer)"
         >
-          Confirm full payment
+          {{ t('farmer.offer_card.confirm_full_payment') }}
         </AppButton>
         <span
           v-if="showSettledPill"
           class="inline-flex items-center rounded-full bg-moss-100 text-moss-800 text-xs font-medium px-2.5 py-1"
         >
-          Fully settled
+          {{ t('farmer.offer_card.settled') }}
         </span>
         <AppButton size="sm" variant="secondary" @click="$emit('message', offer)">
-          Message buyer
+          {{ t('farmer.offer_card.message_buyer') }}
         </AppButton>
       </template>
     </div>

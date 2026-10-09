@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   InformationCircleIcon,
   ExclamationTriangleIcon,
@@ -13,9 +14,10 @@ import {
   PRICE_CHECK_STAGES,
   PRICE_GUIDE,
   PRICE_TIER,
-  PRICE_TIER_LABELS,
-  PRICE_SOURCE_LABELS,
+  PRICE_TIER_LABEL_KEYS,
+  PRICE_SOURCE_LABEL_KEYS,
 } from '@/constants/prices'
+const { t } = useI18n()
 
 const props = defineProps({
   cropName: {
@@ -202,7 +204,7 @@ function tiersFor(stageKey) {
   const tiers = sections.value[stageKey]?.tiers ?? {}
   return TIER_ORDER.filter((tier) => tiers[tier]).map((tier) => ({
     key: tier,
-    label: PRICE_TIER_LABELS[tier] ?? tier,
+    label: PRICE_TIER_LABEL_KEYS[tier] ? t(PRICE_TIER_LABEL_KEYS[tier]) : tier,
     ...tiers[tier],
   }))
 }
@@ -224,7 +226,9 @@ const daSourceLabel = computed(() => {
   if (!first) {
     return ''
   }
-  return PRICE_SOURCE_LABELS[first.source] ?? first.source
+  return PRICE_SOURCE_LABEL_KEYS[first.source]
+    ? t(PRICE_SOURCE_LABEL_KEYS[first.source])
+    : first.source
 })
 
 const showStale = computed(
@@ -251,14 +255,14 @@ const priceComparison = computed(() => {
   const rounded = Math.abs(Math.round(diffPct))
 
   if (Math.abs(diffPct) <= PRICE_GUIDE.FAIR_BAND_PCT) {
-    return 'Your price is within the fair range of this guide.'
+    return t('farmer.price_guide.fair')
   }
 
   if (diffPct > 0) {
-    return `Your price is ${rounded}% above the guide.`
+    return t('farmer.price_guide.above', { pct: rounded })
   }
 
-  return `Your price is ${rounded}% below the guide.`
+  return t('farmer.price_guide.below', { pct: rounded })
 })
 </script>
 
@@ -268,17 +272,19 @@ const priceComparison = computed(() => {
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <InformationCircleIcon class="h-5 w-5 text-dew-700" aria-hidden="true" />
-          <p class="font-serif text-lg font-bold text-stone-900">Price guide · {{ displayName }}</p>
+          <p class="font-serif text-lg font-bold text-stone-900">
+            {{ t('farmer.price_guide.title', { name: displayName }) }}
+          </p>
         </div>
         <span
           class="rounded-full bg-dew-100 text-dew-700 text-xs font-medium px-2.5 py-0.5 tabular-nums whitespace-nowrap"
         >
-          {{ readyCount }} of {{ TOTAL_STAGES }}
+          {{ t('farmer.price_guide.progress', { ready: readyCount, total: TOTAL_STAGES }) }}
         </span>
       </div>
 
       <p v-if="meta?.correctedFrom" class="mt-1 text-sm text-stone-600">
-        Showing guide for “{{ displayName }}” (from “{{ meta.correctedFrom }}”).
+        {{ t('farmer.price_guide.corrected', { name: displayName, from: meta.correctedFrom }) }}
       </p>
 
       <div class="mt-1 divide-y divide-dew-100">
@@ -289,16 +295,18 @@ const priceComparison = computed(() => {
               :class="['h-5 w-5', STAGE_ICON_CLASS[STAGE_YIELDGRID]]"
               aria-hidden="true"
             />
-            <p class="text-sm font-semibold text-stone-900">YieldGrid price</p>
+            <p class="text-sm font-semibold text-stone-900">
+              {{ t('farmer.price_guide.stage_yieldgrid') }}
+            </p>
           </div>
           <div
             v-if="sections.yieldgrid.status === 'loading'"
             class="mt-2 flex items-center gap-2 text-sm font-normal text-stone-600"
             role="status"
-            aria-label="Loading YieldGrid price"
+            :aria-label="t('farmer.price_guide.loading_yieldgrid')"
           >
             <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
-            <span>Loading…</span>
+            <span>{{ t('shell.loading') }}</span>
           </div>
           <p
             v-else-if="sections.yieldgrid.available"
@@ -311,7 +319,7 @@ const priceComparison = computed(() => {
             </span>
           </p>
           <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">
-            No YieldGrid price yet.
+            {{ t('farmer.price_guide.none_yieldgrid') }}
           </p>
         </div>
 
@@ -322,16 +330,18 @@ const priceComparison = computed(() => {
               :class="['h-5 w-5', STAGE_ICON_CLASS[STAGE_DA]]"
               aria-hidden="true"
             />
-            <p class="text-sm font-semibold text-stone-900">DA price</p>
+            <p class="text-sm font-semibold text-stone-900">
+              {{ t('farmer.price_guide.stage_da') }}
+            </p>
           </div>
           <div
             v-if="sections.da.status === 'loading'"
             class="mt-2 flex items-center gap-2 text-sm font-normal text-stone-600"
             role="status"
-            aria-label="Loading DA price"
+            :aria-label="t('farmer.price_guide.loading_da')"
           >
             <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
-            <span>Loading…</span>
+            <span>{{ t('shell.loading') }}</span>
           </div>
           <div v-else-if="sections.da.available">
             <dl class="mt-1.5 space-y-1.5">
@@ -348,11 +358,15 @@ const priceComparison = computed(() => {
               </div>
             </dl>
             <p class="mt-1.5 text-xs text-stone-600">
-              Source: {{ daSourceLabel }}
-              <span v-if="sections.da.observed_at"> · as of {{ sections.da.observed_at }}</span>
+              {{ t('farmer.price_guide.source', { label: daSourceLabel }) }}
+              <span v-if="sections.da.observed_at">{{
+                t('farmer.price_guide.as_of', { date: sections.da.observed_at })
+              }}</span>
             </p>
           </div>
-          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">No DA price yet.</p>
+          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">
+            {{ t('farmer.price_guide.none_da') }}
+          </p>
         </div>
 
         <div v-if="sections.ai" class="py-3">
@@ -362,16 +376,18 @@ const priceComparison = computed(() => {
               :class="['h-5 w-5', STAGE_ICON_CLASS[STAGE_AI]]"
               aria-hidden="true"
             />
-            <p class="text-sm font-semibold text-stone-900">AI estimate</p>
+            <p class="text-sm font-semibold text-stone-900">
+              {{ t('farmer.price_guide.stage_ai') }}
+            </p>
           </div>
           <div
             v-if="aiLoading"
             class="mt-2 flex items-center gap-2 text-sm font-normal text-stone-600"
             role="status"
-            aria-label="Loading AI estimate"
+            :aria-label="t('farmer.price_guide.loading_ai')"
           >
             <AppSpinner class="loading-spinner h-4 w-4 text-moss-600" aria-hidden="true" />
-            <span>Loading…</span>
+            <span>{{ t('shell.loading') }}</span>
           </div>
           <div v-else-if="sections.ai.available">
             <dl class="mt-1.5 space-y-1.5">
@@ -388,27 +404,31 @@ const priceComparison = computed(() => {
               </div>
             </dl>
             <p class="mt-1.5 text-xs text-stone-600">
-              AI estimate, not a DA price
-              <span v-if="sections.ai.observed_at"> · as of {{ sections.ai.observed_at }}</span>
+              {{ t('farmer.price_guide.ai_disclaimer') }}
+              <span v-if="sections.ai.observed_at">{{
+                t('farmer.price_guide.as_of', { date: sections.ai.observed_at })
+              }}</span>
             </p>
             <p
               v-if="sections.ai.pending"
               class="mt-1 flex items-center gap-1.5 text-xs font-normal text-stone-600"
               role="status"
-              aria-label="Refreshing AI estimate"
+              :aria-label="t('farmer.price_guide.refreshing_ai')"
             >
               <AppSpinner class="loading-spinner h-3.5 w-3.5 text-moss-600" aria-hidden="true" />
-              <span>Refreshing…</span>
+              <span>{{ t('farmer.price_guide.refreshing') }}</span>
             </p>
           </div>
-          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">No AI estimate yet.</p>
+          <p v-else class="mt-1.5 text-sm font-normal italic text-stone-600">
+            {{ t('farmer.price_guide.none_ai') }}
+          </p>
         </div>
       </div>
 
       <div v-if="showStale || priceComparison" class="border-t border-dew-100 pt-3">
         <p v-if="showStale" class="flex items-center gap-1.5 text-xs font-medium text-harvest-800">
           <ExclamationTriangleIcon class="h-4 w-4" aria-hidden="true" />
-          These prices may be outdated — treat as a rough guide.
+          {{ t('farmer.price_guide.stale') }}
         </p>
         <p v-if="priceComparison" class="mt-1.5 text-sm font-medium text-stone-900">
           {{ priceComparison }}
@@ -417,7 +437,7 @@ const priceComparison = computed(() => {
     </div>
 
     <p v-else-if="showQuietNote" class="text-sm font-normal text-stone-600">
-      No price guide for “{{ (cropName ?? '').trim() }}” yet.
+      {{ t('farmer.price_guide.none_crop', { crop: (cropName ?? '').trim() }) }}
     </p>
   </div>
 </template>

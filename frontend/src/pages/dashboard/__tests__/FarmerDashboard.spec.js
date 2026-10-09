@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { setLocale } from '@/i18n'
 import { useApi } from '@/composables/useApi'
 import FarmerDashboard from '../FarmerDashboard.vue'
 
@@ -16,6 +17,9 @@ describe('FarmerDashboard', () => {
     setActivePinia(createPinia())
     get = vi.fn()
     useApi.mockReturnValue({ get })
+  })
+  afterEach(() => {
+    setLocale('en')
   })
   it('shows real farm summaries instead of a placeholder activity feed', async () => {
     get.mockResolvedValue({ data: { data: [{ id: 1, name: 'North Field', plots_count: 2 }] } })
@@ -37,5 +41,13 @@ describe('FarmerDashboard', () => {
       .trigger('click')
     await flushPromises()
     expect(wrapper.text()).toContain('No farms yet')
+  })
+  it('renders the dashboard heading in Tagalog', async () => {
+    setLocale('tl')
+    get.mockResolvedValue({ data: { data: [] } })
+    const wrapper = mount(FarmerDashboard)
+    await flushPromises()
+    expect(wrapper.get('h1').text()).toBe('Pangkalahatan ng Bukid')
+    expect(wrapper.text()).toContain('Pamahalaan ang mga bukid')
   })
 })

@@ -1,7 +1,9 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePlotMap } from '@/composables/usePlotMap'
 import AppSpinner from '../atoms/AppSpinner.vue'
+const { t } = useI18n()
 const props = defineProps({
   existingPlots: { type: Object, default: () => ({ type: 'FeatureCollection', features: [] }) },
   farm: { type: Object, default: () => ({}) },
@@ -45,8 +47,8 @@ defineExpose({ zoomToPlot })
         >
           <AppSpinner class="loading-spinner w-5 h-5 text-moss-700" />
           <div>
-            <p class="text-sm font-bold text-stone-900">Checking zone...</p>
-            <p class="text-xs text-stone-500">Verifying no buildings or roads overlap</p>
+            <p class="text-sm font-bold text-stone-900">{{ t('farmer.map.checking_zone') }}</p>
+            <p class="text-xs text-stone-500">{{ t('farmer.map.checking_detail') }}</p>
           </div>
         </div>
       </div>
@@ -73,8 +75,10 @@ defineExpose({ zoomToPlot })
         >
           <AppSpinner class="loading-spinner w-5 h-5 text-moss-700" />
           <div>
-            <p class="text-sm font-bold text-stone-900">Locating city...</p>
-            <p class="text-xs text-stone-500">Zooming the map to {{ farm?.city }}</p>
+            <p class="text-sm font-bold text-stone-900">{{ t('farmer.map.locating_city') }}</p>
+            <p class="text-xs text-stone-500">
+              {{ farm?.city ? t('farmer.map.zooming_to', { city: farm.city }) : '' }}
+            </p>
           </div>
         </div>
       </div>
@@ -87,7 +91,7 @@ defineExpose({ zoomToPlot })
     >
       <span class="inline-block w-2 h-2 rounded-full bg-moss-500 flex-shrink-0"></span>
       <div class="truncate">
-        <span class="text-stone-500 font-normal">Zone: </span>
+        <span class="text-stone-500 font-normal">{{ t('farmer.map.zone_label') }} </span>
         <strong class="text-moss-900">{{ farm.city }}</strong>
         <span v-if="farm.country" class="text-stone-500 font-normal">, {{ farm.country }}</span>
       </div>

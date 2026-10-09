@@ -4,6 +4,7 @@ import PageHeader from '@/components/molecules/PageHeader.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { useContentReport } from '@/composables/useContentReport'
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
@@ -45,6 +46,7 @@ const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const router = useRouter()
+const { t } = useI18n()
 
 const showOfferModal = ref(false)
 const offerForm = ref({ quantity_kg: '', price_per_kg: '', message: '' })
@@ -75,17 +77,21 @@ const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   if (pendingConfirm.value.kind === 'report') {
     return {
-      title: 'Submit this report?',
-      message: 'Your report will be sent to the moderation team.',
-      confirmText: 'Send report',
+      title: t('farmer.demands.report_confirm_title'),
+      message: t('farmer.demands.report_confirm_message'),
+      confirmText: t('farmer.demands.report_send'),
       type: 'primary',
     }
   }
   const { qty, price } = pendingConfirm.value
   return {
-    title: 'Send this offer?',
-    message: `Offer ${qty} kg at ₱${price}/kg (₱${(qty * price).toLocaleString('en-PH')} total)? The buyer will review it and can accept or reject.`,
-    confirmText: 'Send offer',
+    title: t('farmer.demands.confirm_title'),
+    message: t('farmer.demands.confirm_message', {
+      qty,
+      price,
+      total: (qty * price).toLocaleString('en-PH'),
+    }),
+    confirmText: t('farmer.demands.send_offer'),
     type: 'primary',
   }
 })
@@ -133,22 +139,25 @@ function validateOfferForm() {
   const price = parseFloat(offerForm.value.price_per_kg)
   const message = (offerForm.value.message || '').trim()
   if (!qty || qty < OFFER_QTY_MIN_KG) {
-    return 'Please enter a quantity greater than zero.'
+    return t('farmer.demands.qty_required')
   }
   if (qty > remaining) {
-    return `Quantity cannot exceed the ${remaining} kg still needed.`
+    return t('farmer.demands.qty_exceeds', { remaining })
   }
   if (!price || price < OFFER_PRICE_MIN) {
-    return 'Please enter a price greater than zero.'
+    return t('farmer.demands.price_required')
   }
   if (price > OFFER_PRICE_MAX) {
-    return `Price cannot exceed ${OFFER_PRICE_MAX_DIGITS} digits (₱${OFFER_PRICE_MAX.toLocaleString()}).`
+    return t('farmer.demands.price_exceeds', {
+      digits: OFFER_PRICE_MAX_DIGITS,
+      max: OFFER_PRICE_MAX.toLocaleString(),
+    })
   }
   if (message.length > OFFER_MESSAGE_MAX_LENGTH) {
-    return `Message cannot exceed ${OFFER_MESSAGE_MAX_LENGTH} characters.`
+    return t('farmer.demands.message_too_long', { max: OFFER_MESSAGE_MAX_LENGTH })
   }
   if (qty * price > OFFER_TOTAL_MAX) {
-    return 'The combined quantity and price exceed the maximum order total.'
+    return t('farmer.demands.total_exceeds')
   }
   return { qty, price, message }
 }
@@ -207,14 +216,14 @@ async function performConfirmedAction(pending) {
       price_per_kg: pending.price,
       message: pending.message || null,
     })
-    notificationStore.success('Offer sent! The buyer will review it soon.')
+    notificationStore.addNotification({ type: 'success', messageKey: 'farmer.demands.sent' })
     showOfferModal.value = false
     demandStore.fetchDemands(demandStore.pagination.currentPage)
   } catch (err) {
     if (err.response?.data?.error_code === GEO_CONSTANTS.ERROR_ADDRESS_REQUIRED) {
-      offerError.value = 'Please add an address in your profile before submitting offers.'
+      offerError.value = t('farmer.demands.address_required')
     } else {
-      offerError.value = err.response?.data?.message || 'Failed to submit offer.'
+      offerError.value = err.response?.data?.message || t('farmer.demands.submit_error')
     }
   } finally {
     submitting.value = false
@@ -224,10 +233,7 @@ async function performConfirmedAction(pending) {
 
 <template>
   <div class="space-y-6">
-    <PageHeader
-      title="Buyer Demands"
-      description="Browse what buyers are looking for and send your best offer."
-    />
+    <PageHeader :title="t('farmer.demands.title')" :description="t('farmer.demands.description')" />
 
     <DemandFilter v-model="demandStore.filters" @search="handleSearch" />
 
@@ -237,8 +243,8 @@ async function performConfirmedAction(pending) {
 
     <EmptyState
       v-else-if="demandStore.demands.length === 0"
-      title="No demands right now"
-      description="Check back later — new buyer requests appear here."
+      :title="t('farmer.demands.empty_title')"
+      :description="t('farmer.demands.empty_description')"
     />
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -260,17 +266,24 @@ async function performConfirmedAction(pending) {
       class="mt-6"
     />
 
-    <AppModal title="Make an offer" :is-open="showOfferModal" @close="showOfferModal = false">
+    <AppModal
+      :title="t('farmer.demands.offer_title')"
+      :is-open="showOfferModal"
+      @close="showOfferModal = false"
+    >
       <div v-if="demandStore.activeDemand" class="space-y-5">
         <div>
           <h2 class="font-serif text-2xl font-bold text-stone-900">
             {{ demandStore.activeDemand.title }}
           </h2>
           <p class="text-stone-600 text-sm mt-1">
-            {{ demandStore.activeDemand.crop_name }} ·
-            {{ demandStore.activeDemand.remaining_quantity_kg }} kg still needed · target ₱{{
-              demandStore.activeDemand.target_price_per_kg
-            }}/kg
+            {{
+              t('farmer.demands.summary', {
+                crop: demandStore.activeDemand.crop_name,
+                qty: demandStore.activeDemand.remaining_quantity_kg,
+                price: demandStore.activeDemand.target_price_per_kg,
+              })
+            }}
           </p>
           <p
             v-if="demandStore.activeDemand.description"
@@ -285,7 +298,11 @@ async function performConfirmedAction(pending) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             id="offer-qty"
-            :label="`Your quantity in kg (max ${demandStore.activeDemand.remaining_quantity_kg})`"
+            :label="
+              t('farmer.demands.qty_label', {
+                max: demandStore.activeDemand.remaining_quantity_kg,
+              })
+            "
             type="number"
             v-model="offerForm.quantity_kg"
             :required="true"
@@ -294,7 +311,7 @@ async function performConfirmedAction(pending) {
           />
           <FormField
             id="offer-price"
-            label="Your price per kg (₱, max 8 digits)"
+            :label="t('farmer.demands.price_label')"
             type="number"
             v-model="offerForm.price_per_kg"
             :required="true"
@@ -309,7 +326,7 @@ async function performConfirmedAction(pending) {
         />
         <div>
           <label for="offer-message" class="block text-sm font-medium text-soil-700 mb-1">
-            Message to buyer (optional)
+            {{ t('farmer.demands.message_label') }}
           </label>
           <AppTextarea
             minlength="0"
@@ -318,7 +335,7 @@ async function performConfirmedAction(pending) {
             v-model="offerForm.message"
             rows="3"
             :maxlength="OFFER_MESSAGE_MAX_LENGTH"
-            placeholder="e.g. Fresh harvest, can deliver this week"
+            :placeholder="t('farmer.demands.message_placeholder')"
           />
           <p class="text-xs text-stone-500 mt-1 text-right" id="offer-message-counter">
             {{ (offerForm.message || '').length }} / {{ OFFER_MESSAGE_MAX_LENGTH }}
@@ -326,16 +343,18 @@ async function performConfirmedAction(pending) {
         </div>
 
         <div class="flex justify-end gap-3">
-          <AppButton variant="ghost" @click="showOfferModal = false">Cancel</AppButton>
+          <AppButton variant="ghost" @click="showOfferModal = false">{{
+            t('shell.cancel')
+          }}</AppButton>
           <AppButton variant="primary" :loading="submitting" @click="askOfferConfirm">
-            Send offer
+            {{ t('farmer.demands.send_offer') }}
           </AppButton>
         </div>
       </div>
     </AppModal>
 
     <AppModal
-      title="Report content"
+      :title="t('farmer.demands.report_modal_title')"
       :is-open="showReportModal"
       :busy="reportBusy || isExecuting"
       @close="closeReportModal"
@@ -355,19 +374,23 @@ async function performConfirmedAction(pending) {
       />
       <div v-else-if="reportAccess === 'signin'" class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Sign in to report this content to the moderation team.
+          {{ t('farmer.demands.signin_prompt') }}
         </p>
         <div class="flex justify-end gap-3">
-          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
-          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.cancel')
+          }}</AppButton>
+          <AppButton variant="primary" @click="goLogin">{{ t('farmer.demands.signin') }}</AppButton>
         </div>
       </div>
       <div v-else class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Verify your email address to report content to the moderation team.
+          {{ t('farmer.demands.verify_prompt') }}
         </p>
         <div class="flex justify-end">
-          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.close')
+          }}</AppButton>
         </div>
       </div>
     </AppModal>

@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import LoadingState from '@/components/molecules/LoadingState.vue'
 import SkeletonCard from '@/components/atoms/SkeletonCard.vue'
@@ -15,6 +16,7 @@ import { useCreditScoreStore } from '@/stores/creditScoreStore'
 import { CREDIT_TIER_STYLES } from '@/constants/creditScoring'
 
 const creditScoreStore = useCreditScoreStore()
+const { t } = useI18n()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const SCORE_SKELETON_COUNT = 2
 const entered = ref(false)
@@ -49,12 +51,11 @@ onUnmounted(() => {
 function handleGenerate() {
   confirm(
     {
-      title: 'Generate PDF Report',
-      message:
-        'Generate a shareable Trust Score report for loan applications? You can create up to 3 reports per day.',
+      title: t('farmer.credit.generate_title'),
+      message: t('farmer.credit.generate_message'),
       type: 'primary',
-      confirmText: 'Generate Report',
-      cancelText: 'Not Now',
+      confirmText: t('farmer.credit.generate_confirm'),
+      cancelText: t('farmer.credit.not_now'),
     },
     async () => {
       await creditScoreStore.generateReportAndPoll()
@@ -74,14 +75,11 @@ function handleRetry() {
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out"
     :class="entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1.5'"
   >
-    <PageHeader
-      title="Farmer Trust Score"
-      description="Your creditworthiness profile for Land Bank, ACPC, and rural bank loan applications."
-    />
+    <PageHeader :title="t('farmer.credit.title')" :description="t('farmer.credit.description')" />
 
     <LoadingState
       v-if="creditScoreStore.isLoading && !creditScoreStore.score"
-      label="Loading trust score"
+      :label="t('farmer.credit.loading')"
       class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5"
       ><SkeletonCard v-for="n in SCORE_SKELETON_COUNT" :key="n"
     /></LoadingState>
@@ -93,7 +91,9 @@ function handleRetry() {
       <p class="text-base text-stone-600 font-normal leading-relaxed">
         {{ creditScoreStore.errorMessage }}
       </p>
-      <AppButton variant="primary" class="mt-4" @click="handleRetry">Try Again</AppButton>
+      <AppButton variant="primary" class="mt-4" @click="handleRetry">{{
+        t('farmer.credit.try_again')
+      }}</AppButton>
     </div>
 
     <div v-else-if="creditScoreStore.score" class="mt-6 space-y-6">

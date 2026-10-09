@@ -1,5 +1,7 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import AppSpinner from './AppSpinner.vue'
+const { t } = useI18n()
 defineProps({ location: { type: String, default: '' } })
 </script>
 <template>
@@ -10,11 +12,18 @@ defineProps({ location: { type: String, default: '' } })
   >
     <AppSpinner size="md" class="text-dew-700" />
     <h2 class="font-serif text-2xl font-bold text-dew-800">
-      Analyzing crops for {{ location || 'your region' }}...
+      {{
+        t('farmer.analysis.progress_title', {
+          location: location || t('farmer.analysis.region_fallback'),
+        })
+      }}
     </h2>
     <p class="text-dew-700 text-sm max-w-lg leading-relaxed">
-      Our AI agronomist is cross-referencing soil conditions and weather patterns against crops
-      commercially cultivated and available in {{ location || 'this location' }}.
+      {{
+        t('farmer.analysis.progress_desc', {
+          location: location || t('farmer.analysis.location_fallback'),
+        })
+      }}
     </p>
   </div>
 </template>

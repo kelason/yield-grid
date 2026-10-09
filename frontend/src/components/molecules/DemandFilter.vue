@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SearchInput from './SearchInput.vue'
 import SortSelect from './SortSelect.vue'
 import AppInput from '../atoms/AppInput.vue'
@@ -10,9 +11,18 @@ const props = defineProps({
   modelValue: { type: Object, required: true },
 })
 
+const { t } = useI18n()
 const filterError = ref('')
 
 const emit = defineEmits(['update:modelValue', 'search'])
+
+const sortOptions = computed(() => [
+  { value: 'newest', label: t('farmer.demand_filter.sort_newest') },
+  { value: 'nearest', label: t('farmer.demand_filter.sort_nearest') },
+  { value: 'budget_asc', label: t('farmer.demand_filter.sort_budget_asc') },
+  { value: 'budget_desc', label: t('farmer.demand_filter.sort_budget_desc') },
+  { value: 'needed_soonest', label: t('farmer.demand_filter.sort_needed_soonest') },
+])
 
 const localFilters = ref({ ...props.modelValue })
 
@@ -39,15 +49,15 @@ function applyFilters() {
     <AppAlert v-if="filterError" type="error" class="mb-4">{{ filterError }}</AppAlert>
     <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4">
       <div class="md:col-span-4 flex flex-col">
-        <label for="demand-crop" class="block text-sm font-medium text-soil-700 mb-1"
-          >Search Crop</label
-        >
+        <label for="demand-crop" class="block text-sm font-medium text-soil-700 mb-1">{{
+          t('farmer.demand_filter.crop')
+        }}</label>
         <SearchInput
           id="demand-crop"
-          label="Search Crop"
+          :label="t('farmer.demand_filter.crop')"
           :maxlength="CATALOG_LIMITS.CROP_MAX_LENGTH"
           v-model="localFilters.crop"
-          placeholder="e.g. Tomato, Rice..."
+          :placeholder="t('farmer.demand_filter.crop_placeholder')"
           class="flex-grow w-full"
           @update:model-value="onCropInput"
         />
@@ -56,7 +66,7 @@ function applyFilters() {
       <div class="md:col-span-4 flex items-end space-x-2">
         <div class="w-1/2">
           <label for="demand-min-budget" class="block text-xs font-medium text-soil-700 mb-1">
-            Min Budget
+            {{ t('farmer.demand_filter.min_budget') }}
           </label>
           <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -78,7 +88,7 @@ function applyFilters() {
         </div>
         <div class="w-1/2">
           <label for="demand-max-budget" class="block text-xs font-medium text-soil-700 mb-1">
-            Max Budget
+            {{ t('farmer.demand_filter.max_budget') }}
           </label>
           <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -94,26 +104,20 @@ function applyFilters() {
               v-model="localFilters.maxBudget"
               @change="applyFilters"
               class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white transition-all duration-200 shadow-soft hover:border-stone-400"
-              placeholder="Any"
+              :placeholder="t('farmer.demand_filter.any')"
             />
           </div>
         </div>
       </div>
 
       <div class="md:col-span-4 flex flex-col">
-        <label for="demand-sort" class="block text-sm font-medium text-soil-700 mb-1"
-          >Sort By</label
-        >
+        <label for="demand-sort" class="block text-sm font-medium text-soil-700 mb-1">{{
+          t('farmer.demand_filter.sort_by')
+        }}</label>
         <SortSelect
           id="demand-sort"
           v-model="localFilters.sort"
-          :options="[
-            { value: 'newest', label: 'Newest Posted' },
-            { value: 'nearest', label: 'Nearest First' },
-            { value: 'budget_asc', label: 'Budget: Low to High' },
-            { value: 'budget_desc', label: 'Budget: High to Low' },
-            { value: 'needed_soonest', label: 'Needed Soonest' },
-          ]"
+          :options="sortOptions"
           @update:model-value="
             (val) => {
               localFilters.sort = val

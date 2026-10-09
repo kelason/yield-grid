@@ -1,9 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { setLocale } from '@/i18n'
 import CreateFarmForm from '../CreateFarmForm.vue'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 
 describe('CreateFarmForm.vue', () => {
+  afterEach(() => {
+    setLocale('en')
+  })
   async function fillValid(wrapper) {
     await wrapper.find('#farm-name').setValue('Green Acres')
     await wrapper.find('#farm-city').setValue('Springfield')
@@ -61,5 +65,11 @@ describe('CreateFarmForm.vue', () => {
 
     expect(wrapper.html()).toContain('must be between 0 and 1000000')
     expect(wrapper.emitted('submit')).toBeUndefined()
+  })
+
+  it('renders field labels in Tagalog', async () => {
+    setLocale('tl')
+    const wrapper = mount(CreateFarmForm)
+    expect(wrapper.text()).toContain('Pangalan ng Bukid')
   })
 })

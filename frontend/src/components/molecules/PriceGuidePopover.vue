@@ -1,7 +1,9 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { InformationCircleIcon } from '@heroicons/vue/24/outline'
 import PriceGuideHint from '@/components/molecules/PriceGuideHint.vue'
+const { t } = useI18n()
 
 const props = defineProps({
   cropName: {
@@ -118,13 +120,13 @@ onBeforeUnmount(() => {
       ref="triggerRef"
       type="button"
       :aria-expanded="isOpen"
-      aria-label="Show price guide"
-      title="Show price guide"
+      :aria-label="t('farmer.price_guide.show')"
+      :title="t('farmer.price_guide.show')"
       class="inline-flex items-center gap-1 min-h-11 rounded-full py-0.5 pl-1 pr-2 text-xs font-medium text-dew-700 transition-all duration-200 hover:bg-dew-100 hover:text-dew-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
       @click="toggle"
     >
       <InformationCircleIcon class="h-4 w-4" aria-hidden="true" />
-      Price Guide
+      {{ t('farmer.price_guide.trigger') }}
     </button>
     <Teleport to="body">
       <Transition
@@ -139,7 +141,7 @@ onBeforeUnmount(() => {
           v-if="isOpen"
           ref="panelRef"
           role="dialog"
-          aria-label="Price guide"
+          :aria-label="t('farmer.price_guide.dialog')"
           class="fixed z-[110] max-h-[70vh] w-[min(26rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-stone-200 bg-white p-4 shadow-organic"
         >
           <PriceGuideHint
@@ -149,7 +151,7 @@ onBeforeUnmount(() => {
             :region-code="regionCode"
           />
           <p v-else class="text-sm font-normal text-stone-600">
-            Enter a crop name to load the price guide.
+            {{ t('farmer.price_guide.empty_crop') }}
           </p>
         </div>
       </Transition>

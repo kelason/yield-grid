@@ -91,7 +91,10 @@ onMounted(async () => {
       </AppButton>
     </div>
 
-    <LoadingState v-if="insuranceStore.isLoading" label="Loading insurance" class="mt-6 space-y-6"
+    <LoadingState
+      v-if="insuranceStore.isLoading"
+      :label="t('insurance.page.loading')"
+      class="mt-6 space-y-6"
       ><SkeletonCard v-for="n in INSURANCE_SKELETON_COUNT" :key="n"
     /></LoadingState>
 

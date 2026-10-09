@@ -1,7 +1,9 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import AnalysisProgress from '../atoms/AnalysisProgress.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import AnalysisPreferencesForm from './AnalysisPreferencesForm.vue'
+const { t } = useI18n()
 defineProps({
   analyzing: Boolean,
   location: { type: String, default: '' },
@@ -11,7 +13,7 @@ defineProps({
 defineEmits(['update:preferences', 'request-analysis', 'dismiss-error'])
 </script>
 <template>
-  <section aria-label="Crop analysis" class="space-y-6">
+  <section :aria-label="t('farmer.analysis.panel_aria')" class="space-y-6">
     <AppAlert v-if="error" type="warning" dismissible @dismiss="$emit('dismiss-error')">{{
       error
     }}</AppAlert>

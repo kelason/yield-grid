@@ -51,6 +51,8 @@ export const CREDIT_DIMENSIONS = [
   {
     key: 'plot_activity',
     label: 'Plot Activity',
+    labelKey: 'farmer.credit_dimensions.plot_activity',
+    descriptionKey: 'farmer.credit_dimensions.plot_activity_desc',
     weightPct: 15,
     description:
       'Grows with more active plots that have mapped boundaries and soil types, plus a bonus for requesting AI recommendations.',
@@ -58,6 +60,8 @@ export const CREDIT_DIMENSIONS = [
   {
     key: 'recommendation_adherence',
     label: 'AI Recommendations',
+    labelKey: 'farmer.credit_dimensions.recommendation_adherence',
+    descriptionKey: 'farmer.credit_dimensions.recommendation_adherence_desc',
     weightPct: 15,
     description:
       'Measures how many AI crop recommendations you accept and follow through into marketplace contracts.',
@@ -65,6 +69,8 @@ export const CREDIT_DIMENSIONS = [
   {
     key: 'contract_fulfillment',
     label: 'Contract Fulfillment',
+    labelKey: 'farmer.credit_dimensions.contract_fulfillment',
+    descriptionKey: 'farmer.credit_dimensions.contract_fulfillment_desc',
     weightPct: 25,
     description:
       'Tracks sold-through forward contracts and sales volume, with a clean record free of cancellations.',
@@ -72,6 +78,8 @@ export const CREDIT_DIMENSIONS = [
   {
     key: 'offer_reliability',
     label: 'Offer Reliability',
+    labelKey: 'farmer.credit_dimensions.offer_reliability',
+    descriptionKey: 'farmer.credit_dimensions.offer_reliability_desc',
     weightPct: 20,
     description:
       'Reflects accepted offers that reach delivery and completion on time, with few withdrawals.',
@@ -79,6 +87,8 @@ export const CREDIT_DIMENSIONS = [
   {
     key: 'transaction_volume',
     label: 'Transaction Volume',
+    labelKey: 'farmer.credit_dimensions.transaction_volume',
+    descriptionKey: 'farmer.credit_dimensions.transaction_volume_desc',
     weightPct: 15,
     description:
       'Sums completed sales value and transaction count, rewarding steady selling month after month.',
@@ -86,6 +96,8 @@ export const CREDIT_DIMENSIONS = [
   {
     key: 'platform_tenure',
     label: 'Platform Tenure',
+    labelKey: 'farmer.credit_dimensions.platform_tenure',
+    descriptionKey: 'farmer.credit_dimensions.platform_tenure_desc',
     weightPct: 10,
     description:
       'Rewards account age plus a complete profile: verified email, phone number, delivery address, and avatar.',

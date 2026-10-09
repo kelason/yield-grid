@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppCard from '../atoms/AppCard.vue'
 import AppButton from '../atoms/AppButton.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
@@ -9,6 +10,7 @@ import { FlagIcon, MapPinIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const props = defineProps({
   demand: { type: Object, required: true },
@@ -42,8 +44,8 @@ function formatDate(dateStr) {
 
 function formatDistance(meters) {
   if (meters == null) return null
-  if (meters < 1000) return `${Math.round(meters)} m away`
-  return `${(meters / 1000).toFixed(1)} km away`
+  if (meters < 1000) return t('farmer.demand_card.m_away', { value: Math.round(meters) })
+  return t('farmer.demand_card.km_away', { value: (meters / 1000).toFixed(1) })
 }
 
 function remainingPercent(demand) {
@@ -61,8 +63,13 @@ function remainingPercent(demand) {
           {{ demand.title }}
         </h3>
         <p class="text-sm text-stone-500 mt-0.5">
-          {{ demand.crop_name }} · {{ demand.remaining_quantity_kg }} of {{ demand.quantity_kg }} kg
-          still needed
+          {{
+            t('farmer.demand_card.qty_line', {
+              crop: demand.crop_name,
+              remaining: demand.remaining_quantity_kg,
+              qty: demand.quantity_kg,
+            })
+          }}
         </p>
       </div>
       <StatusBadge :status="demand.status" size="sm" />
@@ -71,14 +78,19 @@ function remainingPercent(demand) {
     <progress
       :value="remainingPercent(demand)"
       max="100"
-      :aria-label="`${demand.remaining_quantity_kg} of ${demand.quantity_kg} kilograms still needed`"
+      :aria-label="
+        t('farmer.demand_card.progress_aria', {
+          remaining: demand.remaining_quantity_kg,
+          qty: demand.quantity_kg,
+        })
+      "
       class="mt-3 w-full h-2 rounded-full accent-moss-600"
     />
 
     <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
       <p>
         <PriceTag :amount="demand.target_price_per_kg" size="md" />
-        <span class="text-sm text-stone-500">/kg target</span>
+        <span class="text-sm text-stone-500">{{ t('farmer.demand_card.per_kg_target') }}</span>
         <PriceFairnessBadge
           :listing-price="Number(demand.target_price_per_kg)"
           :crop-name="demand.crop_name"
@@ -87,7 +99,7 @@ function remainingPercent(demand) {
       </p>
       <div class="text-right text-xs text-stone-500">
         <p>
-          Needed by
+          {{ t('farmer.demand_card.needed_by') }}
           <span class="font-medium text-stone-700">{{ formatDate(demand.needed_by_date) }}</span>
         </p>
         <p v-if="demand.location_summary" class="flex items-center justify-end gap-1 mt-1">
@@ -98,7 +110,12 @@ function remainingPercent(demand) {
           </span>
         </p>
         <p v-if="demand.offers_count != null" class="mt-1">
-          {{ demand.offers_count }} offer{{ demand.offers_count === 1 ? '' : 's' }}
+          {{ demand.offers_count }}
+          {{
+            demand.offers_count === 1
+              ? t('farmer.demand_card.offer_one')
+              : t('farmer.demand_card.offer_other')
+          }}
         </p>
       </div>
     </div>
@@ -107,18 +124,18 @@ function remainingPercent(demand) {
         variant="outline"
         class="flex-1"
         @click="$emit('view', demand)"
-        :aria-label="`View demand: ${demand.title}`"
-        >View demand</AppButton
+        :aria-label="t('farmer.demand_card.view_aria', { title: demand.title })"
+        >{{ t('farmer.demand_card.view') }}</AppButton
       >
       <button
         v-if="!isOwner"
         type="button"
-        aria-label="Report this demand"
+        :aria-label="t('farmer.demand_card.report_aria')"
         class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
         @click.stop="emitReport"
       >
         <FlagIcon class="w-4 h-4" aria-hidden="true" />
-        Report
+        {{ t('farmer.demand_card.report') }}
       </button>
     </div>
   </AppCard>

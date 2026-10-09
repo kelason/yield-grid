@@ -62,7 +62,8 @@
           >
             <ChartBarIcon class="h-5 w-5" aria-hidden="true" />
             <span
-              >Projected Yield: <strong>{{ recommendation.projected_yield }}</strong></span
+              >{{ t('farmer.rec_card.projected_yield') }}
+              <strong>{{ recommendation.projected_yield }}</strong></span
             >
           </div>
         </div>
@@ -73,7 +74,7 @@
           class="flex flex-wrap items-center gap-3 mt-4 sm:justify-end"
         >
           <AppButton variant="ghost" size="sm" @click="$emit('reject', recommendation.id)">
-            Reject
+            {{ t('farmer.rec_card.reject') }}
           </AppButton>
           <AppButton
             variant="primary"
@@ -81,7 +82,7 @@
             rounded="full"
             @click="$emit('accept', recommendation.id)"
           >
-            Accept &amp; Contract
+            {{ t('farmer.rec_card.accept_contract') }}
           </AppButton>
         </div>
       </div>
@@ -92,11 +93,14 @@
 <script setup>
 import { ChartBarIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppCard from '../atoms/AppCard.vue'
 import CropConfidenceMeter from '../atoms/CropConfidenceMeter.vue'
 import AppButton from '../atoms/AppButton.vue'
 import VerifiedBadge from '../atoms/VerifiedBadge.vue'
 import { isRecommendationVerified } from '@/utils/verification'
+
+const { t } = useI18n()
 
 const props = defineProps({
   recommendation: {

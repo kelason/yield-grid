@@ -1,15 +1,19 @@
 <template>
   <div class="bg-white rounded-2xl border border-stone-200 shadow-soft p-6 sm:p-8">
-    <h2 class="font-serif text-2xl font-bold text-stone-900">Check two crops</h2>
+    <h2 class="font-serif text-2xl font-bold text-stone-900">
+      {{ t('farmer.compat.checker_title') }}
+    </h2>
     <p class="text-base text-stone-600 font-normal leading-relaxed mt-1 mb-6">
-      See whether a pair fits together in rotation and as companions before you plant.
+      {{ t('farmer.compat.checker_desc') }}
     </p>
 
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
-        <label for="checker-crop-a" class="text-sm font-medium text-soil-700">First crop</label>
+        <label for="checker-crop-a" class="text-sm font-medium text-soil-700">
+          {{ t('farmer.compat.first_crop') }}
+        </label>
         <AppSelect id="checker-crop-a" v-model="cropA" data-test="crop-a-select" class="mt-1">
-          <option value="">Select a crop</option>
+          <option value="">{{ t('farmer.compat.select_crop') }}</option>
           <optgroup v-for="group in cropGroups" :key="group.label" :label="group.label">
             <option v-for="crop in group.crops" :key="crop.slug" :value="crop.slug">
               {{ crop.name }}
@@ -18,9 +22,11 @@
         </AppSelect>
       </div>
       <div>
-        <label for="checker-crop-b" class="text-sm font-medium text-soil-700">Second crop</label>
+        <label for="checker-crop-b" class="text-sm font-medium text-soil-700">
+          {{ t('farmer.compat.second_crop') }}
+        </label>
         <AppSelect id="checker-crop-b" v-model="cropB" data-test="crop-b-select" class="mt-1">
-          <option value="">Select a crop</option>
+          <option value="">{{ t('farmer.compat.select_crop') }}</option>
           <optgroup v-for="group in cropGroups" :key="group.label" :label="group.label">
             <option v-for="crop in group.crops" :key="crop.slug" :value="crop.slug">
               {{ crop.name }}
@@ -40,7 +46,7 @@
         :loading="checking"
         @click="emit('check-compatibility', { cropA: cropA, cropB: cropB })"
       >
-        Check compatibility
+        {{ t('farmer.compat.check_button') }}
       </AppButton>
     </div>
 
@@ -57,7 +63,11 @@
             BADGE_CLASSES[result.verdict] || BADGE_CLASSES.compatible,
           ]"
         >
-          {{ VERDICT_LABELS[result.verdict] || result.verdict }}
+          {{
+            VERDICT_LABEL_KEYS[result.verdict]
+              ? t(VERDICT_LABEL_KEYS[result.verdict])
+              : result.verdict
+          }}
         </span>
         <p class="font-serif text-lg font-bold text-stone-900">
           {{ result.crop_a?.name }} × {{ result.crop_b?.name }}
@@ -66,7 +76,7 @@
 
       <div class="grid sm:grid-cols-2 gap-4 mt-6">
         <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-          <h3 class="text-sm font-medium text-soil-700 mb-2">Rotation (planting in sequence)</h3>
+          <h3 class="text-sm font-medium text-soil-700 mb-2">{{ t('farmer.compat.rotation') }}</h3>
           <ul data-test="rotation-reasons" class="space-y-1">
             <li
               v-for="(reason, index) in result.rotation?.reasons || []"
@@ -78,7 +88,9 @@
           </ul>
         </div>
         <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-          <h3 class="text-sm font-medium text-soil-700 mb-2">Companions (growing side by side)</h3>
+          <h3 class="text-sm font-medium text-soil-700 mb-2">
+            {{ t('farmer.compat.companions') }}
+          </h3>
           <ul data-test="companion-reasons" class="space-y-1">
             <li
               v-for="(reason, index) in result.companion?.reasons || []"
@@ -96,8 +108,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppButton from '../atoms/AppButton.vue'
 import AppSelect from '../atoms/AppSelect.vue'
+const { t } = useI18n()
 
 const props = defineProps({
   taxonomy: {
@@ -120,7 +134,11 @@ const props = defineProps({
 
 const emit = defineEmits(['check-compatibility'])
 
-const VERDICT_LABELS = { compatible: 'Compatible', caution: 'Caution', avoid: 'Avoid' }
+const VERDICT_LABEL_KEYS = {
+  compatible: 'farmer.compat.verdict_compatible',
+  caution: 'farmer.compat.verdict_caution',
+  avoid: 'farmer.compat.verdict_avoid',
+}
 const BADGE_CLASSES = {
   compatible: 'bg-moss-100 text-moss-700 border-moss-200',
   caution: 'bg-harvest-100 text-harvest-700 border-harvest-200',
