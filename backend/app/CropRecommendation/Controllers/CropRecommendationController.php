@@ -58,6 +58,7 @@ class CropRecommendationController extends Controller
         Gate::authorize('view', $plot);
 
         $recommendations = CropRecommendation::where('plot_id', $plot->id)
+            ->with('plot:id,farm_id,verification_status', 'plot.farm:id,verification_status')
             ->latest()
             ->take(10)
             ->get();
