@@ -185,7 +185,7 @@ jobs:
       - name: Build for production
         run: npm run build
         env:
-          VITE_API_URL: https://yieldgridph.com/api/v1
+          VITE_API_URL: https://api.yieldgridph.com/api/v1
           VITE_REVERB_APP_KEY: ${{ vars.VITE_REVERB_APP_KEY }}
           VITE_REVERB_HOST: yieldgridph.com
           VITE_REVERB_PORT: 443
