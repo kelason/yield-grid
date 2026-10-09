@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach } from 'vitest'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import EnrollmentGuide from '../EnrollmentGuide.vue'
 
 describe('EnrollmentGuide', () => {
   beforeEach(() => {
-    setInsuranceLocale('en')
+    setLocale('en')
   })
 
   const plots = [{ id: 3, name: 'North Plot', calculated_area: 1.5 }]

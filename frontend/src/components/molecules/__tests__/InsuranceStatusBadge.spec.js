@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach } from 'vitest'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import InsuranceStatusBadge from '../InsuranceStatusBadge.vue'
 
 describe('InsuranceStatusBadge', () => {
   beforeEach(() => {
-    setInsuranceLocale('en')
+    setLocale('en')
   })
 
   function mountBadge(props) {
@@ -34,7 +34,7 @@ describe('InsuranceStatusBadge', () => {
   })
 
   it('translates labels when the locale changes', () => {
-    setInsuranceLocale('tl')
+    setLocale('tl')
     const badge = mountBadge({ status: 'active', kind: 'enrollment' }).get(
       '[data-testid="insurance-status-badge"]',
     )

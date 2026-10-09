@@ -2,7 +2,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
-import i18n, { setInsuranceLocale } from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import InsurancePage from '../InsurancePage.vue'
 
@@ -16,7 +16,7 @@ describe('InsurancePage', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    setInsuranceLocale('en')
+    setLocale('en')
 
     apiGet = vi.fn((url) => {
       if (url === '/farmer/insurance/profile') {
