@@ -33,4 +33,6 @@ final class FarmingConstants
 
     /** Coordinate pair size: [lng, lat]. */
     public const int COORD_PAIR_SIZE = 2;
+
+    public const int VERIFICATION_NOTE_MAX_LENGTH = 1000;
 }
