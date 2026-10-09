@@ -103,4 +103,117 @@ describe('ManualListingPage.vue limits', () => {
     const notificationStore = useNotificationStore()
     expect(notificationStore.notifications.at(-1).message).toMatch(/5000 characters/)
   })
+
+  it('populates farm options from the own farms endpoint', async () => {
+    mockSourceApi()
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const options = wrapper.find('#listing-farm').findAll('option')
+    expect(options.map((o) => o.text())).toContain('Green Acres')
+    expect(options.map((o) => o.text())).toContain('River Lot')
+  })
+
+  it('filters plot options by the chosen farm and clears the plot on farm change', async () => {
+    mockSourceApi()
+    const wrapper = mountPage()
+    await flushPromises()
+
+    await wrapper.find('#listing-farm').setValue('1')
+    let plotOptions = wrapper.find('#listing-plot').findAll('option')
+    expect(plotOptions.map((o) => o.text())).toContain('North field')
+    expect(plotOptions.map((o) => o.text())).not.toContain('South field')
+
+    await wrapper.find('#listing-plot').setValue('11')
+    expect(wrapper.vm.form.plot_id).toBe('11')
+
+    await wrapper.find('#listing-farm').setValue('2')
+    expect(wrapper.vm.form.plot_id).toBe('')
+    plotOptions = wrapper.find('#listing-plot').findAll('option')
+    expect(plotOptions.map((o) => o.text())).toContain('South field')
+  })
+
+  it('blocks submit when a plot is set without a farm', async () => {
+    mockSourceApi()
+    const wrapper = mountPage()
+    await flushPromises()
+
+    await fillValidListingForm(wrapper)
+    // Bypass the dependent select to verify the submit-time guard.
+    wrapper.vm.form.plot_id = '11'
+    await wrapper.vm.$nextTick()
+    await wrapper.find('form').trigger('submit.prevent')
+
+    expect(mockPost).not.toHaveBeenCalled()
+    const notificationStore = useNotificationStore()
+    expect(notificationStore.notifications.at(-1).message).toMatch(/farm/i)
+  })
+
+  it('sends farm_id and plot_id when a source is chosen', async () => {
+    mockSourceApi()
+    mockPost.mockResolvedValueOnce({ data: {} })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    await fillValidListingForm(wrapper)
+    await wrapper.find('#listing-farm').setValue('1')
+    await wrapper.find('#listing-plot').setValue('11')
+    await wrapper.find('form').trigger('submit.prevent')
+    await wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
+
+    expect(mockPost).toHaveBeenCalledOnce()
+    expect(mockPost.mock.calls[0][1].farm_id).toBe(1)
+    expect(mockPost.mock.calls[0][1].plot_id).toBe(11)
+  })
+
+  it('omits farm_id and plot_id when no source is chosen', async () => {
+    mockSourceApi()
+    mockPost.mockResolvedValueOnce({ data: {} })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    await fillValidListingForm(wrapper)
+    await wrapper.find('form').trigger('submit.prevent')
+    await wrapper.findComponent(ConfirmModal).vm.$emit('confirm')
+    await flushPromises()
+
+    expect(mockPost).toHaveBeenCalledOnce()
+    expect(mockPost.mock.calls[0][1]).not.toHaveProperty('farm_id')
+    expect(mockPost.mock.calls[0][1]).not.toHaveProperty('plot_id')
+  })
+
+  function mockSourceApi() {
+    const mockGet = vi.fn().mockImplementation((url) => {
+      if (url === '/farms') {
+        return Promise.resolve({
+          data: {
+            data: [
+              { id: 1, name: 'Green Acres' },
+              { id: 2, name: 'River Lot' },
+            ],
+          },
+        })
+      }
+      if (url === '/plots') {
+        return Promise.resolve({
+          data: {
+            data: [
+              { id: 11, farm_id: 1, name: 'North field' },
+              { id: 12, farm_id: 2, name: 'South field' },
+            ],
+          },
+        })
+      }
+      return Promise.resolve({ data: {} })
+    })
+    useApi.mockReturnValue({ get: mockGet, post: mockPost })
+  }
+
+  async function fillValidListingForm(wrapper) {
+    const numberInputs = wrapper.findAll('input[type="number"]')
+    await numberInputs[1].setValue('100')
+    await numberInputs[2].setValue('50')
+    await wrapper.find('input[type="date"]').setValue('2026-12-01')
+  }
 })

@@ -15,6 +15,8 @@ import LoadingState from '@/components/molecules/LoadingState.vue'
 import AppSkeleton from '@/components/atoms/AppSkeleton.vue'
 import { MapPinIcon, ChartBarIcon } from '@heroicons/vue/24/outline'
 import PlotDrawer from '../../components/organisms/PlotDrawer.vue'
+import VerifiedBadge from '@/components/atoms/VerifiedBadge.vue'
+import { isPlotVerified } from '@/utils/verification'
 
 const PLOT_NAME_MAX_LENGTH = 255
 
@@ -58,9 +60,23 @@ onMounted(async () => {
     }
   }
   farmingStore.fetchPlots(farmId)
+  farmingStore.fetchAllPlots()
 })
 
 const farmName = computed(() => farmingStore.activeFarm?.name || 'Loading...')
+
+const plotVerificationById = computed(() => {
+  const byId = new Map()
+  for (const plot of farmingStore.allPlots ?? []) {
+    byId.set(plot?.id, plot)
+  }
+  return byId
+})
+
+function isFeatureVerified(feature) {
+  const plot = plotVerificationById.value.get(feature?.properties?.id)
+  return isPlotVerified(plot, plot?.farm)
+}
 
 function handlePlotDrawn({ layer, coordinates }) {
   error.value = ''
@@ -239,8 +255,11 @@ async function performSavePlot(payload) {
                     :aria-label="`Zoom to plot ${feature.properties.name}`"
                     @click="plotDrawerRef?.zoomToPlot(feature.properties.id)"
                     ><div class="min-w-0">
-                      <div class="font-semibold text-stone-900 text-sm truncate">
+                      <div
+                        class="font-semibold text-stone-900 text-sm truncate flex items-center gap-2"
+                      >
                         {{ feature.properties.name }}
+                        <VerifiedBadge v-if="isFeatureVerified(feature)" size="sm" />
                       </div>
                       <div class="flex items-center gap-2 mt-1 text-xs text-stone-500">
                         <span class="capitalize">{{

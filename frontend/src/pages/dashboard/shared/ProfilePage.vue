@@ -6,6 +6,8 @@ import { useApi } from '../../../composables/useApi'
 import { useAuthStore } from '../../../stores/auth'
 import { useAddressStore } from '../../../stores/addressStore'
 import { useNotificationStore } from '../../../stores/notificationStore'
+import { useFarmingStore } from '../../../stores/farming'
+import { isFarmVerified } from '@/utils/verification'
 import { HTTP_STATUS } from '../../../constants/http'
 import AppCard from '../../../components/atoms/AppCard.vue'
 import ProfileAddressPanel from '@/components/organisms/ProfileAddressPanel.vue'
@@ -17,6 +19,7 @@ import PriceTag from '../../../components/atoms/PriceTag.vue'
 import SkeletonCard from '../../../components/atoms/SkeletonCard.vue'
 import EmptyState from '../../../components/molecules/EmptyState.vue'
 import ConfirmModal from '../../../components/molecules/ConfirmModal.vue'
+import VerifiedBadge from '../../../components/atoms/VerifiedBadge.vue'
 import { MapPinIcon } from '@heroicons/vue/24/outline'
 
 const ANONYMOUS_ROUTE_PARAM = 'anonymous'
@@ -28,6 +31,7 @@ const api = useApi()
 const authStore = useAuthStore()
 const addressStore = useAddressStore()
 const notificationStore = useNotificationStore()
+const farmingStore = useFarmingStore()
 
 const profile = ref(null)
 const isLoading = ref(false)
@@ -42,6 +46,23 @@ const isBuyer = computed(() => profile.value?.role === BUYER_ROLE)
 const showStats = computed(() => isFarmer.value || isBuyer.value)
 const isOwnProfile = computed(
   () => !isAnonymous.value && String(authStore.user?.id) === String(userId.value),
+)
+const hasVerifiedFarm = computed(
+  () =>
+    isOwnProfile.value &&
+    isFarmer.value &&
+    Array.isArray(farmingStore.farms) &&
+    farmingStore.farms.some((farm) => isFarmVerified(farm)),
+)
+
+watch(
+  [isOwnProfile, isFarmer],
+  ([own, farmer]) => {
+    if (own && farmer && farmingStore.farms.length === 0) {
+      farmingStore.fetchFarms().catch(() => {})
+    }
+  },
+  { immediate: true },
 )
 
 const {
@@ -154,6 +175,7 @@ watch(userId, fetchProfile, { immediate: true })
             >
               {{ profile.role }}
             </span>
+            <VerifiedBadge v-if="hasVerifiedFarm" size="sm" class="ml-2" />
           </div>
         </div>
       </AppCard>

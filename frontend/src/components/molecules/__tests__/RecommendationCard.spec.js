@@ -85,4 +85,32 @@ describe('RecommendationCard.vue', () => {
 
     expect(wrapper.findAll('[data-test="taxonomy-chip"]')).toHaveLength(0)
   })
+
+  it('shows the badge for a recommendation from a verified source', () => {
+    const wrapper = mount(RecommendationCard, {
+      props: {
+        recommendation: { ...mockRecommendation, is_from_verified_source: true },
+      },
+    })
+
+    expect(wrapper.find('[data-testid="verified-badge"]').exists()).toBe(true)
+  })
+
+  it('hides the badge when the source is not verified', () => {
+    const wrapper = mount(RecommendationCard, {
+      props: {
+        recommendation: { ...mockRecommendation, is_from_verified_source: false },
+      },
+    })
+
+    expect(wrapper.find('[data-testid="verified-badge"]').exists()).toBe(false)
+  })
+
+  it('hides the badge when the flag is missing', () => {
+    const wrapper = mount(RecommendationCard, {
+      props: { recommendation: mockRecommendation },
+    })
+
+    expect(wrapper.find('[data-testid="verified-badge"]').exists()).toBe(false)
+  })
 })
