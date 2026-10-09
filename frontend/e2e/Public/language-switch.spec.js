@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/session'
 import { mockInsuranceApi } from '../fixtures/insurance'
+import { switchDashboardLocale } from '../fixtures/language'
 
 test('guest language switch persists across reload', async ({ page, isMobile }) => {
   await page.goto('/')
@@ -28,13 +29,12 @@ test('guest language switch persists across reload', async ({ page, isMobile }) 
   await expect(await page.evaluate(() => localStorage.getItem('yieldgrid-locale'))).toBe('ceb')
 })
 
-test('farmer dashboard switch translates header chrome', async ({ page }) => {
+test('farmer dashboard switch translates header chrome', async ({ page, isMobile }) => {
   await mockInsuranceApi(page)
   await page.goto('/dashboard/insurance')
   await expect(page.getByRole('heading', { name: 'Crop Insurance' })).toBeVisible()
 
-  await page.getByTestId('language-menu').click()
-  await page.getByTestId('locale-ceb').click()
+  await switchDashboardLocale(page, isMobile, 'ceb')
 
   await expect(page.getByRole('button', { name: 'Gawas', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Seguro sa Pananom' })).toBeVisible()

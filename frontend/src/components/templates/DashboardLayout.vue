@@ -101,7 +101,9 @@ async function resendVerification() {
             >
           </div>
           <div class="flex shrink-0 items-center gap-2 sm:gap-4">
-            <LanguageDropdown />
+            <div class="hidden md:block">
+              <LanguageDropdown />
+            </div>
             <RouterLink
               v-if="authStore.user?.id"
               :to="{ name: 'user-profile', params: { userId: authStore.user.id } }"

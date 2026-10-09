@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/session'
 import { mockInsuranceApi } from '../fixtures/insurance'
+import { switchDashboardLocale } from '../fixtures/language'
 
 test('redirects unauthenticated visitors to login', async ({ page }) => {
   await page.goto('/dashboard/insurance')
@@ -27,11 +28,9 @@ test('guides a farmer through RSBSA save in both languages', async ({
     fullPage: true,
     animations: 'disabled',
   })
-  await page.getByTestId('language-menu').click()
-  await page.getByTestId('locale-tl').click()
+  await switchDashboardLocale(page, isMobile, 'tl')
   await expect(page.getByRole('heading', { name: 'Seguro sa Pananim' })).toBeVisible()
-  await page.getByTestId('language-menu').click()
-  await page.getByTestId('locale-en').click()
+  await switchDashboardLocale(page, isMobile, 'en')
   await expect(page.getByRole('heading', { name: 'Crop Insurance' })).toBeVisible()
 
   await page.getByLabel('RSBSA number').fill('RSBSA-1')

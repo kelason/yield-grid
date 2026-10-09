@@ -11,6 +11,7 @@ import {
   adminReport,
 } from '../fixtures/admin'
 import { E2E } from '../constants'
+import { switchDashboardLocale } from '../fixtures/language'
 const INVALID = 422
 const OK = 200
 const LONG_PURCHASES = [
@@ -194,7 +195,7 @@ test('dashboard supports narrow tablet enlarged text and reduced motion', async 
     animations: 'disabled',
   })
   const duration = await page
-    .getByRole('button', { name: 'Logout', exact: true })
+    .getByRole('button', { name: 'Log out', exact: true })
     .evaluate((button) => Number.parseFloat(getComputedStyle(button).transitionDuration))
   expect(duration).toBeLessThanOrEqual(E2E.MAX_REDUCED_MOTION_SECONDS)
 })
@@ -217,10 +218,10 @@ test('short viewport confirmation traps keyboard focus and restores its trigger'
   await noOverflow(page)
 })
 
-test('Tagalog insurance controls stay readable', async ({ page }, testInfo) => {
+test('Tagalog insurance controls stay readable', async ({ page, isMobile }, testInfo) => {
   await mockInsuranceApi(page)
   await page.goto('/dashboard/insurance')
-  await page.getByRole('button', { name: 'Tagalog', exact: true }).click()
+  await switchDashboardLocale(page, isMobile, 'tl')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Seguro sa Pananim')
   await noOverflow(page)
   await capture(page, testInfo, 'insurance-tagalog')
@@ -255,6 +256,9 @@ test('admin inquiry failure visual', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'View inquiry from Guest Visitor', exact: true }).click()
   await expect(page.getByText('Failed', { exact: true }).first()).toBeVisible()
   await noOverflow(page)
+  // The click above scrolls #main-content by a font-timing-dependent 0-2px;
+  // reset to a deterministic origin before comparing pixels.
+  await page.evaluate(() => document.getElementById('main-content')?.scrollTo(0, 0))
   await capture(page, testInfo, 'admin-inquiry-failed')
 })
 test('admin report review visual', async ({ page }, testInfo) => {
