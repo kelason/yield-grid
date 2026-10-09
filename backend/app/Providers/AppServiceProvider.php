@@ -63,6 +63,9 @@ use App\Policies\InsuranceProfilePolicy;
 use App\Policies\IssueTicketPolicy;
 use App\Policies\PlotPolicy;
 use App\Policies\UserAddressPolicy;
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\Server;
 use Domain\Contact\Models\ContactMessage;
 use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
@@ -183,6 +186,24 @@ class AppServiceProvider extends ServiceProvider
         // Log Viewer: nginx basic auth is the real gate in production; the app
         // verifies the request arrived authenticated via REMOTE_USER.
         LogViewer::auth(fn (Request $request) => $this->canViewLogs($request));
+
+        $this->configureApiDocs();
+    }
+
+    private function configureApiDocs(): void
+    {
+        // Scramble is a generator library only: our own host-gated routes own the HTTP contract.
+        // expose(false) mutates the shared config registerRoutes reads on booted, unlike the
+        // ignoreDefaultRoutes flag which Scramble's earlier boot may already have consumed.
+        Scramble::configure()->expose(false);
+
+        Scramble::afterOpenApiGenerated(function (OpenApi $openApi): void {
+            $host = config('docs.host');
+
+            if (is_string($host) && $host !== '') {
+                $openApi->servers = [Server::make('https://'.$host)];
+            }
+        });
     }
 
     private function canViewLogs(Request $request): bool
