@@ -239,6 +239,8 @@ jobs:
             fi
             php artisan migrate --force
             php artisan optimize:clear
+            mkdir -p storage/app/api-docs
+            php artisan scramble:export --path=storage/app/api-docs/openapi.json
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache

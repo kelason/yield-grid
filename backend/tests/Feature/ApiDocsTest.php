@@ -85,3 +85,13 @@ it('does not expose Scramble default routes', function () {
     $this->get('http://api.yieldgrid.test/docs/api')->assertNotFound();
     $this->get('http://api.yieldgrid.test/docs/api.json')->assertNotFound();
 });
+
+it('exports a valid spec via artisan', function () {
+    $path = storage_path('testing/openapi-export-check.json');
+    @mkdir(dirname($path), 0755, true);
+    $this->artisan('scramble:export', ['--path' => $path])->assertSuccessful();
+    $spec = json_decode((string) file_get_contents($path), true);
+    expect($spec['openapi'])->toStartWith('3.');
+    expect(array_keys($spec['paths']))->toContain('/api/v1/market/prices/guide');
+    unlink($path);
+});
