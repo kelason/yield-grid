@@ -23,16 +23,12 @@ it('confirms the unchanged plot geometry once and holds the dialog until saving 
   useFarmingStore().activeFarm = { id: 1, name: 'Green Acres' }
   useAuthStore().user = { id: 1, email_verified_at: '2026-01-01' }
   let resolve
-  api.post.mockImplementation((url) => {
-    // Draw-time flood preview resolves immediately; the plot save stays pending.
-    if (url === '/plots/flood-risk/preview')
-      return Promise.resolve({
-        data: { data: { level: 'safe', label: 'Safe', legend_token: 'safe', advice: [] } },
-      })
-    return new Promise((done) => {
-      resolve = done
-    })
-  })
+  api.post.mockImplementation(
+    () =>
+      new Promise((done) => {
+        resolve = done
+      }),
+  )
   const wrapper = mount(PlotPlanner, {
     global: { stubs: { PlotDrawer: true, RouterLink: true, teleport: true } },
   })
@@ -48,19 +44,15 @@ it('confirms the unchanged plot geometry once and holds the dialog until saving 
   await wrapper.get('#plot-name').setValue('North field')
   wrapper.findComponent(SoilTypeSelect).vm.$emit('update:modelValue', 'clay')
   await wrapper.vm.$nextTick()
-  await flushPromises()
-  // Only the non-blocking flood preview has fired; the save waits for confirm.
-  expect(api.post).toHaveBeenCalledTimes(1)
-  expect(api.post).toHaveBeenCalledWith('/plots/flood-risk/preview', { coordinates })
   await wrapper.get('form').trigger('submit')
-  expect(api.post).toHaveBeenCalledTimes(1)
+  expect(api.post).not.toHaveBeenCalled()
   const dialog = wrapper.findComponent(ConfirmModal)
   dialog.vm.$emit('confirm')
   await flushPromises()
   expect(dialog.props('isOpen')).toBe(true)
   expect(dialog.props('loading')).toBe(true)
   dialog.vm.$emit('confirm')
-  expect(api.post).toHaveBeenCalledTimes(2)
+  expect(api.post).toHaveBeenCalledTimes(1)
   expect(api.post).toHaveBeenCalledWith('/farms/1/plots', {
     name: 'North field',
     soil_type: 'clay',

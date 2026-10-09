@@ -8,7 +8,6 @@ import 'leaflet-geosearch/dist/geosearch.css'
 import booleanIntersects from '@turf/boolean-intersects'
 import { polygon as turfPolygon } from '@turf/helpers'
 import { useApi } from '@/composables/useApi'
-import { floodZoneStyle } from '@/composables/useFloodRisk'
 import { GEO_CONSTANTS } from '@/constants/geo'
 import { DESIGN_COLORS, DESIGN_STATUS_COLORS } from '@/constants/designTokens'
 
@@ -26,8 +25,6 @@ const GEOMETRY_CONSTANTS = {
   MIN_RING_POINTS: 3,
   MIN_POLYGON_POINTS: 4,
 }
-const FLOOD_BOUNDS_DEBOUNCE_MS = 400
-const FLOOD_PATH_CLASS = 'flood-zone-path'
 const OVERPASS_MIRRORS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -331,34 +328,6 @@ function observeMapSize(s) {
   s.resizeObserver = new ResizeObserver(() => s.map?.invalidateSize())
   s.resizeObserver.observe(toValue(s.mapContainer))
 }
-function floodOverlayStyle(feature) {
-  return { ...floodZoneStyle(feature?.properties?.hazard_class), className: FLOOD_PATH_CLASS }
-}
-function setFloodZones(s, collection) {
-  if (!s.map) return
-  if (s.floodZonesLayer && s.map.hasLayer(s.floodZonesLayer)) s.map.removeLayer(s.floodZonesLayer)
-  s.floodZonesLayer = null
-  if (!collection?.features?.length) return
-  // interactive:false must be a layer option: Path.setStyle ignores it, and an
-  // interactive overlay swallows the clicks leaflet-draw needs to place vertices.
-  s.floodZonesLayer = L.geoJSON(collection, {
-    style: floodOverlayStyle,
-    interactive: false,
-  }).addTo(s.map)
-}
-function getMapBounds(s) {
-  if (!s.map) return null
-  const bounds = s.map.getBounds()
-  return [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()]
-}
-function scheduleBoundsChange(s) {
-  if (s.boundsTimer) clearTimeout(s.boundsTimer)
-  s.boundsTimer = setTimeout(() => {
-    s.boundsTimer = null
-    const bbox = getMapBounds(s)
-    if (bbox) s.onBoundsChange?.(bbox)
-  }, FLOOD_BOUNDS_DEBOUNCE_MS)
-}
 function initializeMap(s) {
   s.map = L.map(toValue(s.mapContainer)).setView(
     GEO_CONSTANTS.FALLBACK_CENTER,
@@ -379,7 +348,6 @@ function initializeMap(s) {
     new GeoSearchControl({ provider: new OpenStreetMapProvider(), ...SEARCH_OPTIONS }),
   )
   s.map.on(L.Draw.Event.CREATED, (event) => handleDraw(s, event))
-  s.map.on('moveend', () => scheduleBoundsChange(s))
   observeMapSize(s)
   focusFarmCity(s)
   fetchRestrictedZones(s)
@@ -388,13 +356,10 @@ function initializeMap(s) {
 function disposeMap(s) {
   s.cityRequestId += 1
   s.resizeObserver?.disconnect()
-  if (s.boundsTimer) clearTimeout(s.boundsTimer)
-  s.boundsTimer = null
   s.map?.remove()
   s.map = null
   s.drawnItems = null
   s.plotsLayer = null
-  s.floodZonesLayer = null
 }
 function createMapState(options) {
   return {
@@ -406,8 +371,6 @@ function createMapState(options) {
     boundaryLayer: null,
     plotsLayer: null,
     restrictedZonesLayer: null,
-    floodZonesLayer: null,
-    boundsTimer: null,
     resizeObserver: null,
     cityRequestId: 0,
     pendingGeocodes: 0,
@@ -435,7 +398,5 @@ export function usePlotMap(options) {
     isCheckingZone: s.isCheckingZone,
     allowedCityBounds: s.allowedCityBounds,
     zoomToPlot: (id) => zoomToPlot(s, id),
-    setFloodZones: (collection) => setFloodZones(s, collection),
-    getMapBounds: () => getMapBounds(s),
   }
 }

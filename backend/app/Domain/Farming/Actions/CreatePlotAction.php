@@ -2,12 +2,6 @@
 
 namespace Domain\Farming\Actions;
 
-use App\Constants\FloodRiskConstants;
-use App\Domain\Farming\Actions\AssessPlotFloodRiskAction;
-use App\Domain\Farming\Actions\PersistPlotFloodRiskAction;
-use App\Domain\Farming\DTOs\FloodRiskAssessment;
-use App\Domain\Farming\Enums\FloodRiskLevel;
-use Carbon\CarbonImmutable;
 use Domain\Farming\DTOs\CreatePlotDTO;
 use Domain\Farming\Models\Plot;
 use Illuminate\Support\Facades\DB;
@@ -61,30 +55,6 @@ class CreatePlotAction
             'updated_at' => now(),
         ]);
 
-        $this->persistFloodRisk((int) $plotId, $dto->coordinates);
-
         return Plot::findOrFail($plotId);
-    }
-
-    /**
-     * @param  array<int, array{float, float}>  $coordinates
-     */
-    private function persistFloodRisk(int $plotId, array $coordinates): void
-    {
-        $persist = new PersistPlotFloodRiskAction;
-
-        try {
-            // Resolved from the container so tests can simulate assessment failure.
-            $persist($plotId, app(AssessPlotFloodRiskAction::class)($coordinates));
-        } catch (\Throwable $exception) {
-            report($exception);
-
-            $persist($plotId, new FloodRiskAssessment(
-                level: FloodRiskLevel::UNKNOWN,
-                advice: FloodRiskConstants::adviceFor(FloodRiskLevel::UNKNOWN, false),
-                withinCoverage: false,
-                assessedAt: CarbonImmutable::now(),
-            ));
-        }
     }
 }
