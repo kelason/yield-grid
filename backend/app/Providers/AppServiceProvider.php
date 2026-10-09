@@ -55,6 +55,7 @@ use App\Policies\CreditScorePolicy;
 use App\Policies\CropDemandOfferPolicy;
 use App\Policies\CropDemandPolicy;
 use App\Policies\CropRecommendationPolicy;
+use App\Policies\FarmVerificationPolicy;
 use App\Policies\ForwardContractPolicy;
 use App\Policies\InsuranceClaimPolicy;
 use App\Policies\InsuranceEnrollmentPolicy;
@@ -148,6 +149,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define(ConversationPolicy::CREATE_ABILITY, [ConversationPolicy::class, 'create']);
         Gate::define(AdminContentPolicy::VIEW_ABILITY, [AdminContentPolicy::class, 'viewAny']);
         Gate::define(AdminContentPolicy::MODERATE_ABILITY, [AdminContentPolicy::class, 'moderate']);
+        Gate::define(FarmVerificationPolicy::VIEW_ANY_ABILITY, [FarmVerificationPolicy::class, 'viewAny']);
+        Gate::define(FarmVerificationPolicy::VIEW_ABILITY, [FarmVerificationPolicy::class, 'view']);
+        Gate::define(FarmVerificationPolicy::DECIDE_ABILITY, [FarmVerificationPolicy::class, 'decide']);
 
         // One shared creation budget for the new and legacy report routes.
         RateLimiter::for(

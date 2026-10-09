@@ -52,6 +52,16 @@ class Plot extends Model
         static::creating(function (self $model): void {
             $model->verification_status ??= VerificationStatus::PENDING;
         });
+
+        static::updating(function (self $model): void {
+            if ($model->isDirty('verification_status')) {
+                return;
+            }
+
+            if ($model->getRawOriginal('verification_status') === VerificationStatus::REJECTED->value) {
+                $model->verification_status = VerificationStatus::PENDING;
+            }
+        });
     }
 
     /**
