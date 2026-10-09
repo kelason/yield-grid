@@ -65,7 +65,9 @@ describe('AdminVerificationsPage', () => {
   })
 
   it('renders queue rows from the mocked response', async () => {
-    apiGet.mockResolvedValueOnce(listResponse([farmEntry(), farmEntry({ id: 8, name: 'River Plot' })]))
+    apiGet.mockResolvedValueOnce(
+      listResponse([farmEntry(), farmEntry({ id: 8, name: 'River Plot' })]),
+    )
     const wrapper = mountPage()
     await flushPromises()
 
@@ -134,7 +136,9 @@ describe('AdminVerificationsPage', () => {
   it('opens confirm on verify and fires the decision', async () => {
     apiGet.mockResolvedValueOnce(listResponse([farmEntry()]))
     apiGet.mockResolvedValueOnce({ data: { data: farmEntry() } })
-    apiPost.mockResolvedValueOnce({ data: { data: farmEntry({ verification_status: 'verified' }) } })
+    apiPost.mockResolvedValueOnce({
+      data: { data: farmEntry({ verification_status: 'verified' }) },
+    })
     const wrapper = mountPage()
     await flushPromises()
     await wrapper.find('[data-testid="verification-row"]').trigger('click')

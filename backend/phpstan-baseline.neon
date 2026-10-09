@@ -1,6 +1,126 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Method App\\Admin\\Controllers\\AdminFarmVerificationController\:\:farmQueue\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Admin/Controllers/AdminFarmVerificationController.php
+
+		-
+			message: '#^Method App\\Admin\\Controllers\\AdminFarmVerificationController\:\:plotQueue\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Admin/Controllers/AdminFarmVerificationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$calculated_area\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$country\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$farm\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$geojson\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$soil_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$total_area\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$verification_method\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$verification_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$verification_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$verified_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$verified_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Admin\\Resources\\AdminVerifiableResource\:\:\$zip\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Admin/Resources/AdminVerifiableResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Auth\\Resources\\UserResource\:\:\$avatar_url\.$#'
 			identifier: property.notFound
 			count: 1
@@ -55,46 +175,76 @@ parameters:
 			path: app/Auth/Resources/UserResource.php
 
 		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$confidence_score\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$crop_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$plot\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$plot_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$produce_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$projected_yield\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$reasoning\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$subtype\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/CropRecommendation/Resources/CropRecommendationResource.php
+
+		-
 			message: '#^Method Domain\\Contact\\DTOs\\CreateContactMessageDTO\:\:fromRequest\(\) has parameter \$validated with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Domain/Contact/DTOs/CreateContactMessageDTO.php
-
-		-
-			message: '#^Class Domain\\Contact\\Models\\ContactMessage uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Domain/Contact/Models/ContactMessage.php
-
-		-
-			message: '#^Method App\\Domain\\CropRecommendation\\Services\\AgroMonitoringService\:\:getCurrentWeather\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/CropRecommendation/Services/AgroMonitoringService.php
-
-		-
-			message: '#^Method App\\Domain\\CropRecommendation\\Services\\AgroMonitoringService\:\:getFallbackOrMockData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/CropRecommendation/Services/AgroMonitoringService.php
-
-		-
-			message: '#^Method App\\Domain\\CropRecommendation\\Services\\AgroMonitoringService\:\:getMockData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/CropRecommendation/Services/AgroMonitoringService.php
-
-		-
-			message: '#^Method App\\Domain\\CropRecommendation\\Services\\AgroMonitoringService\:\:getPlotData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/CropRecommendation/Services/AgroMonitoringService.php
-
-		-
-			message: '#^Method App\\Domain\\CropRecommendation\\Services\\AgroMonitoringService\:\:getSoilData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/CropRecommendation/Services/AgroMonitoringService.php
 
 		-
 			message: '#^Method App\\Domain\\CropRecommendation\\Services\\AgroMonitoringService\:\:saveToWeatherCache\(\) has parameter \$plotData with no value type specified in iterable type array\.$#'
@@ -109,10 +259,10 @@ parameters:
 			path: app/Domain/CropRecommendation/Services/CropAdvisorService.php
 
 		-
-			message: '#^Method App\\Domain\\CropRecommendation\\Services\\CropAdvisorService\:\:getRecommendations\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Parameter \#1 \$current of method Domain\\Farming\\Actions\\RecordVerificationDecisionAction\:\:guardTransition\(\) expects Domain\\Farming\\Enums\\VerificationStatus\|null, string given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Domain/CropRecommendation/Services/CropAdvisorService.php
+			path: app/Domain/Farming/Actions/RecordVerificationDecisionAction.php
 
 		-
 			message: '#^Method Domain\\Farming\\DTOs\\CreateFarmDTO\:\:fromRequest\(\) has parameter \$validated with no value type specified in iterable type array\.$#'
@@ -127,20 +277,20 @@ parameters:
 			path: app/Domain/Farming/DTOs/CreatePlotDTO.php
 
 		-
-			message: '#^Class Domain\\Farming\\Models\\Farm uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
+			message: '#^Method Domain\\Farming\\Models\\Farm\:\:newFactory\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: app/Domain/Farming/Models/Farm.php
 
 		-
-			message: '#^Class Domain\\Farming\\Models\\Plot uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
+			message: '#^Property Domain\\Farming\\Models\\Farm\:\:\$verification_status \(string\) does not accept Domain\\Farming\\Enums\\VerificationStatus\:\:PENDING\.$#'
+			identifier: assign.propertyType
 			count: 1
-			path: app/Domain/Farming/Models/Plot.php
+			path: app/Domain/Farming/Models/Farm.php
 
 		-
-			message: '#^Method Domain\\Farming\\Models\\Plot\:\:getCentroid\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Method Domain\\Farming\\Models\\Plot\:\:newFactory\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: app/Domain/Farming/Models/Plot.php
 
@@ -151,10 +301,10 @@ parameters:
 			path: app/Domain/Farming/Models/Plot.php
 
 		-
-			message: '#^Class Domain\\Farming\\Models\\RestrictedZone uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
+			message: '#^Property Domain\\Farming\\Models\\Plot\:\:\$verification_status \(string\) does not accept Domain\\Farming\\Enums\\VerificationStatus\:\:PENDING\.$#'
+			identifier: assign.propertyType
 			count: 1
-			path: app/Domain/Farming/Models/RestrictedZone.php
+			path: app/Domain/Farming/Models/Plot.php
 
 		-
 			message: '#^Property App\\Domain\\Marketplace\\Actions\\CancelCheckoutAction\:\:\$contractRepository is never read, only written\.$#'
@@ -167,36 +317,6 @@ parameters:
 			identifier: property.onlyWritten
 			count: 1
 			path: app/Domain/Marketplace/Actions/VerifyPurchaseAction.php
-
-		-
-			message: '#^Method App\\Domain\\Marketplace\\Events\\CashPaymentApproved\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Marketplace/Events/CashPaymentApproved.php
-
-		-
-			message: '#^Method App\\Domain\\Marketplace\\Events\\CashPaymentRequested\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Marketplace/Events/CashPaymentRequested.php
-
-		-
-			message: '#^Method App\\Domain\\Marketplace\\Events\\ContractExpired\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Marketplace/Events/ContractExpired.php
-
-		-
-			message: '#^Method App\\Domain\\Marketplace\\Events\\ContractPurchased\:\:broadcastWith\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Marketplace/Events/ContractPurchased.php
-
-		-
-			message: '#^Class App\\Domain\\Marketplace\\Models\\ForwardContract uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Domain/Marketplace/Models/ForwardContract.php
 
 		-
 			message: '#^Method App\\Domain\\Marketplace\\Models\\ForwardContract\:\:newFactory\(\) has no return type specified\.$#'
@@ -277,12 +397,6 @@ parameters:
 			path: app/Domain/Marketplace/Models/HarvestListing.php
 
 		-
-			message: '#^Class App\\Domain\\Marketplace\\Models\\Purchase uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Domain/Marketplace/Models/Purchase.php
-
-		-
 			message: '#^Method App\\Domain\\Marketplace\\Models\\Purchase\:\:newFactory\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -290,12 +404,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Domain\\Marketplace\\Repositories\\ForwardContractRepositoryInterface\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Domain/Marketplace/Repositories/ForwardContractRepositoryInterface.php
-
-		-
-			message: '#^Method App\\Domain\\Marketplace\\Repositories\\ForwardContractRepositoryInterface\:\:getFarmerStats\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Domain/Marketplace/Repositories/ForwardContractRepositoryInterface.php
@@ -349,12 +457,6 @@ parameters:
 			path: app/Farming/Controllers/PlotController.php
 
 		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Farming/Controllers/PlotController.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Domain\\Farming\\Models\\Plot\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
@@ -377,18 +479,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Farming/Controllers/RestrictedZoneController.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Farming/Requests/StoreFarmRequest.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Farming/Requests/StorePlotRequest.php
 
 		-
 			message: '#^Access to an undefined property App\\Farming\\Resources\\FarmResource\:\:\$address\.$#'
@@ -451,6 +541,18 @@ parameters:
 			path: app/Farming/Resources/FarmResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\FarmResource\:\:\$verification_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Farming/Resources/FarmResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\FarmResource\:\:\$verification_status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Farming/Resources/FarmResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Farming\\Resources\\FarmResource\:\:\$zip\.$#'
 			identifier: property.notFound
 			count: 1
@@ -465,7 +567,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$farm\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 4
 			path: app/Farming/Resources/PlotResource.php
 
 		-
@@ -511,6 +613,66 @@ parameters:
 			path: app/Farming/Resources/PlotResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$verification_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Farming/Resources/PlotResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Farming\\Resources\\PlotResource\:\:\$verification_status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Farming/Resources/PlotResource.php
+
+		-
+			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentForwardContractRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Infrastructure/Marketplace/Repositories/EloquentForwardContractRepository.php
+
+		-
+			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentForwardContractRepository\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Infrastructure/Marketplace/Repositories/EloquentForwardContractRepository.php
+
+		-
+			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentPurchaseRepository\:\:getBuyerPurchases\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Infrastructure/Marketplace/Repositories/EloquentPurchaseRepository.php
+
+		-
+			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentPurchaseRepository\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Infrastructure/Marketplace/Repositories/EloquentPurchaseRepository.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
+
+		-
+			message: '#^Unable to resolve the template type TCallbackReturnType in call to static method Illuminate\\Database\\Connection\:\:transaction\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Infrastructure/Shared/Database/LaravelTransactionManager.php
+
+		-
 			message: '#^Method App\\Marketplace\\Controllers\\PayMongoWebhookController\:\:handlePaymentCompleted\(\) has parameter \$event with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -527,72 +689,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Marketplace/Controllers/PayMongoWebhookController.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$confidence_score\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$crop_name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$plot_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$projected_yield\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$produce_type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$reasoning\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:\$subtype\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
-
-		-
-			message: '#^Method App\\CropRecommendation\\Resources\\CropRecommendationResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/CropRecommendation/Resources/CropRecommendationResource.php
 
 		-
 			message: '#^Access to an undefined property App\\Marketplace\\Resources\\ForwardContractResource\:\:\$created_at\.$#'
@@ -727,6 +823,12 @@ parameters:
 			path: app/Marketplace/Resources/MarketplaceItemResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Marketplace\\Resources\\MarketplaceItemResource\:\:\$farm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Marketplace/Resources/MarketplaceItemResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Marketplace\\Resources\\MarketplaceItemResource\:\:\$farmer\.$#'
 			identifier: property.notFound
 			count: 4
@@ -746,6 +848,18 @@ parameters:
 
 		-
 			message: '#^Access to an undefined property App\\Marketplace\\Resources\\MarketplaceItemResource\:\:\$is_purchasable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Marketplace/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Marketplace\\Resources\\MarketplaceItemResource\:\:\$plot\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Marketplace/Resources/MarketplaceItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Marketplace\\Resources\\MarketplaceItemResource\:\:\$plot_id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Marketplace/Resources/MarketplaceItemResource.php
@@ -781,12 +895,6 @@ parameters:
 			path: app/Marketplace/Resources/MarketplaceItemResource.php
 
 		-
-			message: '#^Method App\\Marketplace\\Resources\\MarketplaceItemResource\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Marketplace/Resources/MarketplaceItemResource.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>city" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -797,63 +905,3 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Marketplace/Resources/MarketplaceItemResource.php
-
-		-
-			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentForwardContractRepository\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Infrastructure/Marketplace/Repositories/EloquentForwardContractRepository.php
-
-		-
-			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentForwardContractRepository\:\:getFarmerStats\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Infrastructure/Marketplace/Repositories/EloquentForwardContractRepository.php
-
-		-
-			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentForwardContractRepository\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Infrastructure/Marketplace/Repositories/EloquentForwardContractRepository.php
-
-		-
-			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentPurchaseRepository\:\:getBuyerPurchases\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Infrastructure/Marketplace/Repositories/EloquentPurchaseRepository.php
-
-		-
-			message: '#^Method App\\Infrastructure\\Marketplace\\Repositories\\EloquentPurchaseRepository\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Infrastructure/Marketplace/Repositories/EloquentPurchaseRepository.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quantity_kg\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$total_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Infrastructure/Marketplace/Services/PayMongoService.php
-
-		-
-			message: '#^Unable to resolve the template type TCallbackReturnType in call to static method Illuminate\\Database\\Connection\:\:transaction\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Infrastructure/Shared/Database/LaravelTransactionManager.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Shared/Middleware/EnsureUserHasRole.php

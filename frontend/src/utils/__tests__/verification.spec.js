@@ -45,6 +45,10 @@ describe('verification utils', () => {
   })
 
   it('exposes the status values matching the backend enum', () => {
-    expect(VERIFICATION_STATUS).toEqual({ PENDING: 'pending', VERIFIED: 'verified', REJECTED: 'rejected' })
+    expect(VERIFICATION_STATUS).toEqual({
+      PENDING: 'pending',
+      VERIFIED: 'verified',
+      REJECTED: 'rejected',
+    })
   })
 })

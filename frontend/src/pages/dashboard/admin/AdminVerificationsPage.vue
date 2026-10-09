@@ -89,7 +89,12 @@ const confirmConfig = computed(() => {
   const message = dialogError.value
     ? `${summaries[decision]} Error: ${dialogError.value}`
     : summaries[decision]
-  return { title: `${base.confirmText} record`, message, confirmText: base.confirmText, type: base.type }
+  return {
+    title: `${base.confirmText} record`,
+    message,
+    confirmText: base.confirmText,
+    type: base.type,
+  }
 })
 
 function clearDrafts() {
@@ -242,13 +247,16 @@ onMounted(() => queue.fetchQueue(1))
             </h3>
             <span
               class="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
-              :class="STATUS_PILL_CLASSES[entry.verification_status] ?? 'bg-stone-100 text-stone-600'"
+              :class="
+                STATUS_PILL_CLASSES[entry.verification_status] ?? 'bg-stone-100 text-stone-600'
+              "
             >
               {{ statusLabel(entry.verification_status) }}
             </span>
           </div>
           <p class="mt-2 text-sm text-stone-600">
-            {{ entry.type === 'plot' ? 'Plot' : 'Farm' }} · {{ entry.farmer?.name ?? 'Unknown farmer' }}
+            {{ entry.type === 'plot' ? 'Plot' : 'Farm' }} ·
+            {{ entry.farmer?.name ?? 'Unknown farmer' }}
           </p>
         </button>
       </li>
@@ -293,7 +301,10 @@ onMounted(() => queue.fetchQueue(1))
           <div v-if="selected.type === 'farm'">
             <dt class="font-medium text-soil-700">Location</dt>
             <dd class="text-stone-900">
-              {{ [selected.city, selected.state, selected.country].filter(Boolean).join(', ') || 'Not provided' }}
+              {{
+                [selected.city, selected.state, selected.country].filter(Boolean).join(', ') ||
+                'Not provided'
+              }}
             </dd>
           </div>
           <div v-if="selected.type === 'plot'">
