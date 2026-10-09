@@ -19,9 +19,7 @@ test('shell chrome renders in Tagalog', async ({ page, isMobile }) => {
   if (isMobile) {
     await page.getByRole('button', { name: 'Buksan ang nabigasyon', exact: true }).click()
   } else {
-    await expect(
-      page.getByText('Ang iyong workspace sa pagbubukid', { exact: true }),
-    ).toBeVisible()
+    await expect(page.getByText('Ang iyong workspace sa pagbubukid', { exact: true })).toBeVisible()
   }
   const nav = page.getByRole('navigation', { name: 'Dashboard navigation', exact: true })
   await expect(nav.getByRole('link', { name: 'Pangkalahatan', exact: true })).toBeVisible()
@@ -67,9 +65,7 @@ test('buyer dashboard renders in Tagalog', async ({ page, isMobile }) => {
 
 test('community forum renders in Tagalog', async ({ page, isMobile }) => {
   await mockSession(page, { role: 'farmer' })
-  await page.route('**/api/v1/forum/categories', (route) =>
-    route.fulfill({ json: { data: [] } }),
-  )
+  await page.route('**/api/v1/forum/categories', (route) => route.fulfill({ json: { data: [] } }))
   await page.route('**/api/v1/forum/tags', (route) => route.fulfill({ json: { data: [] } }))
   await page.route('**/api/v1/forum/threads?**', (route) =>
     route.fulfill({

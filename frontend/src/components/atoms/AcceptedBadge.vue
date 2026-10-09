@@ -1,7 +1,13 @@
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
+
 <template>
   <div
     class="inline-flex items-center justify-center bg-moss-100 text-moss-700 rounded-full p-1"
-    title="Accepted Answer"
+    :title="t('community.thread.accepted_title')"
   >
     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
       <path

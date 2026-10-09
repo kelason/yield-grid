@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from '../composables/useApi'
 import { useChatWebSocket } from '../composables/useChatWebSocket'
+
+const t = (...args) => i18n.global.t(...args)
 
 export const useChatStore = defineStore('chat', () => {
   const api = useApi()
@@ -33,7 +36,7 @@ export const useChatStore = defineStore('chat', () => {
       const response = await api.get('/chat/conversations')
       conversations.value = response.data.data
     } catch (error) {
-      conversationsError.value = 'Failed to load conversations. Please retry.'
+      conversationsError.value = t('chat.inbox.err_conv')
       console.error('Failed to fetch conversations:', error)
     } finally {
       isLoading.value = false
@@ -92,7 +95,7 @@ export const useChatStore = defineStore('chat', () => {
 
       return response.data.meta // for pagination details
     } catch (error) {
-      messagesError.value = 'Failed to load messages. Please retry.'
+      messagesError.value = t('chat.inbox.err_msg')
       console.error('Failed to fetch messages:', error)
     } finally {
       isLoading.value = false

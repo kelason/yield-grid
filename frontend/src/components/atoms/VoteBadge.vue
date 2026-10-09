@@ -1,5 +1,9 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { VOTE_VALUES } from '@/constants/forum'
+
+const { t } = useI18n()
+
 defineProps({
   score: {
     type: Number,
@@ -31,8 +35,8 @@ defineEmits(['vote'])
         userVote === 1 ? 'text-moss-500' : 'text-stone-500',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
       ]"
-      title="Upvote"
-      aria-label="Upvote"
+      :title="t('community.thread.upvote')"
+      :aria-label="t('community.thread.upvote')"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -62,8 +66,8 @@ defineEmits(['vote'])
         userVote === -1 ? 'text-red-500' : 'text-stone-500',
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-stone-200',
       ]"
-      title="Downvote"
-      aria-label="Downvote"
+      :title="t('community.thread.downvote')"
+      :aria-label="t('community.thread.downvote')"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

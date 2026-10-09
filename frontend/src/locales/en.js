@@ -139,6 +139,10 @@ export default {
       about: 'About',
       contact: 'Contact',
       dashboard: 'Dashboard',
+      main_label: 'Main navigation',
+      open_menu: 'Open menu',
+      menu: 'Menu',
+      mobile_label: 'Mobile navigation',
     },
     auth: {
       login: 'Log in',
@@ -196,6 +200,8 @@ export default {
     tagline: 'Your growing workspace',
     open_navigation: 'Open navigation',
     mobile_navigation: 'Navigation',
+    dashboard_navigation: 'Dashboard navigation',
+    skip_link: 'Skip to main content',
     close_dialog: 'Close dialog',
     dismiss_alert: 'Dismiss alert',
     logo_home: 'YieldGrid home',
@@ -231,6 +237,7 @@ export default {
       sending: 'Sending...',
       resend_in: 'Resend in {cooldown}s',
       resend: 'Resend Verification Email',
+      guard: 'Please verify your email to access this feature.',
     },
     search: {
       label: 'Search',
@@ -286,6 +293,11 @@ export default {
     },
     weather: {
       humidity: 'Humidity',
+    },
+    map: {
+      pin_aria: 'Pin your exact location on the map',
+      pin_range_error: 'The pin must be within the selected barangay, city, and province.',
+      pin_hint: 'Tap the map or drag the pin to set your exact pickup or delivery point.',
     },
   },
   farmer: {
@@ -715,6 +727,8 @@ export default {
       generating: 'Generating…',
       download: 'Download Report',
       regenerate: 'Regenerate',
+      err_generate: 'Report generation failed. Please try again.',
+      err_download: 'Failed to download the report. It may have expired.',
     },
     credit_dimensions: {
       plot_activity: 'Plot Activity',
@@ -1134,6 +1148,7 @@ export default {
         'Pay for {qty} kg now via PayMongo? You will be redirected to complete payment.',
       pay_online_ok: 'Pay now',
       checkout_failed: 'Failed to initialize checkout session',
+      checkout_no_url: 'No checkout URL returned from server',
     },
     report: {
       content_fallback: 'Content',
@@ -1192,6 +1207,16 @@ export default {
       post_msg: 'Your discussion will be shared with the community.',
       post_ok: 'Post discussion',
       post_failed: 'Failed to post discussion. Please retry.',
+      err_list: 'Failed to fetch discussions. Please retry.',
+      err_list_toast: 'Failed to fetch threads',
+      err_thread: 'Failed to fetch this discussion. Please retry.',
+      err_thread_toast: 'Failed to fetch thread',
+      created: 'Thread created successfully',
+      err_create: 'Failed to create thread',
+      err_reply: 'Failed to post reply',
+      err_vote: 'Failed to vote',
+      err_accept: 'Failed to accept reply',
+      reported: 'Report submitted. Thank you.',
       vote_title: 'Update your vote?',
       vote_msg: 'Your vote on this discussion will be updated.',
       vote_ok: 'Vote',
@@ -1248,6 +1273,9 @@ export default {
       accept_ok: 'Accept answer',
       empty_title: 'Discussion unavailable',
       empty_desc: 'Return to the community to choose another discussion.',
+      upvote: 'Upvote',
+      downvote: 'Downvote',
+      accepted_title: 'Accepted Answer',
     },
     profile: {
       title: 'Profile',
@@ -1338,6 +1366,8 @@ export default {
       send_msg: 'Your message will be sent to this conversation.',
       send_ok: 'Send message',
       send_failed: 'Failed to send message. Please retry.',
+      err_conv: 'Failed to load conversations. Please retry.',
+      err_msg: 'Failed to load messages. Please retry.',
     },
     composer: {
       label: 'Message',
@@ -1799,6 +1829,7 @@ export default {
     session_expired: 'Your session has expired. Please log in again.',
     forbidden: 'You do not have permission to perform this action.',
     server_error: 'A server error occurred. Please try again later.',
+    network_error: 'Network error. Please check your connection.',
     login: {
       email_label: 'Email address',
       password_label: 'Password',
@@ -1813,7 +1844,7 @@ export default {
       confirm_title: 'Sign in?',
       confirm_msg: 'Sign in to your YieldGrid account?',
       confirm_cta: 'Sign in',
-      no_account: "Don't have an account?",
+      no_account: "Don't have an account? ",
       register_link: 'Register here',
     },
     register: {
@@ -1839,7 +1870,7 @@ export default {
       confirm_title: 'Create account?',
       confirm_msg: 'Create your YieldGrid account with these details?',
       confirm_cta: 'Create account',
-      has_account: 'Already have an account?',
+      has_account: 'Already have an account? ',
       signin_link: 'Sign in here',
     },
     forgot: {
@@ -1852,7 +1883,7 @@ export default {
       confirm_cta: 'Send Reset Link',
       sent: 'Password reset link sent to your email.',
       failed: 'Failed to send reset link.',
-      remember: 'Remember your password?',
+      remember: 'Remember your password? ',
       signin_link: 'Sign in here',
     },
     reset: {
@@ -1868,8 +1899,18 @@ export default {
       confirm_cta: 'Reset Password',
       success: 'Password reset successful. You can now login.',
       failed: 'Failed to reset password.',
-      remember: 'Remember your password?',
+      remember: 'Remember your password? ',
       signin_link: 'Sign in here',
+    },
+    callback: {
+      loading: 'Verifying your email...',
+      success_title: 'Email Verified!',
+      success_body: 'Thank you for verifying your email address. You will be redirected shortly.',
+      fail_title: 'Verification Failed',
+      fail_default: 'The verification link is invalid or has expired.',
+      dash: 'Go to Dashboard',
+      err_no_url: 'No verification URL provided.',
+      err_expired: 'The link expired please click resend.',
     },
     verify: {
       title: 'Verify your email',

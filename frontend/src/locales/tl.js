@@ -139,6 +139,10 @@ export default {
       about: 'Tungkol',
       contact: 'Kontak',
       dashboard: 'Dashboard',
+      main_label: 'Pangunahing nabigasyon',
+      open_menu: 'Buksan ang menu',
+      menu: 'Menu',
+      mobile_label: 'Mobile na nabigasyon',
     },
     auth: {
       login: 'Mag-log in',
@@ -196,6 +200,8 @@ export default {
     tagline: 'Ang iyong workspace sa pagbubukid',
     open_navigation: 'Buksan ang nabigasyon',
     mobile_navigation: 'Nabigasyon',
+    dashboard_navigation: 'Nabigasyon ng dashboard',
+    skip_link: 'Lumaktaw sa pangunahing nilalaman',
     close_dialog: 'Isara ang dialog',
     dismiss_alert: 'Isara ang abiso',
     logo_home: 'Home ng YieldGrid',
@@ -231,6 +237,7 @@ export default {
       sending: 'Nagpapadala...',
       resend_in: 'Ipadalang muli sa {cooldown}s',
       resend: 'Ipadalang Muli ang Email ng Beripikasyon',
+      guard: 'Pakiverify ang iyong email upang magamit ang feature na ito.',
     },
     search: {
       label: 'Maghanap',
@@ -286,6 +293,12 @@ export default {
     },
     weather: {
       humidity: 'Halumigmig',
+    },
+    map: {
+      pin_aria: 'I-pin ang iyong eksaktong lokasyon sa mapa',
+      pin_range_error: 'Ang pin ay dapat nasa loob ng napiling barangay, lungsod, at lalawigan.',
+      pin_hint:
+        'I-tap ang mapa o i-drag ang pin upang itakda ang iyong eksaktong pickup o delivery point.',
     },
   },
   farmer: {
@@ -725,6 +738,8 @@ export default {
       generating: 'Ginagawa…',
       download: 'I-download ang Ulat',
       regenerate: 'Buuin Muli',
+      err_generate: 'Nabigo ang pagbuo ng ulat. Pakisubukang muli.',
+      err_download: 'Nabigong i-download ang ulat. Maaaring nag-expire na ito.',
     },
     credit_dimensions: {
       plot_activity: 'Aktibidad ng Plot',
@@ -1159,6 +1174,7 @@ export default {
         'Magbayad para sa {qty} kg ngayon sa pamamagitan ng PayMongo? Ire-redirect ka upang kumpletuhin ang pagbabayad.',
       pay_online_ok: 'Magbayad ngayon',
       checkout_failed: 'Nabigong simulan ang sesyon ng checkout',
+      checkout_no_url: 'Walang checkout URL na ibinalik mula sa server',
     },
     report: {
       content_fallback: 'Nilalaman',
@@ -1217,6 +1233,16 @@ export default {
       post_msg: 'Ibabahagi ang iyong talakayan sa komunidad.',
       post_ok: 'I-post ang talakayan',
       post_failed: 'Nabigong i-post ang talakayan. Pakisubukang muli.',
+      err_list: 'Nabigong kunin ang mga talakayan. Pakisubukang muli.',
+      err_list_toast: 'Nabigong kunin ang mga thread',
+      err_thread: 'Nabigong kunin ang talakayang ito. Pakisubukang muli.',
+      err_thread_toast: 'Nabigong kunin ang thread',
+      created: 'Matagumpay na nalikha ang thread',
+      err_create: 'Nabigong likhain ang thread',
+      err_reply: 'Nabigong i-post ang tugon',
+      err_vote: 'Nabigong bumoto',
+      err_accept: 'Nabigong tanggapin ang tugon',
+      reported: 'Naisumite ang ulat. Salamat.',
       vote_title: 'I-update ang iyong boto?',
       vote_msg: 'I-update ang iyong boto sa talakayang ito.',
       vote_ok: 'Bumoto',
@@ -1273,6 +1299,9 @@ export default {
       accept_ok: 'Tanggapin ang sagot',
       empty_title: 'Hindi available ang talakayan',
       empty_desc: 'Bumalik sa komunidad upang pumili ng ibang talakayan.',
+      upvote: 'Bumoto pataas',
+      downvote: 'Bumoto pababa',
+      accepted_title: 'Tinanggap na Sagot',
     },
     profile: {
       title: 'Profile',
@@ -1365,6 +1394,8 @@ export default {
       send_msg: 'Ipapadala ang iyong mensahe sa pag-uusap na ito.',
       send_ok: 'Ipadala ang mensahe',
       send_failed: 'Nabigong ipadala ang mensahe. Pakisubukang muli.',
+      err_conv: 'Nabigong kunin ang mga pag-uusap. Pakisubukang muli.',
+      err_msg: 'Nabigong kunin ang mga mensahe. Pakisubukang muli.',
     },
     composer: {
       label: 'Mensahe',
@@ -1835,6 +1866,7 @@ export default {
     session_expired: 'Nag-expire na ang iyong session. Mangyaring mag-log in muli.',
     forbidden: 'Wala kang pahintulot na gawin ang aksyong ito.',
     server_error: 'Nagkaroon ng server error. Pakisubukang muli mamaya.',
+    network_error: 'Network error. Pakisuri ang iyong koneksyon.',
     login: {
       email_label: 'Email address',
       password_label: 'Password',
@@ -1849,7 +1881,7 @@ export default {
       confirm_title: 'Mag-sign in?',
       confirm_msg: 'Mag-sign in sa iyong YieldGrid account?',
       confirm_cta: 'Mag-sign in',
-      no_account: 'Walang account?',
+      no_account: 'Walang account? ',
       register_link: 'Magrehistro dito',
     },
     register: {
@@ -1875,7 +1907,7 @@ export default {
       confirm_title: 'Gumawa ng account?',
       confirm_msg: 'Gumawa ng iyong YieldGrid account gamit ang mga detalyeng ito?',
       confirm_cta: 'Gumawa ng account',
-      has_account: 'May account na?',
+      has_account: 'May account na? ',
       signin_link: 'Mag-sign in dito',
     },
     forgot: {
@@ -1888,7 +1920,7 @@ export default {
       confirm_cta: 'Ipadala ang Reset Link',
       sent: 'Naipadala na ang password reset link sa iyong email.',
       failed: 'Nabigong ipadala ang reset link.',
-      remember: 'Naalala ang password?',
+      remember: 'Naalala ang password? ',
       signin_link: 'Mag-sign in dito',
     },
     reset: {
@@ -1904,8 +1936,19 @@ export default {
       confirm_cta: 'I-reset ang Password',
       success: 'Matagumpay na na-reset ang password. Maaari ka nang mag-login.',
       failed: 'Nabigong i-reset ang password.',
-      remember: 'Naalala ang password?',
+      remember: 'Naalala ang password? ',
       signin_link: 'Mag-sign in dito',
+    },
+    callback: {
+      loading: 'Bine-verify ang iyong email...',
+      success_title: 'Na-verify na ang Email!',
+      success_body:
+        'Salamat sa pag-verify ng iyong email address. Ire-redirect ka sa ilang sandali.',
+      fail_title: 'Nabigo ang Verification',
+      fail_default: 'Ang verification link ay di-wasto o nag-expire na.',
+      dash: 'Pumunta sa Dashboard',
+      err_no_url: 'Walang ibinigay na verification URL.',
+      err_expired: 'Nag-expire ang link, pakiclick ang resend.',
     },
     verify: {
       title: 'I-verify ang iyong email',

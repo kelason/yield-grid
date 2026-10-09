@@ -1,6 +1,9 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import SidebarNavLink from './SidebarNavLink.vue'
 import SidebarNavGroup from './SidebarNavGroup.vue'
+
+const { t } = useI18n()
 defineProps({
   items: { type: Array, required: true },
   collapsed: Boolean,
@@ -9,7 +12,7 @@ defineProps({
 defineEmits(['toggle', 'navigate'])
 </script>
 <template>
-  <nav aria-label="Dashboard navigation" class="space-y-2">
+  <nav :aria-label="t('shell.dashboard_navigation')" class="space-y-2">
     <template v-for="item in items" :key="item.name">
       <SidebarNavLink
         v-if="!item.children"

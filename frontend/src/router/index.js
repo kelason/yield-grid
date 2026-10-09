@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import i18n from '@/i18n'
 import { useAuthStore } from '../stores/auth'
 import { USER_ROLES, roleHomeTarget } from '../constants/roles'
 
@@ -330,7 +331,7 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresVerification && !authStore.isEmailVerified) {
     import('../stores/notificationStore').then(({ useNotificationStore }) => {
       const notificationStore = useNotificationStore()
-      notificationStore.warning('Please verify your email to access this feature.')
+      notificationStore.warning(i18n.global.t('shell.verify.guard'))
     })
 
     // Unverified admins land on the standalone verification page so they never

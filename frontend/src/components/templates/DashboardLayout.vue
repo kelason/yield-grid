@@ -74,7 +74,7 @@ async function resendVerification() {
     <a
       href="#main-content"
       class="sr-only z-50 rounded-xl bg-white p-3 focus:not-sr-only focus:absolute"
-      >Skip to main content</a
+      >{{ t('shell.skip_link') }}</a
     >
     <EmailVerificationBanner
       v-if="authStore.isAuthenticated && !authStore.isEmailVerified"

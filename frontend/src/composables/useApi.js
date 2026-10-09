@@ -48,7 +48,7 @@ api.interceptors.response.use(
       const notificationStore = useNotificationStore()
 
       if (!error.response) {
-        notificationStore.error('Network error. Please check your connection.')
+        notificationStore.addNotification({ type: 'error', messageKey: 'auth.network_error' })
         return
       }
 

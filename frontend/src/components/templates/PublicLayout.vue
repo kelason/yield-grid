@@ -1,7 +1,10 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 import AppNavbar from '../organisms/AppNavbar.vue'
 import AppFooter from '../organisms/AppFooter.vue'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -9,7 +12,7 @@ import AppFooter from '../organisms/AppFooter.vue'
     <a
       href="#main-content"
       class="sr-only z-50 rounded-xl bg-white p-3 focus:not-sr-only focus:absolute"
-      >Skip to main content</a
+      >{{ t('shell.skip_link') }}</a
     >
     <AppNavbar />
     <main id="main-content" tabindex="-1" class="flex-grow focus:outline-none">
