@@ -26,6 +26,8 @@ final class CreateHarvestListingAction
 
         return HarvestListing::create([
             'farmer_id' => $dto->farmerId,
+            'farm_id' => $dto->farmId,
+            'plot_id' => $dto->plotId,
             'title' => $dto->title,
             'description' => $dto->description,
             'crop_name' => $dto->cropName,

@@ -3,11 +3,14 @@ import { computed } from 'vue'
 import { MapPinIcon, MapIcon, SparklesIcon } from '@heroicons/vue/24/outline'
 import AppCard from '../atoms/AppCard.vue'
 import AppButton from '../atoms/AppButton.vue'
+import VerifiedBadge from '../atoms/VerifiedBadge.vue'
+import { isFarmVerified } from '@/utils/verification'
 const props = defineProps({ farm: { type: Object, required: true } })
 defineEmits(['view-plots', 'view-recommendations'])
 const location = computed(() =>
   [props.farm?.city, props.farm?.state, props.farm?.country].filter(Boolean).join(', '),
 )
+const showVerifiedBadge = computed(() => isFarmVerified(props.farm))
 </script>
 <template>
   <AppCard class="h-full" padding="p-5">
@@ -15,6 +18,7 @@ const location = computed(() =>
       <div class="flex items-start justify-between gap-4">
         <h3 class="min-w-0 break-words font-serif text-xl font-bold text-stone-900">
           {{ farm.name }}
+          <VerifiedBadge v-if="showVerifiedBadge" size="sm" class="ml-2 align-middle" />
         </h3>
         <span class="shrink-0 rounded-full bg-moss-50 px-3 py-1 text-xs font-medium text-moss-800"
           >{{ farm.plots_count || 0 }} {{ farm.plots_count === 1 ? 'plot' : 'plots' }}</span

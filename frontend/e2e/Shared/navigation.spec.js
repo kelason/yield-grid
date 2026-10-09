@@ -51,6 +51,9 @@ for (const role of ['farmer', 'buyer']) {
     await page.route(`**/api/v1/users/${user.id}`, (route) =>
       route.fulfill({ json: { data: user } }),
     )
+    if (role === 'farmer') {
+      await page.route('**/api/v1/farms', (route) => route.fulfill({ json: { data: FARMS } }))
+    }
     await page.goto('/dashboard/chat')
     const menu = page.getByRole('button', { name: 'Open navigation' })
     await menu.focus()

@@ -7,6 +7,8 @@ import PriceTag from '../atoms/PriceTag.vue'
 import PriceFairnessBadge from '../atoms/PriceFairnessBadge.vue'
 import { CalendarIcon, FlagIcon, MapPinIcon, UserIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '../../stores/auth'
+import VerifiedBadge from '../atoms/VerifiedBadge.vue'
+import { isListingVerified } from '@/utils/verification'
 
 const authStore = useAuthStore()
 
@@ -27,6 +29,10 @@ const isOwner = computed(() => {
   const ownerId = props.contract.farmer?.id ?? props.contract.farmer_id
   return ownerId != null && String(userId) === String(ownerId)
 })
+
+const showVerifiedBadge = computed(
+  () => props.contract.type === 'listing' && isListingVerified(props.contract),
+)
 
 function emitReport() {
   emit('report', {
@@ -50,6 +56,7 @@ function emitReport() {
           </h3>
           <div class="flex items-center gap-2 mb-2 flex-wrap sm:flex-nowrap">
             <p class="text-sm font-semibold text-moss-600 truncate">{{ contract.crop_name }}</p>
+            <VerifiedBadge v-if="showVerifiedBadge" size="sm" />
           </div>
           <div
             v-if="contract.is_harvest_available"

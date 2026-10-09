@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\CropRecommendation\Resources;
 
+use Domain\Farming\Enums\VerificationStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,7 +22,14 @@ class CropRecommendationResource extends JsonResource
             'reasoning' => $this->reasoning,
             'projected_yield' => $this->projected_yield,
             'status' => $this->status->value ?? $this->status,
+            'is_from_verified_source' => $this->isVerifiedSource(),
             'created_at' => $this->created_at,
         ];
+    }
+
+    private function isVerifiedSource(): bool
+    {
+        return $this->plot?->verification_status === VerificationStatus::VERIFIED
+            && $this->plot?->farm?->verification_status === VerificationStatus::VERIFIED;
     }
 }

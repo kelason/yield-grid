@@ -2,6 +2,7 @@
 
 use App\Admin\Controllers\AdminContactMessageController;
 use App\Admin\Controllers\AdminContentController;
+use App\Admin\Controllers\AdminFarmVerificationController;
 use App\Admin\Controllers\AdminIssueController;
 use App\Admin\Controllers\AdminOverviewController;
 use App\Admin\Controllers\AdminReportController;
@@ -58,4 +59,17 @@ Route::prefix('admin')->middleware(['verified', EnsureUserHasRole::class.':admin
         ->whereIn('type', $contentTypes)->whereNumber('id')->middleware($writeThrottle);
     Route::post('/content/{type}/{id}/restore', [AdminContentController::class, 'restore'])
         ->whereIn('type', $contentTypes)->whereNumber('id')->middleware($writeThrottle);
+
+    Route::get('/verifications', [AdminFarmVerificationController::class, 'index']);
+    Route::get('/verifications/farms/{farm}', [AdminFarmVerificationController::class, 'showFarm']);
+    Route::get('/verifications/plots/{plot}', [AdminFarmVerificationController::class, 'showPlot']);
+
+    Route::post('/verifications/farms/{farm}/verify', [AdminFarmVerificationController::class, 'verifyFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/farms/{farm}/reject', [AdminFarmVerificationController::class, 'rejectFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/farms/{farm}/revoke', [AdminFarmVerificationController::class, 'revokeFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/farms/{farm}/reopen', [AdminFarmVerificationController::class, 'reopenFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/verify', [AdminFarmVerificationController::class, 'verifyPlot'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/reject', [AdminFarmVerificationController::class, 'rejectPlot'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/revoke', [AdminFarmVerificationController::class, 'revokePlot'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/reopen', [AdminFarmVerificationController::class, 'reopenPlot'])->middleware($writeThrottle);
 });

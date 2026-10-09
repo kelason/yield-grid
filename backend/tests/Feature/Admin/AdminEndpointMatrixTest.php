@@ -15,6 +15,10 @@ use App\Domain\Shared\Enums\ReportTargetType;
 use App\Domain\Shared\Models\ContentReport;
 use App\Domain\Shared\Services\ContentTargetResolver;
 use Domain\Contact\Models\ContactMessage;
+use Domain\Farming\Enums\VerificationMethod;
+use Domain\Farming\Enums\VerificationStatus;
+use Domain\Farming\Models\Farm;
+use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -155,6 +159,19 @@ function aemMatrix(array $ids): array
         'content hide missing' => ['POST', "/api/v1/admin/content/thread/{$missing}/hide", ['reason' => 'Matrix hide.']],
         'content restore known' => ['POST', "/api/v1/admin/content/thread/{$ids['restore']}/restore", ['reason' => 'Matrix restore.']],
         'content restore missing' => ['POST', "/api/v1/admin/content/thread/{$missing}/restore", ['reason' => 'Matrix restore.']],
+        'verifications index' => ['GET', '/api/v1/admin/verifications', []],
+        'verifications farm show known' => ['GET', "/api/v1/admin/verifications/farms/{$ids['showFarm']}", []],
+        'verifications farm show missing' => ['GET', "/api/v1/admin/verifications/farms/{$missing}", []],
+        'verifications plot show known' => ['GET', "/api/v1/admin/verifications/plots/{$ids['showPlot']}", []],
+        'verifications plot show missing' => ['GET', "/api/v1/admin/verifications/plots/{$missing}", []],
+        'verifications farm verify known' => ['POST', "/api/v1/admin/verifications/farms/{$ids['verifyFarm']}/verify", ['method' => VerificationMethod::FIELD_VISIT->value]],
+        'verifications farm verify missing' => ['POST', "/api/v1/admin/verifications/farms/{$missing}/verify", ['method' => VerificationMethod::FIELD_VISIT->value]],
+        'verifications plot reject known' => ['POST', "/api/v1/admin/verifications/plots/{$ids['rejectPlot']}/reject", ['reason' => 'Matrix reject.']],
+        'verifications plot reject missing' => ['POST', "/api/v1/admin/verifications/plots/{$missing}/reject", ['reason' => 'Matrix reject.']],
+        'verifications farm revoke known' => ['POST', "/api/v1/admin/verifications/farms/{$ids['revokeFarm']}/revoke", ['reason' => 'Matrix revoke.']],
+        'verifications farm revoke missing' => ['POST', "/api/v1/admin/verifications/farms/{$missing}/revoke", ['reason' => 'Matrix revoke.']],
+        'verifications farm reopen known' => ['POST', "/api/v1/admin/verifications/farms/{$ids['reopenFarm']}/reopen", []],
+        'verifications farm reopen missing' => ['POST', "/api/v1/admin/verifications/farms/{$missing}/reopen", []],
     ];
 }
 
@@ -181,6 +198,13 @@ function aemMatrixIds(): array
     $report = aemReport($reporter, $thread);
     $ticket = aemTicket($reporter);
 
+    $showFarm = Farm::factory()->create();
+    $showPlot = Plot::factory()->create(['farm_id' => $showFarm->id]);
+    $verifyFarm = Farm::factory()->create();
+    $rejectPlot = Plot::factory()->create();
+    $revokeFarm = Farm::factory()->create(['verification_status' => VerificationStatus::VERIFIED]);
+    $reopenFarm = Farm::factory()->create(['verification_status' => VerificationStatus::REJECTED]);
+
     return [
         'member' => $member->id,
         'suspend' => $suspendTarget->id,
@@ -197,6 +221,12 @@ function aemMatrixIds(): array
         'restore' => $restore->id,
         'report' => $report->id,
         'ticket' => $ticket->id,
+        'showFarm' => $showFarm->id,
+        'showPlot' => $showPlot->id,
+        'verifyFarm' => $verifyFarm->id,
+        'rejectPlot' => $rejectPlot->id,
+        'revokeFarm' => $revokeFarm->id,
+        'reopenFarm' => $reopenFarm->id,
     ];
 }
 
@@ -294,6 +324,19 @@ it('serves verified admins and returns 404 for missing targets on every admin ro
         'content hide missing' => 404,
         'content restore known' => 200,
         'content restore missing' => 404,
+        'verifications index' => 200,
+        'verifications farm show known' => 200,
+        'verifications farm show missing' => 404,
+        'verifications plot show known' => 200,
+        'verifications plot show missing' => 404,
+        'verifications farm verify known' => 200,
+        'verifications farm verify missing' => 404,
+        'verifications plot reject known' => 200,
+        'verifications plot reject missing' => 404,
+        'verifications farm revoke known' => 200,
+        'verifications farm revoke missing' => 404,
+        'verifications farm reopen known' => 200,
+        'verifications farm reopen missing' => 404,
     ];
 
     expect(array_keys($matrix))->toBe(array_keys($expected));

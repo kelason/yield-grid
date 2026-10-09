@@ -2,8 +2,9 @@
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useApi } from '@/composables/useApi'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import AppButton from '@/components/atoms/AppButton.vue'
@@ -13,6 +14,7 @@ import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import PriceGuidePopover from '@/components/molecules/PriceGuidePopover.vue'
 
 const router = useRouter()
+const api = useApi()
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 
@@ -35,7 +37,30 @@ const form = ref({
   estimated_harvest_date: '',
   shelf_life_days: 180,
   is_harvest_available: false,
+  farm_id: '',
+  plot_id: '',
 })
+
+const sourceFarms = ref([])
+const sourcePlots = ref([])
+
+const plotOptions = computed(() => {
+  if (!form.value.farm_id) return []
+  return sourcePlots.value.filter((plot) => String(plot?.farm_id) === String(form.value.farm_id))
+})
+
+async function loadListingSources() {
+  try {
+    const [farmsResponse, plotsResponse] = await Promise.all([api.get('/farms'), api.get('/plots')])
+    sourceFarms.value = farmsResponse?.data?.data ?? []
+    sourcePlots.value = plotsResponse?.data?.data ?? []
+  } catch {
+    sourceFarms.value = []
+    sourcePlots.value = []
+  }
+}
+
+onMounted(loadListingSources)
 
 const isCustomCrop = computed(() => form.value.crop_name === 'Other')
 
@@ -61,6 +86,14 @@ watch(
     if (isAvailable) {
       form.value.estimated_harvest_date = ''
     }
+  },
+)
+
+// Clear the plot whenever the farm changes so the pair stays consistent
+watch(
+  () => form.value.farm_id,
+  () => {
+    form.value.plot_id = ''
   },
 )
 
@@ -97,6 +130,9 @@ const isTitleOverLimit = computed(() => (form.value.title || '').length > TITLE_
 const isDescriptionOverLimit = computed(() => descriptionLength.value > DESCRIPTION_MAX_LENGTH)
 
 const validateListingForm = () => {
+  if (form.value.plot_id && !form.value.farm_id) {
+    return 'Please choose the farm this plot belongs to.'
+  }
   if (isTitleOverLimit.value) return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
   if (isDescriptionOverLimit.value) {
     return `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`
@@ -165,6 +201,8 @@ const performConfirmedAction = async () => {
       estimated_harvest_date: form.value.estimated_harvest_date,
       shelf_life_days: form.value.shelf_life_days,
       is_harvest_available: form.value.is_harvest_available,
+      ...(form.value.farm_id ? { farm_id: Number(form.value.farm_id) } : {}),
+      ...(form.value.plot_id ? { plot_id: Number(form.value.plot_id) } : {}),
     }
 
     await marketStore.createManualListing(payload)
@@ -358,6 +396,37 @@ const performConfirmedAction = async () => {
               <label for="harvest_available" class="ml-2 block text-sm font-medium text-soil-700">
                 Harvest is already available for pickup/delivery
               </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
+            Harvest Source (Optional)
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="listing-farm" class="block text-sm font-medium text-soil-700 mb-1"
+                >Farm</label
+              >
+              <AppSelect id="listing-farm" v-model="form.farm_id">
+                <option value="">No specific farm</option>
+                <option v-for="farm in sourceFarms" :key="farm.id" :value="String(farm.id)">
+                  {{ farm.name }}
+                </option>
+              </AppSelect>
+            </div>
+            <div>
+              <label for="listing-plot" class="block text-sm font-medium text-soil-700 mb-1"
+                >Plot</label
+              >
+              <AppSelect id="listing-plot" v-model="form.plot_id" :disabled="!form.farm_id">
+                <option value="">No specific plot</option>
+                <option v-for="plot in plotOptions" :key="plot.id" :value="String(plot.id)">
+                  {{ plot.name }}
+                </option>
+              </AppSelect>
             </div>
           </div>
         </div>

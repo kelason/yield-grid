@@ -14,17 +14,20 @@
             <h3 class="text-2xl font-bold text-stone-900 leading-tight font-serif">
               {{ recommendation.crop_name }}
             </h3>
-            <span
-              v-if="recommendation.status !== 'pending'"
-              :class="[
-                'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide flex-shrink-0',
-                recommendation.status === 'accepted'
-                  ? 'bg-moss-100 text-moss-800'
-                  : 'bg-red-100 text-red-800',
-              ]"
-            >
-              {{ recommendation.status }}
-            </span>
+            <div class="flex flex-shrink-0 items-center gap-2">
+              <VerifiedBadge v-if="showVerifiedBadge" size="sm" />
+              <span
+                v-if="recommendation.status !== 'pending'"
+                :class="[
+                  'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide flex-shrink-0',
+                  recommendation.status === 'accepted'
+                    ? 'bg-moss-100 text-moss-800'
+                    : 'bg-red-100 text-red-800',
+                ]"
+              >
+                {{ recommendation.status }}
+              </span>
+            </div>
           </div>
 
           <!-- Taxonomy chips -->
@@ -88,16 +91,21 @@
 
 <script setup>
 import { ChartBarIcon } from '@heroicons/vue/24/outline'
+import { computed } from 'vue'
 import AppCard from '../atoms/AppCard.vue'
 import CropConfidenceMeter from '../atoms/CropConfidenceMeter.vue'
 import AppButton from '../atoms/AppButton.vue'
+import VerifiedBadge from '../atoms/VerifiedBadge.vue'
+import { isRecommendationVerified } from '@/utils/verification'
 
-defineProps({
+const props = defineProps({
   recommendation: {
     type: Object,
     required: true,
   },
 })
+
+const showVerifiedBadge = computed(() => isRecommendationVerified(props.recommendation))
 
 defineEmits(['accept', 'reject'])
 </script>

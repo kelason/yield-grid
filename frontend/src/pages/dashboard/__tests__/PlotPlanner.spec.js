@@ -63,3 +63,77 @@ it('confirms the unchanged plot geometry once and holds the dialog until saving 
   expect(dialog.props('isOpen')).toBe(false)
   wrapper.unmount()
 })
+
+it('shows the badge only on plot rows whose plot and farm are both verified', async () => {
+  setActivePinia(createPinia())
+  const api = {
+    get: vi.fn().mockImplementation((url) => {
+      if (url === '/plots') {
+        return Promise.resolve({
+          data: {
+            data: [
+              {
+                id: 5,
+                verification_status: 'verified',
+                farm: { id: 1, verification_status: 'verified' },
+              },
+              {
+                id: 6,
+                verification_status: 'pending',
+                farm: { id: 1, verification_status: 'verified' },
+              },
+            ],
+          },
+        })
+      }
+      return Promise.resolve({
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            { properties: { id: 5, name: 'North', soil_type: 'clay', calculated_area: 1.5 } },
+            { properties: { id: 6, name: 'South', soil_type: 'loam', calculated_area: 2 } },
+          ],
+        },
+      })
+    }),
+    post: vi.fn(),
+  }
+  useApi.mockReturnValue(api)
+  useFarmingStore().activeFarm = { id: 1, name: 'Green Acres' }
+  useAuthStore().user = { id: 1, email_verified_at: '2026-01-01' }
+
+  const wrapper = mount(PlotPlanner, {
+    global: { stubs: { PlotDrawer: true, RouterLink: true, teleport: true } },
+  })
+  await flushPromises()
+
+  expect(wrapper.findAll('[data-testid="verified-badge"]')).toHaveLength(1)
+  wrapper.unmount()
+})
+
+it('shows no badge on plot rows when verification data is unavailable', async () => {
+  setActivePinia(createPinia())
+  const api = {
+    get: vi.fn().mockImplementation((url) => {
+      if (url === '/plots') return Promise.resolve({ data: { data: [] } })
+      return Promise.resolve({
+        data: {
+          type: 'FeatureCollection',
+          features: [{ properties: { id: 5, name: 'North', soil_type: 'clay' } }],
+        },
+      })
+    }),
+    post: vi.fn(),
+  }
+  useApi.mockReturnValue(api)
+  useFarmingStore().activeFarm = { id: 1, name: 'Green Acres' }
+  useAuthStore().user = { id: 1, email_verified_at: '2026-01-01' }
+
+  const wrapper = mount(PlotPlanner, {
+    global: { stubs: { PlotDrawer: true, RouterLink: true, teleport: true } },
+  })
+  await flushPromises()
+
+  expect(wrapper.findAll('[data-testid="verified-badge"]')).toHaveLength(0)
+  wrapper.unmount()
+})

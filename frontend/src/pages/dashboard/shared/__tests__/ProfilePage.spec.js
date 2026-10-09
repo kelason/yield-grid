@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useApi } from '@/composables/useApi'
 import ProfilePage from '../ProfilePage.vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const { routeParams } = vi.hoisted(() => ({ routeParams: { userId: '7' } }))
 
@@ -157,5 +158,49 @@ describe('ProfilePage.vue', () => {
     expect(wrapper.text()).not.toContain('Total spent')
     expect(wrapper.text()).not.toContain('Items sold')
     expect(wrapper.text()).not.toContain('Revenue earned')
+  })
+
+  it('shows the verified badge on an own farmer profile with a verified farm', async () => {
+    useAuthStore().user = { id: 7, role: 'farmer' }
+    useApi.mockReturnValue({
+      get: vi.fn().mockImplementation((url) =>
+        url === '/farms'
+          ? Promise.resolve({
+              data: {
+                data: [{ id: 1, name: 'Green Acres', verification_status: 'verified' }],
+              },
+            })
+          : Promise.resolve({ data: { data: farmerProfile } }),
+      ),
+    })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-testid="verified-badge"]').exists()).toBe(true)
+  })
+
+  it('hides the verified badge when none of the own farms is verified', async () => {
+    useAuthStore().user = { id: 7, role: 'farmer' }
+    useApi.mockReturnValue({
+      get: vi.fn().mockImplementation((url) =>
+        url === '/farms'
+          ? Promise.resolve({
+              data: { data: [{ id: 1, name: 'Green Acres', verification_status: 'pending' }] },
+            })
+          : Promise.resolve({ data: { data: farmerProfile } }),
+      ),
+    })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-testid="verified-badge"]').exists()).toBe(false)
+  })
+
+  it('hides the verified badge when viewing another farmer profile', async () => {
+    useAuthStore().user = { id: 9, role: 'buyer' }
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-testid="verified-badge"]').exists()).toBe(false)
   })
 })

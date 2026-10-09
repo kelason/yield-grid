@@ -34,8 +34,17 @@ final class MarketplaceController extends Controller
             : ['farmer.farms'];
 
         $contractsQuery = $this->contractRepository->queryPublicItems()
-            ->with(array_merge($withFarmer, ['recommendation', 'moderationRoot']));
-        $listingsQuery = HarvestListing::available()->visible()->with(array_merge($withFarmer, ['moderationRoot']));
+            ->with(array_merge($withFarmer, [
+                'recommendation',
+                'recommendation.plot:id,farm_id,verification_status',
+                'recommendation.plot.farm:id,verification_status',
+                'moderationRoot',
+            ]));
+        $listingsQuery = HarvestListing::available()->visible()->with(array_merge($withFarmer, [
+            'moderationRoot',
+            'farm:id,verification_status',
+            'plot:id,verification_status',
+        ]));
 
         // Apply filters to both queries
         $queries = [$contractsQuery, $listingsQuery];
@@ -139,10 +148,21 @@ final class MarketplaceController extends Controller
     public function show(Request $request, string $type, int $id): MarketplaceItemResource
     {
         if ($type === 'listing') {
-            $item = HarvestListing::available()->visible()->with(['farmer.farms', 'moderationRoot'])->findOrFail($id);
+            $item = HarvestListing::available()->visible()->with([
+                'farmer.farms',
+                'moderationRoot',
+                'farm:id,verification_status',
+                'plot:id,verification_status',
+            ])->findOrFail($id);
         } else {
             $item = $this->contractRepository->queryPublicItems()
-                ->with(['farmer.farms', 'recommendation', 'moderationRoot'])
+                ->with([
+                    'farmer.farms',
+                    'recommendation',
+                    'recommendation.plot:id,farm_id,verification_status',
+                    'recommendation.plot.farm:id,verification_status',
+                    'moderationRoot',
+                ])
                 ->findOrFail($id);
         }
 

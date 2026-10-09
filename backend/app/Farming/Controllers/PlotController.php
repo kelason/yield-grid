@@ -56,7 +56,7 @@ class PlotController extends Controller
         $plots = Plot::whereHas('farm', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })
-            ->with('farm:id,name')
+            ->with('farm:id,name,verification_status')
             ->withCount('recommendations')
             ->orderBy('created_at', 'desc')
             ->get();
