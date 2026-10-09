@@ -3,6 +3,7 @@
 use App\Shared\Middleware\EnsureUserHasRole;
 use App\Shared\Middleware\EnsureUserNotSuspended;
 use App\Shared\Middleware\SetLocale;
+use App\Shared\Middleware\SetUserLocale;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToPriorityList(SubstituteBindings::class, EnsureUserNotSuspended::class);
         $middleware->prependToPriorityList(SubstituteBindings::class, EnsureEmailIsVerified::class);
         $middleware->prependToPriorityList(SubstituteBindings::class, EnsureUserHasRole::class);
+        // User locale applies after auth but before any middleware that renders responses.
+        $middleware->prependToPriorityList(EnsureUserHasRole::class, SetUserLocale::class);
         $middleware->api(append: [SetLocale::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
