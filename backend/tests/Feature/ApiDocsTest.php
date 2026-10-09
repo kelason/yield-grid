@@ -1,5 +1,8 @@
 <?php
 
+use App\Shared\Controllers\ApiDocsController;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -65,6 +68,15 @@ it('404s the spec on other hosts', function () {
     $this->get('http://yieldgrid.test/docs/openapi.json')->assertNotFound();
 });
 
+it('documents bearer auth for protected routes', function () {
+    apiDocsTestConfig();
+    $spec = $this->get('http://api.yieldgrid.test/docs/openapi.json')->assertOk()->json();
+    expect($spec['components']['securitySchemes']['http']['scheme'])->toBe('bearer');
+    expect($spec['security'][0])->toHaveKey('http');
+    expect($spec['paths']['/api/v1/register']['post']['security'])->toBe([]);
+    expect($spec['paths']['/api/v1/user']['get'])->not->toHaveKey('security');
+});
+
 it('throttles docs requests', function () {
     apiDocsTestConfig();
     Cache::flush();
@@ -78,6 +90,22 @@ it('returns 503 when the spec was never exported', function () {
     config(['docs.host' => 'api.yieldgrid.test', 'docs.spec_path' => '/nonexistent/openapi.json']);
     $this->get('http://api.yieldgrid.test/docs/openapi.json')
         ->assertStatus(503)->assertJson(['message' => 'API docs not generated yet.']);
+});
+
+it('returns 503 JSON from the UI when the spec was never exported', function () {
+    config(['docs.host' => 'api.yieldgrid.test', 'docs.spec_path' => '/nonexistent/openapi.json']);
+    $this->get('http://api.yieldgrid.test/docs')
+        ->assertStatus(503)->assertJson(['message' => 'API docs not generated yet.']);
+});
+
+it('redirects trailing-slash docs to canonical', function () {
+    // In-process HTTP calls trim the slash before the app sees it, so invoke
+    // the controller directly: Request::create preserves /docs/ in getPathInfo.
+    config(['docs.host' => 'api.yieldgrid.test']);
+    $response = (new ApiDocsController)->ui(Request::create('http://api.yieldgrid.test/docs/', 'GET'));
+    expect($response)->toBeInstanceOf(RedirectResponse::class);
+    expect($response->getStatusCode())->toBe(301);
+    expect(parse_url($response->getTargetUrl(), PHP_URL_PATH))->toBe('/docs');
 });
 
 it('does not expose Scramble default routes', function () {
