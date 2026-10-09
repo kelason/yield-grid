@@ -49,6 +49,9 @@ final class InsuranceReminderMail extends Mailable implements ShouldQueue
         return new Content(htmlString: $this->renderTemplate());
     }
 
+    /**
+     * @param  array<string, string>  $replace
+     */
     private function line(string $key, array $replace = []): string
     {
         return __($key, $replace, $this->recipientLocale);

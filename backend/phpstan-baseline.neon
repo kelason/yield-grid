@@ -31,6 +31,12 @@ parameters:
 			path: app/Auth/Resources/UserResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Auth\\Resources\\UserResource\:\:\$locale\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Auth/Resources/UserResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Auth\\Resources\\UserResource\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
