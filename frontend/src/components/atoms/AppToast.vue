@@ -74,10 +74,10 @@
           </div>
           <div class="ml-3 w-0 flex-1 pt-0.5">
             <p class="text-sm font-semibold text-stone-900">
-              {{ notification.title }}
+              {{ title }}
             </p>
             <p class="mt-1 text-sm text-stone-500">
-              {{ notification.message }}
+              {{ message }}
             </p>
           </div>
           <div class="ml-4 flex-shrink-0 flex">
@@ -102,7 +102,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useNotificationStore } from '@/stores/notificationStore'
 
 const props = defineProps({
@@ -112,8 +113,23 @@ const props = defineProps({
   },
 })
 
+const { t } = useI18n()
 const show = ref(false)
 const notificationStore = useNotificationStore()
+
+const title = computed(() => resolveText('title'))
+const message = computed(() => resolveText('message'))
+
+function resolveText(field) {
+  if (props.notification[field]) {
+    return props.notification[field]
+  }
+  const key = props.notification[`${field}Key`]
+  if (!key) {
+    return ''
+  }
+  return t(key, props.notification[`${field}Params`] || {})
+}
 
 const CLOSE_DELAY_MS = 300
 

@@ -5,11 +5,6 @@ export default {
       subtitle:
         'Ihanda ang PCIC enrollment, subaybayan ang mga polisa at claim, at huwag palampasin ang deadline.',
     },
-    language: {
-      label: 'Wika',
-      english: 'English',
-      tagalog: 'Tagalog',
-    },
     rsbsa: {
       title: 'Rehistro sa RSBSA',
       description:
@@ -135,6 +130,35 @@ export default {
       close: 'Isara',
       loading: 'Naglo-load…',
       retry: 'Subukan ulit',
+    },
+  },
+  common: {
+    nav: {
+      home: 'Home',
+      about: 'Tungkol',
+      contact: 'Kontak',
+      dashboard: 'Dashboard',
+    },
+    auth: {
+      login: 'Mag-log in',
+      logout: 'Mag-log out',
+      get_started: 'Magsimula',
+    },
+    actions: {
+      retry: 'Subukan ulit',
+      save: 'I-save',
+      cancel: 'Kanselahin',
+      close: 'Isara',
+    },
+    language: {
+      label: 'Wika',
+      english: 'English',
+      tagalog: 'Tagalog',
+      bisaya: 'Bisaya',
+    },
+    verify: {
+      email_sent: 'Naipadala ang verification email! Pakitingnan ang iyong inbox.',
+      resend_failed: 'Nabigong magpadala ulit ng verification email.',
     },
   },
 }

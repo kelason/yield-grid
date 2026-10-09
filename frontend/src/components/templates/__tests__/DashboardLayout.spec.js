@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
 import { useAuthStore } from '@/stores/auth'
 import { useChatStore } from '@/stores/chatStore'
+import i18n from '@/i18n'
 import DashboardLayout from '../DashboardLayout.vue'
 
 vi.mock('@/composables/useApi', () => ({
@@ -47,7 +48,7 @@ describe('DashboardLayout.vue chat sync', () => {
   async function mountLayout() {
     const wrapper = mount(DashboardLayout, {
       global: {
-        plugins: [pinia],
+        plugins: [pinia, i18n],
         stubs: {
           AppSidebar: true,
           AppButton: true,

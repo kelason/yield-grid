@@ -5,11 +5,6 @@ export default {
       subtitle:
         'Prepare your PCIC enrollment, track policies and claims, and never miss a deadline.',
     },
-    language: {
-      label: 'Language',
-      english: 'English',
-      tagalog: 'Tagalog',
-    },
     rsbsa: {
       title: 'RSBSA Registration',
       description:
@@ -135,6 +130,35 @@ export default {
       close: 'Close',
       loading: 'Loading…',
       retry: 'Try again',
+    },
+  },
+  common: {
+    nav: {
+      home: 'Home',
+      about: 'About',
+      contact: 'Contact',
+      dashboard: 'Dashboard',
+    },
+    auth: {
+      login: 'Log in',
+      logout: 'Log out',
+      get_started: 'Get Started',
+    },
+    actions: {
+      retry: 'Try again',
+      save: 'Save',
+      cancel: 'Cancel',
+      close: 'Close',
+    },
+    language: {
+      label: 'Language',
+      english: 'English',
+      tagalog: 'Tagalog',
+      bisaya: 'Bisaya',
+    },
+    verify: {
+      email_sent: 'Verification email sent! Please check your inbox.',
+      resend_failed: 'Failed to resend verification email.',
     },
   },
 }

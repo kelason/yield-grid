@@ -32,6 +32,9 @@ export async function mockSession(
   }
   await page.addInitScript(() => localStorage.setItem('auth_token', 'synthetic-e2e-token'))
   await page.route('**/api/v1/user', (route) => route.fulfill({ json: user }))
+  await page.route('**/api/v1/user/locale', (route) =>
+    route.fulfill({ json: { locale: route.request().postDataJSON()?.locale ?? 'en' } }),
+  )
   if (role !== 'admin') {
     await page.route('**/api/v1/chat/conversations', (route) =>
       route.fulfill({ json: { data: [] } }),

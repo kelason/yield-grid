@@ -12,6 +12,10 @@ export const useNotificationStore = defineStore('notification', () => {
       type: notification.type || 'info', // 'success', 'error', 'info', 'warning'
       title: notification.title,
       message: notification.message,
+      titleKey: notification.titleKey,
+      messageKey: notification.messageKey,
+      titleParams: notification.titleParams || {},
+      messageParams: notification.messageParams || {},
       duration: notification.duration || 5000,
     }
 

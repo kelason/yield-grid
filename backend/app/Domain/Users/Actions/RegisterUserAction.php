@@ -31,6 +31,7 @@ class RegisterUserAction
                 'email' => $dto->email,
                 'password' => Hash::make($dto->password),
                 'role' => $dto->role,
+                'locale' => $dto->locale,
             ]);
 
             if ($dto->address !== null) {

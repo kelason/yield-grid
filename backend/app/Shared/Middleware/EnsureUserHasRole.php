@@ -19,7 +19,7 @@ class EnsureUserHasRole
         $role = $request->user()?->role?->value;
 
         if ($role === null || ! in_array($role, $roles, true)) {
-            return response()->json(['message' => 'Unauthorized or insufficient permissions.'], HttpCode::FORBIDDEN);
+            return response()->json(['message' => __('messages.unauthorized')], HttpCode::FORBIDDEN);
         }
 
         return $next($request);

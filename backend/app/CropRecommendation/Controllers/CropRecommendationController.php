@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\CropRecommendation\Controllers;
 
 use App\Constants\HttpCode;
+use App\Constants\LocaleConstants;
 use App\CropRecommendation\Requests\AnalyzePlotRequest;
 use App\CropRecommendation\Resources\CropRecommendationResource;
 use App\Domain\CropRecommendation\DTOs\AnalysisPreferences;
@@ -41,7 +42,11 @@ class CropRecommendationController extends Controller
 
         $preferences = AnalysisPreferences::fromArray($request->validated());
 
-        AnalyzePlotJob::dispatch($plot->id, $preferences->isEmpty() ? null : $preferences->toArray());
+        AnalyzePlotJob::dispatch(
+            $plot->id,
+            $preferences->isEmpty() ? null : $preferences->toArray(),
+            $request->user()->locale ?? LocaleConstants::DEFAULT
+        );
 
         return response()->json([
             'message' => 'Analysis started.',

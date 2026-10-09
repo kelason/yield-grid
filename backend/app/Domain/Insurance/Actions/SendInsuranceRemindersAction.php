@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Insurance\Actions;
 
 use App\Constants\InsuranceConstants;
+use App\Constants\LocaleConstants;
 use App\Domain\Insurance\Enums\InsuranceProgram;
 use App\Domain\Insurance\Enums\ReminderType;
 use App\Domain\Insurance\Enums\Season;
@@ -263,7 +264,11 @@ final class SendInsuranceRemindersAction
         }
 
         try {
-            Mail::to($farmer->email)->send(new InsuranceReminderMail($type, $meta));
+            Mail::to($farmer->email)->send(new InsuranceReminderMail(
+                $type,
+                $meta,
+                $farmer->locale ?? LocaleConstants::DEFAULT
+            ));
         } catch (Throwable $e) {
             $this->releaseClaim($farmer, $type, $key);
 
