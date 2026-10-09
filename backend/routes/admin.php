@@ -63,4 +63,13 @@ Route::prefix('admin')->middleware(['verified', EnsureUserHasRole::class.':admin
     Route::get('/verifications', [AdminFarmVerificationController::class, 'index']);
     Route::get('/verifications/farms/{farm}', [AdminFarmVerificationController::class, 'showFarm']);
     Route::get('/verifications/plots/{plot}', [AdminFarmVerificationController::class, 'showPlot']);
+
+    Route::post('/verifications/farms/{farm}/verify', [AdminFarmVerificationController::class, 'verifyFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/farms/{farm}/reject', [AdminFarmVerificationController::class, 'rejectFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/farms/{farm}/revoke', [AdminFarmVerificationController::class, 'revokeFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/farms/{farm}/reopen', [AdminFarmVerificationController::class, 'reopenFarm'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/verify', [AdminFarmVerificationController::class, 'verifyPlot'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/reject', [AdminFarmVerificationController::class, 'rejectPlot'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/revoke', [AdminFarmVerificationController::class, 'revokePlot'])->middleware($writeThrottle);
+    Route::post('/verifications/plots/{plot}/reopen', [AdminFarmVerificationController::class, 'reopenPlot'])->middleware($writeThrottle);
 });
