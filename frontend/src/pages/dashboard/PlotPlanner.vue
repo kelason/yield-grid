@@ -1,5 +1,5 @@
 <script setup>
-import { ref, shallowRef, onMounted, computed, reactive } from 'vue'
+import { ref, shallowRef, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFarmingStore } from '../../stores/farming'
 import { useAuthStore } from '../../stores/auth'
@@ -15,9 +15,6 @@ import LoadingState from '@/components/molecules/LoadingState.vue'
 import AppSkeleton from '@/components/atoms/AppSkeleton.vue'
 import { MapPinIcon, ChartBarIcon } from '@heroicons/vue/24/outline'
 import PlotDrawer from '../../components/organisms/PlotDrawer.vue'
-import FloodRiskWarning from '../../components/molecules/FloodRiskWarning.vue'
-import FloodRiskBadge from '../../components/atoms/FloodRiskBadge.vue'
-import { useFloodRisk } from '@/composables/useFloodRisk'
 
 const PLOT_NAME_MAX_LENGTH = 255
 
@@ -41,25 +38,6 @@ const plotDrawerRef = ref(null)
 const pendingConfirm = ref(null)
 const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 const PLOT_SKELETON_COUNT = 3
-const FLOOD_BBOX_MAX_SPAN = 5
-const FLOOD_WARN_LEVELS = ['low', 'medium', 'high']
-
-// reactive() unwraps each composable's nested refs so template reads resolve to values.
-const flood = reactive(useFloodRisk())
-const rowRisk = reactive(useFloodRisk())
-const floodZones = ref(null)
-const zonesAvailable = ref(true)
-const expandedPlotId = ref(null)
-
-const legendLevel = computed(() => (activeLayer.value ? flood.level : 'unknown'))
-const showPreviewWarning = computed(
-  () => activeLayer.value !== null && FLOOD_WARN_LEVELS.includes(flood.level),
-)
-const previewAssessment = computed(() => ({
-  level: flood.level,
-  label: flood.label,
-  advice: flood.advice,
-}))
 
 const confirmConfig = computed(() => ({
   title: 'Save this plot?',
@@ -89,37 +67,6 @@ function handlePlotDrawn({ layer, coordinates }) {
   activeLayer.value = layer
   form.value.coordinates = coordinates
   form.value.name = `Plot ${farmingStore.plots?.features?.length ? farmingStore.plots.features.length + 1 : 1}`
-  flood.fetchPreview(coordinates)
-}
-
-async function handleBoundsChange(bbox) {
-  const [minx, miny, maxx, maxy] = bbox
-  if (maxx - minx > FLOOD_BBOX_MAX_SPAN || maxy - miny > FLOOD_BBOX_MAX_SPAN) return
-  const zones = await flood.fetchZones(bbox)
-  floodZones.value = zones
-  zonesAvailable.value = zones !== null
-}
-
-function toggleDetails(plotId) {
-  if (expandedPlotId.value === plotId) {
-    expandedPlotId.value = null
-    return
-  }
-  expandedPlotId.value = plotId
-  rowRisk.fetchStored(plotId)
-}
-
-async function recheckPlot(plotId) {
-  await rowRisk.refreshRisk(plotId)
-  await farmingStore.fetchPlots(farmId)
-}
-
-function retryRowDetails(plotId) {
-  rowRisk.fetchStored(plotId)
-}
-
-function retryPreview() {
-  if (form.value.coordinates.length) flood.fetchPreview(form.value.coordinates)
 }
 
 function handlePlotError(msg) {
@@ -129,7 +76,6 @@ function handlePlotError(msg) {
   }
   activeLayer.value = null
   form.value.coordinates = []
-  flood.reset()
 }
 
 function cancelDrawing() {
@@ -139,7 +85,6 @@ function cancelDrawing() {
   activeLayer.value = null
   form.value.coordinates = []
   error.value = ''
-  flood.reset()
 }
 
 function validatePlot() {
@@ -168,7 +113,6 @@ async function performSavePlot(payload) {
     form.value.coordinates = []
     form.value.name = ''
     form.value.soil_type = ''
-    flood.reset()
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to save plot'
   } finally {
@@ -189,12 +133,8 @@ async function performSavePlot(payload) {
           ref="plotDrawerRef"
           :existing-plots="farmingStore.plots"
           :farm="farmingStore.activeFarm"
-          :flood-zones="floodZones"
-          :flood-level="legendLevel"
-          :zones-available="zonesAvailable"
           @plot-drawn="handlePlotDrawn"
           @plot-error="handlePlotError"
-          @bounds-change="handleBoundsChange"
         />
       </div>
 
@@ -238,17 +178,6 @@ async function performSavePlot(payload) {
             <h2 class="font-serif text-xl font-bold text-stone-900">Save New Plot</h2>
           </div>
           <AppAlert v-if="error" type="error" class="mb-4">{{ error }}</AppAlert>
-
-          <FloodRiskWarning
-            v-if="showPreviewWarning"
-            :assessment="previewAssessment"
-            class="mb-4"
-            @dismiss="flood.reset()"
-          />
-          <div v-if="flood.error && activeLayer" class="mb-4 flex items-center gap-2 text-sm">
-            <span class="text-stone-600">{{ flood.error }}</span>
-            <AppButton variant="ghost" size="sm" @click="retryPreview">Retry</AppButton>
-          </div>
 
           <form @submit.prevent="requestSavePlot" class="space-y-4">
             <FormField
@@ -335,46 +264,6 @@ async function performSavePlot(payload) {
                   >
                     <span>Recommendations</span>
                   </router-link>
-                </div>
-                <div class="mt-2 flex flex-wrap items-center gap-2">
-                  <FloodRiskBadge :level="feature.properties.flood_risk_level || 'unknown'" />
-                  <AppButton
-                    variant="ghost"
-                    size="sm"
-                    @click="toggleDetails(feature.properties.id)"
-                  >
-                    {{ expandedPlotId === feature.properties.id ? 'Hide' : 'Details' }}
-                  </AppButton>
-                </div>
-                <div
-                  v-if="expandedPlotId === feature.properties.id"
-                  class="mt-2 rounded-xl border border-stone-200 bg-stone-50 p-3"
-                >
-                  <p v-if="rowRisk.isLoading" class="text-sm text-stone-500">
-                    Checking flood risk…
-                  </p>
-                  <ul v-else-if="rowRisk.advice.length" class="space-y-1 text-sm text-stone-600">
-                    <li v-for="(line, index) in rowRisk.advice" :key="index">{{ line }}</li>
-                  </ul>
-                  <div v-else-if="rowRisk.error" class="flex flex-wrap items-center gap-2 text-sm">
-                    <span class="text-stone-600">{{ rowRisk.error }}</span>
-                    <AppButton
-                      variant="ghost"
-                      size="sm"
-                      @click="retryRowDetails(feature.properties.id)"
-                    >
-                      Retry
-                    </AppButton>
-                  </div>
-                  <AppButton
-                    variant="outline"
-                    size="sm"
-                    class="mt-2"
-                    :loading="rowRisk.isLoading"
-                    @click="recheckPlot(feature.properties.id)"
-                  >
-                    Re-check
-                  </AppButton>
                 </div>
               </li>
             </ul>

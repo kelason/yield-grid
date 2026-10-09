@@ -1,37 +1,20 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { usePlotMap } from '@/composables/usePlotMap'
-import FloodRiskLegend from '../molecules/FloodRiskLegend.vue'
 import AppSpinner from '../atoms/AppSpinner.vue'
 const props = defineProps({
   existingPlots: { type: Object, default: () => ({ type: 'FeatureCollection', features: [] }) },
   farm: { type: Object, default: () => ({}) },
-  floodZones: { type: Object, default: null },
-  floodLevel: { type: String, default: 'unknown' },
-  zonesAvailable: { type: Boolean, default: true },
 })
-const emit = defineEmits(['plot-drawn', 'plot-error', 'bounds-change'])
+const emit = defineEmits(['plot-drawn', 'plot-error'])
 const mapContainer = ref(null)
-const showZones = ref(true)
-const { isGeocodingCity, isCheckingZone, zoomToPlot, setFloodZones } = usePlotMap({
+const { isGeocodingCity, isCheckingZone, zoomToPlot } = usePlotMap({
   mapContainer,
   farm: () => props.farm,
   existingPlots: () => props.existingPlots,
   onPlotDrawn: (plot) => emit('plot-drawn', plot),
   onPlotError: (message) => emit('plot-error', message),
-  onBoundsChange: (bbox) => emit('bounds-change', bbox),
 })
-watch(
-  () => props.floodZones,
-  (zones) => {
-    if (showZones.value) setFloodZones(zones)
-  },
-  { deep: true },
-)
-function onToggleZones(visible) {
-  showZones.value = visible
-  setFloodZones(visible ? props.floodZones : null)
-}
 defineExpose({ zoomToPlot })
 </script>
 
@@ -96,13 +79,6 @@ defineExpose({ zoomToPlot })
         </div>
       </div>
     </Transition>
-
-    <FloodRiskLegend
-      :level="floodLevel"
-      :available="zonesAvailable"
-      class="absolute bottom-16 left-3 z-[400]"
-      @toggle="onToggleZones"
-    />
 
     <!-- Active City Zone Indicator Overlay -->
     <div
