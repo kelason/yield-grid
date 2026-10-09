@@ -55,9 +55,13 @@ async function resendVerification() {
   isResending.value = true
   try {
     await authStore.resendVerificationEmail()
-    notificationStore.success('Verification email sent! Please check your inbox.')
+    notificationStore.addNotification({ type: 'success', messageKey: 'common.verify.email_sent' })
   } catch (error) {
-    notificationStore.error(error.response?.data?.message || 'Failed to resend verification email.')
+    notificationStore.addNotification({
+      type: 'error',
+      message: error.response?.data?.message,
+      messageKey: 'common.verify.resend_failed',
+    })
   } finally {
     isResending.value = false
   }

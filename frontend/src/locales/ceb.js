@@ -156,5 +156,9 @@ export default {
       tagalog: 'Tagalog',
       bisaya: 'Bisaya',
     },
+    verify: {
+      email_sent: 'Napadala ang verification email! Palihug tan-awa ang imong inbox.',
+      resend_failed: 'Napakyas pagpadala pag-usab sa verification email.',
+    },
   },
 }
