@@ -6,6 +6,7 @@ namespace App\Marketplace\Resources;
 
 use App\CropRecommendation\Resources\CropRecommendationResource;
 use App\Domain\Marketplace\Models\ForwardContract;
+use Domain\Farming\Enums\VerificationStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,6 +19,7 @@ class MarketplaceItemResource extends JsonResource
         return [
             'id' => $this->id,
             'type' => $isContract ? 'contract' : 'listing',
+            'is_from_verified_farm' => $isContract ? false : $this->isVerifiedSource(),
             'title' => $this->title,
             'description' => $this->description,
             'crop_name' => $this->crop_name,
@@ -41,5 +43,18 @@ class MarketplaceItemResource extends JsonResource
             'distance_m' => $this->resource->distance_m !== null ? (int) round((float) $this->resource->distance_m) : null,
             'created_at' => $this->created_at->toIso8601String(),
         ];
+    }
+
+    private function isVerifiedSource(): bool
+    {
+        if ($this->farm?->verification_status !== VerificationStatus::VERIFIED) {
+            return false;
+        }
+
+        if ($this->plot_id === null) {
+            return true;
+        }
+
+        return $this->plot?->verification_status === VerificationStatus::VERIFIED;
     }
 }

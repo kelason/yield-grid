@@ -34,7 +34,9 @@ final class HarvestListingController extends Controller
             pricePerKg: (float) $validated['price_per_kg'],
             estimatedHarvestDate: $validated['estimated_harvest_date'] ?? null,
             shelfLifeDays: (int) $validated['shelf_life_days'],
-            isHarvestAvailable: (bool) $validated['is_harvest_available']
+            isHarvestAvailable: (bool) $validated['is_harvest_available'],
+            farmId: isset($validated['farm_id']) ? (int) $validated['farm_id'] : null,
+            plotId: isset($validated['plot_id']) ? (int) $validated['plot_id'] : null
         );
 
         $listing = $this->createHarvestListingAction->execute($dto);
@@ -53,7 +55,7 @@ final class HarvestListingController extends Controller
 
         $listing->update(['status' => ContractStatus::CANCELLED]);
 
-        $listing->load('farmer.farms');
+        $listing->load('farmer.farms', 'farm:id,verification_status', 'plot:id,verification_status');
 
         return response()->json([
             'message' => 'Listing cancelled successfully.',

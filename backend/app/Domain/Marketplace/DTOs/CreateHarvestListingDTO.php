@@ -16,5 +16,7 @@ final readonly class CreateHarvestListingDTO
         public ?string $estimatedHarvestDate,
         public int $shelfLifeDays,
         public bool $isHarvestAvailable,
+        public ?int $farmId,
+        public ?int $plotId,
     ) {}
 }

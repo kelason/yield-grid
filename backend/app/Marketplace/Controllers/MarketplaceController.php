@@ -35,7 +35,11 @@ final class MarketplaceController extends Controller
 
         $contractsQuery = $this->contractRepository->queryPublicItems()
             ->with(array_merge($withFarmer, ['recommendation', 'moderationRoot']));
-        $listingsQuery = HarvestListing::available()->visible()->with(array_merge($withFarmer, ['moderationRoot']));
+        $listingsQuery = HarvestListing::available()->visible()->with(array_merge($withFarmer, [
+            'moderationRoot',
+            'farm:id,verification_status',
+            'plot:id,verification_status',
+        ]));
 
         // Apply filters to both queries
         $queries = [$contractsQuery, $listingsQuery];
@@ -139,7 +143,12 @@ final class MarketplaceController extends Controller
     public function show(Request $request, string $type, int $id): MarketplaceItemResource
     {
         if ($type === 'listing') {
-            $item = HarvestListing::available()->visible()->with(['farmer.farms', 'moderationRoot'])->findOrFail($id);
+            $item = HarvestListing::available()->visible()->with([
+                'farmer.farms',
+                'moderationRoot',
+                'farm:id,verification_status',
+                'plot:id,verification_status',
+            ])->findOrFail($id);
         } else {
             $item = $this->contractRepository->queryPublicItems()
                 ->with(['farmer.farms', 'recommendation', 'moderationRoot'])

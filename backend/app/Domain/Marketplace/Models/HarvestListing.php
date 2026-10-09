@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Marketplace\Models;
 
 use App\Domain\Marketplace\Enums\ContractStatus;
+use Domain\Farming\Models\Farm;
+use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +18,8 @@ class HarvestListing extends Model
 {
     protected $fillable = [
         'farmer_id',
+        'farm_id',
+        'plot_id',
         'title',
         'description',
         'crop_name',
@@ -89,6 +93,22 @@ class HarvestListing extends Model
     public function farmer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'farmer_id');
+    }
+
+    /**
+     * @return BelongsTo<Farm, $this>
+     */
+    public function farm(): BelongsTo
+    {
+        return $this->belongsTo(Farm::class);
+    }
+
+    /**
+     * @return BelongsTo<Plot, $this>
+     */
+    public function plot(): BelongsTo
+    {
+        return $this->belongsTo(Plot::class);
     }
 
     /**
