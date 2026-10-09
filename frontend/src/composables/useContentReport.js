@@ -1,5 +1,8 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useForumStore } from '@/stores/forumStore'
+
+const t = (...args) => i18n.global.t(...args)
 import {
   DESCRIPTION_COUNT_LABEL,
   REPORT_DESCRIPTION_MAX_LENGTH,
@@ -10,12 +13,8 @@ export function reportTargetKey(type, id) {
   return `${type}:${String(id)}`
 }
 
-function errorMessage(error) {
-  return (
-    error?.response?.data?.message ||
-    error?.message ||
-    'Failed to submit this report. Please retry.'
-  )
+function errorMessage(error, t) {
+  return error?.response?.data?.message || error?.message || t('market.report.err_submit')
 }
 
 export function useContentReport() {
@@ -62,15 +61,15 @@ export function useContentReport() {
   function validate() {
     fieldError.value = ''
     if (!reason.value) {
-      fieldError.value = 'Choose a reason for this report.'
+      fieldError.value = t('market.report.err_reason')
       return false
     }
     if (description.value.length > REPORT_DESCRIPTION_MAX_LENGTH) {
-      fieldError.value = `Description must be ${DESCRIPTION_COUNT_LABEL} characters or fewer.`
+      fieldError.value = t('market.report.err_desc_max', { max: DESCRIPTION_COUNT_LABEL })
       return false
     }
     if (reason.value === REPORT_REASON.OTHER && !description.value.trim()) {
-      fieldError.value = 'Add a description when the reason is Other.'
+      fieldError.value = t('market.report.err_desc_other')
       return false
     }
     return true
@@ -94,7 +93,7 @@ export function useContentReport() {
       if (key === currentKey()) error.value = ''
       return receipt
     } catch (err) {
-      const message = errorMessage(err)
+      const message = errorMessage(err, t)
       if (key === currentKey()) error.value = message
       throw new Error(message, { cause: err })
     } finally {
@@ -105,7 +104,7 @@ export function useContentReport() {
 
   function submit() {
     if (inflight) return inflight
-    if (!target.value) return Promise.reject(new Error('Choose content to report first.'))
+    if (!target.value) return Promise.reject(new Error(t('market.report.err_no_target')))
     if (!validate()) return Promise.reject(new Error(fieldError.value))
     inflight = runSubmit(currentKey())
     return inflight

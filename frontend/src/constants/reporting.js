@@ -18,6 +18,14 @@ export const REPORT_TARGET_LABELS = {
   demand: 'Buyer demand',
 }
 
+export const REPORT_TARGET_LABEL_KEYS = {
+  thread: 'market.report.target_thread',
+  reply: 'market.report.target_reply',
+  contract: 'market.report.target_contract',
+  listing: 'market.report.target_listing',
+  demand: 'market.report.target_demand',
+}
+
 export const CONTENT_TYPE_OPTIONS = [
   { value: 'thread', label: 'Discussions' },
   { value: 'reply', label: 'Replies' },
@@ -38,14 +46,30 @@ export const REPORT_REASON = {
 }
 
 export const REPORT_REASON_OPTIONS = [
-  { value: 'spam', label: 'Spam' },
-  { value: 'inappropriate', label: 'Inappropriate content' },
-  { value: 'misinformation', label: 'Misinformation' },
-  { value: 'harassment', label: 'Harassment' },
-  { value: 'off_topic', label: 'Off topic' },
-  { value: 'other', label: 'Other' },
-  { value: 'suspected_fraud', label: 'Suspected fraud' },
-  { value: 'prohibited_item', label: 'Prohibited item' },
+  { value: 'spam', label: 'Spam', labelKey: 'market.report.reason_spam' },
+  {
+    value: 'inappropriate',
+    label: 'Inappropriate content',
+    labelKey: 'market.report.reason_inappropriate',
+  },
+  {
+    value: 'misinformation',
+    label: 'Misinformation',
+    labelKey: 'market.report.reason_misinformation',
+  },
+  { value: 'harassment', label: 'Harassment', labelKey: 'market.report.reason_harassment' },
+  { value: 'off_topic', label: 'Off topic', labelKey: 'market.report.reason_off_topic' },
+  { value: 'other', label: 'Other', labelKey: 'market.report.reason_other' },
+  {
+    value: 'suspected_fraud',
+    label: 'Suspected fraud',
+    labelKey: 'market.report.reason_suspected_fraud',
+  },
+  {
+    value: 'prohibited_item',
+    label: 'Prohibited item',
+    labelKey: 'market.report.reason_prohibited_item',
+  },
 ]
 
 export const REPORT_DESCRIPTION_MAX_LENGTH = 1000

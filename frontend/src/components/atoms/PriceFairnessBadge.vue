@@ -1,7 +1,10 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePriceGuide } from '@/composables/usePriceGuide'
 import { PRICE_GUIDE, PRICE_TIER } from '@/constants/prices'
+
+const { t } = useI18n()
 
 const props = defineProps({
   listingPrice: {
@@ -59,14 +62,14 @@ const verdict = computed(() => {
   const diffPct = ((props.listingPrice - referencePrice.value) / referencePrice.value) * 100
 
   if (Math.abs(diffPct) <= PRICE_GUIDE.FAIR_BAND_PCT) {
-    return { label: 'Fair price', classes: 'bg-moss-100 text-moss-800' }
+    return { labelKey: 'market.fairness.fair', classes: 'bg-moss-100 text-moss-800' }
   }
 
   if (diffPct > 0) {
-    return { label: 'Above guide', classes: 'bg-harvest-100 text-harvest-800' }
+    return { labelKey: 'market.fairness.above', classes: 'bg-harvest-100 text-harvest-800' }
   }
 
-  return { label: 'Below guide', classes: 'bg-dew-50 text-dew-700' }
+  return { labelKey: 'market.fairness.below', classes: 'bg-dew-50 text-dew-700' }
 })
 </script>
 
@@ -75,8 +78,8 @@ const verdict = computed(() => {
     v-if="verdict"
     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
     :class="verdict.classes"
-    :aria-label="`Price verdict: ${verdict.label}`"
+    :aria-label="t('market.fairness.verdict_aria', { label: t(verdict.labelKey) })"
   >
-    {{ verdict.label }}
+    {{ t(verdict.labelKey) }}
   </span>
 </template>

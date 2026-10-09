@@ -44,3 +44,22 @@ test('farmer dashboard renders in Tagalog', async ({ page, isMobile }) => {
     page.getByRole('link', { name: 'Pamahalaan ang mga bukid', exact: true }),
   ).toBeVisible()
 })
+
+test('buyer dashboard renders in Tagalog', async ({ page, isMobile }) => {
+  await mockSession(page, { role: 'buyer' })
+  await page.route('**/api/v1/buyer/purchases*', (route) =>
+    route.fulfill({
+      json: {
+        data: [],
+        meta: { current_page: 1, last_page: 1, total: 0, per_page: 10 },
+      },
+    }),
+  )
+  await page.goto('/dashboard/buyer')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Buyer overview')
+  await switchDashboardLocale(page, isMobile, 'tl')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pangkalahatan ng Mamimili')
+  await expect(
+    page.getByRole('link', { name: 'Mag-browse sa Palengke', exact: true }),
+  ).toBeVisible()
+})

@@ -14,7 +14,10 @@ const props = defineProps({
 defineEmits(['cancel', 'message'])
 
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PAYMENT_STATUS } from '@/constants/payment'
+
+const { t } = useI18n()
 
 const statusStyles = {
   completed: 'bg-moss-50 text-moss-700 border border-moss-200/60',
@@ -29,21 +32,23 @@ const displayStatus = computed(() => {
     const total = parseFloat(p.total_contract_amount)
     const paid = parseFloat(p.amount_paid)
     if (p.is_downpayment && (Number.isNaN(total) || paid < total)) {
-      return 'partially paid'
+      return 'partially_paid'
     }
     return 'paid'
   }
   if (p.cash_payment_status === 'partially_paid') {
-    return 'partially paid'
+    return 'partially_paid'
   }
   if (p.cash_payment_status === 'pending_approval') {
-    return 'pending approval'
+    return 'pending_approval'
   }
   return p.payment_status
 })
 
+const displayLabel = computed(() => t(`buyer.purchases.status_${displayStatus.value}`))
+
 const displayStyle = computed(() => {
-  if (displayStatus.value === 'partially paid') return statusStyles.partially_paid
+  if (displayStatus.value === 'partially_paid') return statusStyles.partially_paid
   if (displayStatus.value === 'paid') return statusStyles.completed
   return (
     statusStyles[props.purchase.payment_status] ||
@@ -78,7 +83,9 @@ function formatDate(dateStr) {
         <div class="min-w-0">
           <h3 class="font-serif font-bold text-stone-900 text-[17px] leading-tight break-words">
             {{
-              purchase.contract?.crop_name || purchase.demand_offer?.crop_name || 'Forward Contract'
+              purchase.contract?.crop_name ||
+              purchase.demand_offer?.crop_name ||
+              t('buyer.purchases.forward_contract')
             }}
           </h3>
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-stone-500 mt-1">
@@ -88,10 +95,18 @@ function formatDate(dateStr) {
               }}
               kg</span
             >
-            <span v-if="purchase.demand_offer" class="text-moss-700 font-medium">Demand offer</span>
-            <span v-else>Harvest {{ formatDate(purchase.contract?.estimated_harvest_date) }}</span>
+            <span v-if="purchase.demand_offer" class="text-moss-700 font-medium">{{
+              t('buyer.purchases.demand_offer')
+            }}</span>
+            <span v-else>{{
+              t('buyer.purchases.harvest_date', {
+                date: formatDate(purchase.contract?.estimated_harvest_date),
+              })
+            }}</span>
             <span class="text-stone-300 hidden sm:inline">•</span>
-            <span>Purchased {{ formatDate(purchase.created_at) }}</span>
+            <span>{{
+              t('buyer.purchases.purchased', { date: formatDate(purchase.created_at) })
+            }}</span>
           </div>
         </div>
       </div>
@@ -105,7 +120,7 @@ function formatDate(dateStr) {
             :class="displayStyle"
             class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"
           >
-            {{ displayStatus }}
+            {{ displayLabel }}
           </span>
 
           <div class="text-right min-w-[100px]">
@@ -127,8 +142,8 @@ function formatDate(dateStr) {
             size="sm"
             v-if="purchase.contract?.farmer?.id || purchase.demand_offer?.farmer?.id"
             @click="$emit('message', purchase)"
-            title="Message farmer"
-            aria-label="Message farmer"
+            :title="t('buyer.purchases.message_farmer')"
+            :aria-label="t('buyer.purchases.message_farmer')"
             class="p-2"
           >
             <ChatBubbleLeftRightIcon class="h-5 w-5" aria-hidden="true" />
@@ -141,8 +156,8 @@ function formatDate(dateStr) {
               purchase.cash_payment_status !== 'partially_paid'
             "
             @click="$emit('cancel', purchase)"
-            title="Cancel purchase"
-            aria-label="Cancel purchase"
+            :title="t('buyer.purchases.cancel_purchase')"
+            :aria-label="t('buyer.purchases.cancel_purchase')"
             class="p-2"
           >
             <XMarkIcon class="h-5 w-5" aria-hidden="true" />

@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PriceGuideHint from '@/components/molecules/PriceGuideHint.vue'
 import FormField from '@/components/molecules/FormField.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
@@ -41,6 +42,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['publish', 'cancel', 'clear-errors'])
+
+const { t } = useI18n()
 
 function extractNumber(yieldString) {
   if (!yieldString) return KILOGRAMS_PER_TON
@@ -97,12 +100,12 @@ function submit() {
 <template>
   <form @submit.prevent="submit" class="space-y-6">
     <p class="text-sm text-stone-600">
-      Create a marketplace listing based on the recommendation for {{ recommendation.crop_name }}.
+      {{ t('market.publish.intro', { crop: recommendation.crop_name }) }}
     </p>
     <AppAlert v-if="errors?.form?.[0]" type="error">{{ errors.form[0] }}</AppAlert>
     <FormField
       id="title"
-      label="Listing Title"
+      :label="t('market.publish.title_label')"
       v-model="form.title"
       required
       :maxlength="CONTRACT_TITLE_MAX_LENGTH"
@@ -110,18 +113,18 @@ function submit() {
     />
     <FormField
       id="description"
-      label="Description"
+      :label="t('market.publish.desc_label')"
       v-model="form.description"
       multiline
       rows="3"
       :maxlength="CONTRACT_DESCRIPTION_MAX_LENGTH"
       :error="errors?.description?.[0] || ''"
-      placeholder="Farming practices, crop quality, and delivery details"
+      :placeholder="t('market.publish.desc_ph')"
     />
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <FormField
         id="quantity"
-        label="Quantity (kg)"
+        :label="t('market.publish.qty_label')"
         type="number"
         v-model="form.quantity_kg"
         required
@@ -129,12 +132,12 @@ function submit() {
         :max="CONTRACT_QUANTITY_MAX_KG"
         step="0.1"
         :error="errors?.quantity_kg?.[0] || ''"
-        :hint="`Projected yield was ${recommendation.projected_yield}`"
+        :hint="t('market.publish.qty_hint', { yield: recommendation.projected_yield })"
       />
       <div>
         <FormField
           id="price"
-          label="Price per kg (₱)"
+          :label="t('market.publish.price_label')"
           type="number"
           v-model="form.price_per_kg"
           required
@@ -152,13 +155,13 @@ function submit() {
     <div
       class="flex flex-wrap justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50 p-4"
     >
-      <span class="text-sm text-stone-600">Total Contract Value:</span
+      <span class="text-sm text-stone-600">{{ t('market.publish.total') }}</span
       ><strong class="text-xl text-harvest-700 break-words">{{ formattedTotalPrice }}</strong>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <FormField
         id="harvest"
-        label="Estimated Harvest Date"
+        :label="t('market.publish.harvest_label')"
         type="date"
         v-model="form.estimated_harvest_date"
         required
@@ -167,20 +170,22 @@ function submit() {
       />
       <FormField
         id="expiry"
-        label="Listing Expiry Date"
+        :label="t('market.publish.expiry_label')"
         type="date"
         v-model="form.expiry_date"
         required
         :min="TODAY_ISO"
         :max="form.estimated_harvest_date || undefined"
         :error="errors?.expiry_date?.[0] || ''"
-        hint="When the contract will be removed if unsold."
+        :hint="t('market.publish.expiry_hint')"
       />
     </div>
     <div class="flex flex-wrap justify-end gap-3 border-t border-stone-200 pt-5">
-      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">Cancel</AppButton>
+      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">{{
+        t('shell.cancel')
+      }}</AppButton>
       <AppButton type="submit" :loading="loading">{{
-        loading ? 'Publishing...' : 'Publish to Marketplace'
+        loading ? t('market.publish.publishing') : t('market.publish.publish')
       }}</AppButton>
     </div>
   </form>
