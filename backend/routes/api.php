@@ -24,9 +24,7 @@ use App\CropRecommendation\Controllers\CropCompatibilityController;
 use App\CropRecommendation\Controllers\CropRecommendationController;
 use App\CropRecommendation\Controllers\CropTaxonomyController;
 use App\Farming\Controllers\FarmController;
-use App\Farming\Controllers\FloodHazardZoneController;
 use App\Farming\Controllers\PlotController;
-use App\Farming\Controllers\PlotFloodRiskController;
 use App\Farming\Controllers\RestrictedZoneController;
 use App\Insurance\Controllers\InsuranceController;
 use App\Marketplace\Controllers\CropDemandController;
@@ -119,10 +117,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/farms/{farm}/plots', [PlotController::class, 'store'])->middleware('verified');
             Route::get('/plots', [PlotController::class, 'allUserPlots']);
             Route::get('/restricted-zones', [RestrictedZoneController::class, 'index']);
-            Route::post('/plots/flood-risk/preview', [PlotFloodRiskController::class, 'preview'])->middleware(['throttle:30,1', 'verified']);
-            Route::get('/plots/{plot}/flood-risk', [PlotFloodRiskController::class, 'show']);
-            Route::post('/plots/{plot}/flood-risk/refresh', [PlotFloodRiskController::class, 'refresh'])->middleware(['throttle:30,1', 'verified']);
-            Route::get('/flood-hazard-zones', [FloodHazardZoneController::class, 'index']);
 
             // Crop Recommendations
             Route::post('/plots/{plot}/analyze', [CropRecommendationController::class, 'analyze'])->middleware(['throttle:30,1', 'verified']);
