@@ -12,7 +12,7 @@ use Domain\Farming\Models\Plot;
 use Domain\Users\Models\User;
 use LogicException;
 
-class RecordVerificationDecisionAction
+final class RecordVerificationDecisionAction
 {
     public function execute(Farm|Plot $target, VerificationDecision $decision, ?VerificationMethod $method, ?string $note, User $admin): Farm|Plot
     {

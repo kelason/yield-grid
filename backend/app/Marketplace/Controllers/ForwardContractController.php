@@ -35,7 +35,13 @@ final class ForwardContractController extends Controller
     {
         $this->authorize('viewAny', ForwardContract::class);
 
-        $contractsQuery = ForwardContract::byFarmer($request->user()->id)->with(['farmer.farms', 'recommendation', 'moderationRoot']);
+        $contractsQuery = ForwardContract::byFarmer($request->user()->id)->with([
+            'farmer.farms',
+            'recommendation',
+            'recommendation.plot:id,farm_id,verification_status',
+            'recommendation.plot.farm:id,verification_status',
+            'moderationRoot',
+        ]);
         $listingsQuery = HarvestListing::byFarmer($request->user()->id)->with(['farmer.farms', 'moderationRoot']);
 
         if ($request->has('status')) {
@@ -71,7 +77,12 @@ final class ForwardContractController extends Controller
     {
         $this->authorize('view', $contract);
 
-        $contract->load(['recommendation', 'moderationRoot']);
+        $contract->load([
+            'recommendation',
+            'recommendation.plot:id,farm_id,verification_status',
+            'recommendation.plot.farm:id,verification_status',
+            'moderationRoot',
+        ]);
 
         return new ForwardContractResource($contract);
     }
