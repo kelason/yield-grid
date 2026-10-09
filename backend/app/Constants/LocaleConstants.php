@@ -8,6 +8,10 @@ final class LocaleConstants
 {
     public const DEFAULT = 'en';
 
+    public const TAGALOG = 'tl';
+
+    public const CEBUANO = 'ceb';
+
     /** @var list<string> */
-    public const SUPPORTED = ['en', 'tl', 'ceb'];
+    public const SUPPORTED = [self::DEFAULT, self::TAGALOG, self::CEBUANO];
 }

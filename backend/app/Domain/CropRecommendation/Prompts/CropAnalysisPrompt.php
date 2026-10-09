@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\CropRecommendation\Prompts;
 
+use App\Constants\LocaleConstants;
 use App\Domain\CropRecommendation\Rotation\RotationRules;
 use Domain\Farming\Models\Plot;
 
@@ -18,14 +19,26 @@ final class CropAnalysisPrompt
      * @param  array{city?: string, state?: string, country?: string}  $location
      * @param  array{subtypes?: list<string>, irrigation?: string, goal?: string, season?: string, date?: string, previous_crops?: list<string>, demands?: list<array{crop: string, quantity_kg: mixed, target_price_per_kg: mixed, needed_by: mixed}>}  $context
      */
-    public static function render(Plot $plot, array $agroData, array $location, array $context = []): string
+    public static function render(Plot $plot, array $agroData, array $location, array $context = [], string $locale = LocaleConstants::DEFAULT): string
     {
         $area = (float) ($plot->calculated_area ?? 1.0);
         $soil = $plot->soil_type instanceof \BackedEnum ? $plot->soil_type->value : (string) ($plot->soil_type ?? 'general');
         $fullLocation = self::fullLocation($location);
 
         return self::introBlock($plot, $agroData, $area, $soil, $fullLocation)
-            .self::requirementsBlock($area, $soil, $fullLocation, $context);
+            .self::requirementsBlock($area, $soil, $fullLocation, $context)
+            .self::languageBlock($locale);
+    }
+
+    private static function languageBlock(string $locale): string
+    {
+        $language = match ($locale) {
+            LocaleConstants::TAGALOG => 'Tagalog',
+            LocaleConstants::CEBUANO => 'Cebuano',
+            default => null,
+        };
+
+        return $language === null ? '' : "\nRespond in {$language}. ";
     }
 
     /**
