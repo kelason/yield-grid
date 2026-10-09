@@ -2,6 +2,7 @@
 
 use App\Admin\Controllers\AdminContactMessageController;
 use App\Admin\Controllers\AdminContentController;
+use App\Admin\Controllers\AdminFarmVerificationController;
 use App\Admin\Controllers\AdminIssueController;
 use App\Admin\Controllers\AdminOverviewController;
 use App\Admin\Controllers\AdminReportController;
@@ -58,4 +59,8 @@ Route::prefix('admin')->middleware(['verified', EnsureUserHasRole::class.':admin
         ->whereIn('type', $contentTypes)->whereNumber('id')->middleware($writeThrottle);
     Route::post('/content/{type}/{id}/restore', [AdminContentController::class, 'restore'])
         ->whereIn('type', $contentTypes)->whereNumber('id')->middleware($writeThrottle);
+
+    Route::get('/verifications', [AdminFarmVerificationController::class, 'index']);
+    Route::get('/verifications/farms/{farm}', [AdminFarmVerificationController::class, 'showFarm']);
+    Route::get('/verifications/plots/{plot}', [AdminFarmVerificationController::class, 'showPlot']);
 });
