@@ -1,6 +1,9 @@
 import axios from 'axios'
+import i18n from '@/i18n'
 import { HTTP_STATUS } from '../constants/http'
-import { SUSPENDED_CODE, SUSPENDED_MESSAGE } from '../constants/admin'
+import { SUSPENDED_CODE } from '../constants/admin'
+
+const t = (...args) => i18n.global.t(...args)
 
 function clearAuthSession() {
   localStorage.removeItem('auth_token')
@@ -54,21 +57,22 @@ api.interceptors.response.use(
 
       if (status === HTTP_STATUS.UNAUTHORIZED) {
         clearAuthSession()
-        notificationStore.warning('Your session has expired. Please log in again.')
+        notificationStore.warning(t('auth.session_expired'))
         // Redirect to login handled via router guards or specific logic elsewhere
       } else if (status === HTTP_STATUS.FORBIDDEN && data?.code === SUSPENDED_CODE) {
         clearAuthSession()
-        notificationStore.error(data.message || SUSPENDED_MESSAGE)
+        if (data.message) notificationStore.error(data.message)
+        else notificationStore.addNotification({ type: 'error', messageKey: 'auth.suspended' })
       } else if (status === HTTP_STATUS.FORBIDDEN) {
-        notificationStore.error(
-          data.message || 'You do not have permission to perform this action.',
-        )
+        if (data.message) notificationStore.error(data.message)
+        else notificationStore.addNotification({ type: 'error', messageKey: 'auth.forbidden' })
       } else if (status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
         // Validation errors are typically handled locally by forms,
         // but we can provide a generic toast if needed.
         // notificationStore.error('Please check your input for validation errors.')
       } else if (status >= 500) {
-        notificationStore.error(data.message || 'A server error occurred. Please try again later.')
+        if (data.message) notificationStore.error(data.message)
+        else notificationStore.addNotification({ type: 'error', messageKey: 'auth.server_error' })
       }
     })
 

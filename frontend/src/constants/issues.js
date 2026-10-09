@@ -81,7 +81,7 @@ export const ISSUE_STATUS_FILTER_OPTIONS = [
 ]
 
 export const ISSUE_CATEGORY_FILTER_OPTIONS = [
-  { value: '', label: 'All categories' },
+  { value: '', label: 'All categories', labelKey: 'admin.issues.cat_all' },
   ...ISSUE_CATEGORY_OPTIONS,
 ]
 

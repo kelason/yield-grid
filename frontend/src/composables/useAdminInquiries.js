@@ -1,9 +1,12 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
 import { PaginationConstants } from '@/constants/pagination'
 import { ADMIN_INQUIRIES_PATH, SUSPENDED_CODE } from '@/constants/admin'
+
+const t = (...args) => i18n.global.t(...args)
 
 function isSessionFailure(error) {
   const status = error?.response?.status
@@ -11,8 +14,8 @@ function isSessionFailure(error) {
   return status === HTTP_STATUS.FORBIDDEN && error?.response?.data?.code === SUSPENDED_CODE
 }
 
-function errorMessage(error, fallback) {
-  return error?.response?.data?.message || error?.message || fallback
+function errorMessage(error, fallbackKey) {
+  return error?.response?.data?.message || error?.message || t(fallbackKey)
 }
 
 export function useAdminInquiries() {
@@ -78,7 +81,7 @@ export function useAdminInquiries() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       list.value = []
-      error.value = errorMessage(err, 'Unable to load inquiries.')
+      error.value = errorMessage(err, 'admin.inquiry.load_failed')
     } finally {
       loading.value = false
     }
@@ -98,7 +101,7 @@ export function useAdminInquiries() {
     } catch (err) {
       if (requestId !== detailRequestId.value) return null
       if (isSessionFailure(err)) authStore.clearSession()
-      detailError.value = errorMessage(err, 'Unable to load this inquiry.')
+      detailError.value = errorMessage(err, 'admin.inquiry.detail_failed')
       return null
     } finally {
       if (requestId === detailRequestId.value) detailLoading.value = false
@@ -120,7 +123,7 @@ export function useAdminInquiries() {
       return updated
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      throw new Error(errorMessage(err, 'Unable to update this inquiry.'), { cause: err })
+      throw new Error(errorMessage(err, 'admin.inquiry.update_failed'), { cause: err })
     } finally {
       mutating.value = false
     }
@@ -150,7 +153,7 @@ export function useAdminInquiries() {
       return { reply, warning: response?.data?.meta?.warning ?? '' }
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      throw new Error(errorMessage(err, 'Unable to queue this reply.'), { cause: err })
+      throw new Error(errorMessage(err, 'admin.inquiry.queue_failed'), { cause: err })
     } finally {
       mutating.value = false
     }
@@ -167,7 +170,7 @@ export function useAdminInquiries() {
       return { reply, warning: response?.data?.meta?.warning ?? '' }
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      throw new Error(errorMessage(err, 'Unable to retry this reply.'), { cause: err })
+      throw new Error(errorMessage(err, 'admin.inquiry.retry_failed'), { cause: err })
     } finally {
       mutating.value = false
     }

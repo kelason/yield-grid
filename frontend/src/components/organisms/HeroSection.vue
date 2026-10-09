@@ -1,9 +1,12 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { ArrowRightIcon } from '@heroicons/vue/24/outline'
 import AppButton from '../atoms/AppButton.vue'
 import AppCard from '../atoms/AppCard.vue'
 import { PLATFORM_FEATURES } from '@/constants/platformFeatures'
+
+const { t } = useI18n()
 const router = useRouter()
 </script>
 <template>
@@ -14,26 +17,28 @@ const router = useRouter()
     >
       <div class="max-w-3xl">
         <p class="mb-5 text-sm font-medium uppercase tracking-widest text-moss-700">
-          From soil to sale
+          {{ t('public.home.eyebrow') }}
         </p>
         <h1
           id="home-heading"
           class="font-serif text-4xl sm:text-5xl font-bold tracking-tight leading-tight text-stone-900"
         >
-          Smarter farming,<br /><span class="text-moss-700">better harvest.</span>
+          {{ t('public.home.heading_a') }}<br /><span class="text-moss-700">{{
+            t('public.home.heading_b')
+          }}</span>
         </h1>
         <p class="mt-6 max-w-2xl text-lg text-stone-600 leading-relaxed">
-          Plan crops, trade harvests, explore crop insurance and learn from your community. One
-          connected workspace for farmers and the buyers they supply.
+          {{ t('public.home.lede') }}
         </p>
         <div class="mt-8 flex flex-wrap items-center gap-4">
           <AppButton size="lg" @click="router.push('/auth/register')"
-            >Get started<template #icon
+            >{{ t('public.home.cta')
+            }}<template #icon
               ><ArrowRightIcon class="h-5 w-5" aria-hidden="true" /></template></AppButton
           ><RouterLink
             to="/about"
             class="inline-flex min-h-11 items-center rounded-xl px-4 text-moss-700 font-medium transition-colors duration-200 hover:text-moss-900"
-            >Learn more</RouterLink
+            >{{ t('public.home.learn') }}</RouterLink
           >
         </div>
       </div>
@@ -50,19 +55,18 @@ const router = useRouter()
       <div class="mx-auto max-w-7xl">
         <div class="max-w-2xl mb-10">
           <h2 id="platform-heading" class="font-serif text-3xl font-bold text-stone-900">
-            A little clarity for every growing season.
+            {{ t('public.home.platform_title') }}
           </h2>
           <p class="mt-4 text-base text-stone-600 leading-relaxed">
-            From your first planting decision to buyer offers, payment confirmations and farm
-            support, keep the work of every season connected.
+            {{ t('public.home.platform_desc') }}
           </p>
         </div>
         <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <AppCard v-for="feature in PLATFORM_FEATURES" :key="feature.title" padding="p-6"
             ><component :is="feature.icon" class="mb-5 h-7 w-7 text-moss-700" aria-hidden="true" />
-            <h3 class="font-serif text-2xl font-bold text-stone-900">{{ feature.title }}</h3>
+            <h3 class="font-serif text-2xl font-bold text-stone-900">{{ t(feature.titleKey) }}</h3>
             <p class="mt-3 text-base leading-relaxed text-stone-600">
-              {{ feature.description }}
+              {{ t(feature.descKey) }}
             </p></AppCard
           >
         </div>

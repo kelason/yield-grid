@@ -1,9 +1,12 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
 import { PaginationConstants } from '@/constants/pagination'
 import { ADMIN_USERS_PATH, ADMIN_USER_STATUS_FILTER, SUSPENDED_CODE } from '@/constants/admin'
+
+const t = (...args) => i18n.global.t(...args)
 
 function isSessionFailure(error) {
   const status = error?.response?.status
@@ -11,8 +14,8 @@ function isSessionFailure(error) {
   return status === HTTP_STATUS.FORBIDDEN && error?.response?.data?.code === SUSPENDED_CODE
 }
 
-function errorMessage(error, fallback) {
-  return error?.response?.data?.message || error?.message || fallback
+function errorMessage(error, fallbackKey) {
+  return error?.response?.data?.message || error?.message || t(fallbackKey)
 }
 
 function suspendedParam(filter) {
@@ -65,7 +68,7 @@ export function useAdminUsers() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       list.value = []
-      error.value = errorMessage(err, 'Unable to load users.')
+      error.value = errorMessage(err, 'admin.users.load_failed')
     } finally {
       loading.value = false
     }
@@ -81,7 +84,7 @@ export function useAdminUsers() {
       return updated
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      throw new Error(errorMessage(err, 'Unable to update this user.'), { cause: err })
+      throw new Error(errorMessage(err, 'admin.users.update_failed'), { cause: err })
     } finally {
       mutating.value = false
     }

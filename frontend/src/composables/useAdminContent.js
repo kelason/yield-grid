@@ -1,10 +1,13 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
 import { PaginationConstants } from '@/constants/pagination'
 import { SUSPENDED_CODE } from '@/constants/admin'
 import { ADMIN_CONTENT_PATH, REPORT_TARGET_TYPE } from '@/constants/reporting'
+
+const t = (...args) => i18n.global.t(...args)
 
 function isSessionFailure(error) {
   const status = error?.response?.status
@@ -75,7 +78,7 @@ export function useAdminContent() {
       if (isSessionFailure(err)) authStore.clearSession()
       activeType.value = type
       list.value = []
-      error.value = errorMessage(err, 'Unable to load content.')
+      error.value = errorMessage(err, t('admin.content.err_load'))
     } finally {
       if (requestId === listRequestId.value) loading.value = false
     }
@@ -95,7 +98,7 @@ export function useAdminContent() {
     } catch (err) {
       if (requestId !== detailRequestId.value) return null
       if (isSessionFailure(err)) authStore.clearSession()
-      detailError.value = errorMessage(err, 'Unable to load this content.')
+      detailError.value = errorMessage(err, t('admin.content.err_detail'))
       return null
     } finally {
       if (requestId === detailRequestId.value) detailLoading.value = false
@@ -122,7 +125,7 @@ export function useAdminContent() {
       }
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      throw new Error(errorMessage(err, 'Unable to moderate this content.'), { cause: err })
+      throw new Error(errorMessage(err, t('admin.content.err_moderate')), { cause: err })
     } finally {
       mutating.value = false
     }

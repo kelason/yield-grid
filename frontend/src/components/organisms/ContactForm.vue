@@ -1,6 +1,7 @@
 <script setup>
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
@@ -13,6 +14,7 @@ const CONTACT_EMAIL_MAX_LENGTH = 255
 const CONTACT_SUBJECT_MAX_LENGTH = 255
 const CONTACT_MESSAGE_MAX_LENGTH = 2000
 
+const { t } = useI18n()
 const api = useApi()
 
 const form = ref({ name: '', email: '', subject: '', message: '' })
@@ -25,24 +27,24 @@ const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 const messageLength = computed(() => (form.value.message || '').length)
 
 const confirmConfig = computed(() => ({
-  title: 'Send this message?',
-  message: 'Your message will be sent to the YieldGrid team. We will reply to your email address.',
-  confirmText: 'Send message',
+  title: t('public.contact.confirm_title'),
+  message: t('public.contact.confirm_msg'),
+  confirmText: t('public.contact.confirm_cta'),
   type: 'primary',
 }))
 
 function validate() {
-  if (!form.value.name.trim()) return 'Please enter your name.'
+  if (!form.value.name.trim()) return t('public.contact.err_name')
   if (form.value.name.length > CONTACT_NAME_MAX_LENGTH)
-    return `Name must be at most ${CONTACT_NAME_MAX_LENGTH} characters.`
-  if (!form.value.email.trim()) return 'Please enter your email address.'
+    return t('public.contact.err_name_max', { max: CONTACT_NAME_MAX_LENGTH })
+  if (!form.value.email.trim()) return t('public.contact.err_email')
   if (form.value.email.length > CONTACT_EMAIL_MAX_LENGTH)
-    return `Email must be at most ${CONTACT_EMAIL_MAX_LENGTH} characters.`
+    return t('public.contact.err_email_max', { max: CONTACT_EMAIL_MAX_LENGTH })
   if (form.value.subject.length > CONTACT_SUBJECT_MAX_LENGTH)
-    return `Subject must be at most ${CONTACT_SUBJECT_MAX_LENGTH} characters.`
-  if (!form.value.message.trim()) return 'Please enter a message.'
+    return t('public.contact.err_subject_max', { max: CONTACT_SUBJECT_MAX_LENGTH })
+  if (!form.value.message.trim()) return t('public.contact.err_message')
   if (messageLength.value > CONTACT_MESSAGE_MAX_LENGTH)
-    return `Message must be at most ${CONTACT_MESSAGE_MAX_LENGTH} characters.`
+    return t('public.contact.err_message_max', { max: CONTACT_MESSAGE_MAX_LENGTH })
   return ''
 }
 
@@ -64,7 +66,7 @@ async function performContact(payload) {
     successMessage.value = response.data.message
     form.value = { name: '', email: '', subject: '', message: '' }
   } catch (e) {
-    error.value = e.response?.data?.message || 'Failed to send message.'
+    error.value = e.response?.data?.message || t('public.contact.failed')
   } finally {
     loading.value = false
   }
@@ -79,14 +81,14 @@ async function performContact(payload) {
 
       <FormField
         id="contact-name"
-        label="Name"
+        :label="t('public.contact.name_label')"
         v-model="form.name"
         :required="true"
         :maxlength="CONTACT_NAME_MAX_LENGTH"
       />
       <FormField
         id="contact-email"
-        label="Email"
+        :label="t('public.contact.email_label')"
         type="email"
         v-model="form.email"
         :required="true"
@@ -94,16 +96,16 @@ async function performContact(payload) {
       />
       <FormField
         id="contact-subject"
-        label="Subject"
+        :label="t('public.contact.subject_label')"
         v-model="form.subject"
         :maxlength="CONTACT_SUBJECT_MAX_LENGTH"
       />
 
       <div>
         <div class="flex items-center justify-between">
-          <label for="contact-message" class="block text-sm font-medium text-soil-700"
-            >Message</label
-          >
+          <label for="contact-message" class="block text-sm font-medium text-soil-700">{{
+            t('public.contact.message_label')
+          }}</label>
           <span class="text-sm text-stone-600" id="contact-message-counter">
             {{ messageLength }} / {{ CONTACT_MESSAGE_MAX_LENGTH }}
           </span>
@@ -122,7 +124,7 @@ async function performContact(payload) {
       </div>
 
       <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
-        Send Message
+        {{ t('public.contact.submit') }}
       </AppButton>
     </form>
 

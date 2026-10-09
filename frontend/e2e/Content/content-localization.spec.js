@@ -1,6 +1,7 @@
 import { test, expect, mockSession } from '../fixtures/session'
 import { FARMS } from '../fixtures/data'
 import { switchDashboardLocale } from '../fixtures/language'
+import { mockAdminSession, overviewPayload } from '../fixtures/admin'
 
 test('shell chrome renders in Tagalog', async ({ page, isMobile }) => {
   await mockSession(page, { role: 'farmer' })
@@ -79,4 +80,15 @@ test('community forum renders in Tagalog', async ({ page, isMobile }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Community Forum')
   await switchDashboardLocale(page, isMobile, 'tl')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Forum ng Komunidad')
+})
+
+test('admin overview renders in Tagalog', async ({ page, isMobile }) => {
+  await mockAdminSession(page)
+  await page.route('**/api/v1/admin/overview', (route) =>
+    route.fulfill({ json: overviewPayload() }),
+  )
+  await page.goto('/admin/overview')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Overview')
+  await switchDashboardLocale(page, isMobile, 'tl')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pangkalahatan')
 })

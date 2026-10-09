@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAdminUsers } from '@/composables/useAdminUsers'
 import { queryFilterValue } from '@/utils/adminQueryFilters'
@@ -22,23 +23,23 @@ import LoadingState from '@/components/molecules/LoadingState.vue'
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 
+const notificationStore = useNotificationStore()
+const { t } = useI18n()
+
 const CONFIRM_COPY = {
   suspend: {
-    title: 'Suspend user?',
-    confirmText: 'Suspend user',
+    title: () => t('admin.users.suspend_title'),
+    confirmText: () => t('admin.users.suspend_ok'),
     variant: 'danger',
-    message: (name) =>
-      `Suspend ${name}? Their sessions end immediately and they cannot sign in until restored.`,
+    message: (name) => t('admin.users.suspend_msg', { name }),
   },
   unsuspend: {
-    title: 'Restore user?',
-    confirmText: 'Restore user',
+    title: () => t('admin.users.restore_title'),
+    confirmText: () => t('admin.users.restore_ok'),
     variant: 'primary',
-    message: (name) => `Restore ${name}? They can sign in again with a fresh login.`,
+    message: (name) => t('admin.users.restore_msg', { name }),
   },
 }
-
-const notificationStore = useNotificationStore()
 const {
   list,
   loading,
@@ -81,11 +82,24 @@ const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   const copy = CONFIRM_COPY[pendingConfirm.value.action]
   if (!copy) return null
-  return { ...copy, message: copy.message(displayName(pendingConfirm.value.user)) }
+  return {
+    title: copy.title(),
+    confirmText: copy.confirmText(),
+    variant: copy.variant,
+    message: copy.message(displayName(pendingConfirm.value.user)),
+  }
 })
 
+const roleOptions = computed(() =>
+  ADMIN_USER_ROLE_OPTIONS.map((option) => ({ value: option.value, label: t(option.labelKey) })),
+)
+
+const statusOptions = computed(() =>
+  ADMIN_USER_STATUS_OPTIONS.map((option) => ({ value: option.value, label: t(option.labelKey) })),
+)
+
 function displayName(user) {
-  return user?.name || 'Unknown user'
+  return user?.name || t('admin.users.unknown_user')
 }
 
 function isSuspended(user) {
@@ -95,7 +109,7 @@ function isSuspended(user) {
 function applySearch() {
   const search = String(filters.value.search ?? '')
   if (search.length > ADMIN_SEARCH_MAX_LENGTH) {
-    filterError.value = `Search must be ${ADMIN_SEARCH_MAX_LENGTH} characters or fewer.`
+    filterError.value = t('admin.users.err_search', { max: ADMIN_SEARCH_MAX_LENGTH })
     return
   }
   filterError.value = ''
@@ -137,11 +151,11 @@ function cancelDialog() {
 function validatedReason() {
   const reason = reasonDraft.value.trim()
   if (!reason) {
-    reasonError.value = 'Enter a reason for this decision.'
+    reasonError.value = t('admin.users.err_reason')
     return null
   }
   if (reason.length > SUSPENSION_REASON_MAX_LENGTH) {
-    reasonError.value = `Reason must be ${SUSPENSION_REASON_MAX_LENGTH} characters or fewer.`
+    reasonError.value = t('admin.users.err_reason_max', { max: SUSPENSION_REASON_MAX_LENGTH })
     return null
   }
   reasonError.value = ''
@@ -159,9 +173,13 @@ async function submitDialog() {
     else await unsuspendUser(user.id, reason)
     pendingConfirm.value = null
     reasonDraft.value = ''
-    notificationStore.success(action === 'suspend' ? 'User suspended.' : 'User restored.')
+    notificationStore.addNotification({
+      type: 'success',
+      messageKey:
+        action === 'suspend' ? 'admin.users.suspended_toast' : 'admin.users.restored_toast',
+    })
   } catch (err) {
-    dialogError.value = err?.message || 'Unable to update this user.'
+    dialogError.value = err?.message || t('admin.users.update_failed')
   }
 }
 
@@ -173,10 +191,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <PageHeader
-      title="Users"
-      description="Review member accounts. Suspending ends every session at once."
-    />
+    <PageHeader :title="t('admin.users.title')" :description="t('admin.users.description')" />
 
     <AppCard padding="p-5">
       <form
@@ -186,57 +201,53 @@ onMounted(() => {
         <FormField
           id="admin-user-search"
           v-model="filters.search"
-          label="Search users"
-          placeholder="Name or email"
+          :label="t('admin.users.search_label')"
+          :placeholder="t('admin.users.search_ph')"
           :maxlength="ADMIN_SEARCH_MAX_LENGTH"
           :error="filterError"
         />
         <AppSelect
           id="admin-user-role"
           :model-value="filters.role"
-          label="Role"
+          :label="t('admin.users.role_label')"
           @update:model-value="onRoleChange"
         >
-          <option
-            v-for="option in ADMIN_USER_ROLE_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
+          <option v-for="option in roleOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </AppSelect>
         <AppSelect
           id="admin-user-status"
           :model-value="filters.suspended"
-          label="Status"
+          :label="t('admin.users.status_label')"
           @update:model-value="onStatusChange"
         >
-          <option
-            v-for="option in ADMIN_USER_STATUS_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
+          <option v-for="option in statusOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </AppSelect>
         <div class="flex items-end gap-3">
-          <AppButton type="submit" variant="primary">Search</AppButton>
-          <AppButton type="button" variant="ghost" @click="resetFilters">Reset</AppButton>
+          <AppButton type="submit" variant="primary">{{ t('admin.users.search_btn') }}</AppButton>
+          <AppButton type="button" variant="ghost" @click="resetFilters">{{
+            t('admin.users.reset')
+          }}</AppButton>
         </div>
       </form>
     </AppCard>
 
-    <LoadingState v-if="loading" label="Loading users" />
+    <LoadingState v-if="loading" :label="t('admin.users.loading')" />
 
     <AppCard v-else-if="error" padding="p-6" role="alert">
       <p class="text-base text-stone-900">{{ error }}</p>
-      <AppButton variant="outline" class="mt-4" @click="retryFetch">Retry</AppButton>
+      <AppButton variant="outline" class="mt-4" @click="retryFetch">{{
+        t('shell.retry')
+      }}</AppButton>
     </AppCard>
 
     <EmptyState
       v-else-if="users.length === 0"
-      title="No users found"
-      description="No accounts match the current filters."
+      :title="t('admin.users.empty_title')"
+      :description="t('admin.users.empty_desc')"
     />
 
     <ul v-else class="space-y-4">
@@ -252,19 +263,19 @@ onMounted(() => {
                 <span
                   class="inline-flex items-center rounded-full bg-soil-100 px-2.5 py-0.5 text-xs font-medium capitalize text-soil-800"
                 >
-                  {{ user?.role || 'unknown' }}
+                  {{ user?.role || t('admin.users.role_unknown') }}
                 </span>
                 <span
                   v-if="isSuspended(user)"
                   class="inline-flex items-center rounded-full bg-harvest-100 px-2.5 py-0.5 text-xs font-medium text-harvest-800"
                 >
-                  Suspended
+                  {{ t('admin.users.suspended_badge') }}
                 </span>
                 <span
                   v-else
                   class="inline-flex items-center rounded-full bg-moss-100 px-2.5 py-0.5 text-xs font-medium text-moss-800"
                 >
-                  Active
+                  {{ t('admin.users.active_badge') }}
                 </span>
               </div>
               <p
@@ -279,19 +290,19 @@ onMounted(() => {
                 v-if="isSuspended(user)"
                 variant="outline"
                 class="w-full"
-                :aria-label="`Restore ${displayName(user)}`"
+                :aria-label="t('admin.users.restore_aria', { name: displayName(user) })"
                 @click="askConfirm('unsuspend', user)"
               >
-                Restore
+                {{ t('admin.users.restore') }}
               </AppButton>
               <AppButton
                 v-else
                 variant="danger"
                 class="w-full"
-                :aria-label="`Suspend ${displayName(user)}`"
+                :aria-label="t('admin.users.suspend_aria', { name: displayName(user) })"
                 @click="askConfirm('suspend', user)"
               >
-                Suspend
+                {{ t('admin.users.suspend') }}
               </AppButton>
             </div>
           </div>
@@ -318,26 +329,26 @@ onMounted(() => {
         <FormField
           id="admin-user-reason"
           v-model="reasonDraft"
-          label="Reason"
+          :label="t('admin.users.reason_label')"
           multiline
           required
           :maxlength="SUSPENSION_REASON_MAX_LENGTH"
           :error="reasonError"
-          hint="Recorded with this decision."
+          :hint="t('admin.users.reason_hint')"
         />
         <AppAlert v-if="dialogError" type="error">{{ dialogError }}</AppAlert>
       </div>
       <template #footer>
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <AppButton variant="secondary" :disabled="mutating" @click="cancelDialog">
-            Cancel
+            {{ t('shell.cancel') }}
           </AppButton>
           <AppButton
             :variant="confirmConfig?.variant === 'danger' ? 'danger' : 'primary'"
             :loading="mutating"
             @click="submitDialog"
           >
-            {{ confirmConfig?.confirmText ?? 'Confirm' }}
+            {{ confirmConfig?.confirmText ?? t('admin.users.confirm_fallback') }}
           </AppButton>
         </div>
       </template>

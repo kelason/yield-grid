@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useAdminOverview } from '@/composables/useAdminOverview'
 import {
@@ -7,8 +8,12 @@ import {
   ADMIN_USER_ROLE_MEMBERS,
   REPLY_DELIVERY_STATUS,
 } from '@/constants/admin'
-import { ISSUE_STATUS_LABELS } from '@/constants/issues'
-import { CONTENT_TYPE_OPTIONS, REPORT_STATUS, REPORT_STATUS_LABELS } from '@/constants/reporting'
+import { ISSUE_STATUS_LABEL_KEYS } from '@/constants/issues'
+import {
+  CONTENT_TYPE_OPTIONS,
+  REPORT_STATUS,
+  REPORT_STATUS_LABEL_KEYS,
+} from '@/constants/reporting'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import StatCard from '@/components/molecules/StatCard.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
@@ -17,6 +22,7 @@ import AppCard from '@/components/atoms/AppCard.vue'
 import LoadingState from '@/components/molecules/LoadingState.vue'
 
 const { overview, loading, error, generatedAt, fetchOverview } = useAdminOverview()
+const { t } = useI18n()
 
 const hasData = computed(() => overview.value !== null)
 const showLoading = computed(() => loading.value && !hasData.value)
@@ -38,19 +44,19 @@ const memberCards = computed(() => {
   return [
     {
       testid: 'overview-users-total',
-      label: 'Members',
+      label: t('admin.overview.members'),
       value: count(users.members_total),
       to: { name: 'admin-users', query: { role: ADMIN_USER_ROLE_MEMBERS } },
-      aria: 'View all members',
+      aria: t('admin.overview.view_members'),
       tone: 'default',
       sub: null,
     },
     {
       testid: 'overview-users-suspended',
-      label: 'Suspended members',
+      label: t('admin.overview.members_suspended'),
       value: count(users.members_suspended),
       to: { name: 'admin-users', query: { suspended: 'suspended' } },
-      aria: 'View suspended members',
+      aria: t('admin.overview.view_suspended'),
       tone: 'harvest',
       sub: null,
     },
@@ -61,16 +67,17 @@ const contentCards = computed(() =>
   CONTENT_TYPE_OPTIONS.map((option) => {
     const content = bucket('content') ?? {}
     const counts = content[option.value] ?? null
+    const label = t(option.labelKey)
     return {
       testid: `overview-content-${option.value}`,
-      label: option.label,
+      label,
       value: counts ? count(counts.total) : null,
       to: { name: 'admin-content', query: { type: option.value } },
-      aria: `View ${option.label.toLowerCase()}`,
+      aria: t('admin.overview.view_type', { label: label.toLowerCase() }),
       tone: 'default',
       sub:
         counts && typeof counts.visible === 'number' && typeof counts.hidden === 'number'
-          ? `${counts.visible} visible · ${counts.hidden} hidden`
+          ? t('admin.overview.visible_hidden', { visible: counts.visible, hidden: counts.hidden })
           : null,
     }
   }),
@@ -80,21 +87,24 @@ const inquiryCards = computed(() => {
   const inquiries = bucket('inquiries')
   if (!inquiries) return null
   const statuses = ADMIN_INQUIRY_STATUS_OPTIONS.filter((option) => option.value !== '')
-  const cards = statuses.map((option) => ({
-    testid: `overview-inquiries-${option.value}`,
-    label: option.label,
-    value: count(inquiries[option.value]),
-    to: { name: 'admin-inquiries', query: { status: option.value } },
-    aria: `View ${option.label.toLowerCase()} inquiries`,
-    tone: 'default',
-    sub: null,
-  }))
+  const cards = statuses.map((option) => {
+    const label = t(option.labelKey)
+    return {
+      testid: `overview-inquiries-${option.value}`,
+      label,
+      value: count(inquiries[option.value]),
+      to: { name: 'admin-inquiries', query: { status: option.value } },
+      aria: t('admin.overview.view_inquiries', { label: label.toLowerCase() }),
+      tone: 'default',
+      sub: null,
+    }
+  })
   cards.push({
     testid: 'overview-inquiries-failed',
-    label: 'Failed replies',
+    label: t('admin.overview.failed_replies'),
     value: count(inquiries.failed_replies),
     to: { name: 'admin-inquiries', query: { delivery: REPLY_DELIVERY_STATUS.FAILED } },
-    aria: 'View inquiries with failed replies',
+    aria: t('admin.overview.view_failed'),
     tone: 'harvest',
     sub: null,
   })
@@ -104,35 +114,42 @@ const inquiryCards = computed(() => {
 const reportCards = computed(() => {
   const reports = bucket('reports')
   if (!reports) return null
-  return Object.values(REPORT_STATUS).map((status) => ({
-    testid: `overview-reports-${status}`,
-    label: REPORT_STATUS_LABELS[status] ?? status,
-    value: count(reports[status]),
-    to: { name: 'admin-reports', query: { status } },
-    aria: `View ${(REPORT_STATUS_LABELS[status] ?? status).toLowerCase()} reports`,
-    tone: 'default',
-    sub: null,
-  }))
+  return Object.values(REPORT_STATUS).map((status) => {
+    const labelKey = REPORT_STATUS_LABEL_KEYS[status]
+    const resolved = labelKey ? t(labelKey) : status
+    return {
+      testid: `overview-reports-${status}`,
+      label: resolved,
+      value: count(reports[status]),
+      to: { name: 'admin-reports', query: { status } },
+      aria: t('admin.overview.view_reports', { label: resolved.toLowerCase() }),
+      tone: 'default',
+      sub: null,
+    }
+  })
 })
 
 const issueCards = computed(() => {
   const issues = bucket('issues')
   if (!issues) return null
-  return Object.entries(ISSUE_STATUS_LABELS).map(([status, label]) => ({
-    testid: `overview-issues-${status}`,
-    label,
-    value: count(issues[status]),
-    to: { name: 'admin-issues', query: { status } },
-    aria: `View ${label.toLowerCase()} issues`,
-    tone: 'default',
-    sub: null,
-  }))
+  return Object.entries(ISSUE_STATUS_LABEL_KEYS).map(([status, labelKey]) => {
+    const label = t(labelKey)
+    return {
+      testid: `overview-issues-${status}`,
+      label,
+      value: count(issues[status]),
+      to: { name: 'admin-issues', query: { status } },
+      aria: t('admin.overview.view_issues', { label: label.toLowerCase() }),
+      tone: 'default',
+      sub: null,
+    }
+  })
 })
 
 const updatedLabel = computed(() => {
-  if (!generatedAt.value) return 'Updated at unknown'
+  if (!generatedAt.value) return t('admin.overview.updated_unknown')
   const stamp = generatedAt.value.slice(0, 16).replace('T', ' ')
-  return `Updated at ${stamp}`
+  return t('admin.overview.updated', { stamp })
 })
 
 function refresh() {
@@ -146,10 +163,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-8">
-    <PageHeader
-      title="Overview"
-      description="Database-wide operational counts for members, content, inquiries, reports, and issues."
-    >
+    <PageHeader :title="t('admin.overview.title')" :description="t('admin.overview.description')">
       <template #actions>
         <AppButton
           variant="outline"
@@ -157,19 +171,19 @@ onMounted(() => {
           :loading="loading"
           @click="refresh"
         >
-          Refresh
+          {{ t('admin.overview.refresh') }}
         </AppButton>
       </template>
     </PageHeader>
 
     <p class="text-sm text-stone-500" data-testid="overview-updated">{{ updatedLabel }}</p>
 
-    <LoadingState v-if="showLoading" label="Loading overview" />
+    <LoadingState v-if="showLoading" :label="t('admin.overview.loading')" />
 
     <AppCard v-else-if="showInitialError" padding="p-6" role="alert">
       <p class="text-base text-stone-900">{{ error }}</p>
       <AppButton variant="outline" class="mt-4" data-testid="overview-retry" @click="refresh">
-        Retry
+        {{ t('shell.retry') }}
       </AppButton>
     </AppCard>
 
@@ -177,12 +191,14 @@ onMounted(() => {
       <div v-if="showRefreshError" class="space-y-3">
         <AppAlert type="error">{{ error }}</AppAlert>
         <AppButton variant="outline" data-testid="overview-retry" @click="refresh">
-          Retry
+          {{ t('shell.retry') }}
         </AppButton>
       </div>
 
-      <section v-if="memberCards" aria-label="Members" class="space-y-4">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Members</h2>
+      <section v-if="memberCards" :aria-label="t('admin.overview.members')" class="space-y-4">
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('admin.overview.members') }}
+        </h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <RouterLink
             v-for="card in memberCards"
@@ -197,11 +213,12 @@ onMounted(() => {
         </div>
       </section>
 
-      <section aria-label="Content" class="space-y-4">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Content</h2>
+      <section :aria-label="t('admin.overview.content')" class="space-y-4">
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('admin.overview.content') }}
+        </h2>
         <p class="max-w-2xl text-sm leading-relaxed text-stone-500">
-          Non-deleted records. Contract and listing totals are record counts and include split
-          items; suppressed items count as hidden.
+          {{ t('admin.overview.content_note') }}
         </p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <RouterLink
@@ -218,8 +235,10 @@ onMounted(() => {
         </div>
       </section>
 
-      <section v-if="inquiryCards" aria-label="Inquiries" class="space-y-4">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Inquiries</h2>
+      <section v-if="inquiryCards" :aria-label="t('admin.overview.inquiries')" class="space-y-4">
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('admin.overview.inquiries') }}
+        </h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <RouterLink
             v-for="card in inquiryCards"
@@ -234,8 +253,10 @@ onMounted(() => {
         </div>
       </section>
 
-      <section v-if="reportCards" aria-label="Reports" class="space-y-4">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Reports</h2>
+      <section v-if="reportCards" :aria-label="t('admin.overview.reports')" class="space-y-4">
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('admin.overview.reports') }}
+        </h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <RouterLink
             v-for="card in reportCards"
@@ -250,8 +271,10 @@ onMounted(() => {
         </div>
       </section>
 
-      <section v-if="issueCards" aria-label="Issues" class="space-y-4">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Issues</h2>
+      <section v-if="issueCards" :aria-label="t('admin.overview.issues')" class="space-y-4">
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('admin.overview.issues') }}
+        </h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <RouterLink
             v-for="card in issueCards"

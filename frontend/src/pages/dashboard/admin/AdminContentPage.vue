@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAdminContent } from '@/composables/useAdminContent'
 import { queryFilterValue } from '@/utils/adminQueryFilters'
@@ -9,7 +10,7 @@ import {
   CONTENT_TYPE_OPTIONS,
   CONTENT_VISIBILITY,
   CONTENT_VISIBILITY_FILTER_OPTIONS,
-  REPORT_TARGET_LABELS,
+  REPORT_TARGET_LABEL_KEYS,
   REPORT_TARGET_TYPE,
 } from '@/constants/reporting'
 import PageHeader from '@/components/molecules/PageHeader.vue'
@@ -24,11 +25,20 @@ import EmptyState from '@/components/molecules/EmptyState.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 
 const CONFIRM_COPY = {
-  hide: { title: 'Hide this content?', confirmText: 'Hide content', variant: 'danger' },
-  restore: { title: 'Restore this content?', confirmText: 'Restore content', variant: 'primary' },
+  hide: {
+    titleKey: 'admin.content.modal_hide_title',
+    confirmKey: 'admin.content.modal_hide_cta',
+    variant: 'danger',
+  },
+  restore: {
+    titleKey: 'admin.content.modal_restore_title',
+    confirmKey: 'admin.content.modal_restore_cta',
+    variant: 'primary',
+  },
 }
 
 const notificationStore = useNotificationStore()
+const { t } = useI18n()
 const {
   activeType,
   list,
@@ -73,7 +83,22 @@ const items = computed(() =>
   ),
 )
 
-const confirmCopy = computed(() => (pendingAction.value ? CONFIRM_COPY[pendingAction.value] : null))
+const confirmCopy = computed(() => {
+  if (!pendingAction.value) return null
+  const copy = CONFIRM_COPY[pendingAction.value]
+  return { title: t(copy.titleKey), confirmText: t(copy.confirmKey), variant: copy.variant }
+})
+
+const typeButtons = computed(() =>
+  CONTENT_TYPE_OPTIONS.map((option) => ({ value: option.value, label: t(option.labelKey) })),
+)
+
+const visibilityOptions = computed(() =>
+  CONTENT_VISIBILITY_FILTER_OPTIONS.map((option) => ({
+    value: option.value,
+    label: t(option.labelKey),
+  })),
+)
 
 const selectedIsHidden = computed(() => selected.value?.is_hidden === true)
 
@@ -83,7 +108,7 @@ const isClone = computed(() => {
 })
 
 function displayTitle(item) {
-  return item?.title || 'Untitled content'
+  return item?.title || t('admin.content.untitled')
 }
 
 function displayExcerpt(item) {
@@ -91,22 +116,23 @@ function displayExcerpt(item) {
 }
 
 function typeLabel(type) {
-  return REPORT_TARGET_LABELS[type] ?? 'Content'
+  return t(REPORT_TARGET_LABEL_KEYS[type] ?? 'admin.content.type_fallback')
 }
 
 function rootMessage() {
-  const rootId = selected.value?.moderation_root_id
-  const verb = pendingAction.value === 'hide' ? 'Hiding' : 'Restoring'
-  return (
-    `${verb} this record moderates the whole split family rooted at ${typeLabel(selected.value?.type)} ` +
-    `#${rootId}, including future split records created from that root.`
-  )
+  return t('admin.content.root_msg', {
+    verb: t(
+      pendingAction.value === 'hide' ? 'admin.content.verb_hide' : 'admin.content.verb_restore',
+    ),
+    label: typeLabel(selected.value?.type),
+    id: selected.value?.moderation_root_id,
+  })
 }
 
 function applySearch() {
   const search = String(filters.value.search ?? '')
   if (search.length > ADMIN_SEARCH_MAX_LENGTH) {
-    filterError.value = `Search must be ${ADMIN_SEARCH_MAX_LENGTH} characters or fewer.`
+    filterError.value = t('admin.content.err_search_max', { max: ADMIN_SEARCH_MAX_LENGTH })
     return
   }
   filterError.value = ''
@@ -174,11 +200,11 @@ function cancelDialog() {
 function validatedReason() {
   const reason = reasonDraft.value.trim()
   if (!reason) {
-    reasonError.value = 'Enter a reason for this decision.'
+    reasonError.value = t('admin.content.err_reason')
     return null
   }
   if (reason.length > SUSPENSION_REASON_MAX_LENGTH) {
-    reasonError.value = `Reason must be ${SUSPENSION_REASON_MAX_LENGTH} characters or fewer.`
+    reasonError.value = t('admin.content.err_reason_max', { max: SUSPENSION_REASON_MAX_LENGTH })
     return null
   }
   reasonError.value = ''
@@ -196,9 +222,14 @@ async function submitDialog() {
     else await restore(type, id, reason)
     pendingAction.value = null
     reasonDraft.value = ''
-    notificationStore.success(selected.value?.is_hidden ? 'Content hidden.' : 'Content restored.')
+    notificationStore.addNotification({
+      type: 'success',
+      messageKey: selected.value?.is_hidden
+        ? 'admin.content.hidden_toast'
+        : 'admin.content.restored_toast',
+    })
   } catch (err) {
-    dialogError.value = err?.message || 'Unable to moderate this content.'
+    dialogError.value = err?.message || t('admin.content.err_moderate')
   }
 }
 
@@ -210,14 +241,11 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <PageHeader
-      title="Content"
-      description="Browse reported content by type. Hiding is reversible and never deletes records."
-    />
+    <PageHeader :title="t('admin.content.title')" :description="t('admin.content.description')" />
 
-    <div class="flex flex-wrap gap-2" role="group" aria-label="Content types">
+    <div class="flex flex-wrap gap-2" role="group" :aria-label="t('admin.content.types_aria')">
       <AppButton
-        v-for="option in CONTENT_TYPE_OPTIONS"
+        v-for="option in typeButtons"
         :key="option.value"
         :variant="activeType === option.value ? 'primary' : 'outline'"
         :data-testid="`content-type-${option.value}`"
@@ -236,46 +264,50 @@ onMounted(() => {
         <FormField
           id="admin-content-search"
           v-model="filters.search"
-          label="Search content"
-          placeholder="Title or text"
+          :label="t('admin.content.search_label')"
+          :placeholder="t('admin.content.search_ph')"
           :maxlength="ADMIN_SEARCH_MAX_LENGTH"
           :error="filterError"
         />
         <AppSelect
           id="admin-content-visibility"
           :model-value="filters.visibility"
-          label="Visibility"
+          :label="t('admin.content.vis_label')"
           @update:model-value="onVisibilityChange"
         >
-          <option
-            v-for="option in CONTENT_VISIBILITY_FILTER_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
+          <option v-for="option in visibilityOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </AppSelect>
         <div class="flex items-end gap-3">
-          <AppButton type="submit" variant="primary">Search</AppButton>
-          <AppButton type="button" variant="ghost" @click="resetFilters">Reset filters</AppButton>
+          <AppButton type="submit" variant="primary">{{ t('admin.content.search_btn') }}</AppButton>
+          <AppButton type="button" variant="ghost" @click="resetFilters">{{
+            t('admin.content.reset')
+          }}</AppButton>
         </div>
       </form>
     </AppCard>
 
-    <LoadingState v-if="loading" label="Loading content" />
+    <LoadingState v-if="loading" :label="t('admin.content.loading')" />
 
     <AppCard v-else-if="error" padding="p-6" role="alert">
       <p class="text-base text-stone-900">{{ error }}</p>
-      <AppButton variant="outline" class="mt-4" @click="retryFetch">Retry</AppButton>
+      <AppButton variant="outline" class="mt-4" @click="retryFetch">{{
+        t('shell.retry')
+      }}</AppButton>
     </AppCard>
 
     <EmptyState
       v-else-if="items.length === 0"
-      title="Nothing here"
-      description="No records match the current filters."
+      :title="t('admin.content.empty_title')"
+      :description="t('admin.content.empty_desc')"
     />
 
-    <ul v-else class="space-y-4" :aria-label="`${typeLabel(activeType)} records`">
+    <ul
+      v-else
+      class="space-y-4"
+      :aria-label="t('admin.content.list_aria', { label: typeLabel(activeType) })"
+    >
       <li v-for="item in items" :key="item.id">
         <AppCard padding="p-5">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -294,13 +326,13 @@ onMounted(() => {
                   v-if="item.is_hidden"
                   class="inline-flex items-center rounded-full bg-harvest-100 px-2.5 py-0.5 text-xs font-medium text-harvest-800"
                 >
-                  Hidden
+                  {{ t('admin.content.hidden') }}
                 </span>
                 <span
                   v-else
                   class="inline-flex items-center rounded-full bg-moss-100 px-2.5 py-0.5 text-xs font-medium text-moss-800"
                 >
-                  Visible
+                  {{ t('admin.content.visible') }}
                 </span>
               </div>
             </div>
@@ -309,10 +341,10 @@ onMounted(() => {
                 variant="outline"
                 class="w-full"
                 :data-testid="`content-inspect-${item.id}`"
-                :aria-label="`Inspect ${displayTitle(item)}`"
+                :aria-label="t('admin.content.inspect_aria', { title: displayTitle(item) })"
                 @click="inspectItem(item)"
               >
-                Inspect
+                {{ t('admin.content.inspect') }}
               </AppButton>
             </div>
           </div>
@@ -328,13 +360,21 @@ onMounted(() => {
       @page-change="handlePageChange"
     />
 
-    <section v-if="selectedKey !== null" aria-label="Content detail" class="space-y-4">
+    <section
+      v-if="selectedKey !== null"
+      :aria-label="t('admin.content.detail_aria')"
+      class="space-y-4"
+    >
       <div class="flex items-center justify-between gap-3">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Content detail</h2>
-        <AppButton variant="ghost" @click="closeDetail">Close detail</AppButton>
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('admin.content.detail_title') }}
+        </h2>
+        <AppButton variant="ghost" @click="closeDetail">{{
+          t('admin.content.close_detail')
+        }}</AppButton>
       </div>
 
-      <LoadingState v-if="detailLoading" label="Loading content detail" />
+      <LoadingState v-if="detailLoading" :label="t('admin.content.detail_loading')" />
 
       <AppCard v-else-if="detailError" padding="p-6" role="alert">
         <p class="text-base text-stone-900">{{ detailError }}</p>
@@ -355,22 +395,27 @@ onMounted(() => {
             {{ displayExcerpt(selected) }}
           </p>
           <p v-if="selected.author?.name" class="text-sm text-stone-600">
-            Author: {{ selected.author.name }}
+            {{ t('admin.content.author', { name: selected.author.name }) }}
           </p>
           <p class="text-sm text-stone-600">
-            Visibility:
+            {{ t('admin.content.visibility') }}
             <span class="font-medium text-stone-900">{{
-              selectedIsHidden ? 'Hidden' : 'Visible'
+              selectedIsHidden ? t('admin.content.hidden') : t('admin.content.visible')
             }}</span>
           </p>
           <p
             v-if="selectedIsHidden && selected.hidden_reason"
             class="break-words text-sm text-stone-600"
           >
-            Hidden reason: {{ selected.hidden_reason }}
+            {{ t('admin.content.hidden_reason', { reason: selected.hidden_reason }) }}
           </p>
           <p v-if="isClone" class="text-sm text-stone-600">
-            Split record of {{ typeLabel(selected.type) }} #{{ selected.moderation_root_id }}.
+            {{
+              t('admin.content.split', {
+                label: typeLabel(selected.type),
+                id: selected.moderation_root_id,
+              })
+            }}
           </p>
         </div>
         <div class="mt-5 flex flex-wrap gap-3">
@@ -380,7 +425,7 @@ onMounted(() => {
             data-testid="content-restore"
             @click="askModeration('restore')"
           >
-            Restore content
+            {{ t('admin.content.btn_restore') }}
           </AppButton>
           <AppButton
             v-else
@@ -388,14 +433,14 @@ onMounted(() => {
             data-testid="content-hide"
             @click="askModeration('hide')"
           >
-            Hide content
+            {{ t('admin.content.btn_hide') }}
           </AppButton>
         </div>
       </AppCard>
     </section>
 
     <AppModal
-      :title="confirmCopy?.title ?? 'Moderate content'"
+      :title="confirmCopy?.title ?? t('admin.content.modal_fallback')"
       :is-open="pendingAction !== null"
       :busy="mutating"
       @close="cancelDialog"
@@ -411,26 +456,26 @@ onMounted(() => {
         <FormField
           id="content-moderation-reason"
           v-model="reasonDraft"
-          label="Reason"
+          :label="t('admin.content.reason_label')"
           :multiline="true"
           :maxlength="SUSPENSION_REASON_MAX_LENGTH"
           :required="true"
           :disabled="mutating"
           :error="reasonError"
-          placeholder="Why is this moderation needed?"
+          :placeholder="t('admin.content.reason_ph')"
         />
       </div>
       <template #footer>
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <AppButton variant="secondary" :disabled="mutating" @click="cancelDialog">
-            Cancel
+            {{ t('shell.cancel') }}
           </AppButton>
           <AppButton
             :variant="confirmCopy?.variant ?? 'primary'"
             :loading="mutating"
             @click="submitDialog"
           >
-            {{ confirmCopy?.confirmText ?? 'Confirm' }}
+            {{ confirmCopy?.confirmText ?? t('admin.content.confirm_fallback') }}
           </AppButton>
         </div>
       </template>

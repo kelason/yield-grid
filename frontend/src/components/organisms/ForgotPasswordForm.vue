@@ -2,6 +2,7 @@
 import ConfirmModal from '../molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
@@ -9,6 +10,7 @@ import { useAuthStore } from '../../stores/auth'
 
 const AUTH_EMAIL_MAX_LENGTH = 255
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
@@ -21,19 +23,19 @@ async function handleForgotPassword() {
   error.value = ''
   success.value = ''
   if (!email.value.trim()) {
-    error.value = 'Please enter your email address.'
+    error.value = t('auth.forgot.err_email')
     return
   }
   if (email.value.length > AUTH_EMAIL_MAX_LENGTH) {
-    error.value = `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
+    error.value = t('auth.forgot.err_email_max', { max: AUTH_EMAIL_MAX_LENGTH })
     return
   }
   const payload = email.value
   confirm(
     {
-      title: 'Send reset link?',
-      message: 'Send a password reset link to this email address?',
-      confirmText: 'Send Reset Link',
+      title: t('auth.forgot.confirm_title'),
+      message: t('auth.forgot.confirm_msg'),
+      confirmText: t('auth.forgot.confirm_cta'),
     },
     () => performRequest(payload),
   )
@@ -42,9 +44,9 @@ async function performRequest(payload) {
   loading.value = true
   try {
     const response = await authStore.sendPasswordResetLink(payload)
-    success.value = response.message || 'Password reset link sent to your email.'
+    success.value = response.message || t('auth.forgot.sent')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Failed to send reset link.'
+    error.value = e.response?.data?.message || t('auth.forgot.failed')
   } finally {
     loading.value = false
   }
@@ -59,7 +61,7 @@ async function performRequest(payload) {
 
       <FormField
         id="forgot-email"
-        label="Email address"
+        :label="t('auth.forgot.email_label')"
         type="email"
         autocomplete="username"
         name="email"
@@ -69,7 +71,7 @@ async function performRequest(payload) {
       />
 
       <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
-        Send Reset Link
+        {{ t('auth.forgot.submit') }}
       </AppButton>
     </form>
     <ConfirmModal

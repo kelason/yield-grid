@@ -1,10 +1,13 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
 import { PaginationConstants } from '@/constants/pagination'
 import { SUSPENDED_CODE } from '@/constants/admin'
 import { ADMIN_ISSUES_PATH } from '@/constants/issues'
+
+const t = (...args) => i18n.global.t(...args)
 
 function isSessionFailure(error) {
   const status = error?.response?.status
@@ -17,7 +20,7 @@ function errorMessage(error, fallback) {
 }
 
 function conflictError(error) {
-  const failure = new Error(errorMessage(error, 'This ticket changed. Reload and retry.'))
+  const failure = new Error(errorMessage(error, t('admin.issues.err_changed')))
   failure.isVersionConflict = true
   failure.currentVersion = error?.response?.data?.current_version ?? null
   failure.cause = error
@@ -74,7 +77,7 @@ export function useAdminIssues() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       list.value = []
-      error.value = errorMessage(err, 'Unable to load issues.')
+      error.value = errorMessage(err, t('admin.issues.err_load'))
     } finally {
       loading.value = false
     }
@@ -97,7 +100,7 @@ export function useAdminIssues() {
       detailError.value =
         err?.response?.status === HTTP_STATUS.NOT_FOUND
           ? 'This issue is no longer available.'
-          : errorMessage(err, 'Unable to load this issue.')
+          : errorMessage(err, t('admin.issues.err_detail'))
       return null
     } finally {
       if (requestId === detailRequestId.value) detailLoading.value = false
@@ -124,7 +127,7 @@ export function useAdminIssues() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       if (err?.response?.status === HTTP_STATUS.CONFLICT) throw conflictError(err)
-      throw new Error(errorMessage(err, 'Unable to update this issue.'), { cause: err })
+      throw new Error(errorMessage(err, t('admin.issues.err_update')), { cause: err })
     } finally {
       mutating.value = false
     }
