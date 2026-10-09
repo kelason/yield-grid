@@ -46,6 +46,31 @@ business behavior while improving component reuse and accessibility.
   Run Firefox/WebKit shared/auth smoke separately. See `frontend/README.md`
   for environment and baseline commands. Verify real map tiles separately.
 
+## E2E Regression Prevention
+
+Failures here are deterministic breakages until proven flaky — never silence
+them with longer timeouts or blind `--update-snapshots`. Diagnose first.
+
+- Removing, renaming, or relocating a control breaks every spec that touches
+  it, not just the feature's own. Sweep ALL of `frontend/e2e` (names, testids,
+  exact API payloads) for stale references; a stale selector fails as a
+  30s timeout, which looks flaky but is not.
+- Exact `postDataJSON()` assertions must gain new client fields (e.g. the
+  `locale` sent on register) the same commit that adds them.
+- Dashboard content scrolls inside `#main-content`, so `fullPage` screenshots
+  clip to the viewport and clicks scroll the container by font-timing-dependent
+  amounts. Before any pixel capture, reset it explicitly
+  (`#main-content` → `(0, 0)`); `noOverflow` only guards the document.
+- Adding a header control must keep the mobile dashboard header on one row at
+  360–390px in every locale. Overflow goes into the nav drawer, mirroring the
+  public navbar's mobile-menu pattern — never a wrapped second header row.
+- Regenerate Linux baselines only inside the pinned container from
+  `frontend/README.md`, review every diff image (changed regions must match
+  the intended design exactly), then re-run without the flag plus the full
+  browser suite before committing.
+- Unit specs mounting layouts whose children call `useI18n` must install the
+  `i18n` plugin (see `AppSidebar.spec.js`); a bare mount fails in `setup`.
+
 ## Code Review Guidelines
 
 - For local reviews, use `/review` with uncommitted changes or the branch diff against the intended PR base. Review the latest revision after fixes.
