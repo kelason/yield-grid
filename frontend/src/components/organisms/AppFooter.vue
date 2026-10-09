@@ -1,6 +1,8 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppLogo from '../atoms/AppLogo.vue'
+const { t } = useI18n()
 </script>
 <template>
   <footer
@@ -11,24 +13,23 @@ import AppLogo from '../atoms/AppLogo.vue'
         <div class="max-w-md">
           <AppLogo dark />
           <p class="mt-4 text-sm leading-relaxed text-stone-300">
-            Crop intelligence and a direct marketplace for Filipino farmers and buyers. From soil to
-            sale.
+            {{ t('shell.footer.tagline') }}
           </p>
         </div>
-        <nav aria-label="Footer navigation" class="flex flex-wrap items-start gap-6">
+        <nav :aria-label="t('shell.footer.nav_label')" class="flex flex-wrap items-start gap-6">
           <RouterLink
             to="/about"
             class="inline-flex min-h-11 items-center rounded-xl text-sm text-stone-100 transition-colors hover:text-white"
-            >About Us</RouterLink
+            >{{ t('shell.footer.about') }}</RouterLink
           ><RouterLink
             to="/contact"
             class="inline-flex min-h-11 items-center rounded-xl text-sm text-stone-100 transition-colors hover:text-white"
-            >Contact</RouterLink
+            >{{ t('shell.footer.contact') }}</RouterLink
           >
         </nav>
       </div>
       <p class="mt-8 border-t border-soil-600 pt-6 text-sm text-stone-300">
-        © {{ new Date().getFullYear() }} YieldGrid. All rights reserved.
+        {{ t('shell.footer.rights', { year: new Date().getFullYear() }) }}
       </p>
     </div>
   </footer>

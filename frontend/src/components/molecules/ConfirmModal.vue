@@ -3,12 +3,14 @@ import { useId } from 'vue'
 import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline'
 import AppModal from './AppModal.vue'
 import AppButton from '../atoms/AppButton.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const props = defineProps({
   isOpen: { type: Boolean, required: true },
-  title: { type: String, default: 'Confirm Action' },
+  title: { type: String, default: '' },
   message: { type: String, required: true },
-  confirmText: { type: String, default: 'Confirm' },
-  cancelText: { type: String, default: 'Cancel' },
+  confirmText: { type: String, default: '' },
+  cancelText: { type: String, default: '' },
   type: {
     type: String,
     default: 'primary',
@@ -28,7 +30,7 @@ function handleCancel() {
 <template>
   <AppModal
     :is-open="isOpen"
-    :title="title"
+    :title="title || t('shell.confirm_action')"
     :describedby="messageId"
     size="sm"
     :busy="loading"
@@ -45,13 +47,13 @@ function handleCancel() {
     <template #footer>
       <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <AppButton variant="secondary" :disabled="loading" autofocus @click="handleCancel">{{
-          cancelText
+          cancelText || t('shell.cancel')
         }}</AppButton>
         <AppButton
           :variant="type === 'danger' ? 'danger' : 'primary'"
           :loading="loading"
           @click="handleConfirm"
-          >{{ confirmText }}</AppButton
+          >{{ confirmText || t('shell.confirm') }}</AppButton
         >
       </div>
     </template>

@@ -1,8 +1,10 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 import AppButton from '../atoms/AppButton.vue'
 import SidebarNavLink from './SidebarNavLink.vue'
 defineProps({ item: { type: Object, required: true }, open: Boolean })
+const { t } = useI18n()
 defineEmits(['toggle', 'navigate'])
 </script>
 <template>
@@ -22,7 +24,7 @@ defineEmits(['toggle', 'navigate'])
       >
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
       </svg>
-      <span class="flex-1 text-left">{{ item.name }}</span
+      <span class="flex-1 text-left">{{ t(item.labelKey) }}</span
       ><ChevronDownIcon
         class="h-4 w-4 transition-transform"
         :class="{ 'rotate-180': open }"

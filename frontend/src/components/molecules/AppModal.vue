@@ -1,7 +1,9 @@
 <script setup>
 import { ref, useId, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import AppButton from '../atoms/AppButton.vue'
+const { t } = useI18n()
 const props = defineProps({
   isOpen: { type: Boolean, required: true },
   title: { type: String, default: '' },
@@ -108,7 +110,7 @@ onBeforeUnmount(() => {
             variant="ghost"
             size="sm"
             :disabled="busy"
-            aria-label="Close dialog"
+            :aria-label="t('shell.close_dialog')"
             @click="requestClose"
             ><XMarkIcon class="h-5 w-5" aria-hidden="true"
           /></AppButton>
@@ -119,7 +121,7 @@ onBeforeUnmount(() => {
           size="sm"
           class="absolute right-3 top-3 z-10"
           :disabled="busy"
-          aria-label="Close dialog"
+          :aria-label="t('shell.close_dialog')"
           @click="requestClose"
           ><XMarkIcon class="h-5 w-5" aria-hidden="true"
         /></AppButton>

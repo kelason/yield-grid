@@ -93,12 +93,12 @@ async function resendVerification() {
               variant="ghost"
               size="sm"
               class="md:hidden"
-              aria-label="Open navigation"
+              :aria-label="t('shell.open_navigation')"
               @click="mobileOpen = true"
               ><Bars3Icon class="h-6 w-6" aria-hidden="true" /></AppButton
-            ><AppLogo class="md:hidden" /><span class="hidden text-sm text-stone-600 md:block"
-              >Your growing workspace</span
-            >
+            ><AppLogo class="md:hidden" /><span class="hidden text-sm text-stone-600 md:block">{{
+              t('shell.tagline')
+            }}</span>
           </div>
           <div class="flex shrink-0 items-center gap-2 sm:gap-4">
             <div class="hidden md:block">

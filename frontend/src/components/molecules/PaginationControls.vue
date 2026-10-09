@@ -1,5 +1,7 @@
 <script setup>
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 defineProps({
   currentPage: {
@@ -30,32 +32,34 @@ defineEmits(['page-change'])
         :disabled="currentPage === 1"
         class="relative inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 transition-colors motion-reduce:transition-none"
       >
-        Previous
+        {{ t('shell.pagination.previous') }}
       </button>
       <button
         @click="$emit('page-change', currentPage + 1)"
         :disabled="currentPage === lastPage"
         class="relative ml-3 inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 transition-colors motion-reduce:transition-none"
       >
-        Next
+        {{ t('shell.pagination.next') }}
       </button>
     </div>
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
       <div>
         <p class="text-sm text-stone-600">
-          Showing page <span class="font-semibold text-stone-900">{{ currentPage }}</span> of
+          {{ t('shell.pagination.showing_prefix') }}
+          <span class="font-semibold text-stone-900">{{ currentPage }}</span>
+          {{ t('shell.pagination.of') }}
           <span class="font-semibold text-stone-900">{{ lastPage }}</span>
-          (<span class="font-semibold text-stone-900">{{ total }}</span> results)
+          {{ t('shell.pagination.results', { total }) }}
         </p>
       </div>
       <div>
-        <nav class="isolate inline-flex gap-1" aria-label="Pagination">
+        <nav class="isolate inline-flex gap-1" :aria-label="t('shell.pagination.label')">
           <button
             @click="$emit('page-change', currentPage - 1)"
             :disabled="currentPage === 1"
             class="relative inline-flex items-center rounded-full p-2 text-stone-500 hover:bg-moss-50 hover:text-moss-600 focus:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 motion-reduce:transition-none border border-stone-200"
           >
-            <span class="sr-only">Previous</span>
+            <span class="sr-only">{{ t('shell.pagination.previous') }}</span>
             <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
           </button>
 
@@ -64,7 +68,7 @@ defineEmits(['page-change'])
             :disabled="currentPage === lastPage"
             class="relative inline-flex items-center rounded-full p-2 text-stone-500 hover:bg-moss-50 hover:text-moss-600 focus:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 motion-reduce:transition-none border border-stone-200"
           >
-            <span class="sr-only">Next</span>
+            <span class="sr-only">{{ t('shell.pagination.next') }}</span>
             <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
           </button>
         </nav>

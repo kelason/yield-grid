@@ -1,11 +1,13 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 defineProps({ dark: Boolean, collapsed: Boolean })
+const { t } = useI18n()
 </script>
 <template>
   <RouterLink
     to="/"
-    aria-label="YieldGrid home"
+    :aria-label="t('shell.logo_home')"
     :class="[
       'inline-flex min-w-0 min-h-11 items-center gap-3 rounded-xl transition-colors duration-200',
       dark ? 'text-stone-100' : 'text-moss-700',

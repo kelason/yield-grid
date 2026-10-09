@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { useChatStore } from '../../stores/chatStore'
 import UnreadBadge from '../atoms/UnreadBadge.vue'
@@ -12,6 +13,7 @@ const props = defineProps({
 
 const route = useRoute()
 const chatStore = useChatStore()
+const { t } = useI18n()
 
 const isActive = computed(() => isNavigationActive(props.item.to, route))
 </script>
@@ -19,7 +21,7 @@ const isActive = computed(() => isNavigationActive(props.item.to, route))
 <template>
   <RouterLink
     :to="item.to"
-    :aria-label="item.name"
+    :aria-label="t(item.labelKey)"
     :aria-current="isActive ? 'page' : undefined"
     :class="[
       isActive
@@ -28,7 +30,7 @@ const isActive = computed(() => isNavigationActive(props.item.to, route))
       'group flex min-h-11 items-center py-2.5 text-sm font-medium rounded-xl transition-all duration-150',
       collapsed ? 'justify-center pr-2' : 'pr-2',
     ]"
-    :title="collapsed ? item.name : ''"
+    :title="collapsed ? t(item.labelKey) : ''"
   >
     <svg
       :class="[
@@ -44,7 +46,7 @@ const isActive = computed(() => isNavigationActive(props.item.to, route))
     >
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
     </svg>
-    <span v-if="!collapsed" class="truncate flex-1">{{ item.name }}</span>
+    <span v-if="!collapsed" class="truncate flex-1">{{ t(item.labelKey) }}</span>
     <UnreadBadge
       v-if="item.name === 'Chat' && chatStore.totalUnread > 0 && !collapsed"
       :count="chatStore.totalUnread"

@@ -6,6 +6,8 @@ import {
   XMarkIcon,
 } from '@heroicons/vue/24/outline'
 import AppButton from './AppButton.vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const ALERT_ICONS = {
   success: CheckCircleIcon,
   error: ExclamationTriangleIcon,
@@ -44,7 +46,7 @@ const emit = defineEmits(['dismiss'])
     <AppButton
       v-if="dismissible"
       variant="ghost"
-      aria-label="Dismiss alert"
+      :aria-label="t('shell.dismiss_alert')"
       @click="emit('dismiss')"
       ><XMarkIcon class="h-5 w-5" aria-hidden="true"
     /></AppButton>

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ChevronDoubleLeftIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
 import { useDashboardNavigation } from '@/composables/useDashboardNavigation'
@@ -11,6 +12,7 @@ import LanguageDropdown from '../molecules/LanguageDropdown.vue'
 import SidebarNavigation from '../molecules/SidebarNavigation.vue'
 defineProps({ mobileOpen: Boolean })
 const emit = defineEmits(['close'])
+const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 const isCollapsed = ref(false)
@@ -61,7 +63,7 @@ onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
       v-if="auth.user?.id"
       :to="{ name: 'user-profile', params: { userId: auth.user.id } }"
       class="m-3 rounded-xl border border-soil-600 px-3 py-3 text-sm transition-colors hover:bg-soil-700"
-      :aria-label="`${auth.user.name} profile`"
+      :aria-label="t('shell.profile_of', { name: auth.user.name })"
       ><span v-if="isCollapsed" aria-hidden="true">{{ auth.user.name?.charAt(0) }}</span
       ><span v-else class="block break-words"
         >{{ auth.user.name
@@ -71,7 +73,7 @@ onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
   </aside>
   <AppModal
     :is-open="mobileOpen"
-    title="Navigation"
+    :title="t('shell.mobile_navigation')"
     placement="left"
     size="sm"
     @close="closeMobile"
@@ -86,12 +88,12 @@ onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
       <RouterLink
         v-if="auth.user?.id"
         :to="{ name: 'user-profile', params: { userId: auth.user.id } }"
-        :aria-label="`${auth.user.name} profile`"
+        :aria-label="t('shell.profile_of', { name: auth.user.name })"
         class="mt-3 block min-h-11 rounded-xl border border-soil-600 px-3 py-3 text-sm text-stone-100 transition-colors hover:bg-soil-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-300"
         @click="closeMobile"
       >
         <span class="block break-words">{{ auth.user.name }}</span>
-        <span class="mt-1 block text-stone-300">Profile</span>
+        <span class="mt-1 block text-stone-300">{{ t('shell.profile') }}</span>
       </RouterLink>
       <div class="mt-3">
         <LanguageDropdown />

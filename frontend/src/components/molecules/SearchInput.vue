@@ -1,13 +1,15 @@
 <script setup>
 import { computed, useId } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import AppInput from '../atoms/AppInput.vue'
 defineOptions({ inheritAttrs: false })
+const { t } = useI18n()
 const props = defineProps({
   modelValue: { type: String, default: '' },
-  placeholder: { type: String, default: 'Search...' },
+  placeholder: { type: String, default: '' },
   id: { type: String, default: '' },
-  label: { type: String, default: 'Search' },
+  label: { type: String, default: '' },
   hiddenLabel: { type: Boolean, default: true },
 })
 defineEmits(['update:modelValue'])
@@ -19,7 +21,7 @@ const controlId = computed(() => props.id || `search-${generatedId}`)
     <label
       :for="controlId"
       :class="hiddenLabel ? 'sr-only' : 'mb-1 block text-sm font-medium text-soil-700'"
-      >{{ label }}</label
+      >{{ label || t('shell.search.label') }}</label
     >
     <div class="relative">
       <MagnifyingGlassIcon
@@ -31,7 +33,7 @@ const controlId = computed(() => props.id || `search-${generatedId}`)
         v-bind="Object.fromEntries(Object.entries($attrs).filter(([key]) => key !== 'class'))"
         :model-value="modelValue"
         type="search"
-        :placeholder="placeholder"
+        :placeholder="placeholder || t('shell.search.placeholder')"
         class="!rounded-full pl-11"
         @update:model-value="$emit('update:modelValue', $event)"
       />
