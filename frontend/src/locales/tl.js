@@ -137,4 +137,29 @@ export default {
       retry: 'Subukan ulit',
     },
   },
+  common: {
+    nav: {
+      home: 'Home',
+      about: 'Tungkol',
+      contact: 'Kontak',
+      dashboard: 'Dashboard',
+    },
+    auth: {
+      login: 'Mag-log in',
+      logout: 'Mag-log out',
+      get_started: 'Magsimula',
+    },
+    actions: {
+      retry: 'Subukan ulit',
+      save: 'I-save',
+      cancel: 'Kanselahin',
+      close: 'Isara',
+    },
+    language: {
+      label: 'Wika',
+      english: 'English',
+      tagalog: 'Tagalog',
+      bisaya: 'Bisaya',
+    },
+  },
 }

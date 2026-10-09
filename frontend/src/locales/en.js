@@ -137,4 +137,29 @@ export default {
       retry: 'Try again',
     },
   },
+  common: {
+    nav: {
+      home: 'Home',
+      about: 'About',
+      contact: 'Contact',
+      dashboard: 'Dashboard',
+    },
+    auth: {
+      login: 'Log in',
+      logout: 'Log out',
+      get_started: 'Get Started',
+    },
+    actions: {
+      retry: 'Try again',
+      save: 'Save',
+      cancel: 'Cancel',
+      close: 'Close',
+    },
+    language: {
+      label: 'Language',
+      english: 'English',
+      tagalog: 'Tagalog',
+      bisaya: 'Bisaya',
+    },
+  },
 }

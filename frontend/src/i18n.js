@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+import ceb from './locales/ceb'
 import en from './locales/en'
 import tl from './locales/tl'
 import {
@@ -58,7 +59,7 @@ const i18n = createI18n({
   legacy: false,
   locale: initialLocale(),
   fallbackLocale: DEFAULT_LOCALE,
-  messages: { en, tl },
+  messages: { en, tl, ceb },
 })
 
 export function setLocale(locale) {
