@@ -96,6 +96,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/logout', [LoginController::class, 'logout']);
         Route::get('/user', [LoginController::class, 'user']);
+        Route::patch('/user/locale', [UserProfileController::class, 'updateLocale']);
 
         // Public user profiles (all authenticated users)
         Route::get('/users/{user}', [UserProfileController::class, 'show']);

@@ -9,9 +9,11 @@ use App\Domain\Community\Models\ForumThread;
 use App\Domain\Marketplace\Repositories\ForwardContractRepositoryInterface;
 use App\Domain\Marketplace\Repositories\PurchaseRepositoryInterface;
 use App\Shared\Controllers\Controller;
+use App\Users\Requests\UpdateUserLocaleRequest;
 use App\Users\Resources\UserProfileResource;
 use Domain\Users\Enums\UserRole;
 use Domain\Users\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 final class UserProfileController extends Controller
@@ -41,5 +43,13 @@ final class UserProfileController extends Controller
             : $this->purchaseRepository->getBuyerStats($user->id);
 
         return new UserProfileResource($user, $stats, $posts);
+    }
+
+    public function updateLocale(UpdateUserLocaleRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $user->update(['locale' => $request->validated('locale')]);
+
+        return response()->json(['locale' => $user->locale]);
     }
 }

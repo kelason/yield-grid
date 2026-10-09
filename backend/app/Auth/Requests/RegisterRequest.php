@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Auth\Requests;
 
 use App\Constants\AuthConstants;
+use App\Constants\LocaleConstants;
 use App\Infrastructure\Services\PsgcService;
 use App\Users\Requests\UserAddressRules;
 use Domain\Users\Enums\UserRole;
@@ -30,6 +31,7 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:'.AuthConstants::EMAIL_MAX_LENGTH, 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults(), 'max:'.AuthConstants::PASSWORD_MAX_LENGTH],
             'role' => ['required', Rule::in([UserRole::FARMER->value, UserRole::BUYER->value])],
+            'locale' => ['nullable', Rule::in(LocaleConstants::SUPPORTED)],
             'address' => ['nullable', 'array'],
         ], UserAddressRules::rules('address', true));
     }
