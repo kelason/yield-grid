@@ -2,9 +2,11 @@
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { CheckIcon, ChevronDownIcon, GlobeAltIcon } from '@heroicons/vue/24/outline'
-import { setLocale, SUPPORTED_LOCALES } from '@/i18n'
+import { SUPPORTED_LOCALES } from '@/i18n'
+import { useAuthStore } from '@/stores/auth'
 
 const { t, locale } = useI18n()
+const authStore = useAuthStore()
 const open = ref(false)
 const toggleRef = ref(null)
 const optionRefs = ref([])
@@ -32,7 +34,7 @@ function close() {
 }
 
 function choose(code) {
-  setLocale(code)
+  authStore.switchLocale(code)
   close()
 }
 

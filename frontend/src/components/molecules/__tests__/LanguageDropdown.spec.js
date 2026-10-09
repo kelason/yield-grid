@@ -1,3 +1,4 @@
+import { setActivePinia, createPinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import i18n, { setLocale, LOCALE_KEY } from '@/i18n'
@@ -7,6 +8,7 @@ describe('LanguageDropdown', () => {
   let wrappers = []
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     setLocale('en')
     localStorage.removeItem(LOCALE_KEY)
     wrappers = []
