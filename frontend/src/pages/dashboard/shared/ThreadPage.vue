@@ -1,6 +1,7 @@
 <script setup>
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '../../../stores/forumStore'
 import { useAuthStore } from '../../../stores/auth'
@@ -22,6 +23,7 @@ const forumStore = useForumStore()
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const { listenToThread, leaveThread } = useForumWebSocket()
 
 const threadId = parseInt(route.params.id)
@@ -102,9 +104,9 @@ function handleReply() {
   if (replyingToId.value) payload.parent_id = replyingToId.value
   confirm(
     {
-      title: 'Post this reply?',
-      message: 'Your reply will be shared with this discussion.',
-      confirmText: 'Post reply',
+      title: t('community.thread.post_title'),
+      message: t('community.thread.post_msg'),
+      confirmText: t('community.thread.post_ok'),
     },
     () => postReply(payload),
   )
@@ -117,7 +119,7 @@ async function postReply(payload) {
     replyBody.value = ''
     replyingToId.value = null
   } catch (error) {
-    replyError.value = error.response?.data?.message || 'Failed to post reply. Please retry.'
+    replyError.value = error.response?.data?.message || t('community.thread.post_failed')
   } finally {
     isSubmitting.value = false
   }
@@ -125,9 +127,9 @@ async function postReply(payload) {
 function handleVote(id, value) {
   confirm(
     {
-      title: 'Update your vote?',
-      message: 'Your vote on this discussion will be updated.',
-      confirmText: 'Vote',
+      title: t('community.forum.vote_title'),
+      message: t('community.forum.vote_msg'),
+      confirmText: t('community.forum.vote_ok'),
     },
     () => forumStore.voteThread(id, value),
   )
@@ -135,9 +137,9 @@ function handleVote(id, value) {
 function handleReplyVote(id, value) {
   confirm(
     {
-      title: 'Update your vote?',
-      message: 'Your vote on this reply will be updated.',
-      confirmText: 'Vote',
+      title: t('community.forum.vote_title'),
+      message: t('community.thread.vote_msg_reply'),
+      confirmText: t('community.forum.vote_ok'),
     },
     () => forumStore.voteReply(id, value),
   )
@@ -145,10 +147,9 @@ function handleReplyVote(id, value) {
 function handleAccept(id) {
   confirm(
     {
-      title: 'Accept this answer?',
-      message:
-        'This reply will be marked as the accepted answer for your thread. The thread will be flagged as resolved.',
-      confirmText: 'Accept answer',
+      title: t('community.thread.accept_title'),
+      message: t('community.thread.accept_msg'),
+      confirmText: t('community.thread.accept_ok'),
     },
     () => forumStore.acceptReply(id),
   )
@@ -170,9 +171,9 @@ function requestReportSubmit() {
   if (!validateReport()) return
   confirm(
     {
-      title: 'Submit this report?',
-      message: 'Your report will be sent to the moderation team.',
-      confirmText: 'Send report',
+      title: t('market.browse.report_confirm_title'),
+      message: t('market.browse.report_confirm_msg'),
+      confirmText: t('market.browse.report_confirm_ok'),
     },
     submitReport,
   )
@@ -193,7 +194,7 @@ function goLogin() {
 
 <template>
   <div class="space-y-6">
-    <PageHeader :title="thread?.title || 'Discussion'" />
+    <PageHeader :title="thread?.title || t('community.thread.fallback')" />
     <AppButton
       variant="ghost"
       @click="goBack"
@@ -207,19 +208,19 @@ function goLogin() {
           d="M10 19l-7-7m0 0l7-7m-7 7h18"
         ></path>
       </svg>
-      Back to Discussions
+      {{ t('community.thread.back') }}
     </AppButton>
 
-    <LoadingState v-if="forumStore.isLoading && !thread" label="Loading discussion" />
+    <LoadingState v-if="forumStore.isLoading && !thread" :label="t('community.thread.loading')" />
     <div
       v-else-if="forumStore.fetchError"
       role="alert"
       class="rounded-2xl border border-red-200 bg-white p-6"
     >
       <p>{{ forumStore.fetchError }}</p>
-      <AppButton variant="outline" @click="forumStore.fetchThread(threadId)"
-        >Retry discussion</AppButton
-      >
+      <AppButton variant="outline" @click="forumStore.fetchThread(threadId)">{{
+        t('community.thread.retry')
+      }}</AppButton>
     </div>
 
     <template v-else-if="thread">
@@ -231,7 +232,7 @@ function goLogin() {
       <!-- Replies Section -->
       <div class="space-y-6">
         <h2 class="font-serif text-2xl font-bold text-stone-900 border-b border-stone-300 pb-2">
-          {{ thread.reply_count }} Replies
+          {{ t('community.thread.replies', { count: thread.reply_count }) }}
         </h2>
 
         <!-- Reply Composer -->
@@ -242,13 +243,15 @@ function goLogin() {
               class="mb-3 flex items-center justify-between bg-stone-100 p-3 rounded-xl border border-stone-300"
             >
               <div class="text-sm text-stone-600 truncate flex-grow mr-4">
-                <span class="font-medium text-stone-900"
-                  >Replying to {{ replyingToReply.author?.name || 'Anonymous' }}:</span
-                >
+                <span class="font-medium text-stone-900">{{
+                  t('community.thread.replying_to', {
+                    name: replyingToReply.author?.name || t('community.card.anonymous'),
+                  })
+                }}</span>
                 "{{ replyingToReply.body }}"
               </div>
               <button
-                aria-label="Cancel reply to this answer"
+                :aria-label="t('community.thread.cancel_reply_aria')"
                 type="button"
                 @click="replyingToId = null"
                 class="min-h-11 min-w-11 text-stone-500 hover:text-stone-600 transition-colors duration-200 flex-shrink-0"
@@ -264,9 +267,9 @@ function goLogin() {
               </button>
             </div>
             <div class="flex items-center justify-between mb-1">
-              <label for="reply-body" class="block text-sm font-medium text-soil-700"
-                >Your Reply</label
-              >
+              <label for="reply-body" class="block text-sm font-medium text-soil-700">{{
+                t('community.thread.your_reply')
+              }}</label>
               <span
                 class="text-[11px]"
                 :class="isReplyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
@@ -284,7 +287,7 @@ function goLogin() {
               :maxlength="FORUM_CONSTANTS.REPLY_MAX_LENGTH"
               class="resize-y mb-3"
               :disabled="isExecuting"
-              placeholder="Add your knowledge or ask for clarification..."
+              :placeholder="t('community.thread.reply_ph')"
               required
             ></AppTextarea>
             <p v-if="replyError" role="alert" class="mb-3 text-sm text-red-600">{{ replyError }}</p>
@@ -296,9 +299,9 @@ function goLogin() {
                   id="anon-reply"
                   class="rounded-xl text-moss-600 focus:ring-moss-500 w-4 h-4 border-stone-300"
                 />
-                <label for="anon-reply" class="text-sm text-stone-600 cursor-pointer"
-                  >Post anonymously</label
-                >
+                <label for="anon-reply" class="text-sm text-stone-600 cursor-pointer">{{
+                  t('community.thread.anon')
+                }}</label>
               </div>
               <AppButton
                 type="submit"
@@ -308,7 +311,7 @@ function goLogin() {
                   isReplyOverLimit
                 "
               >
-                Post Reply
+                {{ t('community.thread.submit') }}
               </AppButton>
             </div>
           </form>
@@ -332,11 +335,11 @@ function goLogin() {
 
     <EmptyState
       v-else
-      title="Discussion unavailable"
-      description="Return to the community to choose another discussion."
+      :title="t('community.thread.empty_title')"
+      :description="t('community.thread.empty_desc')"
     />
     <AppModal
-      title="Report content"
+      :title="t('market.browse.report_title')"
       :is-open="showReportModal"
       :busy="reportBusy || isExecuting"
       @close="closeReportModal"
@@ -356,19 +359,23 @@ function goLogin() {
       />
       <div v-else-if="reportAccess === 'signin'" class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Sign in to report this content to the moderation team.
+          {{ t('market.browse.signin_msg') }}
         </p>
         <div class="flex justify-end gap-3">
-          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
-          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.cancel')
+          }}</AppButton>
+          <AppButton variant="primary" @click="goLogin">{{ t('market.browse.signin') }}</AppButton>
         </div>
       </div>
       <div v-else class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Verify your email address to report content to the moderation team.
+          {{ t('market.browse.verify_msg') }}
         </p>
         <div class="flex justify-end">
-          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.close')
+          }}</AppButton>
         </div>
       </div>
     </AppModal>

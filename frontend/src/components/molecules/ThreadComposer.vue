@@ -4,6 +4,7 @@ import FormField from './FormField.vue'
 import AppSelect from '../atoms/AppSelect.vue'
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FORUM_CONSTANTS } from '../../constants/forum'
 
 const props = defineProps({
@@ -24,6 +25,7 @@ const props = defineProps({
 
 const validationError = ref('')
 const emit = defineEmits(['submit', 'cancel'])
+const { t } = useI18n()
 
 const form = ref({
   title: '',
@@ -56,15 +58,21 @@ const submit = () => {
     title.length < FORUM_CONSTANTS.TITLE_MIN_LENGTH ||
     title.length > FORUM_CONSTANTS.TITLE_MAX_LENGTH
   )
-    validationError.value = `Title must be ${FORUM_CONSTANTS.TITLE_MIN_LENGTH}–${FORUM_CONSTANTS.TITLE_MAX_LENGTH} characters.`
+    validationError.value = t('community.composer.err_title', {
+      min: FORUM_CONSTANTS.TITLE_MIN_LENGTH,
+      max: FORUM_CONSTANTS.TITLE_MAX_LENGTH,
+    })
   else if (body.length < FORUM_CONSTANTS.BODY_MIN_LENGTH || isBodyOverLimit.value)
-    validationError.value = `Details must be ${FORUM_CONSTANTS.BODY_MIN_LENGTH}–${FORUM_CONSTANTS.BODY_MAX_LENGTH} characters.`
+    validationError.value = t('community.composer.err_body', {
+      min: FORUM_CONSTANTS.BODY_MIN_LENGTH,
+      max: FORUM_CONSTANTS.BODY_MAX_LENGTH,
+    })
   else if (
     !props.categories?.some((category) => String(category.id) === String(form.value.category_id))
   )
-    validationError.value = 'Select a category.'
+    validationError.value = t('community.composer.err_category')
   else if (form.value.tag_ids.length > FORUM_CONSTANTS.MAX_TAGS_PER_THREAD)
-    validationError.value = 'Select fewer tags.'
+    validationError.value = t('community.composer.err_tags')
   if (validationError.value) return
   emit('submit', { ...form.value, tag_ids: [...form.value.tag_ids] })
 }
@@ -79,28 +87,28 @@ const submit = () => {
       <FormField
         id="thread-title"
         v-model="form.title"
-        label="Title"
+        :label="t('community.composer.field_title')"
         required
         :minlength="FORUM_CONSTANTS.TITLE_MIN_LENGTH"
         :maxlength="FORUM_CONSTANTS.TITLE_MAX_LENGTH"
         :disabled="isSubmitting"
-        placeholder="What do you want to ask or share?"
+        :placeholder="t('community.composer.title_ph')"
       />
       <AppSelect
         id="thread-category"
-        label="Category"
+        :label="t('community.composer.field_category')"
         v-model="form.category_id"
         required
         :disabled="isSubmitting"
-        ><option value="" disabled>Select a category</option>
+        ><option value="" disabled>{{ t('community.composer.category_ph') }}</option>
         <option v-for="category in categories || []" :key="category.id" :value="category.id">
           {{ category.name }}
         </option></AppSelect
       >
       <div>
-        <label class="block text-sm font-medium text-soil-700 mb-2"
-          >Tags (Max {{ FORUM_CONSTANTS.MAX_TAGS_PER_THREAD }})</label
-        >
+        <label class="block text-sm font-medium text-soil-700 mb-2">{{
+          t('community.composer.tags_label', { max: FORUM_CONSTANTS.MAX_TAGS_PER_THREAD })
+        }}</label>
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
@@ -127,9 +135,9 @@ const submit = () => {
 
       <div>
         <div class="flex items-center justify-between mb-1">
-          <label for="thread-details" class="block text-sm font-medium text-soil-700"
-            >Details</label
-          >
+          <label for="thread-details" class="block text-sm font-medium text-soil-700">{{
+            t('community.composer.field_details')
+          }}</label>
           <span
             class="text-[11px]"
             :class="isBodyOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
@@ -148,7 +156,7 @@ const submit = () => {
           :maxlength="FORUM_CONSTANTS.BODY_MAX_LENGTH"
           class="resize-y"
           :disabled="isSubmitting"
-          placeholder="Provide more details..."
+          :placeholder="t('community.composer.details_ph')"
         ></AppTextarea>
       </div>
 
@@ -159,16 +167,18 @@ const submit = () => {
           id="anon"
           class="rounded-xl text-moss-600 focus:ring-moss-500 w-4 h-4 border-stone-300"
         />
-        <label for="anon" class="text-sm text-stone-600 cursor-pointer"
-          >Post anonymously (Your name will be hidden)</label
-        >
+        <label for="anon" class="text-sm text-stone-600 cursor-pointer">{{
+          t('community.composer.anon')
+        }}</label>
       </div>
 
       <div class="flex justify-end gap-3 pt-4 border-t border-stone-100">
-        <AppButton variant="ghost" :disabled="isSubmitting" @click="emit('cancel')"
-          >Cancel</AppButton
-        >
-        <AppButton type="submit" :loading="isSubmitting">Post Discussion</AppButton>
+        <AppButton variant="ghost" :disabled="isSubmitting" @click="emit('cancel')">{{
+          t('shell.cancel')
+        }}</AppButton>
+        <AppButton type="submit" :loading="isSubmitting">{{
+          t('community.composer.submit')
+        }}</AppButton>
       </div>
     </form>
   </div>

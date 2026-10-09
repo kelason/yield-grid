@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, RouterLink } from 'vue-router'
 import { useChatStore } from '../../../stores/chatStore'
 import ConversationItem from '../../../components/molecules/ConversationItem.vue'
@@ -23,6 +24,7 @@ const MESSAGE_SKELETON_STYLES = [
 
 const chatStore = useChatStore()
 const route = useRoute()
+const { t } = useI18n()
 
 const messagesContainer = ref(null)
 const selectedConversationId = ref(null)
@@ -82,9 +84,9 @@ function handleSend(text) {
   sentMessage.value = ''
   confirm(
     {
-      title: 'Send this message?',
-      message: 'Your message will be sent to this conversation.',
-      confirmText: 'Send message',
+      title: t('chat.inbox.send_title'),
+      message: t('chat.inbox.send_msg'),
+      confirmText: t('chat.inbox.send_ok'),
     },
     () => sendMessage(id, text),
   )
@@ -96,7 +98,7 @@ async function sendMessage(id, text) {
     if (selectedConversationId.value === id) sentMessage.value = text
     scrollToBottom()
   } catch (error) {
-    sendError.value = error.response?.data?.message || 'Failed to send message. Please retry.'
+    sendError.value = error.response?.data?.message || t('chat.inbox.send_failed')
   }
 }
 
@@ -111,7 +113,7 @@ const scrollToBottom = () => {
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="Messages" description="Keep your marketplace conversations in one place." />
+    <PageHeader :title="t('chat.inbox.title')" :description="t('chat.inbox.description')" />
     <div
       class="h-[calc(100dvh-16rem)] min-h-[32rem] flex overflow-hidden shadow-soft rounded-2xl border border-stone-300"
     >
@@ -123,12 +125,14 @@ const scrollToBottom = () => {
         <div
           class="p-4 border-b border-stone-300 flex justify-between items-center bg-stone-50 md:rounded-tl-2xl"
         >
-          <h2 class="font-serif text-xl font-bold text-stone-900">Messages</h2>
+          <h2 class="font-serif text-xl font-bold text-stone-900">
+            {{ t('chat.inbox.sidebar_title') }}
+          </h2>
         </div>
 
         <div class="flex-1 overflow-y-auto p-2 space-y-1">
           <div v-if="chatStore.isLoading && chatStore.conversations.length === 0" class="space-y-1">
-            <LoadingState label="Loading conversations" />
+            <LoadingState :label="t('chat.inbox.loading_conv')" />
             <div
               v-for="n in CONVERSATION_SKELETON_COUNT"
               :key="n"
@@ -148,17 +152,17 @@ const scrollToBottom = () => {
             class="p-4 text-sm text-red-600"
           >
             <p>{{ chatStore.conversationsError }}</p>
-            <AppButton variant="outline" @click="chatStore.ensureConversationsLoaded"
-              >Retry conversations</AppButton
-            >
+            <AppButton variant="outline" @click="chatStore.ensureConversationsLoaded">{{
+              t('chat.inbox.retry_conv')
+            }}</AppButton>
           </div>
           <div
             v-else-if="chatStore.conversations.length === 0"
             class="text-center py-8 text-stone-500 text-sm"
           >
             <EmptyState
-              title="No conversations yet"
-              description="Contact a farmer or buyer from a marketplace listing."
+              :title="t('chat.inbox.empty_title')"
+              :description="t('chat.inbox.empty_desc')"
             />
           </div>
           <ConversationItem
@@ -184,7 +188,7 @@ const scrollToBottom = () => {
           >
             <button
               type="button"
-              aria-label="Back to conversations"
+              :aria-label="t('chat.inbox.back_aria')"
               @click="backToConversations"
               class="md:hidden min-h-11 min-w-11 p-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors duration-200"
             >
@@ -221,7 +225,7 @@ const scrollToBottom = () => {
                 <div
                   class="font-bold text-stone-900 font-sans hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
                 >
-                  {{ activeConversation.other_participant?.name || 'Unknown' }}
+                  {{ activeConversation.other_participant?.name || t('chat.inbox.unknown') }}
                 </div>
                 <div class="text-xs text-stone-500 capitalize">
                   {{ activeConversation.other_participant?.role || '' }}
@@ -235,13 +239,13 @@ const scrollToBottom = () => {
             class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 flex flex-col"
             ref="messagesContainer"
             role="log"
-            aria-label="Conversation messages"
+            :aria-label="t('chat.inbox.log_aria')"
           >
             <div
               v-if="chatStore.isLoading && chatStore.messages.length === 0"
               class="flex flex-col gap-3"
             >
-              <LoadingState label="Loading messages" />
+              <LoadingState :label="t('chat.inbox.loading_msg')" />
               <div
                 v-for="(style, index) in MESSAGE_SKELETON_STYLES"
                 :key="index"
@@ -257,14 +261,16 @@ const scrollToBottom = () => {
               class="space-y-3 text-sm text-red-600"
             >
               <p>{{ chatStore.messagesError }}</p>
-              <AppButton variant="outline" @click="retryMessages">Retry messages</AppButton>
+              <AppButton variant="outline" @click="retryMessages">{{
+                t('chat.inbox.retry_msg')
+              }}</AppButton>
             </div>
 
             <div
               v-else-if="chatStore.messages.length === 0"
               class="h-full flex flex-col items-center justify-center text-stone-500 space-y-2"
             >
-              <p>Say hello to start the conversation</p>
+              <p>{{ t('chat.inbox.say_hello') }}</p>
             </div>
 
             <ChatBubble
@@ -310,7 +316,7 @@ const scrollToBottom = () => {
               d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
             ></path>
           </svg>
-          <p>Select a conversation to start messaging</p>
+          <p>{{ t('chat.inbox.select_prompt') }}</p>
         </div>
       </div>
     </div>

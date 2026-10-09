@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import VoteBadge from '../atoms/VoteBadge.vue'
 import AcceptedBadge from '../atoms/AcceptedBadge.vue'
@@ -8,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const REPLY_TITLE_MAX_LENGTH = 80
 
@@ -35,7 +37,10 @@ function emitReport() {
   emit('report', {
     reportable_type: 'reply',
     reportable_id: props.reply.id,
-    title: String(props.reply.body ?? 'Reply').slice(0, REPLY_TITLE_MAX_LENGTH),
+    title: String(props.reply.body ?? t('community.reply.reply_fallback')).slice(
+      0,
+      REPLY_TITLE_MAX_LENGTH,
+    ),
   })
 }
 
@@ -65,8 +70,8 @@ function profileLink(author) {
           class="min-h-11 min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-full transition-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:hover:scale-100 hover:scale-110"
           :class="{ 'cursor-default': !isThreadAuthor && reply.is_accepted }"
           :disabled="!isThreadAuthor"
-          title="Accept Answer"
-          aria-label="Accept answer"
+          :title="t('community.reply.accept_title')"
+          :aria-label="t('community.reply.accept_aria')"
           type="button"
         >
           <AcceptedBadge v-if="reply.is_accepted" />
@@ -108,7 +113,7 @@ function profileLink(author) {
               <div
                 class="font-medium text-stone-900 hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
               >
-                {{ reply.author?.name || 'Anonymous' }}
+                {{ reply.author?.name || t('community.card.anonymous') }}
               </div>
               <div class="text-xs text-stone-500 capitalize">{{ reply.author?.role }}</div>
             </div>
@@ -141,17 +146,17 @@ function profileLink(author) {
             @click="emit('replyTo', reply.id)"
             class="min-h-11 px-2 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
           >
-            Reply
+            {{ t('community.reply.reply') }}
           </button>
           <button
             v-if="!isOwner"
             type="button"
-            aria-label="Report this reply"
+            :aria-label="t('community.reply.report_aria')"
             class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
             @click.stop="emitReport"
           >
             <FlagIcon class="w-4 h-4" aria-hidden="true" />
-            Report
+            {{ t('community.card.report') }}
           </button>
         </div>
 

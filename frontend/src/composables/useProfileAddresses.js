@@ -1,5 +1,8 @@
 import { ref, computed, toValue, watch } from 'vue'
+import i18n from '@/i18n'
 import { usePendingConfirmation } from './useConfirmModal'
+
+const t = (...args) => i18n.global.t(...args)
 const ADDRESS_LABEL_MAX_LENGTH = 50
 const ADDRESS_STREET_MAX_LENGTH = 255
 function blankAddress() {
@@ -23,18 +26,20 @@ function addressPayload(draft) {
 }
 function validationMessage(draft) {
   if ((draft.label || '').length > ADDRESS_LABEL_MAX_LENGTH)
-    return `Label must be at most ${ADDRESS_LABEL_MAX_LENGTH} characters.`
+    return t('community.address.err_label', { max: ADDRESS_LABEL_MAX_LENGTH })
   if ((draft.street || '').length > ADDRESS_STREET_MAX_LENGTH)
-    return `Street must be at most ${ADDRESS_STREET_MAX_LENGTH} characters.`
+    return t('community.address.err_street', { max: ADDRESS_STREET_MAX_LENGTH })
   if (!draft.region_code || !draft.city_municipality_code || !draft.barangay_code)
-    return 'Please select your region, city/municipality, and barangay.'
+    return t('community.address.err_select')
   return ''
 }
-const DELETE_CONFIG = {
-  title: 'Delete address?',
-  message: 'This address will be removed from your profile. This cannot be undone.',
-  confirmText: 'Delete',
-  type: 'danger',
+function deleteConfig() {
+  return {
+    title: t('community.address.del_title'),
+    message: t('community.address.del_msg'),
+    confirmText: t('community.address.del_ok'),
+    type: 'danger',
+  }
 }
 function addressState() {
   return {
@@ -117,7 +122,7 @@ function requestDefaultAddress(s, address) {
 function requestSaveAddress(s) {
   if (!toValue(s.isOwnProfile) || s.savingAddress.value) return
   const error = !s.pinValid.value
-    ? 'Please place your pin within the selected area.'
+    ? t('community.address.err_pin')
     : validationMessage(s.addressDraft.value)
   s.addressErrors.value = {}
   if (error) {
@@ -138,7 +143,9 @@ async function runAddressAction(s, pending) {
     if (pending.action === 'delete') await s.addressStore.deleteAddress(pending.id)
     else if (pending.id) await s.addressStore.updateAddress(pending.id, pending.payload)
     else await s.addressStore.createAddress(pending.payload)
-    s.notificationStore.success(pending.action === 'delete' ? 'Address deleted.' : 'Address saved.')
+    s.notificationStore.success(
+      t(pending.action === 'delete' ? 'community.address.deleted' : 'community.address.saved'),
+    )
     if (pending.action === 'save') s.showAddressModal.value = false
     await s.onSaved?.()
   } catch (error) {
@@ -151,25 +158,25 @@ function showAddressError(s, error) {
     Object.entries(errors).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value]),
   )
   if (!Object.keys(errors).length)
-    s.addressErrors.value.form = error.response?.data?.message || 'Failed to save address.'
-  s.notificationStore.error(s.addressErrors.value.form || 'Please review the address details.')
+    s.addressErrors.value.form = error.response?.data?.message || t('community.address.save_failed')
+  s.notificationStore.error(s.addressErrors.value.form || t('community.address.review'))
 }
 function addressConfirmation(pending) {
   if (!pending) return null
-  if (pending.action === 'delete') return DELETE_CONFIG
+  if (pending.action === 'delete') return deleteConfig()
   if (pending.action === 'default')
     return {
-      title: 'Set default address?',
-      message: `Use "${pending.label || 'this address'}" as your default address?`,
-      confirmText: 'Set default',
+      title: t('community.address.default_title'),
+      message: t('community.address.default_msg', {
+        label: pending.label || t('community.address.default_fallback'),
+      }),
+      confirmText: t('community.address.default_ok'),
       type: 'primary',
     }
   return {
-    title: pending.id ? 'Save address changes?' : 'Add this address?',
-    message: pending.id
-      ? 'Your address will be updated with these details.'
-      : 'This address will be added to your profile.',
-    confirmText: pending.id ? 'Save changes' : 'Add address',
+    title: t(pending.id ? 'community.address.save_title' : 'community.address.add_title'),
+    message: t(pending.id ? 'community.address.save_msg' : 'community.address.add_msg'),
+    confirmText: t(pending.id ? 'community.address.save_ok' : 'community.address.add_ok'),
     type: 'primary',
   }
 }

@@ -1,12 +1,13 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useIssueTickets } from '@/composables/useIssueTickets'
 import { useNotificationStore } from '@/stores/notificationStore'
 import {
-  ISSUE_CATEGORY_LABELS,
+  ISSUE_CATEGORY_LABEL_KEYS,
   ISSUE_STATUS_FILTER_OPTIONS,
-  ISSUE_STATUS_LABELS,
+  ISSUE_STATUS_LABEL_KEYS,
   isSafeIssuePath,
   validateIssueDraft,
 } from '@/constants/issues'
@@ -22,6 +23,7 @@ import IssueTicketForm from '@/components/organisms/IssueTicketForm.vue'
 
 const notificationStore = useNotificationStore()
 const route = useRoute()
+const { t } = useI18n()
 const {
   list,
   loading,
@@ -57,16 +59,20 @@ const tickets = computed(() =>
 
 const confirmMessage = computed(() =>
   subject.value.trim()
-    ? `Submit "${subject.value.trim()}"? Our team will review it and update its status here.`
-    : 'Submit this issue? Our team will review it and update its status here.',
+    ? t('issues.report.confirm_msg_subject', { subject: subject.value.trim() })
+    : t('issues.report.confirm_msg_plain'),
+)
+
+const statusFilterOptions = computed(() =>
+  ISSUE_STATUS_FILTER_OPTIONS.map((option) => ({ value: option.value, label: t(option.labelKey) })),
 )
 
 function statusLabel(ticket) {
-  return ISSUE_STATUS_LABELS[ticket?.status] ?? 'Unknown'
+  return t(ISSUE_STATUS_LABEL_KEYS[ticket?.status] ?? 'issues.report.unknown_status')
 }
 
 function categoryLabel(ticket) {
-  return ISSUE_CATEGORY_LABELS[ticket?.category] ?? 'Other'
+  return t(ISSUE_CATEGORY_LABEL_KEYS[ticket?.category] ?? 'issues.report.other_category')
 }
 
 function resetDraft() {
@@ -136,9 +142,9 @@ async function confirmSubmit() {
     selectedId.value = null
     clearSelection()
     await fetchTickets(1)
-    notificationStore.success('Issue submitted.')
+    notificationStore.addNotification({ type: 'success', messageKey: 'issues.report.submitted' })
   } catch (err) {
-    submitError.value = err?.message || 'Unable to submit this issue.'
+    submitError.value = err?.message || t('issues.report.submit_failed')
   }
 }
 
@@ -179,20 +185,19 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <PageHeader
-      title="Report an issue"
-      description="Tell us what went wrong. Track your own tickets and their resolutions below."
-    />
+    <PageHeader :title="t('issues.report.title')" :description="t('issues.report.description')" />
 
     <AppCard padding="p-5 sm:p-6">
-      <h2 class="font-serif text-2xl font-bold text-stone-900">New issue</h2>
+      <h2 class="font-serif text-2xl font-bold text-stone-900">
+        {{ t('issues.report.new_title') }}
+      </h2>
       <div
         v-if="receipt"
         role="status"
         data-testid="issue-receipt"
         class="mt-4 rounded-2xl bg-moss-100 p-4 text-sm leading-relaxed text-stone-700"
       >
-        Issue #{{ receipt.id }} received. Current status: {{ statusLabel(receipt) }}.
+        {{ t('issues.report.receipt', { id: receipt.id, status: statusLabel(receipt) }) }}
       </div>
       <div class="mt-4">
         <IssueTicketForm
@@ -214,39 +219,37 @@ onMounted(() => {
       </div>
     </AppCard>
 
-    <section aria-label="My issues" class="space-y-4">
+    <section :aria-label="t('issues.report.list_aria')" class="space-y-4">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">My issues</h2>
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('issues.report.list_title') }}
+        </h2>
         <AppSelect
           id="my-issues-status"
           :model-value="filters.status"
-          label="Status"
+          :label="t('issues.report.status_label')"
           class="sm:w-56"
           @update:model-value="onStatusChange"
         >
-          <option
-            v-for="option in ISSUE_STATUS_FILTER_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
+          <option v-for="option in statusFilterOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </AppSelect>
       </div>
 
-      <LoadingState v-if="loading" label="Loading your issues" />
+      <LoadingState v-if="loading" :label="t('issues.report.loading')" />
 
       <AppCard v-else-if="error" padding="p-6" role="alert">
         <p class="text-base text-stone-900">{{ error }}</p>
         <AppButton variant="outline" class="mt-4" data-testid="issues-retry" @click="retryFetch">
-          Retry
+          {{ t('shell.retry') }}
         </AppButton>
       </AppCard>
 
       <EmptyState
         v-else-if="tickets.length === 0"
-        title="No issues yet"
-        description="Submitted tickets will appear here with their current status."
+        :title="t('issues.report.empty_title')"
+        :description="t('issues.report.empty_desc')"
       />
 
       <ul v-else class="space-y-4">
@@ -255,7 +258,7 @@ onMounted(() => {
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0">
                 <h3 class="break-words font-serif text-xl font-bold text-stone-900">
-                  {{ ticket.subject || 'Untitled issue' }}
+                  {{ ticket.subject || t('issues.report.untitled') }}
                 </h3>
                 <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
                   <span
@@ -275,10 +278,10 @@ onMounted(() => {
                   variant="outline"
                   class="w-full"
                   :data-testid="`issue-open-${ticket.id}`"
-                  :aria-label="`Open issue ${ticket.id}`"
+                  :aria-label="t('issues.report.open_aria', { id: ticket.id })"
                   @click="selectTicket(ticket.id)"
                 >
-                  Open
+                  {{ t('issues.report.open') }}
                 </AppButton>
               </div>
             </div>
@@ -295,24 +298,32 @@ onMounted(() => {
       />
     </section>
 
-    <section v-if="selectedId !== null" aria-label="Issue detail" class="space-y-4">
+    <section
+      v-if="selectedId !== null"
+      :aria-label="t('issues.report.detail_aria')"
+      class="space-y-4"
+    >
       <div class="flex items-center justify-between gap-3">
-        <h2 class="font-serif text-2xl font-bold text-stone-900">Issue #{{ selectedId }}</h2>
-        <AppButton variant="ghost" @click="closeDetail">Close detail</AppButton>
+        <h2 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('issues.report.detail_title', { id: selectedId }) }}
+        </h2>
+        <AppButton variant="ghost" @click="closeDetail">{{
+          t('issues.report.close_detail')
+        }}</AppButton>
       </div>
 
-      <LoadingState v-if="detailLoading" label="Loading issue" />
+      <LoadingState v-if="detailLoading" :label="t('issues.report.detail_loading')" />
 
       <AppCard v-else-if="detailError" padding="p-6" role="alert">
         <p class="text-base text-stone-900">{{ detailError }}</p>
         <AppButton variant="outline" class="mt-4" @click="selectTicket(selectedId)">
-          Retry
+          {{ t('shell.retry') }}
         </AppButton>
       </AppCard>
 
       <AppCard v-else-if="selected" padding="p-5 sm:p-6">
         <h3 class="break-words font-serif text-xl font-bold text-stone-900">
-          {{ selected.subject || 'Untitled issue' }}
+          {{ selected.subject || t('issues.report.untitled') }}
         </h3>
         <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
           <span
@@ -327,13 +338,15 @@ onMounted(() => {
           </span>
         </div>
         <p class="mt-4 whitespace-pre-wrap break-words text-base leading-relaxed text-stone-600">
-          {{ selected.description || 'No description provided.' }}
+          {{ selected.description || t('issues.report.no_desc') }}
         </p>
         <p v-if="selected.page_path" class="mt-3 break-all text-sm text-stone-500">
-          Related page: {{ selected.page_path }}
+          {{ t('issues.report.related', { path: selected.page_path }) }}
         </p>
         <div v-if="selected.resolution" class="mt-4 rounded-2xl bg-moss-100 p-4">
-          <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">Resolution</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">
+            {{ t('issues.report.resolution') }}
+          </p>
           <p class="mt-1 whitespace-pre-wrap break-words text-base text-stone-900">
             {{ selected.resolution }}
           </p>
@@ -341,14 +354,14 @@ onMounted(() => {
       </AppCard>
 
       <AppCard v-else padding="p-6" role="alert">
-        <p class="text-base text-stone-900">This issue is no longer available.</p>
+        <p class="text-base text-stone-900">{{ t('issues.report.gone') }}</p>
       </AppCard>
     </section>
 
     <ConfirmModal
-      title="Submit this issue?"
+      :title="t('issues.report.confirm_title')"
       :message="confirmMessage"
-      confirm-text="Submit issue"
+      :confirm-text="t('issues.report.confirm_ok')"
       :is-open="confirming"
       :loading="submitting"
       @confirm="confirmSubmit"

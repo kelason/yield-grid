@@ -18,8 +18,8 @@ export const VOTE_VALUES = {
 }
 
 export const THREAD_SORT_OPTIONS = [
-  { value: 'latest', label: 'Latest Activity' },
-  { value: 'most_voted', label: 'Most Voted' },
-  { value: 'most_replied', label: 'Most Replied' },
-  { value: 'unanswered', label: 'Unanswered' },
+  { value: 'latest', label: 'Latest Activity', labelKey: 'community.forum.sort_latest' },
+  { value: 'most_voted', label: 'Most Voted', labelKey: 'community.forum.sort_most_voted' },
+  { value: 'most_replied', label: 'Most Replied', labelKey: 'community.forum.sort_most_replied' },
+  { value: 'unanswered', label: 'Unanswered', labelKey: 'community.forum.sort_unanswered' },
 ]

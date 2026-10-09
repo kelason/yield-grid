@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, RouterLink } from 'vue-router'
 import { formatDistanceToNow } from 'date-fns'
 import { useApi } from '../../../composables/useApi'
@@ -32,6 +33,7 @@ const authStore = useAuthStore()
 const addressStore = useAddressStore()
 const notificationStore = useNotificationStore()
 const farmingStore = useFarmingStore()
+const { t } = useI18n()
 
 const profile = ref(null)
 const isLoading = ref(false)
@@ -119,34 +121,36 @@ function applyProfile(value) {
 }
 function showProfileError(error) {
   if (error.response?.status === HTTP_STATUS.NOT_FOUND) notFound.value = true
-  else fetchError.value = error.response?.data?.message || 'Unable to load this profile.'
+  else fetchError.value = error.response?.data?.message || t('community.profile.load_failed')
 }
 watch(userId, fetchProfile, { immediate: true })
 </script>
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="Profile" />
-    <LoadingState v-if="isLoading" label="Loading profile"
+    <PageHeader :title="t('community.profile.title')" />
+    <LoadingState v-if="isLoading" :label="t('community.profile.loading')"
       ><div class="space-y-6">
         <SkeletonCard withAvatar />
         <SkeletonCard /></div
     ></LoadingState>
     <AppCard v-else-if="fetchError" role="alert"
       ><p>{{ fetchError }}</p>
-      <AppButton variant="outline" @click="fetchProfile">Retry profile</AppButton></AppCard
+      <AppButton variant="outline" @click="fetchProfile">{{
+        t('community.profile.retry')
+      }}</AppButton></AppCard
     >
 
     <EmptyState
       v-else-if="isAnonymous"
-      title="This profile is anonymous"
-      description="The author chose to stay anonymous, so there is nothing to show here."
+      :title="t('community.profile.anon_title')"
+      :description="t('community.profile.anon_desc')"
     />
 
     <EmptyState
       v-else-if="notFound || !profile"
-      title="Profile not found"
-      description="This user does not exist or is no longer available."
+      :title="t('community.profile.missing_title')"
+      :description="t('community.profile.missing_desc')"
     />
 
     <template v-else>
@@ -155,7 +159,7 @@ watch(userId, fetchProfile, { immediate: true })
           <img
             v-if="profile.avatar_url"
             :src="profile.avatar_url"
-            :alt="`${profile.name} avatar`"
+            :alt="t('community.profile.avatar_alt', { name: profile.name })"
             class="w-16 h-16 rounded-full object-cover bg-stone-200 flex-shrink-0"
           />
           <div
@@ -188,15 +192,21 @@ watch(userId, fetchProfile, { immediate: true })
         <template v-if="isFarmer">
           <AppCard padding="p-6" class="text-center">
             <p class="text-3xl font-semibold text-moss-700">{{ profile.stats?.total_sold }}</p>
-            <p class="text-sm font-medium text-soil-700 mt-1">Items sold</p>
+            <p class="text-sm font-medium text-soil-700 mt-1">
+              {{ t('community.profile.stat_sold') }}
+            </p>
           </AppCard>
           <AppCard padding="p-6" class="text-center">
             <PriceTag :amount="profile.stats?.total_revenue" size="lg" />
-            <p class="text-sm font-medium text-soil-700 mt-1">Revenue earned</p>
+            <p class="text-sm font-medium text-soil-700 mt-1">
+              {{ t('community.profile.stat_revenue') }}
+            </p>
           </AppCard>
           <AppCard padding="p-6" class="text-center">
             <p class="text-3xl font-semibold text-moss-700">{{ profile.stats?.total_listed }}</p>
-            <p class="text-sm font-medium text-soil-700 mt-1">Items listed</p>
+            <p class="text-sm font-medium text-soil-700 mt-1">
+              {{ t('community.profile.stat_listed') }}
+            </p>
           </AppCard>
         </template>
         <template v-else>
@@ -204,11 +214,15 @@ watch(userId, fetchProfile, { immediate: true })
             <p class="text-3xl font-semibold text-moss-700">
               {{ profile.stats?.total_purchases }}
             </p>
-            <p class="text-sm font-medium text-soil-700 mt-1">Purchases</p>
+            <p class="text-sm font-medium text-soil-700 mt-1">
+              {{ t('community.profile.stat_purchases') }}
+            </p>
           </AppCard>
           <AppCard padding="p-6" class="text-center">
             <PriceTag :amount="profile.stats?.total_spent" size="lg" />
-            <p class="text-sm font-medium text-soil-700 mt-1">Total spent</p>
+            <p class="text-sm font-medium text-soil-700 mt-1">
+              {{ t('community.profile.stat_spent') }}
+            </p>
           </AppCard>
         </template>
       </div>
@@ -240,7 +254,9 @@ watch(userId, fetchProfile, { immediate: true })
       </div>
 
       <div>
-        <h3 class="font-serif text-2xl font-bold text-stone-900 mb-4">Posts</h3>
+        <h3 class="font-serif text-2xl font-bold text-stone-900 mb-4">
+          {{ t('community.profile.posts') }}
+        </h3>
         <div v-if="(profile.posts?.length || 0) > 0" class="space-y-4">
           <AppCard v-for="post in profile.posts" :key="post.id" padding="p-5">
             <RouterLink
@@ -253,15 +269,20 @@ watch(userId, fetchProfile, { immediate: true })
               {{ post.body }}
             </p>
             <p class="text-xs text-stone-500">
-              {{ post.vote_score }} votes · {{ post.reply_count }} replies ·
-              {{ formatPostDate(post.created_at) }}
+              {{
+                t('community.profile.post_meta', {
+                  votes: post.vote_score,
+                  replies: post.reply_count,
+                  date: formatPostDate(post.created_at),
+                })
+              }}
             </p>
           </AppCard>
         </div>
         <EmptyState
           v-else
-          title="No posts yet"
-          description="This user has not published any community posts."
+          :title="t('community.profile.no_posts')"
+          :description="t('community.profile.no_posts_desc')"
         />
       </div>
     </template>

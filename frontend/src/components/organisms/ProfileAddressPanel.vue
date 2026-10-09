@@ -1,10 +1,14 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import AppCard from '../atoms/AppCard.vue'
 import AppButton from '../atoms/AppButton.vue'
 import EmptyState from '../molecules/EmptyState.vue'
 import AppModal from '../molecules/AppModal.vue'
 import AddressFields from './AddressFields.vue'
 import { MapPinIcon } from '@heroicons/vue/24/outline'
+
+const { t } = useI18n()
+
 defineProps({
   addresses: { type: Array, default: () => [] },
   errors: { type: Object, default: () => ({}) },
@@ -25,11 +29,15 @@ defineEmits([
 ])
 </script>
 <template>
-  <section aria-label="My addresses || []">
+  <section :aria-label="t('community.address.panel_aria')">
     <div>
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h3 class="font-serif text-2xl font-bold text-stone-900">My Addresses</h3>
-        <AppButton size="sm" variant="primary" @click="$emit('add')"> Add address </AppButton>
+        <h3 class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('community.address.title') }}
+        </h3>
+        <AppButton size="sm" variant="primary" @click="$emit('add')">
+          {{ t('community.address.add') }}
+        </AppButton>
       </div>
       <div v-if="(addresses?.length || 0) > 0" class="space-y-3">
         <AppCard v-for="address in addresses || []" :key="address.id" padding="p-4">
@@ -38,12 +46,12 @@ defineEmits([
               <MapPinIcon class="h-5 w-5 text-moss-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
               <div class="min-w-0">
                 <p class="text-sm font-semibold text-stone-900">
-                  {{ address.label || 'Address' }}
+                  {{ address.label || t('community.address.label_fallback') }}
                   <span
                     v-if="address.is_default"
                     class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-moss-100 text-moss-800"
                   >
-                    Default
+                    {{ t('community.address.default_badge') }}
                   </span>
                 </p>
                 <p class="text-sm text-stone-600 mt-0.5 leading-relaxed">
@@ -60,7 +68,7 @@ defineEmits([
                 @click="$emit('default', address)"
                 class="min-h-11 px-2 text-sm font-medium text-moss-700 hover:text-moss-800 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
               >
-                Set default
+                {{ t('community.address.set_default') }}
               </AppButton>
               <AppButton
                 variant="ghost"
@@ -69,7 +77,7 @@ defineEmits([
                 @click="$emit('edit', address)"
                 class="min-h-11 px-2 text-sm font-medium text-stone-600 hover:text-stone-900 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
               >
-                Edit
+                {{ t('community.address.edit') }}
               </AppButton>
               <AppButton
                 variant="ghost"
@@ -78,7 +86,7 @@ defineEmits([
                 @click="$emit('delete', address.id)"
                 class="min-h-11 px-2 text-sm font-medium text-red-600 hover:text-red-700 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded-xl"
               >
-                Delete
+                {{ t('community.address.delete') }}
               </AppButton>
             </div>
           </div>
@@ -86,13 +94,13 @@ defineEmits([
       </div>
       <EmptyState
         v-else
-        title="No addresses yet"
-        description="Add an address to trade in the marketplace and appear in nearest-first sorting."
+        :title="t('community.address.empty_title')"
+        :description="t('community.address.empty_desc')"
       />
     </div>
 
     <AppModal
-      :title="editingAddress ? 'Edit address' : 'Add address'"
+      :title="editingAddress ? t('community.address.modal_edit') : t('community.address.modal_add')"
       :busy="savingAddress"
       :is-open="showAddressModal"
       @close="$emit('close')"
@@ -119,14 +127,20 @@ defineEmits([
             "
             class="h-4 w-4 rounded-xl text-moss-600 border-stone-300 focus:ring-moss-500"
           />
-          <span class="text-sm font-medium text-stone-900">Set as default address</span>
+          <span class="text-sm font-medium text-stone-900">{{
+            t('community.address.default_check')
+          }}</span>
         </label>
         <div class="flex justify-end gap-3">
-          <AppButton variant="ghost" @click="$emit('close')" :disabled="savingAddress"
-            >Cancel</AppButton
-          >
+          <AppButton variant="ghost" @click="$emit('close')" :disabled="savingAddress">{{
+            t('shell.cancel')
+          }}</AppButton>
           <AppButton variant="primary" :loading="savingAddress" @click="$emit('save')">
-            {{ editingAddress ? 'Save changes' : 'Add address' }}
+            {{
+              editingAddress
+                ? t('community.address.save_changes')
+                : t('community.address.modal_add')
+            }}
           </AppButton>
         </div>
       </div>
