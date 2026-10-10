@@ -195,6 +195,7 @@ export default {
     inquiries: 'Mga Katanungan',
     reports: 'Mga Ulat',
     issues: 'Mga Isyu',
+    verifications: 'Mga Beripikasyon',
   },
   shell: {
     tagline: 'Ang iyong workspace sa pagbubukid',

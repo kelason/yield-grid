@@ -195,6 +195,7 @@ export default {
     inquiries: 'Inquiries',
     reports: 'Reports',
     issues: 'Issues',
+    verifications: 'Verifications',
   },
   shell: {
     tagline: 'Your growing workspace',
