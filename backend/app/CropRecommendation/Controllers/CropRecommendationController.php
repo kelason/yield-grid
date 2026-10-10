@@ -57,11 +57,15 @@ class CropRecommendationController extends Controller
     {
         Gate::authorize('view', $plot);
 
+        // Latest batch by id, then rank (insertion) order: created_at is second
+        // precision, so latest() ties within a batch and returns arbitrary order.
         $recommendations = CropRecommendation::where('plot_id', $plot->id)
             ->with('plot:id,farm_id,verification_status', 'plot.farm:id,verification_status')
-            ->latest()
+            ->orderByDesc('id')
             ->take(10)
-            ->get();
+            ->get()
+            ->reverse()
+            ->values();
         $location = $this->geocoding->resolvePlotLocation($plot);
 
         return response()->json([
