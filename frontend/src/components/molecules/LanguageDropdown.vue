@@ -5,6 +5,14 @@ import { CheckIcon, ChevronDownIcon, GlobeAltIcon } from '@heroicons/vue/24/outl
 import { SUPPORTED_LOCALES } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 
+defineProps({
+  variant: {
+    type: String,
+    default: 'dropdown',
+    validator: (v) => ['dropdown', 'inline'].includes(v),
+  },
+})
+
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const open = ref(false)
@@ -65,20 +73,23 @@ function onOptionKeydown(event, index) {
 </script>
 
 <template>
-  <div class="relative inline-flex">
+  <div :class="variant === 'inline' ? 'flex flex-col gap-2' : 'relative inline-flex'">
     <button
       ref="toggleRef"
       type="button"
       data-testid="language-menu"
-      class="inline-flex min-h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 shadow-soft transition-all duration-200 hover:text-stone-900 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+      class="inline-flex min-h-11 items-center gap-2 border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 shadow-soft transition-all duration-200 hover:text-stone-900 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
+      :class="variant === 'inline' ? 'w-full justify-between rounded-xl' : 'rounded-full'"
       :aria-label="t('common.language.label')"
       aria-haspopup="listbox"
       :aria-expanded="open"
       @click="open = !open"
       @keydown="onToggleKeydown"
     >
-      <GlobeAltIcon class="h-5 w-5" aria-hidden="true" />
-      <span aria-hidden="true">{{ currentCode }}</span>
+      <span class="inline-flex items-center gap-2">
+        <GlobeAltIcon class="h-5 w-5" aria-hidden="true" />
+        <span aria-hidden="true">{{ currentCode }}</span>
+      </span>
       <ChevronDownIcon
         class="h-4 w-4 transition-transform duration-200"
         :class="{ 'rotate-180': open }"
@@ -89,7 +100,11 @@ function onOptionKeydown(event, index) {
       v-if="open"
       role="listbox"
       :aria-label="t('common.language.label')"
-      class="absolute right-0 top-full z-50 mt-2 min-w-44 rounded-2xl border border-stone-200 bg-white py-2 shadow-organic"
+      :class="
+        variant === 'inline'
+          ? 'flex flex-col gap-1'
+          : 'absolute right-0 top-full z-50 mt-2 min-w-44 rounded-2xl border border-stone-200 bg-white py-2 shadow-organic'
+      "
       @keydown.escape="close"
     >
       <li v-for="(option, index) in options" :key="option.code">
@@ -101,6 +116,7 @@ function onOptionKeydown(event, index) {
           :aria-selected="locale === option.code"
           :aria-current="locale === option.code ? 'true' : undefined"
           class="flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left text-sm text-stone-700 transition-colors duration-200 hover:bg-stone-100 hover:text-stone-900 focus:outline-none focus-visible:bg-stone-100"
+          :class="variant === 'inline' ? 'rounded-xl' : ''"
           @click="choose(option.code)"
           @keydown="onOptionKeydown($event, index)"
         >

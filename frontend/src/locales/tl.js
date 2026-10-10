@@ -239,6 +239,8 @@ export default {
       resend_in: 'Ipadalang muli sa {cooldown}s',
       resend: 'Ipadalang Muli ang Email ng Beripikasyon',
       guard: 'Pakiverify ang iyong email upang magamit ang feature na ito.',
+      admin_badge: 'Pag-apruba ng Admin',
+      admin_note: 'Makipag-ugnayan sa admin upang aprubahan ang iyong kahilingan sa beripikasyon.',
     },
     search: {
       label: 'Maghanap',
@@ -604,7 +606,7 @@ export default {
       col_actions: 'Mga Aksyon',
       ai_recommended: 'Inirekomenda ng AI',
       qty_crop: '{qty}kg {crop}',
-      per_kg: '@ ₱{price}/kg',
+      per_kg: "{'@'} ₱{price}/kg",
       review_payment: 'Suriin ang Bayad',
     },
     contract_filter: {
@@ -1980,9 +1982,36 @@ export default {
       platform_title: 'Kaunting kalinawan para sa bawat panahon ng pagtatanim.',
       platform_desc:
         'Mula sa iyong unang desisyon sa pagtatanim hanggang sa mga alok ng buyer, mga kumpirmasyon ng bayad at suporta sa bukid, panatilihing konektado ang gawain ng bawat panahon.',
+      community_note: 'Para sa mga Pilipinong magsasaka at buyer',
+      visual_eyebrow: 'May pag-asang nakaugat',
+      visual_note:
+        'Magplano nang maingat. Magtanim nang may tiwala. Makipag-ugnayan sa iyong komunidad.',
+      community_eyebrow: 'Mas mabuti kapag magkakasama',
+      community_title: 'Tuklasin ang susunod mong ani.',
+      community_desc:
+        'Nagsisimula ang magandang ani sa ugnayan. Tuklasin ang mga pananim ng mga magsasaka at makibahagi sa komunidad ng YieldGrid.',
     },
     about: {
       eyebrow: 'Ang aming layunin',
+      story_title: 'Mas malinaw na landas mula sa lupa tungo sa kabuhayan.',
+      story_a:
+        'Bawat panahon ng pagtatanim ay may mga pagpapasya: ano ang itatanim, paano magpaplano, at saan mapupunta ang ani. Pinagsasama ng YieldGrid ang gawaing ito sa isang lugar.',
+      story_b:
+        'Layunin naming tulungan ang mga magsasaka at buyer na umusad nang may higit na kalinawan at direktang ugnayan, habang binibigyang-pansin ang araw-araw na pangangailangan sa pagsasaka.',
+      principles_title: 'Mga gabay ng YieldGrid',
+      clarity_title: 'Kalinawan sa bawat pagpapasya',
+      clarity_desc:
+        'Panatilihing madaling maunawaan ang impormasyon sa pagpaplano at pangangalakal upang mas madaling gawin ang susunod na hakbang.',
+      connection_title: 'Isang direktang ugnayan',
+      connection_desc:
+        'Ilapit ang mga magsasaka at buyer sa mga pag-uusap tungkol sa ani at sa mga taong kanilang katransaksyon.',
+      support_principle_title: 'Suporta sa araw-araw na gawain',
+      support_principle_desc:
+        'Bigyang-pansin ang praktikal na pangangailangan ng bawat panahon, mula sa pagpaplano ng susunod na ani hanggang sa pagtupad sa isang pagbili.',
+      farmers_note:
+        'Isang lugar para planuhin ang pagtatanim, ibahagi ang iyong ani, at manatiling konektado sa mga buyer at kapwa magsasaka.',
+      buyers_note:
+        'Isang lugar para hanapin ang mga pananim na kailangan mo at bumuo ng direktang ugnayan sa mga taong nagtatanim nito.',
       title: 'Lumalago nang magkasama, panahon bawat panahon.',
       lede: 'Pinag-uugnay ng YieldGrid ang pagpaplano ng pananim, pangangalakal ng ani, suporta sa bukid at komunidad sa isang workspace. Maaaring alagaan ng mga magsasaka ang kanilang lupa at pamahalaan ang susunod na ani; makakahanap ang mga buyer ng mga pananim, maibabahagi ang kanilang mga pangangailangan at makabubuo ng direktang relasyon sa mga taong nagtatanim ng kanilang pagkain.',
       support_title: 'Suporta para sa buong panahon ng pagtatanim',
@@ -1997,6 +2026,12 @@ export default {
         'Mag-browse ng mga ani at forward contract, i-post ang mga pananim at dami na kailangan mo, at ikumpara ang mga alok ng magsasaka. Pamahalaan ang mga pagbili at delivery address, pagkatapos ay gumamit ng direktang pagmemensahe upang talakayin ang mga detalye sa iyong mga trading partner.',
     },
     contact: {
+      eyebrow: 'Narito kami para tumulong',
+      form_title: 'Mag-usap tayo',
+      reply_note: 'Tutugon kami sa email address na ibibigay mo.',
+      help_title: 'Isang tanong, isang ideya, kaunting gabay.',
+      help_desc:
+        'Nagpaplano ka man ng susunod na ani o naghahanap ng pananim para sa iyong negosyo, magpadala ng mensahe sa YieldGrid team.',
       title: 'Makipag-ugnayan sa Amin',
       description: 'May tanong tungkol sa YieldGrid? Magpadala sa amin ng mensahe.',
       name_label: 'Pangalan',

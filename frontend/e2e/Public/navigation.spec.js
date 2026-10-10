@@ -77,6 +77,12 @@ test('unverified access keeps the banner and confirms verification resend', asyn
   })
   await page.goto('/dashboard/community')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Farm overview')
+  await expect(
+    page.getByText('Contact the admin to approve your verification request.'),
+  ).toBeVisible()
+  const approvalBadge = page.getByRole('link', { name: 'Admin approval', exact: true })
+  await expect(approvalBadge).toBeVisible()
+  await expect(approvalBadge).toHaveAttribute('href', '/contact')
   await page.getByRole('button', { name: 'Resend Verification Email', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Resend verification email?', exact: true })
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()

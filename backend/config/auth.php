@@ -1,5 +1,6 @@
 <?php
 
+use App\Constants\AuthConstants;
 use Domain\Users\Models\User;
 
 return [
@@ -120,12 +121,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may define the amount of minutes that the email verification
-    | link will be valid. By default, this is set to 60 minutes.
+    | link will be valid. This is set to one day so admins have time to
+    | verify accounts.
     |
     */
 
     'verification' => [
-        'expire' => 5,
+        'expire' => AuthConstants::VERIFICATION_LINK_EXPIRE_MINUTES,
     ],
 
 ];

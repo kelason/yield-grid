@@ -17,4 +17,6 @@ final class AuthConstants
     public const int RESET_TOKEN_MAX_LENGTH = 255;
 
     public const int SANCTUM_TOKEN_CAP_MINUTES = 43200;
+
+    public const int VERIFICATION_LINK_EXPIRE_MINUTES = 1440;
 }

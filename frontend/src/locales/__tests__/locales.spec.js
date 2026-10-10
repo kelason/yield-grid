@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import i18n, { setLocale, SUPPORTED_LOCALES } from '@/i18n'
 import en from '../en'
 import tl from '../tl'
 import ceb from '../ceb'
@@ -55,6 +56,28 @@ describe('insurance locales', () => {
     })
 
     expect(mismatches).toEqual([])
+  })
+
+  it('compiles every message in all locales without syntax errors', () => {
+    const previous = i18n.global.locale.value
+    const failures = []
+
+    for (const code of SUPPORTED_LOCALES) {
+      setLocale(code)
+      for (const key of flattenKeys(LOCALES[code])) {
+        const message = valueAt(LOCALES[code], key)
+        if (typeof message !== 'string') continue
+        const params = Object.fromEntries(placeholders(message).map((name) => [name, '0']))
+        try {
+          i18n.global.t(key, params)
+        } catch {
+          failures.push(`${code}:${key}`)
+        }
+      }
+    }
+
+    setLocale(previous)
+    expect(failures).toEqual([])
   })
 
   it('covers every shared chrome key in all locales', () => {

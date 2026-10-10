@@ -7,6 +7,22 @@ const { t } = useI18n()
 
 useHead({
   title: t('public.home.meta_title'),
+  link: [
+    {
+      rel: 'preload',
+      as: 'image',
+      href: '/images/field-landscape-small.jpg',
+      media: '(max-width: 1023px)',
+      fetchpriority: 'high',
+    },
+    {
+      rel: 'preload',
+      as: 'image',
+      href: '/images/field-landscape.jpg',
+      media: '(min-width: 1024px)',
+      fetchpriority: 'high',
+    },
+  ],
   meta: [
     {
       name: 'description',

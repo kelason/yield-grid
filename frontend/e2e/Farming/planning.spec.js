@@ -124,6 +124,57 @@ test('farm and plot selection expose keyboard-operable map controls without over
   await zoom.focus()
   await page.keyboard.press('Enter')
   await expect(page.getByText('Area: 0.25 ha')).toBeVisible()
+  const drawButton = page.locator('.leaflet-draw-draw-polygon')
+  await expect(drawButton).toBeVisible()
+  const spritePosition = await drawButton.evaluate((element) =>
+    getComputedStyle(element).backgroundPosition.split(',')[0].trim(),
+  )
+  expect(spritePosition).toBe('-22px 50%')
+  const searchForm = page.locator('.leaflet-geosearch-bar form')
+  await expect(page.locator('.leaflet-control-geosearch button.reset')).toBeVisible()
+  const searchGeometry = await searchForm.evaluate((form) => {
+    const input = form.querySelector('input').getBoundingClientRect()
+    const reset = form.parentElement.querySelector('button.reset').getBoundingClientRect()
+    return {
+      radius: getComputedStyle(form).borderRadius,
+      overflow: getComputedStyle(form).overflow,
+      inputCenterY: input.y + input.height / 2,
+      resetCenterY: reset.y + reset.height / 2,
+    }
+  })
+  expect(searchGeometry.radius).toBe('12px')
+  expect(searchGeometry.overflow).toBe('hidden')
+  expect(Math.abs(searchGeometry.inputCenterY - searchGeometry.resetCenterY)).toBeLessThanOrEqual(1)
+  await page.route('https://nominatim.openstreetmap.org/**', (route) =>
+    route.fulfill({
+      json: [
+        {
+          place_id: 1,
+          display_name: 'Quezon City, Metro Manila, Philippines',
+          lat: '14.65',
+          lon: '121.07',
+          boundingbox: ['14.58', '14.72', '121.0', '121.11'],
+        },
+      ],
+    }),
+  )
+  await searchForm.locator('input').pressSequentially('Quezon', { delay: 60 })
+  await expect(searchForm.locator('.results.active')).toBeVisible()
+  const resultsBorderHack = await searchForm.evaluate(
+    (form) => getComputedStyle(form.querySelector('.results'), '::after').content,
+  )
+  expect(resultsBorderHack).toBe('none')
+  const focusStyles = await searchForm.evaluate((form) => {
+    const input = form.querySelector('input')
+    return {
+      inputShadow: getComputedStyle(input).boxShadow,
+      formShadow: getComputedStyle(form).boxShadow,
+      formFocusWithin: form.matches(':focus-within'),
+    }
+  })
+  expect(focusStyles.inputShadow).toBe('none')
+  expect(focusStyles.formFocusWithin).toBe(true)
+  expect(focusStyles.formShadow).not.toBe('none')
   await noOverflow(page)
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: testInfo.outputPath('plot-planner.png'), animations: 'disabled' })

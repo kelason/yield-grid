@@ -239,6 +239,8 @@ export default {
       resend_in: 'Ipadala pag-usab sa {cooldown}s',
       resend: 'Ipadala Pag-usab ang Email sa Beripikasyon',
       guard: 'Palihug i-verify ang imong email aron magamit kini nga feature.',
+      admin_badge: 'Pag-apruba sa Admin',
+      admin_note: 'Kontaka ang admin aron aprubahan ang imong hangyo sa beripikasyon.',
     },
     search: {
       label: 'Mangita',
@@ -605,7 +607,7 @@ export default {
       col_actions: 'Mga Aksyon',
       ai_recommended: 'Girekomenda sa AI',
       qty_crop: '{qty}kg {crop}',
-      per_kg: '@ ₱{price}/kg',
+      per_kg: "{'@'} ₱{price}/kg",
       review_payment: 'Ribyuhon ang Bayad',
     },
     contract_filter: {
@@ -1976,9 +1978,36 @@ export default {
       platform_title: 'Gamayng katin-awan para sa matag panahon sa pagpananom.',
       platform_desc:
         'Gikan sa imong unang desisyon sa pagpananom hangtod sa mga tanyag sa buyer, mga kumpirmasyon sa bayad ug suporta sa uma, padayona nga konektado ang trabaho sa matag panahon.',
+      community_note: 'Para sa mga Pilipinong mag-uuma ug buyer',
+      visual_eyebrow: 'Nakagamot sa paglaom',
+      visual_note:
+        'Pagplano nga maampingon. Pagtanom nga masaligon. Pakig-uban sa imong komunidad.',
+      community_eyebrow: 'Mas maayo kung magkauban',
+      community_title: 'Susiha ang imong sunod nga abot.',
+      community_desc:
+        'Ang maayong abot nagsugod sa koneksyon. Susiha ang mga pananom sa mga mag-uuma ug pakig-uban sa komunidad sa YieldGrid.',
     },
     about: {
       eyebrow: 'Among katuyoan',
+      story_title: 'Mas klarong dalan gikan sa yuta ngadto sa panginabuhian.',
+      story_a:
+        'Ang matag panahon sa pagpananom adunay mga desisyon: unsay itanom, unsaon pagplano, ug asa padulong ang abot. Gihiusa sa YieldGrid kining trabahoa sa usa ka luna.',
+      story_b:
+        'Among katuyoan ang pagtabang sa mga mag-uuma ug buyer nga mouswag uban sa mas klarong impormasyon ug direktang koneksyon, samtang gitagad ang adlaw-adlaw nga panginahanglan sa pag-uma.',
+      principles_title: 'Mga giya sa YieldGrid',
+      clarity_title: 'Katin-awan sa matag desisyon',
+      clarity_desc:
+        'Hupti nga masabtan ang impormasyon sa pagplano ug pag-trade aron mas sayon ang sunod nga lakang.',
+      connection_title: 'Usa ka direktang koneksyon',
+      connection_desc:
+        'Ipaduol ang mga mag-uuma ug buyer sa mga panag-istorya bahin sa abot ug sa mga tawo nga ilang kauban sa pag-trade.',
+      support_principle_title: 'Suporta sa adlaw-adlaw nga trabaho',
+      support_principle_desc:
+        'Tagda ang praktikal nga panginahanglan sa matag panahon, gikan sa pagplano sa sunod nga abot hangtod sa pagtuman sa usa ka pagpalit.',
+      farmers_note:
+        'Usa ka luna sa pagplano sa imong panahon sa pagpananom, pagpaambit sa imong abot, ug pagpabiling konektado sa mga buyer ug isigka mag-uuma.',
+      buyers_note:
+        'Usa ka luna sa pagpangita sa mga pananom nga imong gikinahanglan ug pagtukod og direktang relasyon sa mga tawo nga nagtanom niini.',
       title: 'Nagtubo nga magkauban, panahon matag panahon.',
       lede: 'Gikonektar sa YieldGrid ang pagplano sa pananom, pag-trade sa abot, suporta sa uma ug komunidad sa usa ka workspace. Makaatiman ang mga mag-uuma sa ilang yuta ug madumala ang sunod nga abot; makakit-an sa mga buyer ang mga pananom, mapaambit ang ilang mga gikinahanglan ug makatukod og direktang relasyon sa mga tawo nga nagtanom sa ilang pagkaon.',
       support_title: 'Suporta para sa tibuok panahon sa pagpananom',
@@ -1993,6 +2022,12 @@ export default {
         'Tan-awa ang mga abot ug forward contract, i-post ang mga pananom ug gidaghanon nga imong gikinahanglan, ug itandi ang mga tanyag sa mag-uuma. Dumalaha ang mga pagpalit ug delivery address, dayon gamita ang direktang pagmemensahe aron hisgutan ang mga detalye sa imong mga trading partner.',
     },
     contact: {
+      eyebrow: 'Ania kami aron motabang',
+      form_title: 'Mag-istorya ta',
+      reply_note: 'Motubag kami sa email address nga imong ihatag.',
+      help_title: 'Usa ka pangutana, usa ka ideya, gamayng giya.',
+      help_desc:
+        'Nagplano ka man sa sunod nga abot o nangita og pananom para sa imong negosyo, padalhi og mensahe ang YieldGrid team.',
       title: 'Kontaka Kami',
       description: 'Adunay pangutana bahin sa YieldGrid? Padalhi kami og mensahe.',
       name_label: 'Ngalan',
