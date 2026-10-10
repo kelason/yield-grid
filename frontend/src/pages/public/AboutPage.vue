@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { ArrowRightIcon } from '@heroicons/vue/24/outline'
+import { PLATFORM_FEATURES } from '@/constants/platformFeatures'
 
 const { t } = useI18n()
 const PRINCIPLES = [
@@ -31,8 +32,8 @@ const PRINCIPLES = [
       aria-labelledby="story-heading"
       class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
     >
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-16">
-        <div class="min-w-0 lg:col-span-5">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-16">
+        <div class="min-w-0">
           <h2
             id="story-heading"
             class="max-w-sm text-balance font-serif text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl"
@@ -40,9 +41,7 @@ const PRINCIPLES = [
             {{ t('public.about.story_title') }}
           </h2>
         </div>
-        <div
-          class="min-w-0 space-y-5 text-base leading-relaxed text-stone-600 sm:text-lg lg:col-span-7"
-        >
+        <div class="min-w-0 space-y-5 text-base leading-relaxed text-stone-600 sm:text-lg">
           <p>{{ t('public.about.story_a') }}</p>
           <p>{{ t('public.about.story_b') }}</p>
         </div>
@@ -65,6 +64,34 @@ const PRINCIPLES = [
               {{ t(`public.about.${principle.description}`) }}
             </p>
           </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="features-heading" class="mt-14 sm:mt-20">
+        <h2 id="features-heading" class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('public.about.support_title') }}
+        </h2>
+        <p class="mt-4 max-w-2xl text-base leading-relaxed text-stone-600">
+          {{ t('public.about.support_desc') }}
+        </p>
+        <div class="mt-7 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            v-for="feature in PLATFORM_FEATURES"
+            :key="feature.title"
+            class="min-w-0 border-t border-stone-200 pt-6"
+          >
+            <div
+              class="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-moss-50"
+            >
+              <component :is="feature.icon" class="h-6 w-6 text-moss-700" aria-hidden="true" />
+            </div>
+            <h3 class="font-serif text-xl font-semibold text-stone-900">
+              {{ t(feature.titleKey) }}
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-stone-600">
+              {{ t(feature.descKey) }}
+            </p>
+          </div>
         </div>
       </section>
     </section>
