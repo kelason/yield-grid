@@ -2,6 +2,7 @@
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { ArrowRightIcon } from '@heroicons/vue/24/outline'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
@@ -74,26 +75,38 @@ async function performContact(payload) {
 </script>
 
 <template>
-  <div>
+  <div class="contact-form">
+    <div class="mb-8 border-b border-stone-200 pb-6">
+      <h2 class="font-serif text-2xl font-bold text-stone-900">
+        {{ t('public.contact.form_title') }}
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-stone-600">
+        {{ t('public.contact.reply_note') }}
+      </p>
+    </div>
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <AppAlert v-if="successMessage" type="success">{{ successMessage }}</AppAlert>
       <AppAlert v-if="error" type="error">{{ error }}</AppAlert>
 
-      <FormField
-        id="contact-name"
-        :label="t('public.contact.name_label')"
-        v-model="form.name"
-        :required="true"
-        :maxlength="CONTACT_NAME_MAX_LENGTH"
-      />
-      <FormField
-        id="contact-email"
-        :label="t('public.contact.email_label')"
-        type="email"
-        v-model="form.email"
-        :required="true"
-        :maxlength="CONTACT_EMAIL_MAX_LENGTH"
-      />
+      <div class="contact-fields grid grid-cols-1 gap-6">
+        <FormField
+          id="contact-name"
+          :label="t('public.contact.name_label')"
+          v-model="form.name"
+          :required="true"
+          :maxlength="CONTACT_NAME_MAX_LENGTH"
+          autocomplete="name"
+        />
+        <FormField
+          id="contact-email"
+          :label="t('public.contact.email_label')"
+          type="email"
+          v-model="form.email"
+          :required="true"
+          :maxlength="CONTACT_EMAIL_MAX_LENGTH"
+          autocomplete="email"
+        />
+      </div>
       <FormField
         id="contact-subject"
         :label="t('public.contact.subject_label')"
@@ -102,7 +115,7 @@ async function performContact(payload) {
       />
 
       <div>
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <label for="contact-message" class="block text-sm font-medium text-soil-700">{{
             t('public.contact.message_label')
           }}</label>
@@ -116,7 +129,7 @@ async function performContact(payload) {
             id="contact-message"
             aria-describedby="contact-message-counter"
             v-model="form.message"
-            rows="4"
+            rows="6"
             required
             :maxlength="CONTACT_MESSAGE_MAX_LENGTH"
           ></AppTextarea>
@@ -124,6 +137,7 @@ async function performContact(payload) {
       </div>
 
       <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
+        <template #icon><ArrowRightIcon class="h-5 w-5" aria-hidden="true" /></template>
         {{ t('public.contact.submit') }}
       </AppButton>
     </form>
@@ -140,3 +154,14 @@ async function performContact(payload) {
     />
   </div>
 </template>
+
+<style scoped>
+.contact-form {
+  container-type: inline-size;
+}
+@container (min-width: 28rem) {
+  .contact-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

@@ -18,9 +18,10 @@ describe('LanguageDropdown', () => {
     wrappers.forEach((wrapper) => wrapper.unmount())
   })
 
-  function mountDropdown() {
+  function mountDropdown(props = {}) {
     const wrapper = mount(LanguageDropdown, {
       attachTo: document.body,
+      props,
       global: { plugins: [i18n] },
     })
     wrappers.push(wrapper)
@@ -66,6 +67,29 @@ describe('LanguageDropdown', () => {
 
     await toggle.trigger('keydown', { key: 'Escape' })
     expect(toggle.attributes('aria-expanded')).toBe('false')
+  })
+
+  it('renders the inline variant as a static full-width list', async () => {
+    const wrapper = mountDropdown({ variant: 'inline' })
+    const toggle = wrapper.get('[data-testid="language-menu"]')
+
+    expect(toggle.classes()).toContain('w-full')
+    expect(toggle.classes()).toContain('rounded-xl')
+
+    await toggle.trigger('click')
+    const listbox = wrapper.get('[role="listbox"]')
+    expect(listbox.classes()).not.toContain('absolute')
+    expect(listbox.classes()).toContain('flex-col')
+    expect(wrapper.find('[data-testid="locale-ceb"]').exists()).toBe(true)
+  })
+
+  it('keeps the dropdown variant floating and right-aligned', async () => {
+    const wrapper = mountDropdown()
+
+    await wrapper.get('[data-testid="language-menu"]').trigger('click')
+    const listbox = wrapper.get('[role="listbox"]')
+    expect(listbox.classes()).toContain('absolute')
+    expect(listbox.classes()).toContain('right-0')
   })
 
   it('moves focus with arrow keys and marks the selected option', async () => {

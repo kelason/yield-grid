@@ -43,18 +43,26 @@ const MARKET_CONTRACT = {
 }
 async function capture(page, testInfo, name) {
   await page.evaluate(() => document.fonts.ready)
+  if (name.startsWith('public-')) await preparePublicCapture(page)
   expect(
     await page.evaluate(
       () => document.fonts.check('400 16px Inter') && document.fonts.check('700 32px Lora'),
     ),
   ).toBe(true)
-  const options = { animations: 'disabled', fullPage: true }
+  const options = { animations: 'disabled', fullPage: name !== 'public-mobile-menu' }
   if (
     process.platform === 'linux' &&
     ['chromium', 'mobile-chromium'].includes(testInfo.project.name)
   )
     await expect(page).toHaveScreenshot(`${name}.png`, options)
   else await page.screenshot({ path: testInfo.outputPath(`${name}-review-only.png`), ...options })
+}
+async function preparePublicCapture(page) {
+  await page.evaluate(async () => {
+    await Promise.all(Array.from(document.images, (image) => image.decode()))
+    document.getElementById('main-content')?.scrollTo(0, 0)
+    window.scrollTo(0, 0)
+  })
 }
 async function mockOverview(page, role, data) {
   await mockSession(page, { role })
@@ -172,6 +180,26 @@ test('public home visual', async ({ page }, testInfo) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Smarter farming')
   await capture(page, testInfo, 'public-home')
+})
+for (const [path, heading] of [
+  ['/about', 'Growing together, season after season.'],
+  ['/contact', 'Contact Us'],
+]) {
+  test(`public ${path.slice(1)} visual`, async ({ page }, testInfo) => {
+    await mockSession(page, { authenticated: false })
+    await page.goto(path)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
+    await noOverflow(page)
+    await capture(page, testInfo, `public-${path.slice(1)}`)
+  })
+}
+test('public mobile menu visual', async ({ page, isMobile }, testInfo) => {
+  test.skip(!isMobile, 'The public menu is a mobile control.')
+  await mockSession(page, { authenticated: false })
+  await page.goto('/contact')
+  await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Menu', exact: true })).toBeVisible()
+  await capture(page, testInfo, 'public-mobile-menu')
 })
 test('dashboard supports narrow tablet enlarged text and reduced motion', async ({
   page,

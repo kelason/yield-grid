@@ -50,7 +50,11 @@ final class MarketplaceController extends Controller
         $queries = [$contractsQuery, $listingsQuery];
         foreach ($queries as $query) {
             if ($request->has('crop')) {
-                $query->where('crop_name', 'ilike', '%'.$request->query('crop').'%');
+                $crop = '%'.$request->query('crop').'%';
+                $query->where(function ($nested) use ($crop) {
+                    $nested->where('crop_name', 'ilike', $crop)
+                        ->orWhere('title', 'ilike', $crop);
+                });
             }
             if ($request->filled('min_price')) {
                 $query->where('total_price', '>=', $request->query('min_price'));

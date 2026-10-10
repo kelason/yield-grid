@@ -239,6 +239,8 @@ export default {
       resend_in: 'Resend in {cooldown}s',
       resend: 'Resend Verification Email',
       guard: 'Please verify your email to access this feature.',
+      admin_badge: 'Admin approval',
+      admin_note: 'Contact the admin to approve your verification request.',
     },
     search: {
       label: 'Search',
@@ -595,7 +597,7 @@ export default {
       col_actions: 'Actions',
       ai_recommended: 'AI Recommended',
       qty_crop: '{qty}kg {crop}',
-      per_kg: '@ ₱{price}/kg',
+      per_kg: "{'@'} ₱{price}/kg",
       review_payment: 'Review Payment',
     },
     contract_filter: {
@@ -1942,9 +1944,35 @@ export default {
       platform_title: 'A little clarity for every growing season.',
       platform_desc:
         'From your first planting decision to buyer offers, payment confirmations and farm support, keep the work of every season connected.',
+      community_note: 'For Filipino farmers and buyers',
+      visual_eyebrow: 'Rooted in possibility',
+      visual_note: 'Plan with care. Grow with confidence. Connect with your community.',
+      community_eyebrow: 'Better, together',
+      community_title: 'Meet your next harvest.',
+      community_desc:
+        'Good harvests begin with connection. Discover what farmers are growing and find your place in the YieldGrid community.',
     },
     about: {
       eyebrow: 'Our purpose',
+      story_title: 'A clearer path from land to livelihood.',
+      story_a:
+        'Every growing season brings decisions: what to plant, how to plan, and where a harvest will find its next home. YieldGrid brings that work into one shared space.',
+      story_b:
+        'Our purpose is to help farmers and buyers move forward with more clarity and a direct connection to one another, while keeping everyday farming needs in view.',
+      principles_title: 'What guides YieldGrid',
+      clarity_title: 'Clarity in every decision',
+      clarity_desc:
+        'Keep planning and trading information understandable, so the next step feels easier to take.',
+      connection_title: 'A direct connection',
+      connection_desc:
+        'Bring farmers and buyers closer to the conversations behind a harvest and the people on the other side of a trade.',
+      support_principle_title: 'Support for everyday work',
+      support_principle_desc:
+        'Make room for the practical needs of a growing season, from planning the next harvest to following through on a purchase.',
+      farmers_note:
+        'A place to plan your growing season, share your harvest, and stay connected to buyers and fellow farmers.',
+      buyers_note:
+        'A place to find the crops you need and build direct relationships with the people who grow them.',
       title: 'Growing together, season after season.',
       lede: 'YieldGrid connects crop planning, harvest trading, farm support and community in one workspace. Farmers can care for their land and manage the next harvest; buyers can find crops, share their requirements and build direct relationships with the people who grow their food.',
       support_title: 'Support for the whole growing season',
@@ -1959,6 +1987,12 @@ export default {
         'Browse harvests and forward contracts, post the crops and quantities you need, and compare farmer offers. Manage purchases and delivery addresses, then use direct messaging to discuss the details with your trading partners.',
     },
     contact: {
+      eyebrow: 'We’re here to help',
+      form_title: 'Let’s talk',
+      reply_note: 'We’ll reply to the email address you share.',
+      help_title: 'A question, an idea, a little guidance.',
+      help_desc:
+        'Whether you’re planning your next harvest or finding crops for your business, send the YieldGrid team a message.',
       title: 'Contact Us',
       description: 'Have a question about YieldGrid? Send us a message.',
       name_label: 'Name',

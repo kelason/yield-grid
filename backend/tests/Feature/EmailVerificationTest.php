@@ -67,6 +67,54 @@ it('verifies the user email when a valid signature is provided', function () {
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
 });
 
+it('keeps the verification link valid for one day', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => null,
+    ]);
+
+    Sanctum::actingAs($user, ['*']);
+
+    $url = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(config('auth.verification.expire')),
+        [
+            'id' => $user->getKey(),
+            'hash' => sha1($user->getEmailForVerification()),
+        ]
+    );
+
+    $this->travel(23)->hours();
+    $this->getJson($url)->assertStatus(200);
+
+    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+
+    $this->travelBack();
+});
+
+it('rejects the verification link after one day', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => null,
+    ]);
+
+    Sanctum::actingAs($user, ['*']);
+
+    $url = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(config('auth.verification.expire')),
+        [
+            'id' => $user->getKey(),
+            'hash' => sha1($user->getEmailForVerification()),
+        ]
+    );
+
+    $this->travel(25)->hours();
+    $this->getJson($url)->assertStatus(403);
+
+    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
+
+    $this->travelBack();
+});
+
 it('returns 403 when an invalid signature is provided', function () {
     $user = User::factory()->create([
         'email_verified_at' => null,

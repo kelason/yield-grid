@@ -335,9 +335,11 @@ const performConfirmedAction = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="quantity_kg" class="block text-sm font-medium text-soil-700 mb-1">{{
-                t('farmer.listing.qty')
-              }}</label>
+              <div class="mb-1 flex min-h-11 items-center">
+                <label for="quantity_kg" class="block text-sm font-medium text-soil-700">{{
+                  t('farmer.listing.qty')
+                }}</label>
+              </div>
               <AppInput
                 id="quantity_kg"
                 type="number"
@@ -350,7 +352,7 @@ const performConfirmedAction = async () => {
               />
             </div>
             <div>
-              <div class="mb-1 flex items-center gap-1">
+              <div class="mb-1 flex min-h-11 items-center gap-1">
                 <label for="price_per_kg" class="block text-sm font-medium text-soil-700">{{
                   t('farmer.listing.price')
                 }}</label>

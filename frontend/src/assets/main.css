@@ -57,12 +57,50 @@ body:has(dialog[open]) {
 .leaflet-bar a {
   @apply min-h-11 min-w-11;
 }
+/* Leaflet.Draw positions its sprite for 26/30px buttons; recenter it on the
+   44px touch target (-22px centers both the mouse and touch sprite offsets). */
+.leaflet-draw-toolbar .leaflet-draw-draw-polygon,
+.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-polygon {
+  background-position: -22px center !important;
+}
 .leaflet-bar {
   @apply !rounded-xl !border-stone-300 !shadow-soft;
 }
 .leaflet-popup-content-wrapper {
   @apply !rounded-2xl !shadow-organic;
 }
-.leaflet-control-geosearch form input {
-  @apply min-h-11 rounded-xl;
+/* Geosearch draws a 30px bar with a top-pinned reset button; stretch it onto
+   the 44px touch system: one rounded border clipping a square input, with the
+   reset pinned full-height and its glyph centered. The touch-qualified form
+   selector outranks the library's own touch border rule. */
+.leaflet-control-geosearch.leaflet-geosearch-bar form,
+.leaflet-touch .leaflet-control-geosearch.leaflet-geosearch-bar form {
+  @apply rounded-xl border-2 border-stone-300 shadow-soft;
+  overflow: hidden;
+}
+.leaflet-control-geosearch.leaflet-geosearch-bar form input {
+  @apply min-h-11 rounded-none;
+  padding-right: 3rem;
+}
+.leaflet-control-geosearch.leaflet-geosearch-bar button.reset {
+  @apply inline-flex min-w-11 items-center justify-center rounded-none;
+  top: 0;
+  bottom: 0;
+  height: auto;
+}
+/* The library draws a fake left border around open results with a top offset
+   hardcoded for its 30px input; on the taller bar it lands inside the box, so
+   remove it — the form border already encloses the results. */
+.leaflet-control-geosearch.leaflet-geosearch-bar .results.active:after {
+  content: none;
+}
+/* The global :focus-visible ring renders as a box-shadow that the clipped form
+   cuts into a stray inner edge; suppress it on the bar's controls and ring the
+   form itself instead so keyboard focus stays visible and clean. */
+.leaflet-control-geosearch.leaflet-geosearch-bar form input:focus-visible,
+.leaflet-control-geosearch.leaflet-geosearch-bar form button.reset:focus-visible {
+  box-shadow: none;
+}
+.leaflet-control-geosearch.leaflet-geosearch-bar form:focus-within {
+  @apply outline-none ring-2 ring-moss-500 ring-offset-2 ring-offset-stone-100;
 }

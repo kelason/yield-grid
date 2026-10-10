@@ -36,12 +36,12 @@ const localFilters = ref({
   availability: props.modelValue.availability || 'all',
 })
 
-// Debounce search
+// Debounce search so crop and price filter live after typing
 let searchTimeout = null
 watch(
-  () => localFilters.value.crop,
+  () => [localFilters.value.crop, localFilters.value.minPrice, localFilters.value.maxPrice],
   (newVal, oldVal) => {
-    if (newVal !== oldVal) {
+    if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
       if (searchTimeout) clearTimeout(searchTimeout)
       searchTimeout = setTimeout(() => {
         applyFilters()
@@ -51,6 +51,7 @@ watch(
 )
 
 function applyFilters() {
+  if (searchTimeout) clearTimeout(searchTimeout)
   filterError.value = catalogFilterError(localFilters.value, 'minPrice', 'maxPrice')
   if (filterError.value) return
   emit('update:modelValue', localFilters.value)
@@ -144,7 +145,7 @@ function setAvailability(availability) {
               step="0.01"
               id="min_price"
               v-model="localFilters.minPrice"
-              @change="applyFilters"
+              @keyup.enter="applyFilters"
               class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white transition-all duration-200 shadow-soft hover:border-stone-400"
               placeholder="0"
             />
@@ -166,7 +167,7 @@ function setAvailability(availability) {
               step="0.01"
               id="max_price"
               v-model="localFilters.maxPrice"
-              @change="applyFilters"
+              @keyup.enter="applyFilters"
               class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white transition-all duration-200 shadow-soft hover:border-stone-400"
               :placeholder="t('farmer.demand_filter.any')"
             />

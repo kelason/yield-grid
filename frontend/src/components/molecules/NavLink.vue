@@ -5,14 +5,16 @@ defineProps({
   to: { type: [String, Object], required: true },
   label: { type: String, required: true },
   dark: { type: Boolean, default: false },
+  size: { type: String, default: 'sm', validator: (v) => ['sm', 'md'].includes(v) },
 })
 </script>
 
 <template>
   <RouterLink
     :to="to"
-    class="inline-flex items-center px-1 pt-1 text-sm font-medium transition-all duration-200 border-b-2 focus:outline-none"
+    class="inline-flex items-center px-1 pt-1 font-medium transition-all duration-200 border-b-2 focus:outline-none"
     :class="[
+      size === 'md' ? 'text-base' : 'text-sm',
       $route.path === to || $route.name === to?.name
         ? dark
           ? 'border-moss-400 text-white'

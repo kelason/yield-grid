@@ -104,6 +104,39 @@ it('allows anyone to browse the marketplace', function () {
     $response->assertJsonCount(3, 'data');
 });
 
+it('matches the marketplace search term against titles as well as crop names', function () {
+    $farmer = User::factory()->farmer()->create();
+    $farm = Farm::create(['user_id' => $farmer->id, 'name' => 'Test Farm']);
+    $plot = Plot::create(['farm_id' => $farm->id, 'name' => 'Plot A', 'polygon' => '{"type": "Polygon", "coordinates": []}', 'soil_type' => 'clay', 'calculated_area' => 10]);
+    $recommendation = CropRecommendation::create([
+        'plot_id' => $plot->id,
+        'status' => RecommendationStatus::ACCEPTED,
+        'crop_name' => 'Jasmine Rice',
+        'projected_yield' => 500,
+        'confidence_score' => 90,
+        'reasoning' => 'Good soil',
+    ]);
+
+    $match = ForwardContract::factory()->available()->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+        'crop_name' => 'Corn',
+        'title' => 'Premium Jasmine Harvest',
+    ]);
+    ForwardContract::factory()->available()->create([
+        'farmer_id' => $farmer->id,
+        'crop_recommendation_id' => $recommendation->id,
+        'crop_name' => 'Corn',
+        'title' => 'Sweet Corn Bulk',
+    ]);
+
+    $response = $this->getJson('/api/v1/market/contracts?crop=Jasmine');
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'data');
+    $response->assertJsonPath('data.0.id', $match->id);
+});
+
 it('allows a buyer to create a checkout session', function () {
     $buyer = User::factory()->buyer()->create();
 
