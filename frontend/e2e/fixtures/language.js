@@ -2,7 +2,7 @@
 // and inside the navigation drawer on mobile.
 export async function switchDashboardLocale(page, isMobile, locale) {
   if (isMobile) {
-    await page.getByRole('button', { name: 'Open navigation', exact: true }).click()
+    await page.getByTestId('mobile-nav-toggle').click()
   }
   await page.getByTestId('language-menu').filter({ visible: true }).click()
   await page.getByTestId(`locale-${locale}`).click()

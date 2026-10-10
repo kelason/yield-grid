@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Shared\Controllers\ApiDocsController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

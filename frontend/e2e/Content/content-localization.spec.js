@@ -21,7 +21,7 @@ test('shell chrome renders in Tagalog', async ({ page, isMobile }) => {
   } else {
     await expect(page.getByText('Ang iyong workspace sa pagbubukid', { exact: true })).toBeVisible()
   }
-  const nav = page.getByRole('navigation', { name: 'Dashboard navigation', exact: true })
+  const nav = page.getByRole('navigation', { name: 'Nabigasyon ng dashboard', exact: true })
   await expect(nav.getByRole('link', { name: 'Pangkalahatan', exact: true })).toBeVisible()
 })
 

@@ -94,6 +94,7 @@ async function resendVerification() {
               size="sm"
               class="md:hidden"
               :aria-label="t('shell.open_navigation')"
+              data-testid="mobile-nav-toggle"
               @click="mobileOpen = true"
               ><Bars3Icon class="h-6 w-6" aria-hidden="true" /></AppButton
             ><AppLogo class="md:hidden" /><span class="hidden text-sm text-stone-600 md:block">{{
