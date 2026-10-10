@@ -2,6 +2,7 @@
 import ConfirmModal from '../molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
@@ -13,6 +14,7 @@ const REDIRECT_DELAY_MS = 2000
 const AUTH_PASSWORD_MIN_LENGTH = 8
 const AUTH_PASSWORD_MAX_LENGTH = 255
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const route = useRoute()
@@ -38,23 +40,23 @@ async function handleResetPassword() {
   error.value = ''
   success.value = ''
   if (form.value.password.length < AUTH_PASSWORD_MIN_LENGTH) {
-    error.value = `Password must be at least ${AUTH_PASSWORD_MIN_LENGTH} characters.`
+    error.value = t('auth.reset.err_password_min', { min: AUTH_PASSWORD_MIN_LENGTH })
     return
   }
   if (form.value.password.length > AUTH_PASSWORD_MAX_LENGTH) {
-    error.value = `Password must be at most ${AUTH_PASSWORD_MAX_LENGTH} characters.`
+    error.value = t('auth.reset.err_password_max', { max: AUTH_PASSWORD_MAX_LENGTH })
     return
   }
   if (form.value.password !== form.value.password_confirmation) {
-    error.value = 'Passwords do not match.'
+    error.value = t('auth.reset.err_mismatch')
     return
   }
   const payload = { ...form.value }
   confirm(
     {
-      title: 'Reset password?',
-      message: 'Replace your account password with the new password?',
-      confirmText: 'Reset Password',
+      title: t('auth.reset.confirm_title'),
+      message: t('auth.reset.confirm_msg'),
+      confirmText: t('auth.reset.confirm_cta'),
     },
     () => performRequest(payload),
   )
@@ -63,7 +65,7 @@ async function performRequest(payload) {
   loading.value = true
   try {
     const response = await authStore.resetPassword(payload)
-    success.value = response.message || 'Password reset successful. You can now login.'
+    success.value = response.message || t('auth.reset.success')
     setTimeout(() => {
       router.push({ name: 'login' })
     }, REDIRECT_DELAY_MS)
@@ -71,7 +73,7 @@ async function performRequest(payload) {
     if (e.response?.status === HTTP_STATUS.UNPROCESSABLE_ENTITY && e.response?.data?.errors) {
       error.value = Object.values(e.response.data.errors).flat().join(' ')
     } else {
-      error.value = e.response?.data?.message || 'Failed to reset password.'
+      error.value = e.response?.data?.message || t('auth.reset.failed')
     }
   } finally {
     loading.value = false
@@ -87,7 +89,7 @@ async function performRequest(payload) {
 
       <FormField
         id="reset-email"
-        label="Email address"
+        :label="t('auth.reset.email_label')"
         type="email"
         autocomplete="username"
         name="email"
@@ -98,7 +100,7 @@ async function performRequest(payload) {
 
       <FormField
         id="reset-password"
-        label="New Password"
+        :label="t('auth.reset.new_label')"
         type="password"
         :minlength="AUTH_PASSWORD_MIN_LENGTH"
         autocomplete="new-password"
@@ -109,7 +111,7 @@ async function performRequest(payload) {
 
       <FormField
         id="reset-password-confirmation"
-        label="Confirm Password"
+        :label="t('auth.reset.confirm_label')"
         type="password"
         :minlength="AUTH_PASSWORD_MIN_LENGTH"
         autocomplete="new-password"
@@ -119,7 +121,7 @@ async function performRequest(payload) {
       />
 
       <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
-        Reset Password
+        {{ t('auth.reset.submit') }}
       </AppButton>
     </form>
     <ConfirmModal

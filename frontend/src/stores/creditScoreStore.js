@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import i18n from '@/i18n'
 import { useCreditScore } from '../composables/useCreditScore'
 import { CREDIT_REPORT_STATUS, CREDIT_TIER_STYLES } from '../constants/creditScoring'
+
+const t = (...args) => i18n.global.t(...args)
 
 export const useCreditScoreStore = defineStore('creditScore', () => {
   const creditScore = useCreditScore()
@@ -51,7 +54,7 @@ export const useCreditScoreStore = defineStore('creditScore', () => {
         ...pollOptions,
       })
       if (status === CREDIT_REPORT_STATUS.FAILED) {
-        errorMessage.value = 'Report generation failed. Please try again.'
+        errorMessage.value = t('farmer.credit_report.err_generate')
       }
       return status
     } catch {
@@ -75,7 +78,7 @@ export const useCreditScoreStore = defineStore('creditScore', () => {
       const blob = await creditScore.downloadReport(reportToken.value)
       creditScore.saveBlob(blob, 'YieldGrid-Trust-Score-Report.pdf')
     } catch (error) {
-      errorMessage.value = 'Failed to download the report. It may have expired.'
+      errorMessage.value = t('farmer.credit_report.err_download')
       console.error('Failed to download report:', error)
     } finally {
       isDownloading.value = false

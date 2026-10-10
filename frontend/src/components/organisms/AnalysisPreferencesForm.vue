@@ -1,18 +1,21 @@
 <template>
   <div class="bg-white border border-stone-200 rounded-2xl shadow-soft p-6">
-    <h2 class="font-serif text-2xl font-bold text-stone-900">What should the AI focus on?</h2>
+    <h2 class="font-serif text-2xl font-bold text-stone-900">
+      {{ t('farmer.analysis.focus_title') }}
+    </h2>
     <p class="mt-1 text-base text-stone-600 font-normal leading-relaxed">
-      Leave everything unselected for the full analysis, or narrow it to the crops and conditions
-      you care about.
+      {{ t('farmer.analysis.focus_desc') }}
     </p>
 
     <p v-if="!taxonomy" class="mt-6 text-sm text-stone-500 animate-pulse" aria-live="polite">
-      Loading options…
+      {{ t('farmer.analysis.loading_options') }}
     </p>
 
     <div v-else class="mt-6 space-y-6">
       <div>
-        <p class="text-sm font-medium text-soil-700 mb-2">Crop types</p>
+        <p class="text-sm font-medium text-soil-700 mb-2">
+          {{ t('farmer.analysis.crop_types') }}
+        </p>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="(type, slug) in taxonomy.types"
@@ -58,7 +61,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label for="pref-irrigation" class="text-sm font-medium text-soil-700">
-            Irrigation
+            {{ t('farmer.analysis.irrigation') }}
           </label>
           <AppSelect
             id="pref-irrigation"
@@ -66,7 +69,7 @@
             data-test="irrigation-select"
             class="mt-1"
           >
-            <option value="">No preference</option>
+            <option value="">{{ t('farmer.analysis.no_preference') }}</option>
             <option
               v-for="level in taxonomy.irrigation_levels"
               :key="level.value"
@@ -77,9 +80,11 @@
           </AppSelect>
         </div>
         <div>
-          <label for="pref-goal" class="text-sm font-medium text-soil-700"> Farming goal </label>
+          <label for="pref-goal" class="text-sm font-medium text-soil-700">
+            {{ t('farmer.analysis.goal') }}
+          </label>
           <AppSelect id="pref-goal" v-model="goal" data-test="goal-select" class="mt-1">
-            <option value="">No preference</option>
+            <option value="">{{ t('farmer.analysis.no_preference') }}</option>
             <option v-for="option in taxonomy.goals" :key="option.value" :value="option.value">
               {{ option.label }}
             </option>
@@ -95,7 +100,7 @@
           data-test="run-analysis"
           @click="emit('request-analysis', preferences())"
         >
-          Run AI Analysis
+          {{ t('farmer.analysis.run_button') }}
         </AppButton>
       </div>
     </div>
@@ -104,8 +109,10 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppButton from '../atoms/AppButton.vue'
 import AppSelect from '../atoms/AppSelect.vue'
+const { t } = useI18n()
 
 const props = defineProps({
   taxonomy: {

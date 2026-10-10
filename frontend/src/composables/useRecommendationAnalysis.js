@@ -1,4 +1,5 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import i18n from '@/i18n'
 import { useRecommendationStore } from '@/stores/recommendationStore'
 import { useFarmingStore } from '@/stores/farming'
 import { useMarketStore } from '@/stores/marketStore'
@@ -34,13 +35,21 @@ function plotPresentation(s) {
   )
   return {
     currentPlot,
-    plotDisplayName: computed(() => s.store.meta?.plot_name || currentPlot.value?.name || 'Plot'),
+    plotDisplayName: computed(
+      () =>
+        s.store.meta?.plot_name ||
+        currentPlot.value?.name ||
+        i18n.global.t('farmer.recommendations.plot_fallback'),
+    ),
     plotArea: computed(() => {
       const area = s.store.meta?.calculated_area ?? currentPlot.value?.calculated_area
       return area ? Number(area).toFixed(2) : '0.00'
     }),
     plotSoilType: computed(
-      () => s.store.meta?.soil_type || currentPlot.value?.soil_type || 'Unspecified',
+      () =>
+        s.store.meta?.soil_type ||
+        currentPlot.value?.soil_type ||
+        i18n.global.t('farmer.recommendations.soil_unspecified'),
     ),
     locationLabel: computed(() =>
       [s.store.meta?.city, s.store.meta?.state, s.store.meta?.country].filter(Boolean).join(', '),
@@ -77,7 +86,8 @@ async function initialize(s) {
     }
     await s.store.fetchTaxonomy()
   } catch (error) {
-    s.plotsError.value = error.response?.data?.message || 'Could not load your plots. Please retry.'
+    s.plotsError.value =
+      error.response?.data?.message || i18n.global.t('farmer.recommendations.plots_error')
   } finally {
     s.isLoadingPlots.value = false
   }
@@ -95,10 +105,9 @@ function triggerAnalysis(s, freshPrefs = null) {
       : s.analysisPrefs.value
   s.confirm(
     {
-      title: 'Run AI analysis?',
-      message:
-        'Run the AI advisor on this plot? Analysis consumes one of your limited hourly runs and takes a few minutes.',
-      confirmText: 'Run analysis',
+      title: i18n.global.t('farmer.recommendations.analyze_title'),
+      message: i18n.global.t('farmer.recommendations.analyze_message'),
+      confirmText: i18n.global.t('farmer.recommendations.analyze_confirm'),
       type: 'primary',
     },
     () => s.store.analyzePlot(s.activePlotId.value, prefs),
@@ -127,11 +136,17 @@ const CONTRACT_TOTAL_MAX = 9999999999.99
 function validatePublishForm(formData) {
   const fieldErrors = {}
   if ((formData.title || '').length > CONTRACT_TITLE_MAX_LENGTH) {
-    fieldErrors.title = [`Title cannot exceed ${CONTRACT_TITLE_MAX_LENGTH} characters.`]
+    fieldErrors.title = [
+      i18n.global.t('farmer.recommendations.publish_title_long', {
+        max: CONTRACT_TITLE_MAX_LENGTH,
+      }),
+    ]
   }
   if ((formData.description || '').length > CONTRACT_DESCRIPTION_MAX_LENGTH) {
     fieldErrors.description = [
-      `Description cannot exceed ${CONTRACT_DESCRIPTION_MAX_LENGTH} characters.`,
+      i18n.global.t('farmer.recommendations.publish_desc_long', {
+        max: CONTRACT_DESCRIPTION_MAX_LENGTH,
+      }),
     ]
   }
   validatePublishAmounts(formData, fieldErrors)
@@ -141,25 +156,29 @@ function validatePublishForm(formData) {
 function validatePublishAmounts(formData, fieldErrors) {
   const qty = parseFloat(formData.quantity_kg)
   if (!qty || qty < CONTRACT_QUANTITY_MIN_KG) {
-    fieldErrors.quantity_kg = ['Please enter a quantity greater than zero.']
+    fieldErrors.quantity_kg = [i18n.global.t('farmer.demands.qty_required')]
   } else if (qty > CONTRACT_QUANTITY_MAX_KG) {
     fieldErrors.quantity_kg = [
-      `Quantity cannot exceed ${CONTRACT_QUANTITY_MAX_KG.toLocaleString()} kg.`,
+      i18n.global.t('farmer.recommendations.publish_qty_exceeds', {
+        max: CONTRACT_QUANTITY_MAX_KG.toLocaleString(),
+      }),
     ]
   }
   const price = parseFloat(formData.price_per_kg)
   if (!price || price < CONTRACT_PRICE_MIN) {
-    fieldErrors.price_per_kg = ['Please enter a price greater than zero.']
+    fieldErrors.price_per_kg = [i18n.global.t('farmer.demands.price_required')]
   } else if (price > CONTRACT_PRICE_MAX) {
     fieldErrors.price_per_kg = [
-      `Price cannot exceed ${CONTRACT_PRICE_MAX.toLocaleString()} per kg.`,
+      i18n.global.t('farmer.recommendations.publish_price_exceeds', {
+        max: CONTRACT_PRICE_MAX.toLocaleString(),
+      }),
     ]
   }
   validatePublishTotal(qty, price, fieldErrors)
 }
 function validatePublishTotal(qty, price, fieldErrors) {
   if (Object.keys(fieldErrors).length === 0 && qty * price > CONTRACT_TOTAL_MAX) {
-    fieldErrors.quantity_kg = ['The combined quantity and price exceed the maximum order total.']
+    fieldErrors.quantity_kg = [i18n.global.t('farmer.demands.total_exceeds')]
   }
 }
 
@@ -177,8 +196,7 @@ async function performPublish(s, id, formData) {
       s.publishErrors.value = error.response.data.errors || {}
     else {
       const message =
-        error.response?.data?.message ||
-        'An unexpected error occurred while publishing the contract.'
+        error.response?.data?.message || i18n.global.t('farmer.recommendations.publish_error')
       s.store.errorMessage = message
       s.publishErrors.value = { form: [message] }
     }
@@ -191,9 +209,13 @@ function handlePublishContract(s, formData) {
   if (Object.keys(s.publishErrors.value).length > 0) return
   s.confirm(
     {
-      title: 'Publish this contract?',
-      message: `Publish "${formData.title}" (${formData.quantity_kg} kg at ₱${formData.price_per_kg}/kg) to the marketplace?`,
-      confirmText: 'Publish contract',
+      title: i18n.global.t('farmer.recommendations.publish_title_confirm'),
+      message: i18n.global.t('farmer.recommendations.publish_message', {
+        title: formData.title,
+        qty: formData.quantity_kg,
+        price: formData.price_per_kg,
+      }),
+      confirmText: i18n.global.t('farmer.recommendations.publish_confirm'),
       type: 'primary',
     },
     () => performPublish(s, id, { ...formData }),
@@ -231,8 +253,8 @@ export function useRecommendationAnalysis(options) {
     handleReject: (id) =>
       s.confirm(
         {
-          title: 'Reject Recommendation',
-          message: 'Are you sure you want to reject this recommendation?',
+          title: i18n.global.t('farmer.recommendations.reject_title'),
+          message: i18n.global.t('farmer.recommendations.reject_message'),
           type: 'danger',
         },
         () => s.store.updateStatus(id, 'rejected'),

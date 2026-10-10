@@ -2,6 +2,7 @@
 import ConfirmModal from '../molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormField from '../molecules/FormField.vue'
 import AddressFields from './AddressFields.vue'
 import AppButton from '../atoms/AppButton.vue'
@@ -13,6 +14,7 @@ const AUTH_EMAIL_MAX_LENGTH = 255
 const AUTH_PASSWORD_MIN_LENGTH = 8
 const AUTH_PASSWORD_MAX_LENGTH = 255
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
@@ -42,18 +44,19 @@ const loading = ref(false)
 const emit = defineEmits(['success'])
 
 function registrationError() {
-  if (!form.value.name.trim()) return 'Please enter your name.'
+  if (!form.value.name.trim()) return t('auth.register.err_name')
   if (form.value.name.length > AUTH_NAME_MAX_LENGTH)
-    return `Name must be at most ${AUTH_NAME_MAX_LENGTH} characters.`
-  if (!form.value.email.trim()) return 'Please enter your email address.'
+    return t('auth.register.err_name_max', { max: AUTH_NAME_MAX_LENGTH })
+  if (!form.value.email.trim()) return t('auth.register.err_email')
   if (form.value.email.length > AUTH_EMAIL_MAX_LENGTH)
-    return `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
+    return t('auth.register.err_email_max', { max: AUTH_EMAIL_MAX_LENGTH })
   if (form.value.password.length < AUTH_PASSWORD_MIN_LENGTH)
-    return `Password must be at least ${AUTH_PASSWORD_MIN_LENGTH} characters.`
+    return t('auth.register.err_password_min', { min: AUTH_PASSWORD_MIN_LENGTH })
   if (form.value.password.length > AUTH_PASSWORD_MAX_LENGTH)
-    return `Password must be at most ${AUTH_PASSWORD_MAX_LENGTH} characters.`
-  if (form.value.password !== form.value.password_confirmation) return 'Passwords do not match.'
-  if (showAddress.value && !pinValid.value) return 'Please place your pin within the selected area.'
+    return t('auth.register.err_password_max', { max: AUTH_PASSWORD_MAX_LENGTH })
+  if (form.value.password !== form.value.password_confirmation)
+    return t('auth.register.err_mismatch')
+  if (showAddress.value && !pinValid.value) return t('auth.register.err_pin')
   return ''
 }
 function registrationPayload() {
@@ -72,9 +75,9 @@ function handleRegister() {
   const payload = registrationPayload()
   confirm(
     {
-      title: 'Create account?',
-      message: 'Create your YieldGrid account with these details?',
-      confirmText: 'Create account',
+      title: t('auth.register.confirm_title'),
+      message: t('auth.register.confirm_msg'),
+      confirmText: t('auth.register.confirm_cta'),
     },
     () => performRegister(payload),
   )
@@ -85,7 +88,7 @@ async function performRegister(payload) {
     await authStore.register(payload)
     emit('success')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Registration failed.'
+    error.value = e.response?.data?.message || t('auth.register.failed')
     const errors = e.response?.data?.errors || {}
     Object.keys(errors).forEach((key) => {
       if (key.startsWith('address.'))
@@ -106,14 +109,14 @@ async function performRegister(payload) {
         id="reg-name"
         autocomplete="name"
         name="name"
-        label="Full Name"
+        :label="t('auth.register.name_label')"
         v-model="form.name"
         :required="true"
         :maxlength="AUTH_NAME_MAX_LENGTH"
       />
       <FormField
         id="reg-email"
-        label="Email address"
+        :label="t('auth.register.email_label')"
         type="email"
         autocomplete="username"
         name="email"
@@ -123,7 +126,9 @@ async function performRegister(payload) {
       />
 
       <fieldset>
-        <legend class="text-sm font-medium text-soil-700">I am a...</legend>
+        <legend class="text-sm font-medium text-soil-700">
+          {{ t('auth.register.role_legend') }}
+        </legend>
         <div class="mt-2 flex items-center space-x-6">
           <div class="flex items-center">
             <input
@@ -134,9 +139,9 @@ async function performRegister(payload) {
               v-model="form.role"
               class="focus:ring-moss-500 h-4 w-4 text-moss-600 border-stone-300"
             />
-            <label for="role_buyer" class="ml-3 block text-sm font-medium text-soil-700"
-              >Buyer</label
-            >
+            <label for="role_buyer" class="ml-3 block text-sm font-medium text-soil-700">{{
+              t('auth.register.role_buyer')
+            }}</label>
           </div>
           <div class="flex items-center">
             <input
@@ -147,16 +152,16 @@ async function performRegister(payload) {
               v-model="form.role"
               class="focus:ring-moss-500 h-4 w-4 text-moss-600 border-stone-300"
             />
-            <label for="role_farmer" class="ml-3 block text-sm font-medium text-soil-700"
-              >Farmer</label
-            >
+            <label for="role_farmer" class="ml-3 block text-sm font-medium text-soil-700">{{
+              t('auth.register.role_farmer')
+            }}</label>
           </div>
         </div>
       </fieldset>
 
       <FormField
         id="reg-password"
-        label="Password"
+        :label="t('auth.register.password_label')"
         type="password"
         :minlength="AUTH_PASSWORD_MIN_LENGTH"
         autocomplete="new-password"
@@ -166,7 +171,7 @@ async function performRegister(payload) {
       />
       <FormField
         id="reg-password-confirm"
-        label="Confirm Password"
+        :label="t('auth.register.confirm_label')"
         type="password"
         :minlength="AUTH_PASSWORD_MIN_LENGTH"
         autocomplete="new-password"
@@ -184,8 +189,8 @@ async function performRegister(payload) {
             class="h-4 w-4 rounded-xl text-moss-600 border-stone-300 focus:ring-moss-500"
           />
           <span class="text-sm font-medium text-stone-900">
-            Add my address now
-            <span class="text-stone-500 font-normal">(optional — required later for trading)</span>
+            {{ t('auth.register.address_toggle') }}
+            <span class="text-stone-500 font-normal">{{ t('auth.register.address_hint') }}</span>
           </span>
         </label>
         <div v-if="showAddress" class="mt-4">
@@ -200,7 +205,7 @@ async function performRegister(payload) {
       </div>
 
       <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
-        Create account
+        {{ t('auth.register.submit') }}
       </AppButton>
     </form>
     <ConfirmModal

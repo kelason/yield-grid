@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PriceTag from '../atoms/PriceTag.vue'
 import AppAlert from '../atoms/AppAlert.vue'
 import AppButton from '../atoms/AppButton.vue'
@@ -28,6 +29,7 @@ const props = defineProps({
 const emit = defineEmits(['confirm', 'cancel'])
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const pricePerKg = computed(() => {
   return props.contract.price_per_kg || props.contract.total_price / props.contract.quantity_kg
@@ -79,11 +81,13 @@ const handleConfirm = () => {
   qtyError.value = ''
   const qty = parseFloat(quantityKg.value)
   if (!qty || qty < CHECKOUT_QTY_MIN_KG) {
-    qtyError.value = 'Please enter a quantity greater than zero.'
+    qtyError.value = t('market.checkout.err_qty_zero')
     return
   }
   if (qty > maxOrderQty.value) {
-    qtyError.value = `Quantity cannot exceed ${maxOrderQty.value.toLocaleString()} kg for this order.`
+    qtyError.value = t('market.checkout.err_qty_max', {
+      max: maxOrderQty.value.toLocaleString(),
+    })
     return
   }
   emit('confirm', {
@@ -98,10 +102,12 @@ const handleConfirm = () => {
 <template>
   <div class="w-full max-w-2xl mx-auto">
     <div class="mb-8">
-      <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">Review Your Purchase</h2>
+      <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2">
+        {{ t('market.checkout.review_title') }}
+      </h2>
       <AppAlert v-if="qtyError" type="error" class="mt-3">{{ qtyError }}</AppAlert>
       <p class="text-stone-500 text-sm">
-        Please confirm the details of this forward contract before proceeding to payment.
+        {{ t('market.checkout.review_desc') }}
       </p>
     </div>
 
@@ -112,9 +118,11 @@ const handleConfirm = () => {
         <div class="flex items-start">
           <CheckCircleIcon class="h-5 w-5 mr-2 text-moss-500 flex-shrink-0" />
           <div>
-            <span class="block font-medium text-stone-900">Crop</span>
+            <span class="block font-medium text-stone-900">{{ t('market.checkout.crop') }}</span>
             <span class="text-stone-600"
-              >{{ contract.crop_name }} ({{ contract.quantity_kg }}kg available)</span
+              >{{ contract.crop_name }} ({{
+                t('market.checkout.available', { qty: contract.quantity_kg })
+              }})</span
             >
           </div>
         </div>
@@ -122,7 +130,7 @@ const handleConfirm = () => {
         <div class="flex items-start">
           <CalendarIcon class="h-5 w-5 mr-2 text-moss-500 flex-shrink-0" />
           <div>
-            <span class="block font-medium text-stone-900">Est. Harvest</span>
+            <span class="block font-medium text-stone-900">{{ t('market.checkout.harvest') }}</span>
             <span class="text-stone-600">{{ contract.estimated_harvest_date }}</span>
           </div>
         </div>
@@ -130,7 +138,7 @@ const handleConfirm = () => {
         <div class="flex items-start">
           <UserIcon class="h-5 w-5 mr-2 text-moss-500 flex-shrink-0" />
           <div>
-            <span class="block font-medium text-stone-900">Farmer</span>
+            <span class="block font-medium text-stone-900">{{ t('market.checkout.farmer') }}</span>
             <span class="text-stone-600">{{ contract.farmer?.name }}</span>
           </div>
         </div>
@@ -138,7 +146,9 @@ const handleConfirm = () => {
         <div class="flex items-start">
           <MapPinIcon class="h-5 w-5 mr-2 text-moss-500 flex-shrink-0" />
           <div>
-            <span class="block font-medium text-stone-900">Location</span>
+            <span class="block font-medium text-stone-900">{{
+              t('market.checkout.location')
+            }}</span>
             <span class="text-stone-600">{{
               contract.farmer?.location || contract.farmer?.farm_name
             }}</span>
@@ -148,7 +158,7 @@ const handleConfirm = () => {
 
       <div v-if="contract.description" class="mt-4 pt-4 border-t border-stone-200">
         <h4 class="text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">
-          Description
+          {{ t('market.checkout.description') }}
         </h4>
         <p class="text-stone-700 text-sm">{{ contract.description }}</p>
       </div>
@@ -156,14 +166,14 @@ const handleConfirm = () => {
 
     <div class="mb-8 p-6 bg-white rounded-xl border border-stone-200 shadow-soft space-y-6">
       <div>
-        <label for="quantity" class="block text-sm font-bold text-soil-700 mb-2"
-          >Purchase Quantity (kg)</label
-        >
+        <label for="quantity" class="block text-sm font-bold text-soil-700 mb-2">{{
+          t('market.checkout.qty_label')
+        }}</label>
         <div class="flex items-center gap-4">
           <input
             type="range"
             id="quantity-slider"
-            aria-label="Purchase quantity slider"
+            :aria-label="t('market.checkout.qty_slider_aria')"
             v-model.number="quantityKg"
             :min="CHECKOUT_QTY_SLIDER_MIN_KG"
             :max="maxOrderQty"
@@ -188,7 +198,9 @@ const handleConfirm = () => {
       </div>
 
       <fieldset class="border-t border-stone-100 pt-6">
-        <legend class="text-sm font-bold text-soil-700 mb-3">Payment Method</legend>
+        <legend class="text-sm font-bold text-soil-700 mb-3">
+          {{ t('market.checkout.pay_method') }}
+        </legend>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label
             class="relative flex cursor-pointer rounded-2xl border bg-white p-4 shadow-soft focus:outline-none"
@@ -208,8 +220,8 @@ const handleConfirm = () => {
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
                 <div class="text-sm">
-                  <p class="font-medium text-stone-900">Pay Online</p>
-                  <p class="text-stone-500">Card, GCash, Maya</p>
+                  <p class="font-medium text-stone-900">{{ t('market.checkout.pay_online') }}</p>
+                  <p class="text-stone-500">{{ t('market.checkout.pay_online_desc') }}</p>
                 </div>
               </div>
               <CheckCircleIcon
@@ -237,8 +249,8 @@ const handleConfirm = () => {
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center">
                 <div class="text-sm">
-                  <p class="font-medium text-stone-900">Cash (Off-Site)</p>
-                  <p class="text-stone-500">Pay directly to farmer</p>
+                  <p class="font-medium text-stone-900">{{ t('market.checkout.pay_cash') }}</p>
+                  <p class="text-stone-500">{{ t('market.checkout.pay_cash_desc') }}</p>
                 </div>
               </div>
               <CheckCircleIcon
@@ -253,7 +265,9 @@ const handleConfirm = () => {
 
     <div class="flex flex-col sm:flex-row justify-between gap-4 mb-8">
       <div class="mb-4 sm:mb-0 w-full sm:w-auto">
-        <h4 class="text-sm font-medium text-stone-500 mb-2">Total Contract Value</h4>
+        <h4 class="text-sm font-medium text-stone-500 mb-2">
+          {{ t('market.checkout.total_value') }}
+        </h4>
         <PriceTag
           :amount="totalPriceForQuantity"
           :currency="contract.currency"
@@ -266,8 +280,10 @@ const handleConfirm = () => {
         <div class="text-sm font-bold text-stone-900 mb-1">
           {{
             isDownpayment
-              ? `Required ${PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100}% Downpayment`
-              : 'Total Amount to Pay'
+              ? t('market.checkout.downpayment', {
+                  pct: PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100,
+                })
+              : t('market.checkout.total_pay')
           }}
         </div>
         <PriceTag
@@ -285,21 +301,25 @@ const handleConfirm = () => {
     >
       <InformationCircleIcon class="h-5 w-5 mr-3 flex-shrink-0 text-dew-500 mt-0.5" />
       <p>
-        Because this harvest is scheduled in the future, only a
-        {{ PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100 }}% downpayment is required today to
-        reserve your supply.
+        {{
+          t('market.checkout.downpayment_note', {
+            pct: PAYMENT_CONSTANTS.DOWNPAYMENT_PERCENTAGE * 100,
+          })
+        }}
       </p>
     </div>
 
     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
-      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">Cancel</AppButton>
+      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">{{
+        t('shell.cancel')
+      }}</AppButton>
       <AppButton :loading="loading" :disabled="!authStore.isEmailVerified" @click="handleConfirm">
         {{
           loading
-            ? 'Preparing Checkout...'
+            ? t('market.checkout.preparing')
             : !authStore.isEmailVerified
-              ? 'Verify Email to Purchase'
-              : 'Proceed to Payment'
+              ? t('market.checkout.verify_email')
+              : t('market.checkout.proceed')
         }}
       </AppButton>
     </div>

@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { MapPinIcon, MapIcon, SparklesIcon } from '@heroicons/vue/24/outline'
+const { t } = useI18n()
 import AppCard from '../atoms/AppCard.vue'
 import AppButton from '../atoms/AppButton.vue'
 import VerifiedBadge from '../atoms/VerifiedBadge.vue'
@@ -21,35 +23,48 @@ const showVerifiedBadge = computed(() => isFarmVerified(props.farm))
           <VerifiedBadge v-if="showVerifiedBadge" size="sm" class="ml-2 align-middle" />
         </h3>
         <span class="shrink-0 rounded-full bg-moss-50 px-3 py-1 text-xs font-medium text-moss-800"
-          >{{ farm.plots_count || 0 }} {{ farm.plots_count === 1 ? 'plot' : 'plots' }}</span
+          >{{ farm.plots_count || 0 }}
+          {{
+            farm.plots_count === 1
+              ? t('farmer.farm_card.plot_one')
+              : t('farmer.farm_card.plot_other')
+          }}</span
         >
       </div>
       <p v-if="location" class="mt-3 flex items-start gap-2 text-sm leading-relaxed text-stone-600">
         <MapPinIcon class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{{ location }}
       </p>
       <p class="mt-4 border-t border-stone-200 pt-4 text-sm text-stone-600">
-        <template v-if="farm.total_area">{{ farm.total_area }} ha mapped</template
-        ><template v-else>No mapped area yet</template>
+        <template v-if="farm.total_area">{{
+          t('farmer.farm_card.mapped', { area: farm.total_area })
+        }}</template
+        ><template v-else>{{ t('farmer.farm_card.no_area') }}</template>
       </p>
       <div class="mt-5 flex flex-wrap gap-3">
         <AppButton
           variant="outline"
           size="sm"
-          :aria-label="`${farm.plots_count ? 'Manage plots' : 'Draw plots'} for ${farm.name}`"
+          :aria-label="
+            farm.plots_count
+              ? t('farmer.farm_card.manage_aria', { name: farm.name })
+              : t('farmer.farm_card.draw_aria', { name: farm.name })
+          "
           @click="$emit('view-plots', farm.id)"
           ><MapIcon class="h-4 w-4" aria-hidden="true" />{{
-            farm.plots_count ? 'Manage plots' : 'Draw plots'
+            farm.plots_count ? t('farmer.farm_card.manage') : t('farmer.farm_card.draw')
           }}</AppButton
         ><AppButton
           v-if="farm.plots_count"
           variant="ghost"
           size="sm"
-          :aria-label="`Recommendations for ${farm.name}`"
+          :aria-label="t('farmer.farm_card.rec_aria', { name: farm.name })"
           @click="$emit('view-recommendations', farm.id)"
-          ><SparklesIcon class="h-4 w-4" aria-hidden="true" />Recommendations</AppButton
+          ><SparklesIcon class="h-4 w-4" aria-hidden="true" />{{
+            t('farmer.farm_card.recommendations')
+          }}</AppButton
         >
       </div>
     </template>
-    <p v-else class="text-sm text-stone-600">Farm information is unavailable.</p>
+    <p v-else class="text-sm text-stone-600">{{ t('farmer.farm_card.unavailable') }}</p>
   </AppCard>
 </template>

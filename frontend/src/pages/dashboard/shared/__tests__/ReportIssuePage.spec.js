@@ -1,7 +1,8 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
+import { setLocale } from '@/i18n'
 import {
   ADMIN_NAVIGATION,
   BUYER_NAVIGATION,
@@ -77,6 +78,11 @@ describe('ReportIssuePage.vue', () => {
       if (url === '/issues') return listResponse([])
       throw new Error(`Unexpected GET ${url}`)
     })
+    setLocale('en')
+  })
+
+  afterEach(() => {
+    setLocale('en')
   })
 
   async function mountPage() {
@@ -116,6 +122,13 @@ describe('ReportIssuePage.vue', () => {
 
     expect(wrapper.find('h1').text()).toBe('Report an issue')
     expect(wrapper.text()).toContain('Do not include passwords or payment credentials')
+  })
+
+  it('renders the heading in Tagalog', async () => {
+    setLocale('tl')
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('h1').text()).toBe('Mag-ulat ng Isyu')
   })
 
   it('prefills safe relative context from the from query and ignores full URLs', async () => {

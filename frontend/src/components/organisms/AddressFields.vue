@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppSelect from '../atoms/AppSelect.vue'
 import FormField from '../molecules/FormField.vue'
 import LeafletPinPicker from './LeafletPinPicker.vue'
@@ -19,6 +20,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'pin-validation'])
 
+const { t } = useI18n()
 const geo = useGeo()
 const regions = ref([])
 const provinces = ref([])
@@ -133,8 +135,8 @@ loadRegions().then(initCascade)
       <FormField
         v-if="showLabel"
         :id="`${idPrefix}-label`"
-        label="Label"
-        placeholder="e.g. Home, Farm gate"
+        :label="t('community.address.field_label')"
+        :placeholder="t('community.address.label_ph')"
         :maxlength="ADDRESS_LABEL_MAX_LENGTH"
         :model-value="modelValue?.label || ''"
         :error="errors?.label || ''"
@@ -143,8 +145,8 @@ loadRegions().then(initCascade)
       <FormField
         :id="`${idPrefix}-street`"
         autocomplete="street-address"
-        label="Street / House No."
-        placeholder="e.g. 123 Sampaguita St."
+        :label="t('community.address.field_street')"
+        :placeholder="t('community.address.street_ph')"
         :maxlength="ADDRESS_STREET_MAX_LENGTH"
         :model-value="modelValue?.street || ''"
         :error="errors?.street || ''"
@@ -156,7 +158,7 @@ loadRegions().then(initCascade)
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <AppSelect
         :id="`${idPrefix}-region`"
-        label="Region"
+        :label="t('community.address.field_region')"
         :required="true"
         :options="toOptions(regions)"
         :model-value="modelValue?.region_code || ''"
@@ -166,7 +168,7 @@ loadRegions().then(initCascade)
       <AppSelect
         v-if="hasProvinces"
         :id="`${idPrefix}-province`"
-        label="Province"
+        :label="t('community.address.field_province')"
         :required="true"
         :disabled="!modelValue?.region_code"
         :options="toOptions(provinces)"
@@ -179,7 +181,7 @@ loadRegions().then(initCascade)
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <AppSelect
         :id="`${idPrefix}-city`"
-        label="City / Municipality"
+        :label="t('community.address.field_city')"
         :required="true"
         :disabled="hasProvinces ? !modelValue?.province_code : !modelValue?.region_code"
         :options="toOptions(cities)"
@@ -189,7 +191,7 @@ loadRegions().then(initCascade)
       />
       <AppSelect
         :id="`${idPrefix}-barangay`"
-        label="Barangay"
+        :label="t('community.address.field_barangay')"
         :required="true"
         :disabled="!modelValue?.city_municipality_code"
         :options="toOptions(barangays)"
@@ -201,9 +203,10 @@ loadRegions().then(initCascade)
 
     <div v-if="showPinPicker && modelValue?.barangay_code">
       <p class="text-sm font-medium text-soil-700 mb-2">
-        Pin exact location <span class="text-stone-500 font-normal">(optional)</span>
+        {{ t('community.address.pin_title') }}
+        <span class="text-stone-500 font-normal">{{ t('community.address.pin_optional') }}</span>
       </p>
-      <LoadingState v-if="loadingCenter" label="Locating your barangay on the map…" />
+      <LoadingState v-if="loadingCenter" :label="t('community.address.pin_loading')" />
       <LeafletPinPicker
         v-else
         :model-value="

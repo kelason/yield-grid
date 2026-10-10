@@ -1,9 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
-import i18n from '@/i18n'
+import i18n, { setLocale } from '@/i18n'
 import AppSidebar from '../AppSidebar.vue'
+
+afterEach(() => {
+  setLocale('en')
+})
 
 const mockRoute = { name: 'farmer-dashboard', path: '/dashboard' }
 
@@ -231,5 +235,21 @@ describe('AppSidebar issue navigation', () => {
 
     expect(text).toContain('Issues')
     expect(text).not.toContain('Report an issue')
+  })
+})
+
+describe('AppSidebar localization', () => {
+  it('renders navigation labels in Tagalog', () => {
+    setLocale('tl')
+    const wrapper = mountSidebar()
+
+    expect(wrapper.text()).toContain('Pangkalahatan')
+  })
+
+  it('renders navigation labels in Bisaya', () => {
+    setLocale('ceb')
+    const wrapper = mountSidebar()
+
+    expect(wrapper.text()).toContain('Kinatibuk-an')
   })
 })

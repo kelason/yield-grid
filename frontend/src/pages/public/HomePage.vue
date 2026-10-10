@@ -1,24 +1,24 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import HeroSection from '../../components/organisms/HeroSection.vue'
-const PAGE_TITLE = 'YieldGrid - Farming, Marketplace & Community'
-const PAGE_DESCRIPTION =
-  'Plan crops, trade harvests, post buyer demands, track insurance and build your farmer profile with YieldGrid’s connected farming community.'
+
+const { t } = useI18n()
 
 useHead({
-  title: PAGE_TITLE,
+  title: t('public.home.meta_title'),
   meta: [
     {
       name: 'description',
-      content: PAGE_DESCRIPTION,
+      content: t('public.home.meta_desc'),
     },
     {
       property: 'og:title',
-      content: PAGE_TITLE,
+      content: t('public.home.meta_title'),
     },
     {
       property: 'og:description',
-      content: PAGE_DESCRIPTION,
+      content: t('public.home.meta_desc'),
     },
   ],
 })

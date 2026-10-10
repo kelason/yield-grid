@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PaperAirplaneIcon } from '@heroicons/vue/24/outline'
 import AppTextarea from '../atoms/AppTextarea.vue'
 import AppButton from '../atoms/AppButton.vue'
 import { CHAT_CONSTANTS } from '../../constants/chat'
 const props = defineProps({ isSending: Boolean, sentMessage: { type: String, default: '' } })
 const emit = defineEmits(['send'])
+const { t } = useI18n()
 const message = ref('')
 const messageLength = computed(() => (message.value || '').length)
 const isOverLimit = computed(() => messageLength.value > CHAT_CONSTANTS.MESSAGE_MAX_LENGTH)
@@ -27,7 +29,9 @@ function handleEnter(event) {
 </script>
 <template>
   <form @submit.prevent="send" class="bg-white border-t border-stone-200 p-4 space-y-2">
-    <label for="chat-message" class="text-sm font-medium text-soil-700">Message</label>
+    <label for="chat-message" class="text-sm font-medium text-soil-700">{{
+      t('chat.composer.label')
+    }}</label>
     <div class="flex gap-3 items-end">
       <AppTextarea
         id="chat-message"
@@ -38,12 +42,12 @@ function handleEnter(event) {
         :maxlength="CHAT_CONSTANTS.MESSAGE_MAX_LENGTH"
         :disabled="isSending"
         class="min-w-0 flex-1 resize-y"
-        placeholder="Type a message..."
+        :placeholder="t('chat.composer.placeholder')"
         @keydown.enter="handleEnter"
       />
       <AppButton
         type="submit"
-        aria-label="Send message"
+        :aria-label="t('chat.composer.send_aria')"
         :loading="isSending"
         :disabled="!message.trim() || isOverLimit"
         ><PaperAirplaneIcon class="h-5 w-5" aria-hidden="true"

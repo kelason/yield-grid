@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppButton from '../atoms/AppButton.vue'
 import AppCard from '../atoms/AppCard.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
@@ -11,6 +12,7 @@ import VerifiedBadge from '../atoms/VerifiedBadge.vue'
 import { isListingVerified } from '@/utils/verification'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const props = defineProps({
   contract: {
@@ -62,13 +64,13 @@ function emitReport() {
             v-if="contract.is_harvest_available"
             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-moss-100 text-moss-800"
           >
-            Harvest Available
+            {{ t('farmer.contract_card.harvest_available') }}
           </div>
           <div
             v-else
             class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-harvest-100 text-harvest-800"
           >
-            Incoming Harvest
+            {{ t('farmer.contract_card.incoming_harvest') }}
           </div>
         </div>
         <StatusBadge :status="contract.status" size="sm" class="ml-2 flex-shrink-0" />
@@ -78,7 +80,7 @@ function emitReport() {
         <div class="flex items-center text-sm text-stone-600">
           <CalendarIcon class="h-4 w-4 mr-2 text-stone-500" aria-hidden="true" />
           <span
-            >Harvest:
+            >{{ t('farmer.contract_card.harvest_label') }}
             <span class="font-medium text-stone-900">{{
               contract.estimated_harvest_date
             }}</span></span
@@ -87,13 +89,17 @@ function emitReport() {
 
         <div class="flex items-center text-sm text-stone-600">
           <UserIcon class="h-4 w-4 mr-2 text-stone-500" aria-hidden="true" />
-          <span class="truncate">{{ contract.farmer?.name || 'Farmer' }}</span>
+          <span class="truncate">{{
+            contract.farmer?.name || t('farmer.contract_card.farmer_fallback')
+          }}</span>
         </div>
 
         <div class="flex items-center text-sm text-stone-600">
           <MapPinIcon class="h-4 w-4 mr-2 text-stone-500" aria-hidden="true" />
           <span class="truncate">{{
-            contract.farmer?.location || contract.farmer?.farm_name || 'Location'
+            contract.farmer?.location ||
+            contract.farmer?.farm_name ||
+            t('farmer.contract_card.location_fallback')
           }}</span>
         </div>
       </div>
@@ -102,7 +108,9 @@ function emitReport() {
         class="pt-4 border-t border-stone-100 mt-auto flex flex-wrap items-end justify-between gap-3"
       >
         <div>
-          <div class="text-xs text-stone-500 mb-1">Total for {{ contract.quantity_kg }}kg</div>
+          <div class="text-xs text-stone-500 mb-1">
+            {{ t('farmer.contract_card.total_for', { qty: contract.quantity_kg }) }}
+          </div>
           <div class="flex flex-wrap items-center gap-2">
             <PriceTag :amount="contract.total_price" :currency="contract.currency" size="md" />
             <PriceFairnessBadge
@@ -114,17 +122,17 @@ function emitReport() {
 
         <div class="flex flex-wrap items-center gap-2">
           <AppButton variant="outline" size="sm" @click="$emit('view-details', contract)">
-            View Details
+            {{ t('farmer.contract_card.view_details') }}
           </AppButton>
           <button
             v-if="!isOwner"
             type="button"
-            aria-label="Report this listing"
+            :aria-label="t('farmer.contract_card.report_aria')"
             class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
             @click.stop="emitReport"
           >
             <FlagIcon class="w-4 h-4" aria-hidden="true" />
-            Report
+            {{ t('farmer.contract_card.report') }}
           </button>
         </div>
       </div>

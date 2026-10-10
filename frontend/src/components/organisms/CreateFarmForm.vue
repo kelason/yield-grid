@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
@@ -15,6 +16,7 @@ const FARM_TOTAL_AREA_MIN = 0
 const FARM_TOTAL_AREA_MAX = 1000000
 
 const emit = defineEmits(['submit', 'cancel'])
+const { t } = useI18n()
 const props = defineProps({
   loading: { type: Boolean, default: false },
   error: { type: String, default: '' },
@@ -44,31 +46,34 @@ watch(
 )
 
 const confirmConfig = computed(() => ({
-  title: 'Create this farm?',
-  message: `Create the farm "${form.value.name}"? You can add plots to it afterwards.`,
-  confirmText: 'Create farm',
+  title: t('farmer.farm_form.confirm_title'),
+  message: t('farmer.farm_form.confirm_message', { name: form.value.name }),
+  confirmText: t('farmer.farm_form.confirm_button'),
   type: 'primary',
 }))
 
 function validate() {
-  if (!form.value.name.trim()) return 'Please enter a farm name.'
+  if (!form.value.name.trim()) return t('farmer.farm_form.name_required')
   if (form.value.name.length > FARM_NAME_MAX_LENGTH)
-    return `Farm name must be at most ${FARM_NAME_MAX_LENGTH} characters.`
+    return t('farmer.farm_form.name_too_long', { max: FARM_NAME_MAX_LENGTH })
   if (form.value.address.length > FARM_ADDRESS_MAX_LENGTH)
-    return `Address must be at most ${FARM_ADDRESS_MAX_LENGTH} characters.`
+    return t('farmer.farm_form.address_too_long', { max: FARM_ADDRESS_MAX_LENGTH })
   if (form.value.city.length > FARM_CITY_MAX_LENGTH)
-    return `City must be at most ${FARM_CITY_MAX_LENGTH} characters.`
+    return t('farmer.farm_form.city_too_long', { max: FARM_CITY_MAX_LENGTH })
   if (form.value.state.length > FARM_STATE_MAX_LENGTH)
-    return `State/Province must be at most ${FARM_STATE_MAX_LENGTH} characters.`
+    return t('farmer.farm_form.state_too_long', { max: FARM_STATE_MAX_LENGTH })
   if (form.value.country.length > FARM_COUNTRY_MAX_LENGTH)
-    return `Country must be at most ${FARM_COUNTRY_MAX_LENGTH} characters.`
+    return t('farmer.farm_form.country_too_long', { max: FARM_COUNTRY_MAX_LENGTH })
   if (form.value.zip.length > FARM_ZIP_MAX_LENGTH)
-    return `Zip/Postal code must be at most ${FARM_ZIP_MAX_LENGTH} characters.`
+    return t('farmer.farm_form.zip_too_long', { max: FARM_ZIP_MAX_LENGTH })
   if (form.value.total_area !== '' && form.value.total_area !== null) {
     const area = Number(form.value.total_area)
-    if (Number.isNaN(area)) return 'Total area must be a number.'
+    if (Number.isNaN(area)) return t('farmer.farm_form.area_number')
     if (area < FARM_TOTAL_AREA_MIN || area > FARM_TOTAL_AREA_MAX)
-      return `Total area must be between ${FARM_TOTAL_AREA_MIN} and ${FARM_TOTAL_AREA_MAX} hectares.`
+      return t('farmer.farm_form.area_range', {
+        min: FARM_TOTAL_AREA_MIN,
+        max: FARM_TOTAL_AREA_MAX,
+      })
   }
   return ''
 }
@@ -95,7 +100,7 @@ function confirmSubmit() {
 
       <FormField
         id="farm-name"
-        label="Farm Name"
+        :label="t('farmer.farm_form.name')"
         v-model="form.name"
         required
         :maxlength="FARM_NAME_MAX_LENGTH"
@@ -104,32 +109,32 @@ function confirmSubmit() {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           id="farm-address"
-          label="Address"
+          :label="t('farmer.farm_form.address')"
           v-model="form.address"
           :maxlength="FARM_ADDRESS_MAX_LENGTH"
         />
         <FormField
           id="farm-city"
-          label="City"
+          :label="t('farmer.farm_form.city')"
           v-model="form.city"
           :maxlength="FARM_CITY_MAX_LENGTH"
         />
         <FormField
           id="farm-state"
-          label="State/Province"
+          :label="t('farmer.farm_form.state')"
           v-model="form.state"
           :maxlength="FARM_STATE_MAX_LENGTH"
         />
         <FormField
           id="farm-country"
-          label="Country"
+          :label="t('farmer.farm_form.country')"
           v-model="form.country"
-          placeholder="e.g. Philippines, United States"
+          :placeholder="t('farmer.farm_form.country_placeholder')"
           :maxlength="FARM_COUNTRY_MAX_LENGTH"
         />
         <FormField
           id="farm-zip"
-          label="Zip/Postal Code"
+          :label="t('farmer.farm_form.zip')"
           v-model="form.zip"
           :maxlength="FARM_ZIP_MAX_LENGTH"
         />
@@ -137,7 +142,7 @@ function confirmSubmit() {
 
       <FormField
         id="farm-area"
-        label="Total Area (Hectares)"
+        :label="t('farmer.farm_form.area')"
         type="number"
         v-model="form.total_area"
         :min="FARM_TOTAL_AREA_MIN"
@@ -145,8 +150,12 @@ function confirmSubmit() {
       />
 
       <div class="flex justify-end space-x-3 pt-4">
-        <AppButton type="button" variant="ghost" @click="$emit('cancel')">Cancel</AppButton>
-        <AppButton type="submit" variant="primary" :loading="loading">Save Farm</AppButton>
+        <AppButton type="button" variant="ghost" @click="$emit('cancel')">
+          {{ t('shell.cancel') }}
+        </AppButton>
+        <AppButton type="submit" variant="primary" :loading="loading">
+          {{ t('farmer.farm_form.save') }}
+        </AppButton>
       </div>
     </form>
 

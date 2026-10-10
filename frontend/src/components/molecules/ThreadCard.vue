@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import AppCard from '../atoms/AppCard.vue'
 import ForumTag from '../atoms/ForumTag.vue'
@@ -10,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const props = defineProps({
   thread: {
@@ -79,7 +81,7 @@ function profileLink(author) {
           </div>
 
           <div class="flex items-center gap-4 text-sm text-stone-500">
-            <div class="flex items-center gap-1.5" title="Category">
+            <div class="flex items-center gap-1.5" :title="t('community.card.category_title')">
               <span class="font-medium">{{ thread.category?.name }}</span>
             </div>
 
@@ -100,11 +102,14 @@ function profileLink(author) {
               </div>
               <span
                 class="truncate max-w-[120px] hover:text-moss-700 transition-colors duration-200 motion-reduce:transition-none"
-                >{{ thread.author?.name || 'Anonymous' }}</span
+                >{{ thread.author?.name || t('community.card.anonymous') }}</span
               >
             </RouterLink>
 
-            <div class="flex items-center gap-1.5 border-l border-stone-200 pl-4" title="Replies">
+            <div
+              class="flex items-center gap-1.5 border-l border-stone-200 pl-4"
+              :title="t('community.card.replies_title')"
+            >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
@@ -119,12 +124,12 @@ function profileLink(author) {
             <button
               v-if="!isOwner"
               type="button"
-              aria-label="Report this discussion"
+              :aria-label="t('community.card.report_aria')"
               class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
               @click.stop="emitReport"
             >
               <FlagIcon class="w-4 h-4" aria-hidden="true" />
-              Report
+              {{ t('community.card.report') }}
             </button>
           </div>
         </div>

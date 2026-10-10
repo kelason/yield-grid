@@ -1,3 +1,5 @@
+import i18n from '@/i18n'
+
 export const CATALOG_LIMITS = {
   PRICE_MIN: 0,
   PRICE_MAX: 9999999999.99,
@@ -7,7 +9,7 @@ export const CATALOG_LIMITS = {
 
 export function catalogFilterError(filters, minKey, maxKey) {
   if ((filters.crop || '').length > CATALOG_LIMITS.CROP_MAX_LENGTH)
-    return 'Crop search is too long.'
+    return i18n.global.t('farmer.common.filter_crop_too_long')
   for (const key of [minKey, maxKey]) {
     const value = filters[key]
     if (value === '' || value == null) continue
@@ -17,7 +19,7 @@ export function catalogFilterError(filters, minKey, maxKey) {
       amount < CATALOG_LIMITS.PRICE_MIN ||
       amount > CATALOG_LIMITS.PRICE_MAX
     )
-      return 'Enter a price between ₱0 and ₱9,999,999,999.99.'
+      return i18n.global.t('farmer.common.filter_price_range')
   }
   if (
     filters[minKey] !== '' &&
@@ -26,6 +28,6 @@ export function catalogFilterError(filters, minKey, maxKey) {
     filters[maxKey] != null &&
     Number(filters[minKey]) > Number(filters[maxKey])
   )
-    return 'The maximum must be at least the minimum.'
+    return i18n.global.t('farmer.common.filter_max_min')
   return ''
 }

@@ -1,3 +1,7 @@
+import i18n from '@/i18n'
+
+const t = (...args) => i18n.global.t(...args)
+
 export const ISSUES_PATH = '/issues'
 export const ADMIN_ISSUES_PATH = '/admin/issues'
 
@@ -10,11 +14,11 @@ export const ISSUE_CATEGORY = {
 }
 
 export const ISSUE_CATEGORY_OPTIONS = [
-  { value: 'technical', label: 'Technical' },
-  { value: 'account', label: 'Account' },
-  { value: 'marketplace', label: 'Marketplace' },
-  { value: 'payment', label: 'Payment' },
-  { value: 'other', label: 'Other' },
+  { value: 'technical', label: 'Technical', labelKey: 'issues.cat.technical' },
+  { value: 'account', label: 'Account', labelKey: 'issues.cat.account' },
+  { value: 'marketplace', label: 'Marketplace', labelKey: 'issues.cat.marketplace' },
+  { value: 'payment', label: 'Payment', labelKey: 'issues.cat.payment' },
+  { value: 'other', label: 'Other', labelKey: 'issues.cat.other' },
 ]
 
 export const ISSUE_CATEGORY_LABELS = {
@@ -23,6 +27,14 @@ export const ISSUE_CATEGORY_LABELS = {
   marketplace: 'Marketplace',
   payment: 'Payment',
   other: 'Other',
+}
+
+export const ISSUE_CATEGORY_LABEL_KEYS = {
+  technical: 'issues.cat.technical',
+  account: 'issues.cat.account',
+  marketplace: 'issues.cat.marketplace',
+  payment: 'issues.cat.payment',
+  other: 'issues.cat.other',
 }
 
 export const ISSUE_STATUS = {
@@ -37,6 +49,13 @@ export const ISSUE_STATUS_LABELS = {
   in_progress: 'In progress',
   resolved: 'Resolved',
   closed: 'Closed',
+}
+
+export const ISSUE_STATUS_LABEL_KEYS = {
+  open: 'issues.status.open',
+  in_progress: 'issues.status.in_progress',
+  resolved: 'issues.status.resolved',
+  closed: 'issues.status.closed',
 }
 
 export const ISSUE_SUBJECT_MAX_LENGTH = 150
@@ -54,15 +73,15 @@ export const ISSUE_TRANSITIONS = {
 export const ISSUE_CLOSING_STATUSES = ['resolved', 'closed']
 
 export const ISSUE_STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'All statuses' },
-  { value: 'open', label: 'Open' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'resolved', label: 'Resolved' },
-  { value: 'closed', label: 'Closed' },
+  { value: '', label: 'All statuses', labelKey: 'issues.report.filter_all' },
+  { value: 'open', label: 'Open', labelKey: 'issues.status.open' },
+  { value: 'in_progress', label: 'In progress', labelKey: 'issues.status.in_progress' },
+  { value: 'resolved', label: 'Resolved', labelKey: 'issues.status.resolved' },
+  { value: 'closed', label: 'Closed', labelKey: 'issues.status.closed' },
 ]
 
 export const ISSUE_CATEGORY_FILTER_OPTIONS = [
-  { value: '', label: 'All categories' },
+  { value: '', label: 'All categories', labelKey: 'admin.issues.cat_all' },
   ...ISSUE_CATEGORY_OPTIONS,
 ]
 
@@ -95,28 +114,28 @@ function pathError(pagePath) {
   const trimmed = pagePath.trim()
   if (!trimmed) return ''
   if (trimmed.length > ISSUE_PAGE_PATH_MAX_LENGTH) {
-    return `Page must be ${ISSUE_PAGE_PATH_MAX_LENGTH} characters or fewer.`
+    return t('issues.form.err_path_max', { max: ISSUE_PAGE_PATH_MAX_LENGTH })
   }
-  if (!isSafeIssuePath(trimmed)) return 'Use a relative path like /dashboard/issues.'
+  if (!isSafeIssuePath(trimmed)) return t('issues.form.err_path')
   return ''
 }
 
 export function validateIssueDraft({ category, subject, description, pagePath }) {
   const errors = { category: '', subject: '', description: '', pagePath: '' }
   if (!Object.values(ISSUE_CATEGORY).includes(category)) {
-    errors.category = 'Choose a category.'
+    errors.category = t('issues.form.err_category')
   }
   const trimmedSubject = String(subject ?? '').trim()
   if (!trimmedSubject) {
-    errors.subject = 'Enter a subject.'
+    errors.subject = t('issues.form.err_subject')
   } else if (trimmedSubject.length > ISSUE_SUBJECT_MAX_LENGTH) {
-    errors.subject = `Subject must be ${ISSUE_SUBJECT_MAX_LENGTH} characters or fewer.`
+    errors.subject = t('issues.form.err_subject_max', { max: ISSUE_SUBJECT_MAX_LENGTH })
   }
   const trimmedDescription = String(description ?? '').trim()
   if (!trimmedDescription) {
-    errors.description = 'Enter a description.'
+    errors.description = t('issues.form.err_desc')
   } else if (trimmedDescription.length > ISSUE_DESCRIPTION_MAX_LENGTH) {
-    errors.description = 'Description must be 5,000 characters or fewer.'
+    errors.description = t('issues.form.err_desc_max')
   }
   errors.pagePath = pathError(String(pagePath ?? ''))
   return errors
@@ -125,9 +144,9 @@ export function validateIssueDraft({ category, subject, description, pagePath })
 export function validateIssueResolution(resolution, status) {
   if (!ISSUE_CLOSING_STATUSES.includes(status)) return ''
   const trimmed = String(resolution ?? '').trim()
-  if (!trimmed) return 'Enter a resolution before resolving or closing.'
+  if (!trimmed) return t('issues.form.err_resolution')
   if (trimmed.length > ISSUE_RESOLUTION_MAX_LENGTH) {
-    return 'Resolution must be 2,000 characters or fewer.'
+    return t('issues.form.err_resolution_max')
   }
   return ''
 }

@@ -1,14 +1,21 @@
 <script setup>
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppButton from '../atoms/AppButton.vue'
 import AppSelect from '../atoms/AppSelect.vue'
 import FormField from '../molecules/FormField.vue'
 import {
   ISSUE_CATEGORY_OPTIONS,
-  ISSUE_CREDENTIAL_WARNING,
   ISSUE_DESCRIPTION_MAX_LENGTH,
   ISSUE_PAGE_PATH_MAX_LENGTH,
   ISSUE_SUBJECT_MAX_LENGTH,
 } from '@/constants/issues'
+
+const { t } = useI18n()
+
+const categoryOptions = computed(() =>
+  ISSUE_CATEGORY_OPTIONS.map((option) => ({ value: option.value, label: t(option.labelKey) })),
+)
 
 defineProps({
   category: { type: String, default: '' },
@@ -34,14 +41,14 @@ defineEmits([
 <template>
   <form class="space-y-5" @submit.prevent="$emit('submit')">
     <p class="rounded-2xl bg-harvest-100 p-4 text-sm leading-relaxed text-stone-700">
-      {{ ISSUE_CREDENTIAL_WARNING }}
+      {{ t('issues.form.warning') }}
     </p>
 
     <AppSelect
       id="issue-category"
-      label="Category"
+      :label="t('issues.form.category')"
       :model-value="category"
-      :options="ISSUE_CATEGORY_OPTIONS"
+      :options="categoryOptions"
       :disabled="busy"
       :required="true"
       :error="errors.category || ''"
@@ -50,39 +57,39 @@ defineEmits([
 
     <FormField
       id="issue-subject"
-      label="Subject"
+      :label="t('issues.form.subject')"
       :model-value="subject"
       :maxlength="ISSUE_SUBJECT_MAX_LENGTH"
       :disabled="busy"
       :required="true"
       :error="errors.subject || ''"
-      placeholder="What went wrong?"
+      :placeholder="t('issues.form.subject_ph')"
       @update:model-value="$emit('update:subject', $event)"
     />
 
     <FormField
       id="issue-description"
-      label="Description"
+      :label="t('issues.form.description')"
       :model-value="description"
       :multiline="true"
       :maxlength="ISSUE_DESCRIPTION_MAX_LENGTH"
       :disabled="busy"
       :required="true"
       :error="errors.description || ''"
-      placeholder="What happened, and what did you expect instead?"
+      :placeholder="t('issues.form.desc_ph')"
       @update:model-value="$emit('update:description', $event)"
     />
 
     <div class="space-y-3">
       <FormField
         id="issue-page-path"
-        label="Related page (optional)"
+        :label="t('issues.form.path')"
         :model-value="pagePath"
         :maxlength="ISSUE_PAGE_PATH_MAX_LENGTH"
         :disabled="busy"
         :error="errors.pagePath || ''"
-        placeholder="/dashboard/issues"
-        hint="Only the page path is stored, never the full address."
+        :placeholder="t('issues.form.path_ph')"
+        :hint="t('issues.form.path_hint')"
         @update:model-value="$emit('update:pagePath', $event)"
       />
       <AppButton
@@ -92,7 +99,7 @@ defineEmits([
         data-testid="issue-use-current-page"
         @click="$emit('use-current-page')"
       >
-        Use current page
+        {{ t('issues.form.use_current') }}
       </AppButton>
     </div>
 
@@ -113,10 +120,10 @@ defineEmits([
         data-testid="issue-new-draft"
         @click="$emit('new-draft')"
       >
-        Start new draft
+        {{ t('issues.form.new_draft') }}
       </AppButton>
       <AppButton type="submit" variant="primary" :loading="busy" :disabled="busy">
-        Submit issue
+        {{ t('issues.form.submit') }}
       </AppButton>
     </div>
   </form>

@@ -2,6 +2,7 @@
 import ConfirmModal from '../molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
@@ -10,6 +11,7 @@ import { useAuthStore } from '../../stores/auth'
 const AUTH_EMAIL_MAX_LENGTH = 255
 const AUTH_PASSWORD_MAX_LENGTH = 255
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
@@ -20,12 +22,12 @@ const loading = ref(false)
 const emit = defineEmits(['success'])
 
 function loginError() {
-  if (!form.value.email.trim()) return 'Please enter your email address.'
+  if (!form.value.email.trim()) return t('auth.login.err_email')
   if (form.value.email.length > AUTH_EMAIL_MAX_LENGTH)
-    return `Email must be at most ${AUTH_EMAIL_MAX_LENGTH} characters.`
-  if (!form.value.password) return 'Please enter your password.'
+    return t('auth.login.err_email_max', { max: AUTH_EMAIL_MAX_LENGTH })
+  if (!form.value.password) return t('auth.login.err_password')
   if (form.value.password.length > AUTH_PASSWORD_MAX_LENGTH)
-    return `Password must be at most ${AUTH_PASSWORD_MAX_LENGTH} characters.`
+    return t('auth.login.err_password_max', { max: AUTH_PASSWORD_MAX_LENGTH })
   return ''
 }
 function handleLogin() {
@@ -33,7 +35,11 @@ function handleLogin() {
   if (error.value) return
   const payload = { ...form.value }
   confirm(
-    { title: 'Sign in?', message: 'Sign in to your YieldGrid account?', confirmText: 'Sign in' },
+    {
+      title: t('auth.login.confirm_title'),
+      message: t('auth.login.confirm_msg'),
+      confirmText: t('auth.login.confirm_cta'),
+    },
     () => performLogin(payload),
   )
 }
@@ -43,7 +49,7 @@ async function performLogin(payload) {
     await authStore.login(payload)
     emit('success')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Login failed. Please check your credentials.'
+    error.value = e.response?.data?.message || t('auth.login.failed')
   } finally {
     loading.value = false
   }
@@ -57,7 +63,7 @@ async function performLogin(payload) {
 
       <FormField
         id="login-email"
-        label="Email address"
+        :label="t('auth.login.email_label')"
         type="email"
         autocomplete="username"
         name="email"
@@ -70,7 +76,7 @@ async function performLogin(payload) {
         name="password"
         :maxlength="AUTH_PASSWORD_MAX_LENGTH"
         minlength="1"
-        label="Password"
+        :label="t('auth.login.password_label')"
         type="password"
         autocomplete="current-password"
         v-model="form.password"
@@ -85,18 +91,20 @@ async function performLogin(payload) {
             v-model="form.remember"
             class="h-4 w-4 text-moss-600 focus:ring-moss-500 border-stone-300 rounded-xl"
           />
-          <label for="remember-me" class="ml-2 block text-sm text-soil-700">Remember me</label>
+          <label for="remember-me" class="ml-2 block text-sm text-soil-700">{{
+            t('auth.login.remember')
+          }}</label>
         </div>
         <router-link
           :to="{ name: 'forgot-password' }"
           class="text-sm font-medium text-moss-600 hover:text-moss-500 transition-colors duration-200"
         >
-          Forgot your password?
+          {{ t('auth.login.forgot') }}
         </router-link>
       </div>
 
       <AppButton type="submit" variant="primary" size="md" :loading="loading" class="w-full">
-        Sign in
+        {{ t('auth.login.submit') }}
       </AppButton>
     </form>
     <ConfirmModal

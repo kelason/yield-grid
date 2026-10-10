@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { DESIGN_COLORS } from '@/constants/designTokens'
@@ -14,6 +15,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'validation'])
 
+const { t } = useI18n()
 const mapContainer = ref(null)
 let map = null
 let marker = null
@@ -125,13 +127,13 @@ onBeforeUnmount(() => {
       ref="mapContainer"
       class="w-full h-64 rounded-2xl border border-stone-200 shadow-soft z-0"
       role="application"
-      aria-label="Pin your exact location on the map"
+      :aria-label="t('shell.map.pin_aria')"
     ></div>
     <p v-if="outOfRange" class="mt-2 text-sm text-red-600" role="alert">
-      The pin must be within the selected barangay, city, and province.
+      {{ t('shell.map.pin_range_error') }}
     </p>
     <p v-else class="mt-2 text-xs text-stone-500">
-      Tap the map or drag the pin to set your exact pickup or delivery point.
+      {{ t('shell.map.pin_hint') }}
     </p>
   </div>
 </template>

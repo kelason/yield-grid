@@ -1,9 +1,10 @@
 import { useRouter } from 'vue-router'
+import i18n from '@/i18n'
 import { useChatStore } from '../stores/chatStore'
 import { useNotificationStore } from '../stores/notificationStore'
 import { HTTP_STATUS } from '../constants/http'
 
-const TRANSACTION_CHAT_UNAVAILABLE = 'Chat is only available with your transaction partners.'
+const t = (...args) => i18n.global.t(...args)
 
 /**
  * Opens (or reuses) a 1-to-1 chat with a transaction counterparty and routes
@@ -16,7 +17,7 @@ export function useChatEntry() {
 
   async function openChat(recipientId) {
     if (!recipientId) {
-      notificationStore.error('Could not identify the chat recipient.')
+      notificationStore.error(t('chat.entry.no_recipient'))
       return
     }
 
@@ -25,9 +26,9 @@ export function useChatEntry() {
       router.push({ name: 'chat', query: { conversation: conversation.id } })
     } catch (err) {
       if (err.response?.status === HTTP_STATUS.FORBIDDEN) {
-        notificationStore.error(TRANSACTION_CHAT_UNAVAILABLE)
+        notificationStore.error(t('chat.entry.unavailable'))
       } else {
-        notificationStore.error('Could not open chat. Please try again.')
+        notificationStore.error(t('chat.entry.open_failed'))
       }
     }
   }

@@ -1,5 +1,7 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const CHART_WIDTH = 600
 const CHART_HEIGHT = 180
@@ -35,10 +37,12 @@ const hasEnoughData = computed(() => points.value.length >= 2)
 
 <template>
   <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
-    <h3 class="font-serif text-2xl font-bold text-stone-900">Score History</h3>
+    <h3 class="font-serif text-2xl font-bold text-stone-900">
+      {{ t('farmer.credit_history.title') }}
+    </h3>
     <div v-if="!hasEnoughData" class="mt-4 text-center py-8">
       <p class="text-base text-stone-600 font-normal leading-relaxed">
-        Your score trend will appear here after your next daily recalculation.
+        {{ t('farmer.credit_history.empty') }}
       </p>
     </div>
     <div v-else class="overflow-x-auto">
@@ -46,7 +50,7 @@ const hasEnoughData = computed(() => points.value.length >= 2)
         :viewBox="`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`"
         class="w-full min-w-[600px] h-auto mt-4"
         role="img"
-        aria-label="Trust score trend over time"
+        :aria-label="t('farmer.credit_history.chart_aria')"
       >
         <line
           :x1="CHART_PADDING"

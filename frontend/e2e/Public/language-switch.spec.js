@@ -4,28 +4,32 @@ import { switchDashboardLocale } from '../fixtures/language'
 
 test('guest language switch persists across reload', async ({ page, isMobile }) => {
   await page.goto('/')
-  const nav = page.getByRole('navigation', {
+  const navEn = page.getByRole('navigation', {
     name: isMobile ? 'Mobile navigation' : 'Main navigation',
+    exact: true,
+  })
+  const navCeb = page.getByRole('navigation', {
+    name: isMobile ? 'Mobile nga nabigasyon' : 'Panguna nga nabigasyon',
     exact: true,
   })
   const menu = page.getByTestId('language-menu').filter({ visible: true })
   if (isMobile) {
     await page.getByRole('button', { name: 'Open menu', exact: true }).click()
   }
-  await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
+  await expect(navEn.getByRole('link', { name: 'About', exact: true })).toBeVisible()
 
   await menu.click()
   await page.getByTestId('locale-ceb').click()
 
-  await expect(nav.getByRole('link', { name: 'Mahitungod', exact: true })).toBeVisible()
+  await expect(navCeb.getByRole('link', { name: 'Mahitungod', exact: true })).toBeVisible()
   await expect(menu).toContainText('CEB')
   await expect(await page.evaluate(() => localStorage.getItem('yieldgrid-locale'))).toBe('ceb')
 
   await page.reload()
   if (isMobile) {
-    await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+    await page.getByRole('button', { name: 'Ablihi ang menu', exact: true }).click()
   }
-  await expect(nav.getByRole('link', { name: 'Mahitungod', exact: true })).toBeVisible()
+  await expect(navCeb.getByRole('link', { name: 'Mahitungod', exact: true })).toBeVisible()
   await expect(await page.evaluate(() => localStorage.getItem('yieldgrid-locale'))).toBe('ceb')
 })
 

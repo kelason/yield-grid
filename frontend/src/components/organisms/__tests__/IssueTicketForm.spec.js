@@ -1,8 +1,13 @@
 import { mount } from '@vue/test-utils'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
+import { setLocale } from '@/i18n'
 import IssueTicketForm from '../IssueTicketForm.vue'
 
 describe('IssueTicketForm.vue', () => {
+  afterEach(() => {
+    setLocale('en')
+  })
+
   function mountForm(props = {}) {
     return mount(IssueTicketForm, {
       props: {
@@ -24,6 +29,15 @@ describe('IssueTicketForm.vue', () => {
 
     expect(options).toEqual(['', 'technical', 'account', 'marketplace', 'payment', 'other'])
     expect(wrapper.text()).toContain('Payment')
+  })
+
+  it('labels the current-page button in Tagalog', () => {
+    setLocale('tl')
+    const wrapper = mountForm()
+
+    expect(wrapper.find('[data-testid="issue-use-current-page"]').text()).toBe(
+      'Gamitin ang kasalukuyang pahina',
+    )
   })
 
   it('warns members not to include passwords or payment credentials', () => {

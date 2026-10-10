@@ -36,7 +36,7 @@ function requestLogout() {
       class="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
     >
       <AppLogo />
-      <nav aria-label="Main navigation" class="hidden items-center gap-7 md:flex">
+      <nav :aria-label="t('common.nav.main_label')" class="hidden items-center gap-7 md:flex">
         <NavLink to="/" :label="t('common.nav.home')" /><NavLink
           to="/about"
           :label="t('common.nav.about')"
@@ -68,13 +68,13 @@ function requestLogout() {
         variant="ghost"
         size="sm"
         class="md:hidden"
-        aria-label="Open menu"
+        :aria-label="t('common.nav.open_menu')"
         @click="menuOpen = true"
         ><Bars3Icon class="h-6 w-6" aria-hidden="true"
       /></AppButton>
     </div>
-    <AppModal :is-open="menuOpen" title="Menu" size="sm" @close="menuOpen = false"
-      ><nav aria-label="Mobile navigation" class="flex flex-col gap-3">
+    <AppModal :is-open="menuOpen" :title="t('common.nav.menu')" size="sm" @close="menuOpen = false"
+      ><nav :aria-label="t('common.nav.mobile_label')" class="flex flex-col gap-3">
         <NavLink to="/" :label="t('common.nav.home')" /><NavLink
           to="/about"
           :label="t('common.nav.about')"

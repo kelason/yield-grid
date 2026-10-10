@@ -1,6 +1,7 @@
 <script setup>
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useDemandStore } from '@/stores/demandStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useChatEntry } from '@/composables/useChatEntry'
@@ -15,15 +16,58 @@ import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 const demandStore = useDemandStore()
 const notificationStore = useNotificationStore()
 const { openChat } = useChatEntry()
+const { t } = useI18n()
 
 const OFFER_TABS = [
-  { id: 'all', name: 'All Offers', status: null },
-  { id: 'pending', name: 'Pending', status: 'pending' },
-  { id: 'accepted', name: 'Accepted', status: 'accepted' },
-  { id: 'paid', name: 'Paid', status: 'partially_paid,paid' },
-  { id: 'delivered', name: 'Delivered', status: 'delivered' },
-  { id: 'completed', name: 'Completed', status: 'completed' },
-  { id: 'closed', name: 'Closed', status: 'rejected,withdrawn,cancelled,expired' },
+  {
+    id: 'all',
+    name: 'All Offers',
+    labelKey: 'farmer.offers.tab_all',
+    emptyKey: 'farmer.offers.empty_all',
+    status: null,
+  },
+  {
+    id: 'pending',
+    name: 'Pending',
+    labelKey: 'farmer.offers.tab_pending',
+    emptyKey: 'farmer.offers.empty_pending',
+    status: 'pending',
+  },
+  {
+    id: 'accepted',
+    name: 'Accepted',
+    labelKey: 'farmer.offers.tab_accepted',
+    emptyKey: 'farmer.offers.empty_accepted',
+    status: 'accepted',
+  },
+  {
+    id: 'paid',
+    name: 'Paid',
+    labelKey: 'farmer.offers.tab_paid',
+    emptyKey: 'farmer.offers.empty_paid',
+    status: 'partially_paid,paid',
+  },
+  {
+    id: 'delivered',
+    name: 'Delivered',
+    labelKey: 'farmer.offers.tab_delivered',
+    emptyKey: 'farmer.offers.empty_delivered',
+    status: 'delivered',
+  },
+  {
+    id: 'completed',
+    name: 'Completed',
+    labelKey: 'farmer.offers.tab_completed',
+    emptyKey: 'farmer.offers.empty_completed',
+    status: 'completed',
+  },
+  {
+    id: 'closed',
+    name: 'Closed',
+    labelKey: 'farmer.offers.tab_closed',
+    emptyKey: 'farmer.offers.empty_closed',
+    status: 'rejected,withdrawn,cancelled,expired',
+  },
 ]
 
 const actingId = ref(null)
@@ -34,49 +78,51 @@ const expandedAddressId = ref(null)
 
 const activeTab = computed(() => OFFER_TABS.find((tab) => tab.id === currentTab.value))
 
-const emptyTitle = computed(() =>
-  currentTab.value === 'all' ? 'No offers yet' : `No ${activeTab.value.name.toLowerCase()} offers`,
-)
+const emptyTitle = computed(() => t(activeTab.value?.emptyKey || 'farmer.offers.empty_all'))
 
 const emptyDescription = computed(() =>
   currentTab.value === 'all'
-    ? 'Browse buyer demands and send your first offer.'
-    : 'Offers with this status will appear here.',
+    ? t('farmer.offers.empty_all_desc')
+    : t('farmer.offers.empty_tab_desc'),
 )
 
 const OFFER_CONFIRMATIONS = {
   message: {
-    title: 'Open conversation?',
-    message: () => 'Open a conversation with this buyer?',
-    confirmText: 'Open conversation',
+    titleKey: 'farmer.offers.msg_title',
+    messageKey: 'farmer.offers.msg_message',
+    params: () => ({}),
+    confirmTextKey: 'farmer.offers.msg_confirm',
     type: 'primary',
   },
   withdraw: {
-    title: 'Withdraw offer?',
-    message: (offer) =>
-      `Withdraw your offer of ${offer.quantity_kg} kg? The buyer will no longer see it, but you can submit a new one while the demand is still open.`,
-    confirmText: 'Withdraw',
+    titleKey: 'farmer.offers.withdraw_title',
+    messageKey: 'farmer.offers.withdraw_message',
+    params: (offer) => ({ qty: offer.quantity_kg }),
+    confirmTextKey: 'farmer.offers.withdraw_confirm',
     type: 'danger',
   },
   cancel: {
-    title: 'Cancel this offer?',
-    message: (offer) =>
-      `Cancel your accepted offer of ${offer.quantity_kg} kg? This releases the reserved quantity back to the buyer and cannot be undone.`,
-    confirmText: 'Cancel offer',
+    titleKey: 'farmer.offers.cancel_title',
+    messageKey: 'farmer.offers.cancel_message',
+    params: (offer) => ({ qty: offer.quantity_kg }),
+    confirmTextKey: 'farmer.offers.cancel_confirm',
     type: 'danger',
   },
   'mark-delivered': {
-    title: 'Mark as delivered?',
-    message: (offer) =>
-      `Confirm you have delivered ${offer.quantity_kg} kg to the buyer. The buyer will be asked to confirm receipt.`,
-    confirmText: 'Mark delivered',
+    titleKey: 'farmer.offers.delivered_title',
+    messageKey: 'farmer.offers.delivered_message',
+    params: (offer) => ({ qty: offer.quantity_kg }),
+    confirmTextKey: 'farmer.offers.delivered_confirm',
     type: 'primary',
   },
   'settle-balance': {
-    title: 'Confirm full payment?',
-    message: (offer) =>
-      `Confirm the buyer paid the remaining ₱${remainingBalance(offer).toLocaleString('en-PH')} on delivery for ${offer.quantity_kg} kg? This marks the order as paid in full.`,
-    confirmText: 'Confirm full payment',
+    titleKey: 'farmer.offers.settle_title',
+    messageKey: 'farmer.offers.settle_message',
+    params: (offer) => ({
+      balance: remainingBalance(offer).toLocaleString('en-PH'),
+      qty: offer.quantity_kg,
+    }),
+    confirmTextKey: 'farmer.offers.settle_confirm',
     type: 'primary',
   },
 }
@@ -84,7 +130,13 @@ const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   const { action, offer } = pendingConfirm.value
   const config = OFFER_CONFIRMATIONS[action]
-  return config ? { ...config, message: config.message(offer) } : null
+  if (!config) return null
+  return {
+    title: t(config.titleKey),
+    message: t(config.messageKey, config.params(offer)),
+    confirmText: t(config.confirmTextKey),
+    type: config.type,
+  }
 })
 
 function remainingBalance(offer) {
@@ -99,21 +151,27 @@ function askConfirm(action, offer) {
 const confirmPending = () => execute(performConfirmedAction)
 
 const OFFER_ACTIONS = {
-  withdraw: { run: (id) => demandStore.withdrawOffer(id), message: 'Offer withdrawn.' },
-  cancel: { run: (id) => demandStore.cancelOffer(id, true), message: 'Offer cancelled.' },
+  withdraw: {
+    run: (id) => demandStore.withdrawOffer(id),
+    messageKey: 'farmer.offers.withdrawn_toast',
+  },
+  cancel: {
+    run: (id) => demandStore.cancelOffer(id, true),
+    messageKey: 'farmer.offers.cancelled_toast',
+  },
   'mark-delivered': {
     run: (id) => demandStore.markDelivered(id),
-    message: 'Marked as delivered. Waiting for buyer confirmation.',
+    messageKey: 'farmer.offers.delivered_toast',
   },
   'settle-balance': {
     run: (id) => demandStore.settleBalance(id),
-    message: 'Full payment confirmed. The order is now settled.',
+    messageKey: 'farmer.offers.settled_toast',
   },
 }
 async function performConfirmedAction(pending) {
   if (pending.action === 'message') return openChat(pending.offer.demand?.buyer?.id)
   const action = OFFER_ACTIONS[pending.action]
-  await runAction(pending.offer, () => action.run(pending.offer.id), action.message)
+  await runAction(pending.offer, () => action.run(pending.offer.id), action.messageKey)
 }
 
 onMounted(() => {
@@ -139,13 +197,16 @@ function isActing(offer) {
   return actingId.value === offer.id
 }
 
-async function runAction(offer, action, successMessage) {
+async function runAction(offer, action, successMessageKey) {
   actingId.value = offer.id
   try {
     await action()
-    notificationStore.success(successMessage)
+    notificationStore.addNotification({ type: 'success', messageKey: successMessageKey })
   } catch (err) {
-    notificationStore.error(err.response?.data?.message || 'Action failed. Please try again.')
+    notificationStore.addNotification({
+      type: 'error',
+      message: err.response?.data?.message || t('farmer.offers.action_failed'),
+    })
   } finally {
     actingId.value = null
   }
@@ -175,9 +236,9 @@ function handleMessage(offer) {
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="font-serif text-3xl font-bold text-stone-900">My Offers</h1>
+      <h1 class="font-serif text-3xl font-bold text-stone-900">{{ t('farmer.offers.title') }}</h1>
       <p class="text-base text-stone-600 font-normal mt-1">
-        Track your offers to buyers, from pending to delivered.
+        {{ t('farmer.offers.description') }}
       </p>
     </div>
 
@@ -185,7 +246,7 @@ function handleMessage(offer) {
       <div class="border-b border-stone-200">
         <nav
           class="-mb-px flex space-x-8 px-6 overflow-x-auto"
-          aria-label="Filter offers by status"
+          :aria-label="t('farmer.offers.filter_aria')"
         >
           <button
             v-for="tab in OFFER_TABS"
@@ -199,7 +260,7 @@ function handleMessage(offer) {
               'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200',
             ]"
           >
-            {{ tab.name }}
+            {{ t(tab.labelKey) }}
           </button>
         </nav>
       </div>
@@ -223,10 +284,15 @@ function handleMessage(offer) {
           <div class="flex items-start justify-between gap-3 mb-4">
             <div>
               <h2 class="font-serif text-2xl font-bold text-stone-900">
-                {{ offer.demand?.title || 'Crop demand' }}
+                {{ offer.demand?.title || t('farmer.offers.crop_demand') }}
               </h2>
               <p class="text-sm text-stone-500 mt-0.5">
-                {{ offer.demand?.crop_name }} · Buyer: {{ offer.demand?.buyer?.name || '—' }}
+                {{
+                  t('farmer.offers.buyer_line', {
+                    crop: offer.demand?.crop_name,
+                    buyer: offer.demand?.buyer?.name || '—',
+                  })
+                }}
               </p>
             </div>
             <StatusBadge :status="offer.demand?.status || 'open'" size="sm" />
@@ -249,7 +315,9 @@ function handleMessage(offer) {
               @click="toggleAddress(offer)"
               :aria-expanded="isAddressExpanded(offer)"
               :aria-label="
-                isAddressExpanded(offer) ? 'Hide delivery address' : 'Show delivery address'
+                isAddressExpanded(offer)
+                  ? t('farmer.offers.hide_address')
+                  : t('farmer.offers.show_address')
               "
               class="inline-flex items-center gap-1.5 text-sm font-medium text-moss-700 hover:text-moss-800 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
             >
@@ -258,7 +326,11 @@ function handleMessage(offer) {
                 :class="{ 'rotate-180': isAddressExpanded(offer) }"
                 aria-hidden="true"
               />
-              {{ isAddressExpanded(offer) ? 'Hide delivery address' : 'Show delivery address' }}
+              {{
+                isAddressExpanded(offer)
+                  ? t('farmer.offers.hide_address')
+                  : t('farmer.offers.show_address')
+              }}
             </button>
             <DeliveryAddressCard
               v-if="isAddressExpanded(offer)"
@@ -272,9 +344,9 @@ function handleMessage(offer) {
 
     <ConfirmModal
       :is-open="pendingConfirm !== null"
-      :title="confirmConfig?.title || 'Confirm Action'"
+      :title="confirmConfig?.title || ''"
       :message="confirmConfig?.message || ''"
-      :confirm-text="confirmConfig?.confirmText || 'Confirm'"
+      :confirm-text="confirmConfig?.confirmText || ''"
       :type="confirmConfig?.type || 'primary'"
       @confirm="confirmPending"
       :loading="isExecuting"

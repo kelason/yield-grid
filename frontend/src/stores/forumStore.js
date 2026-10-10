@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from '../composables/useApi'
 import { useNotificationStore } from './notificationStore'
+
+const t = (...args) => i18n.global.t(...args)
 
 function findReply(replies, id) {
   for (const reply of replies || []) {
@@ -70,8 +73,11 @@ export const useForumStore = defineStore('forum', () => {
       }
     } catch (error) {
       console.error(error)
-      fetchError.value = 'Failed to fetch discussions. Please retry.'
-      notificationStore.error('Failed to fetch threads')
+      fetchError.value = t('community.forum.err_list')
+      notificationStore.addNotification({
+        type: 'error',
+        messageKey: 'community.forum.err_list_toast',
+      })
     } finally {
       isLoading.value = false
     }
@@ -86,8 +92,11 @@ export const useForumStore = defineStore('forum', () => {
       currentThread.value = response.data.data || response.data
     } catch (error) {
       console.error(error)
-      fetchError.value = 'Failed to fetch this discussion. Please retry.'
-      notificationStore.error('Failed to fetch thread')
+      fetchError.value = t('community.forum.err_thread')
+      notificationStore.addNotification({
+        type: 'error',
+        messageKey: 'community.forum.err_thread_toast',
+      })
     } finally {
       isLoading.value = false
     }
@@ -96,10 +105,10 @@ export const useForumStore = defineStore('forum', () => {
   async function createThread(data) {
     try {
       const response = await api.post('/forum/threads', data)
-      notificationStore.success('Thread created successfully')
+      notificationStore.addNotification({ type: 'success', messageKey: 'community.forum.created' })
       return response.data
     } catch (error) {
-      notificationStore.error('Failed to create thread')
+      notificationStore.addNotification({ type: 'error', messageKey: 'community.forum.err_create' })
       throw error
     }
   }
@@ -114,7 +123,7 @@ export const useForumStore = defineStore('forum', () => {
       }
       return response.data
     } catch (error) {
-      notificationStore.error('Failed to post reply')
+      notificationStore.addNotification({ type: 'error', messageKey: 'community.forum.err_reply' })
       throw error
     }
   }
@@ -137,7 +146,7 @@ export const useForumStore = defineStore('forum', () => {
       return data
     } catch (error) {
       console.error(error)
-      notificationStore.error('Failed to vote')
+      notificationStore.addNotification({ type: 'error', messageKey: 'community.forum.err_vote' })
     }
   }
 
@@ -164,7 +173,7 @@ export const useForumStore = defineStore('forum', () => {
       return data
     } catch (error) {
       console.error(error)
-      notificationStore.error('Failed to vote')
+      notificationStore.addNotification({ type: 'error', messageKey: 'community.forum.err_vote' })
     }
   }
 
@@ -177,7 +186,7 @@ export const useForumStore = defineStore('forum', () => {
       }
     } catch (error) {
       console.error(error)
-      notificationStore.error('Failed to accept reply')
+      notificationStore.addNotification({ type: 'error', messageKey: 'community.forum.err_accept' })
     }
   }
 
@@ -190,7 +199,7 @@ export const useForumStore = defineStore('forum', () => {
       reason,
       description,
     })
-    notificationStore.success('Report submitted. Thank you.')
+    notificationStore.addNotification({ type: 'success', messageKey: 'community.forum.reported' })
     return response.data?.data ?? response.data
   }
 

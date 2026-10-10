@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAdminInquiries } from '@/composables/useAdminInquiries'
 import { queryFilterValue } from '@/utils/adminQueryFilters'
@@ -10,7 +11,6 @@ import {
   ADMIN_SEARCH_MAX_LENGTH,
   CONTACT_INQUIRY_STATUS,
   CONTACT_REPLY_BODY_MAX_LENGTH,
-  DUPLICATE_DELIVERY_CAUTION,
   REPLY_DELIVERY_STATUS,
 } from '@/constants/admin'
 import PageHeader from '@/components/molecules/PageHeader.vue'
@@ -25,27 +25,47 @@ import EmptyState from '@/components/molecules/EmptyState.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 import AdminInquiryDetail from '@/components/organisms/AdminInquiryDetail.vue'
 
-const INQUIRY_STATUS_LABELS = {
-  unread: 'Unread',
-  read: 'Read',
-  replied: 'Replied',
-  closed: 'Closed',
+const INQUIRY_STATUS_LABEL_KEYS = {
+  unread: 'admin.inquiry.status_unread',
+  read: 'admin.inquiry.status_read',
+  replied: 'admin.inquiry.status_replied',
+  closed: 'admin.inquiry.status_closed',
 }
 
 const CONFIRM_COPY = {
-  read: { title: 'Mark as read?', confirmText: 'Mark read', variant: 'primary' },
-  close: { title: 'Close inquiry?', confirmText: 'Close inquiry', variant: 'primary' },
-  reopen: { title: 'Reopen inquiry?', confirmText: 'Reopen inquiry', variant: 'primary' },
-  reply: { title: 'Queue reply?', confirmText: 'Queue reply', variant: 'primary' },
-  retry: { title: 'Retry delivery?', confirmText: 'Retry delivery', variant: 'primary' },
+  read: {
+    titleKey: 'admin.inquiry.read_title',
+    confirmKey: 'admin.inquiry.read_ok',
+    variant: 'primary',
+  },
+  close: {
+    titleKey: 'admin.inquiry.close_title',
+    confirmKey: 'admin.inquiry.close_ok',
+    variant: 'primary',
+  },
+  reopen: {
+    titleKey: 'admin.inquiry.reopen_title',
+    confirmKey: 'admin.inquiry.reopen_ok',
+    variant: 'primary',
+  },
+  reply: {
+    titleKey: 'admin.inquiry.reply_title',
+    confirmKey: 'admin.inquiry.reply_ok',
+    variant: 'primary',
+  },
+  retry: {
+    titleKey: 'admin.inquiry.retry_title',
+    confirmKey: 'admin.inquiry.retry_ok',
+    variant: 'primary',
+  },
 }
 
-const SUCCESS_COPY = {
-  read: 'Inquiry marked as read.',
-  close: 'Inquiry closed.',
-  reopen: 'Inquiry reopened.',
-  reply: 'Reply queued for delivery.',
-  retry: 'Reply delivery retried.',
+const SUCCESS_KEYS = {
+  read: 'admin.inquiry.toast_read',
+  close: 'admin.inquiry.toast_close',
+  reopen: 'admin.inquiry.toast_reopen',
+  reply: 'admin.inquiry.toast_reply',
+  retry: 'admin.inquiry.toast_retry',
 }
 
 function newRequestKey() {
@@ -60,6 +80,7 @@ function newRequestKey() {
 }
 
 const notificationStore = useNotificationStore()
+const { t } = useI18n()
 const {
   list,
   loading,
@@ -114,38 +135,57 @@ const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   const copy = CONFIRM_COPY[pendingConfirm.value.action]
   if (!copy) return null
-  return { ...copy, message: confirmMessage(pendingConfirm.value) }
+  return {
+    title: t(copy.titleKey),
+    confirmText: t(copy.confirmKey),
+    variant: copy.variant,
+    message: confirmMessage(pendingConfirm.value),
+  }
 })
 
+const statusOptions = computed(() =>
+  ADMIN_INQUIRY_STATUS_OPTIONS.map((option) => ({
+    value: option.value,
+    label: t(option.labelKey),
+  })),
+)
+
+const deliveryOptions = computed(() =>
+  ADMIN_INQUIRY_DELIVERY_OPTIONS.map((option) => ({
+    value: option.value,
+    label: t(option.labelKey),
+  })),
+)
+
 function displayName(message) {
-  return message?.name || 'Unknown inquiry'
+  return message?.name || t('admin.inquiry.unknown_inquiry')
 }
 
 function statusLabel(message) {
-  return INQUIRY_STATUS_LABELS[message?.status] ?? 'Unknown'
+  return t(INQUIRY_STATUS_LABEL_KEYS[message?.status] ?? 'admin.inquiry.unknown_status')
 }
 
 function confirmMessage(pending) {
   const name = displayName(pending.message)
   if (pending.action === 'reply') {
-    return `Queue this reply to ${name}? Delivery happens in the background.`
+    return t('admin.inquiry.reply_msg', { name })
   }
   if (pending.action === 'retry') {
     const caution =
       pending.reply?.delivery_status === REPLY_DELIVERY_STATUS.SENDING
-        ? ` ${DUPLICATE_DELIVERY_CAUTION}`
+        ? ` ${t('admin.inquiry.dup_caution')}`
         : ''
-    return `Retry delivery of this reply to ${name}? The same reply is sent again.${caution}`
+    return t('admin.inquiry.retry_msg', { name, caution })
   }
-  if (pending.action === 'read') return `Mark the inquiry from ${name} as read?`
-  if (pending.action === 'close') return `Close the inquiry from ${name}?`
-  return `Reopen the inquiry from ${name}?`
+  if (pending.action === 'read') return t('admin.inquiry.read_msg', { name })
+  if (pending.action === 'close') return t('admin.inquiry.close_msg', { name })
+  return t('admin.inquiry.reopen_msg', { name })
 }
 
 function applySearch() {
   const search = String(filters.value.search ?? '')
   if (search.length > ADMIN_SEARCH_MAX_LENGTH) {
-    filterError.value = `Search must be ${ADMIN_SEARCH_MAX_LENGTH} characters or fewer.`
+    filterError.value = t('admin.inquiry.err_search', { max: ADMIN_SEARCH_MAX_LENGTH })
     return
   }
   filterError.value = ''
@@ -203,11 +243,11 @@ function askTransition(action) {
 function validatedDraft() {
   const body = draft.value.trim()
   if (!body) {
-    draftError.value = 'Enter a reply before sending.'
+    draftError.value = t('admin.inquiry.err_draft')
     return null
   }
   if (body.length > CONTACT_REPLY_BODY_MAX_LENGTH) {
-    draftError.value = 'Reply must be 5,000 characters or fewer.'
+    draftError.value = t('admin.inquiry.err_draft_max')
     return null
   }
   draftError.value = ''
@@ -249,7 +289,10 @@ function afterConfirmedAction(pending, result) {
     clientRequestId.value = newRequestKey()
   }
   if (result?.warning) notice.value = result.warning
-  notificationStore.success(SUCCESS_COPY[pending.action] ?? 'Done.')
+  notificationStore.addNotification({
+    type: 'success',
+    messageKey: SUCCESS_KEYS[pending.action] ?? 'admin.inquiry.toast_done',
+  })
 }
 
 async function submitDialog() {
@@ -261,7 +304,7 @@ async function submitDialog() {
     pendingConfirm.value = null
     afterConfirmedAction(pending, result)
   } catch (err) {
-    dialogError.value = err?.message || 'Unable to update this inquiry.'
+    dialogError.value = err?.message || t('admin.inquiry.update_failed')
   }
 }
 
@@ -273,10 +316,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <PageHeader
-      title="Inquiries"
-      description="Read Contact Us messages and queue replies. Delivery runs in the background."
-    />
+    <PageHeader :title="t('admin.inquiry.title')" :description="t('admin.inquiry.description')" />
 
     <AppCard padding="p-5">
       <form
@@ -286,57 +326,53 @@ onMounted(() => {
         <FormField
           id="admin-inquiry-search"
           v-model="filters.search"
-          label="Search inquiries"
-          placeholder="Name, email or subject"
+          :label="t('admin.inquiry.search_label')"
+          :placeholder="t('admin.inquiry.search_ph')"
           :maxlength="ADMIN_SEARCH_MAX_LENGTH"
           :error="filterError"
         />
         <AppSelect
           id="admin-inquiry-status"
           :model-value="filters.status"
-          label="Status"
+          :label="t('admin.inquiry.status_label')"
           @update:model-value="onStatusChange"
         >
-          <option
-            v-for="option in ADMIN_INQUIRY_STATUS_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
+          <option v-for="option in statusOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </AppSelect>
         <AppSelect
           id="admin-inquiry-delivery"
           :model-value="filters.delivery"
-          label="Reply delivery"
+          :label="t('admin.inquiry.delivery_label')"
           @update:model-value="onDeliveryChange"
         >
-          <option
-            v-for="option in ADMIN_INQUIRY_DELIVERY_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
+          <option v-for="option in deliveryOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </AppSelect>
         <div class="flex items-end gap-3">
-          <AppButton type="submit" variant="primary">Search</AppButton>
-          <AppButton type="button" variant="ghost" @click="resetFilters">Reset</AppButton>
+          <AppButton type="submit" variant="primary">{{ t('admin.inquiry.search_btn') }}</AppButton>
+          <AppButton type="button" variant="ghost" @click="resetFilters">{{
+            t('admin.inquiry.reset')
+          }}</AppButton>
         </div>
       </form>
     </AppCard>
 
-    <LoadingState v-if="loading" label="Loading inquiries" />
+    <LoadingState v-if="loading" :label="t('admin.inquiry.loading')" />
 
     <AppCard v-else-if="error" padding="p-6" role="alert">
       <p class="text-base text-stone-900">{{ error }}</p>
-      <AppButton variant="outline" class="mt-4" @click="retryFetch">Retry</AppButton>
+      <AppButton variant="outline" class="mt-4" @click="retryFetch">{{
+        t('shell.retry')
+      }}</AppButton>
     </AppCard>
 
     <EmptyState
       v-else-if="inquiries.length === 0"
-      title="No inquiries found"
-      description="No messages match the current filters."
+      :title="t('admin.inquiry.empty_title')"
+      :description="t('admin.inquiry.empty_desc')"
     />
 
     <ul v-else class="space-y-4">
@@ -348,7 +384,7 @@ onMounted(() => {
                 {{ displayName(inquiry) }}
               </h2>
               <p class="mt-1 break-words text-sm text-stone-600">
-                {{ inquiry?.subject || 'Untitled inquiry' }}
+                {{ inquiry?.subject || t('admin.inquiry.untitled') }}
               </p>
               <div class="mt-2">
                 <span
@@ -363,10 +399,10 @@ onMounted(() => {
                 v-if="inquiry?.id != null"
                 variant="outline"
                 class="w-full"
-                :aria-label="`View inquiry from ${displayName(inquiry)}`"
+                :aria-label="t('admin.inquiry.view_aria', { name: displayName(inquiry) })"
                 @click="selectInquiry(inquiry.id)"
               >
-                View
+                {{ t('admin.inquiry.view') }}
               </AppButton>
             </div>
           </div>
@@ -382,17 +418,17 @@ onMounted(() => {
       @page-change="fetchInquiries"
     />
 
-    <section v-if="selectedId !== null" aria-label="Inquiry detail">
+    <section v-if="selectedId !== null" :aria-label="t('admin.inquiry.detail_aria')">
       <div class="mb-4">
-        <AppButton variant="ghost" @click="backToList">Back to list</AppButton>
+        <AppButton variant="ghost" @click="backToList">{{ t('admin.inquiry.back') }}</AppButton>
       </div>
 
-      <LoadingState v-if="detailLoading" label="Loading inquiry" />
+      <LoadingState v-if="detailLoading" :label="t('admin.inquiry.detail_loading')" />
 
       <AppCard v-else-if="detailError" padding="p-6" role="alert">
         <p class="text-base text-stone-900">{{ detailError }}</p>
         <AppButton variant="outline" class="mt-4" @click="selectInquiry(selectedId)">
-          Retry
+          {{ t('shell.retry') }}
         </AppButton>
       </AppCard>
 
@@ -439,14 +475,14 @@ onMounted(() => {
       <template #footer>
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <AppButton variant="secondary" :disabled="mutating" @click="cancelDialog">
-            Cancel
+            {{ t('shell.cancel') }}
           </AppButton>
           <AppButton
             :variant="confirmConfig?.variant === 'danger' ? 'danger' : 'primary'"
             :loading="mutating"
             @click="submitDialog"
           >
-            {{ confirmConfig?.confirmText ?? 'Confirm' }}
+            {{ confirmConfig?.confirmText ?? t('admin.inquiry.confirm_fallback') }}
           </AppButton>
         </div>
       </template>

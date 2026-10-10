@@ -3,8 +3,10 @@ import AppCard from '../atoms/AppCard.vue'
 import AppButton from '../atoms/AppButton.vue'
 import PriceTag from '../atoms/PriceTag.vue'
 import StatusBadge from '../atoms/StatusBadge.vue'
+import { useI18n } from 'vue-i18n'
 import { BanknotesIcon } from '@heroicons/vue/24/outline'
 import { PAYMENT_OPTION, CASH_PAYMENT_TYPE } from '@/constants/payment'
+const { t } = useI18n()
 defineProps({
   purchase: { type: Object, required: true },
   loading: { type: Boolean, default: false },
@@ -38,18 +40,26 @@ function getConfirmedPaid(purchase) {
         </div>
         <div class="min-w-0">
           <h3 class="font-bold text-stone-900 text-[17px] leading-tight truncate font-serif">
-            {{ purchase.contract?.title || purchase.demand_offer?.demand_title || 'Unknown Item' }}
+            {{
+              purchase.contract?.title ||
+              purchase.demand_offer?.demand_title ||
+              t('farmer.purchase_card.unknown_item')
+            }}
           </h3>
           <p v-if="purchase.demand_offer" class="text-xs font-medium text-moss-700 mt-0.5">
-            Demand offer · {{ purchase.demand_offer.quantity_kg }} kg of
-            {{ purchase.demand_offer.crop_name }}
+            {{
+              t('farmer.purchase_card.demand_offer', {
+                qty: purchase.demand_offer.quantity_kg,
+                crop: purchase.demand_offer.crop_name,
+              })
+            }}
           </p>
 
           <div
             class="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-stone-500 mt-1.5"
           >
             <span class="font-medium text-stone-700">{{
-              purchase.buyer?.name || 'Unknown Buyer'
+              purchase.buyer?.name || t('farmer.purchase_card.unknown_buyer')
             }}</span>
             <span class="text-stone-300 hidden sm:inline">•</span>
             <span
@@ -83,7 +93,7 @@ function getConfirmedPaid(purchase) {
             <p
               class="text-[11px] font-medium text-stone-500 uppercase tracking-wider mb-0.5 sm:mb-0"
             >
-              Total Due
+              {{ t('farmer.purchase_card.total_due') }}
             </p>
             <PriceTag
               :amount="purchase.total_contract_amount"
@@ -98,7 +108,7 @@ function getConfirmedPaid(purchase) {
             <p
               class="text-[11px] font-medium text-stone-500 uppercase tracking-wider mb-0.5 sm:mb-0"
             >
-              Confirmed Paid
+              {{ t('farmer.purchase_card.confirmed_paid') }}
             </p>
             <PriceTag
               :amount="getConfirmedPaid(purchase)"
@@ -110,7 +120,9 @@ function getConfirmedPaid(purchase) {
 
         <!-- Message buyer (transaction partner) -->
         <div v-if="purchase.buyer?.id" class="flex w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
-          <AppButton @click="$emit('message', purchase)"> Message buyer </AppButton>
+          <AppButton @click="$emit('message', purchase)">{{
+            t('farmer.purchase_card.message_buyer')
+          }}</AppButton>
         </div>
 
         <!-- Actions -->
@@ -127,13 +139,13 @@ function getConfirmedPaid(purchase) {
             :disabled="loading"
             v-if="purchase.cash_payment_status !== 'partially_paid'"
           >
-            Approve 10%
+            {{ t('farmer.purchase_card.approve_partial') }}
           </AppButton>
           <AppButton
             @click="$emit('approve', purchase, CASH_PAYMENT_TYPE.FULL)"
             :disabled="loading"
           >
-            Approve Full
+            {{ t('farmer.purchase_card.approve_full') }}
           </AppButton>
         </div>
 

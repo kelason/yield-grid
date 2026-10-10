@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppCard from '@/components/atoms/AppCard.vue'
 import FormField from '@/components/molecules/FormField.vue'
@@ -8,10 +9,11 @@ import {
   CONTACT_INQUIRY_STATUS,
   CONTACT_REPLY_BODY_MAX_LENGTH,
   CONTACT_REPLY_STALE_SECONDS,
-  DUPLICATE_DELIVERY_CAUTION,
-  REPLY_DELIVERY_LABELS,
+  REPLY_DELIVERY_LABEL_KEYS,
   REPLY_DELIVERY_STATUS,
 } from '@/constants/admin'
+
+const { t } = useI18n()
 
 const MS_PER_SECOND = 1000
 
@@ -49,7 +51,7 @@ const hasOutstandingDelivery = computed(() =>
 const isClosed = computed(() => props.message?.status === CONTACT_INQUIRY_STATUS.CLOSED)
 
 function deliveryLabel(reply) {
-  return REPLY_DELIVERY_LABELS[reply?.delivery_status] ?? 'Unknown'
+  return t(REPLY_DELIVERY_LABEL_KEYS[reply?.delivery_status] ?? 'admin.inquiry.delivery_unknown')
 }
 
 function deliveryBadgeClass(reply) {
@@ -91,27 +93,33 @@ function isStaleSending(reply) {
 <template>
   <EmptyState
     v-if="!message"
-    title="Select an inquiry"
-    description="Choose an inquiry from the list to read it and reply."
+    :title="t('admin.inquiry.select_title')"
+    :description="t('admin.inquiry.select_desc')"
   />
   <AppCard v-else padding="p-5 sm:p-6">
     <div class="space-y-6">
       <div>
         <h2 class="font-serif text-2xl font-bold break-words text-stone-900">
-          {{ message?.subject || 'Untitled inquiry' }}
+          {{ message?.subject || t('admin.inquiry.untitled') }}
         </h2>
         <p class="mt-1 break-words text-sm text-stone-600">
-          From {{ message?.name || 'Unknown sender' }}
+          {{
+            t('admin.inquiry.from', { name: message?.name || t('admin.inquiry.unknown_sender') })
+          }}
           <span v-if="message?.email">({{ message.email }})</span>
         </p>
         <p class="mt-3 text-base leading-relaxed break-words whitespace-pre-line text-stone-900">
-          {{ message?.message || 'No message content.' }}
+          {{ message?.message || t('admin.inquiry.no_message') }}
         </p>
       </div>
 
       <div class="border-t border-stone-200 pt-5">
-        <h3 class="font-serif text-xl font-bold text-stone-900">Reply history</h3>
-        <p v-if="safeReplies.length === 0" class="mt-2 text-sm text-stone-600">No replies yet.</p>
+        <h3 class="font-serif text-xl font-bold text-stone-900">
+          {{ t('admin.inquiry.history') }}
+        </h3>
+        <p v-if="safeReplies.length === 0" class="mt-2 text-sm text-stone-600">
+          {{ t('admin.inquiry.no_replies') }}
+        </p>
         <ul v-else class="mt-3 space-y-4">
           <li
             v-for="(reply, index) in safeReplies"
@@ -130,42 +138,44 @@ function isStaleSending(reply) {
                 variant="outline"
                 size="sm"
                 :disabled="busy || !isRetryable(reply)"
-                :aria-label="`Retry delivery of reply ${reply?.id}`"
+                :aria-label="t('admin.inquiry.retry_aria', { id: reply?.id })"
                 @click="emit('retry', reply)"
               >
-                Retry
+                {{ t('shell.retry') }}
               </AppButton>
             </div>
             <p
               class="mt-2 text-base leading-relaxed break-words whitespace-pre-line text-stone-900"
             >
-              {{ reply?.body || 'No reply content.' }}
+              {{ reply?.body || t('admin.inquiry.no_reply_body') }}
             </p>
             <p v-if="isStaleSending(reply)" class="mt-2 text-sm text-harvest-800">
-              {{ DUPLICATE_DELIVERY_CAUTION }}
+              {{ t('admin.inquiry.dup_caution') }}
             </p>
             <p v-else-if="reply?.error_code" class="mt-2 text-sm text-stone-600">
-              Delivery failed ({{ reply.error_code }}). Retry sends the same reply again.
+              {{ t('admin.inquiry.delivery_failed_hint', { code: reply.error_code }) }}
             </p>
           </li>
         </ul>
       </div>
 
       <div class="border-t border-stone-200 pt-5">
-        <h3 class="font-serif text-xl font-bold text-stone-900">Reply</h3>
+        <h3 class="font-serif text-xl font-bold text-stone-900">
+          {{ t('admin.inquiry.composer_title') }}
+        </h3>
         <p v-if="isClosed" class="mt-2 text-sm text-stone-600">
-          This inquiry is closed. Reopen it to send another reply.
+          {{ t('admin.inquiry.closed_note') }}
         </p>
         <div v-else class="mt-3 space-y-3">
           <FormField
             id="admin-inquiry-reply"
             :model-value="draft"
-            label="Reply to sender"
+            :label="t('admin.inquiry.reply_label')"
             multiline
             required
             :maxlength="CONTACT_REPLY_BODY_MAX_LENGTH"
             :error="draftError"
-            hint="Queued for background delivery after confirmation."
+            :hint="t('admin.inquiry.reply_hint')"
             @update:model-value="emit('update:draft', $event)"
           />
           <div class="flex flex-wrap items-center gap-3">
@@ -174,10 +184,10 @@ function isStaleSending(reply) {
               :disabled="busy || hasOutstandingDelivery"
               @click="emit('reply')"
             >
-              Send reply
+              {{ t('admin.inquiry.send') }}
             </AppButton>
             <p v-if="hasOutstandingDelivery" class="text-sm text-stone-600">
-              A reply is already being delivered.
+              {{ t('admin.inquiry.outstanding') }}
             </p>
           </div>
         </div>
@@ -190,7 +200,7 @@ function isStaleSending(reply) {
           :disabled="busy"
           @click="emit('transition', 'read')"
         >
-          Mark read
+          {{ t('admin.inquiry.mark_read') }}
         </AppButton>
         <AppButton
           v-if="!isClosed"
@@ -198,7 +208,7 @@ function isStaleSending(reply) {
           :disabled="busy || hasOutstandingDelivery"
           @click="emit('transition', 'close')"
         >
-          Close inquiry
+          {{ t('admin.inquiry.close_btn') }}
         </AppButton>
         <AppButton
           v-if="isClosed"
@@ -206,10 +216,10 @@ function isStaleSending(reply) {
           :disabled="busy"
           @click="emit('transition', 'reopen')"
         >
-          Reopen inquiry
+          {{ t('admin.inquiry.reopen_btn') }}
         </AppButton>
         <p v-if="!isClosed && hasOutstandingDelivery" class="w-full text-sm text-stone-600">
-          Resolve outstanding deliveries before closing.
+          {{ t('admin.inquiry.resolve_first') }}
         </p>
       </div>
     </div>

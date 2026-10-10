@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
@@ -12,8 +13,10 @@ function isSessionFailure(error) {
   return status === HTTP_STATUS.FORBIDDEN && error?.response?.data?.code === SUSPENDED_CODE
 }
 
-function errorMessage(error, fallback) {
-  return error?.response?.data?.message || error?.message || fallback
+const t = (...args) => i18n.global.t(...args)
+
+function errorMessage(error, fallbackKey) {
+  return error?.response?.data?.message || error?.message || t(fallbackKey)
 }
 
 export function useIssueTickets() {
@@ -58,7 +61,7 @@ export function useIssueTickets() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       list.value = []
-      error.value = errorMessage(err, 'Unable to load your issues.')
+      error.value = errorMessage(err, 'issues.report.load_failed')
     } finally {
       loading.value = false
     }
@@ -80,8 +83,8 @@ export function useIssueTickets() {
       if (isSessionFailure(err)) authStore.clearSession()
       detailError.value =
         err?.response?.status === HTTP_STATUS.NOT_FOUND
-          ? 'This issue is no longer available.'
-          : errorMessage(err, 'Unable to load this issue.')
+          ? t('issues.report.gone')
+          : errorMessage(err, 'issues.report.detail_failed')
       return null
     } finally {
       if (requestId === detailRequestId.value) detailLoading.value = false
@@ -106,7 +109,7 @@ export function useIssueTickets() {
       return receipt
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      throw new Error(errorMessage(err, 'Unable to submit this issue.'), { cause: err })
+      throw new Error(errorMessage(err, 'issues.report.submit_failed'), { cause: err })
     } finally {
       submitting.value = false
       inflight = null

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, shallowRef, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useFarmingStore } from '../../stores/farming'
 import { useAuthStore } from '../../stores/auth'
@@ -22,6 +23,7 @@ const PLOT_NAME_MAX_LENGTH = 255
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const farmingStore = useFarmingStore()
 const authStore = useAuthStore()
 
@@ -42,9 +44,9 @@ const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 const PLOT_SKELETON_COUNT = 3
 
 const confirmConfig = computed(() => ({
-  title: 'Save this plot?',
-  message: `Save "${form.value.name}" to ${farmName.value}? The drawn boundary will be stored as a new plot.`,
-  confirmText: 'Save plot',
+  title: t('farmer.plots.confirm_title'),
+  message: t('farmer.plots.confirm_message', { name: form.value.name, farm: farmName.value }),
+  confirmText: t('farmer.plots.confirm_button'),
   type: 'primary',
 }))
 
@@ -63,7 +65,7 @@ onMounted(async () => {
   farmingStore.fetchAllPlots()
 })
 
-const farmName = computed(() => farmingStore.activeFarm?.name || 'Loading...')
+const farmName = computed(() => farmingStore.activeFarm?.name || t('farmer.plots.loading_farm'))
 
 const plotVerificationById = computed(() => {
   const byId = new Map()
@@ -82,7 +84,9 @@ function handlePlotDrawn({ layer, coordinates }) {
   error.value = ''
   activeLayer.value = layer
   form.value.coordinates = coordinates
-  form.value.name = `Plot ${farmingStore.plots?.features?.length ? farmingStore.plots.features.length + 1 : 1}`
+  form.value.name = t('farmer.plots.auto_name', {
+    number: farmingStore.plots?.features?.length ? farmingStore.plots.features.length + 1 : 1,
+  })
 }
 
 function handlePlotError(msg) {
@@ -104,11 +108,11 @@ function cancelDrawing() {
 }
 
 function validatePlot() {
-  if (!form.value.name.trim()) return 'Please enter a plot name.'
+  if (!form.value.name.trim()) return t('farmer.plots.name_required')
   if (form.value.name.length > PLOT_NAME_MAX_LENGTH)
-    return `Plot name must be at most ${PLOT_NAME_MAX_LENGTH} characters.`
-  if (!form.value.soil_type) return 'Please select a soil type.'
-  if (!form.value.coordinates.length) return 'Please draw the plot boundary on the map.'
+    return t('farmer.plots.name_too_long', { max: PLOT_NAME_MAX_LENGTH })
+  if (!form.value.soil_type) return t('farmer.plots.soil_required')
+  if (!form.value.coordinates.length) return t('farmer.plots.boundary_required')
   return ''
 }
 
@@ -130,7 +134,7 @@ async function performSavePlot(payload) {
     form.value.name = ''
     form.value.soil_type = ''
   } catch (e) {
-    error.value = e.response?.data?.message || 'Failed to save plot'
+    error.value = e.response?.data?.message || t('farmer.plots.save_error')
   } finally {
     isSaving.value = false
   }
@@ -139,7 +143,10 @@ async function performSavePlot(payload) {
 
 <template>
   <div class="space-y-6">
-    <PageHeader title="Plot planner" :description="`Map the growing areas of ${farmName}.`" />
+    <PageHeader
+      :title="t('farmer.plots.title')"
+      :description="t('farmer.plots.description', { farm: farmName })"
+    />
     <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-6">
       <!-- Map Area -->
       <div
@@ -164,14 +171,14 @@ async function performSavePlot(payload) {
               <h3 class="font-serif text-base font-bold text-moss-900">{{ farmName }}</h3>
             </div>
             <p class="text-xs text-moss-700 leading-relaxed">
-              Use the polygon tool on the map to draw the boundaries of a new plot.
+              {{ t('farmer.plots.draw_hint') }}
             </p>
           </div>
 
           <div v-if="farmingStore.activeFarm?.city" class="px-4 py-3 flex items-start gap-2">
             <MapPinIcon class="h-5 w-5 text-moss-700" aria-hidden="true" />
             <div class="text-xs">
-              <div class="text-stone-500">Restricted Plotting Area:</div>
+              <div class="text-stone-500">{{ t('farmer.plots.restricted_area') }}</div>
               <strong class="font-semibold text-moss-900">
                 {{ farmingStore.activeFarm.city
                 }}<span v-if="farmingStore.activeFarm.country"
@@ -191,19 +198,21 @@ async function performSavePlot(payload) {
         <AppCard v-if="activeLayer" padding="p-4" class="!overflow-visible">
           <div class="flex items-center gap-2 mb-4">
             <ChartBarIcon class="h-5 w-5 text-moss-700" aria-hidden="true" />
-            <h2 class="font-serif text-xl font-bold text-stone-900">Save New Plot</h2>
+            <h2 class="font-serif text-xl font-bold text-stone-900">
+              {{ t('farmer.plots.save_title') }}
+            </h2>
           </div>
           <AppAlert v-if="error" type="error" class="mb-4">{{ error }}</AppAlert>
 
           <form @submit.prevent="requestSavePlot" class="space-y-4">
             <FormField
               id="plot-name"
-              label="Plot Name"
+              :label="t('farmer.plots.name_label')"
               v-model="form.name"
               required
               :maxlength="PLOT_NAME_MAX_LENGTH"
             />
-            <SoilTypeSelect id="plot-soil" label="Soil Type" v-model="form.soil_type" required />
+            <SoilTypeSelect id="plot-soil" v-model="form.soil_type" required />
 
             <div class="flex flex-col gap-2 pt-2">
               <AppButton
@@ -213,10 +222,10 @@ async function performSavePlot(payload) {
                 class="w-full"
                 :disabled="!authStore.isEmailVerified"
               >
-                Save Plot
+                {{ t('farmer.plots.save_button') }}
               </AppButton>
               <AppButton type="button" variant="ghost" @click="cancelDrawing" class="w-full">
-                Discard
+                {{ t('farmer.plots.discard') }}
               </AppButton>
             </div>
           </form>
@@ -227,20 +236,25 @@ async function performSavePlot(payload) {
           <div
             class="px-4 py-3 border-b border-stone-100 bg-stone-50 flex items-center justify-between"
           >
-            <h2 class="font-serif text-xl font-bold text-stone-900">Existing Plots</h2>
+            <h2 class="font-serif text-xl font-bold text-stone-900">
+              {{ t('farmer.plots.existing') }}
+            </h2>
             <span class="text-xs font-medium text-stone-500">
-              {{ farmingStore.plots?.features?.length || 0 }} total
+              {{ t('farmer.plots.total', { count: farmingStore.plots?.features?.length || 0 }) }}
             </span>
           </div>
           <div class="flex-1 overflow-y-auto p-2">
-            <LoadingState v-if="farmingStore.loading" label="Loading plots" class="space-y-2 p-2"
+            <LoadingState
+              v-if="farmingStore.loading"
+              :label="t('farmer.plots.loading')"
+              class="space-y-2 p-2"
               ><AppSkeleton v-for="n in PLOT_SKELETON_COUNT" :key="n" class="h-14 w-full"
             /></LoadingState>
             <p
               v-else-if="!farmingStore.plots?.features?.length"
               class="text-sm text-stone-600 text-center p-6"
             >
-              No plots drawn yet
+              {{ t('farmer.plots.empty') }}
             </p>
             <ul v-else class="space-y-2">
               <li
@@ -252,7 +266,7 @@ async function performSavePlot(payload) {
                   <AppButton
                     variant="ghost"
                     class="min-w-0 text-left !px-0"
-                    :aria-label="`Zoom to plot ${feature.properties.name}`"
+                    :aria-label="t('farmer.plots.zoom_to', { name: feature.properties.name })"
                     @click="plotDrawerRef?.zoomToPlot(feature.properties.id)"
                     ><div class="min-w-0">
                       <div
@@ -263,7 +277,7 @@ async function performSavePlot(payload) {
                       </div>
                       <div class="flex items-center gap-2 mt-1 text-xs text-stone-500">
                         <span class="capitalize">{{
-                          feature.properties.soil_type || 'Unknown soil'
+                          feature.properties.soil_type || t('farmer.plots.unknown_soil')
                         }}</span>
                         <span>•</span>
                         <span class="font-bold text-moss-600">
@@ -281,7 +295,7 @@ async function performSavePlot(payload) {
                     :to="{ name: 'crop-recommendations', params: { id: feature.properties.id } }"
                     class="inline-flex min-h-11 items-center gap-1 px-2.5 py-1.5 rounded-xl bg-moss-50 hover:bg-moss-100 text-moss-700 text-xs font-semibold transition-colors duration-150 flex-shrink-0"
                   >
-                    <span>Recommendations</span>
+                    <span>{{ t('farmer.plots.recommendations') }}</span>
                   </router-link>
                 </div>
               </li>

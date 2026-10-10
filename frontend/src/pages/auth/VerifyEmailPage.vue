@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AppButton from '../../components/atoms/AppButton.vue'
@@ -7,6 +8,7 @@ import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import { useConfirmModal } from '@/composables/useConfirmModal'
 import AppAlert from '../../components/atoms/AppAlert.vue'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 
@@ -17,16 +19,20 @@ const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModa
 function requestResend() {
   confirm(
     {
-      title: 'Resend verification email?',
-      message: 'Send a new verification link to your account email?',
-      confirmText: 'Resend email',
+      title: t('auth.verify.resend_title'),
+      message: t('auth.verify.resend_msg'),
+      confirmText: t('auth.verify.resend_cta'),
     },
     resendVerificationEmail,
   )
 }
 function requestLogout() {
   confirm(
-    { title: 'Log out?', message: 'End your current YieldGrid session?', confirmText: 'Log out' },
+    {
+      title: t('auth.verify.logout_title'),
+      message: t('auth.verify.logout_msg'),
+      confirmText: t('auth.verify.logout_cta'),
+    },
     async () => {
       await authStore.logout()
       router.push({ name: 'home' })
@@ -41,9 +47,9 @@ async function resendVerificationEmail() {
 
   try {
     const data = await authStore.resendVerificationEmail()
-    message.value = data?.message || 'Verification link sent. Please check your inbox.'
+    message.value = data?.message || t('auth.verify.sent')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Failed to send verification link.'
+    error.value = e.response?.data?.message || t('auth.verify.failed')
   } finally {
     sending.value = false
   }
@@ -66,11 +72,10 @@ async function resendVerificationEmail() {
       />
     </svg>
     <h1 class="font-serif mt-4 text-3xl font-bold tracking-tight text-stone-900">
-      Verify your email
+      {{ t('auth.verify.title') }}
     </h1>
     <p class="mt-4 text-sm text-stone-500">
-      Thanks for signing up! Before getting started, could you verify your email address by clicking
-      on the link we just emailed to you?
+      {{ t('auth.verify.body') }}
     </p>
 
     <AppAlert v-if="message" type="success" class="mt-4">{{ message }}</AppAlert>
@@ -78,9 +83,11 @@ async function resendVerificationEmail() {
 
     <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
       <AppButton variant="primary" :loading="sending" @click="requestResend">
-        Resend Verification Email
+        {{ t('auth.verify.resend_btn') }}
       </AppButton>
-      <AppButton variant="ghost" @click="requestLogout"> Log Out </AppButton>
+      <AppButton variant="ghost" @click="requestLogout">{{
+        t('auth.verify.logout_btn')
+      }}</AppButton>
     </div>
     <ConfirmModal
       :is-open="isOpen"

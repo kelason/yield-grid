@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
@@ -7,6 +8,9 @@ import AppButton from '@/components/atoms/AppButton.vue'
 import LoadingState from '@/components/molecules/LoadingState.vue'
 const REDIRECT_DELAY_MS = 2000
 const MILLISECONDS_PER_SECOND = 1000
+const ERR_NO_URL = 'NO_URL'
+const ERR_EXPIRED = 'EXPIRED'
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -15,9 +19,14 @@ const success = ref(false)
 const errorMessage = ref('')
 let redirectTimer
 let disposed = false
+function verificationFailure(code) {
+  const failure = new Error(code)
+  failure.code = code
+  return failure
+}
 function verificationUrl() {
   const original = route.query.verify_url
-  if (!original) throw new Error('No verification URL provided.')
+  if (!original) throw verificationFailure(ERR_NO_URL)
   try {
     const url = new URL(original)
     for (const key in route.query) {
@@ -26,10 +35,10 @@ function verificationUrl() {
     }
     const expires = url.searchParams.get('expires')
     if (expires && Date.now() / MILLISECONDS_PER_SECOND > parseInt(expires))
-      throw new Error('The link expired please click resend.')
+      throw verificationFailure(ERR_EXPIRED)
     return url.toString()
   } catch (error) {
-    if (error.message === 'The link expired please click resend.') throw error
+    if (error.code === ERR_EXPIRED) throw error
     return original
   }
 }
@@ -45,9 +54,7 @@ onMounted(async () => {
   } catch (error) {
     if (!disposed)
       errorMessage.value =
-        error.message === 'No verification URL provided.'
-          ? error.message
-          : 'The link expired please click resend.'
+        error.code === ERR_NO_URL ? t('auth.callback.err_no_url') : t('auth.callback.err_expired')
   } finally {
     if (!disposed) loading.value = false
   }
@@ -59,21 +66,27 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div class="text-center space-y-5">
-    <LoadingState v-if="loading" label="Verifying your email..." />
+    <LoadingState v-if="loading" :label="t('auth.callback.loading')" />
     <template v-else-if="success"
       ><CheckCircleIcon class="mx-auto h-12 w-12 text-moss-700" aria-hidden="true" />
-      <h2 class="font-serif text-2xl font-bold text-stone-900">Email Verified!</h2>
+      <h2 class="font-serif text-2xl font-bold text-stone-900">
+        {{ t('auth.callback.success_title') }}
+      </h2>
       <p class="text-base text-stone-600 leading-relaxed">
-        Thank you for verifying your email address. You will be redirected shortly.
+        {{ t('auth.callback.success_body') }}
       </p></template
     >
     <template v-else
       ><XCircleIcon class="mx-auto h-12 w-12 text-red-600" aria-hidden="true" />
-      <h2 class="font-serif text-2xl font-bold text-stone-900">Verification Failed</h2>
+      <h2 class="font-serif text-2xl font-bold text-stone-900">
+        {{ t('auth.callback.fail_title') }}
+      </h2>
       <p role="alert" class="text-base text-stone-600 leading-relaxed">
-        {{ errorMessage || 'The verification link is invalid or has expired.' }}
+        {{ errorMessage || t('auth.callback.fail_default') }}
       </p>
-      <AppButton @click="router.push('/dashboard')">Go to Dashboard</AppButton></template
+      <AppButton @click="router.push('/dashboard')">{{
+        t('auth.callback.dash')
+      }}</AppButton></template
     >
   </div>
 </template>

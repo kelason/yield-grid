@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SearchInput from './SearchInput.vue'
 import SortSelect from './SortSelect.vue'
 import AppInput from '../atoms/AppInput.vue'
@@ -15,9 +16,20 @@ const props = defineProps({
   },
 })
 
+const { t } = useI18n()
 const filterError = ref('')
 
 const emit = defineEmits(['update:modelValue', 'search'])
+
+const sortOptions = computed(() => [
+  { value: 'newest', label: t('farmer.contract_filter.sort_newest') },
+  { value: 'nearest', label: t('farmer.demand_filter.sort_nearest') },
+  { value: 'harvest_available', label: t('farmer.contract_filter.sort_harvest_first') },
+  { value: 'incoming_harvest', label: t('farmer.contract_filter.sort_incoming_first') },
+  { value: 'price_asc', label: t('farmer.contract_filter.sort_price_asc') },
+  { value: 'price_desc', label: t('farmer.contract_filter.sort_price_desc') },
+  { value: 'harvest_soonest', label: t('farmer.contract_filter.sort_harvest_soonest') },
+])
 
 const localFilters = ref({
   ...props.modelValue,
@@ -68,7 +80,7 @@ function setAvailability(availability) {
           'min-h-11 px-4 py-1.5 text-sm font-medium rounded-xl transition-all',
         ]"
       >
-        All Markets
+        {{ t('farmer.contract_filter.all_markets') }}
       </button>
       <button
         type="button"
@@ -81,7 +93,7 @@ function setAvailability(availability) {
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-moss-500"></span>
-        Harvest Available
+        {{ t('farmer.contract_card.harvest_available') }}
       </button>
       <button
         type="button"
@@ -94,22 +106,22 @@ function setAvailability(availability) {
         ]"
       >
         <span class="w-2 h-2 rounded-full bg-harvest-500"></span>
-        Incoming Harvest
+        {{ t('farmer.contract_card.incoming_harvest') }}
       </button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4">
       <!-- Search -->
       <div class="md:col-span-4 flex flex-col">
-        <label for="contract-crop" class="block text-sm font-medium text-soil-700 mb-1"
-          >Search Crop</label
-        >
+        <label for="contract-crop" class="block text-sm font-medium text-soil-700 mb-1">{{
+          t('farmer.demand_filter.crop')
+        }}</label>
         <SearchInput
           id="contract-crop"
-          label="Search Crop"
+          :label="t('farmer.demand_filter.crop')"
           :maxlength="CATALOG_LIMITS.CROP_MAX_LENGTH"
           v-model="localFilters.crop"
-          placeholder="e.g. Rice, Corn..."
+          :placeholder="t('farmer.contract_filter.crop_placeholder')"
           class="flex-grow w-full"
         />
       </div>
@@ -117,9 +129,9 @@ function setAvailability(availability) {
       <!-- Price Range -->
       <div class="md:col-span-4 flex items-end space-x-2">
         <div class="w-1/2">
-          <label for="min_price" class="block text-xs font-medium text-soil-700 mb-1"
-            >Min Price</label
-          >
+          <label for="min_price" class="block text-xs font-medium text-soil-700 mb-1">{{
+            t('farmer.contract_filter.min_price')
+          }}</label>
           <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-500 font-medium">₱</span>
@@ -139,9 +151,9 @@ function setAvailability(availability) {
           </div>
         </div>
         <div class="w-1/2">
-          <label for="max_price" class="block text-xs font-medium text-soil-700 mb-1"
-            >Max Price</label
-          >
+          <label for="max_price" class="block text-xs font-medium text-soil-700 mb-1">{{
+            t('farmer.contract_filter.max_price')
+          }}</label>
           <div class="relative rounded-full shadow-soft">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span class="text-stone-500 font-medium">₱</span>
@@ -156,7 +168,7 @@ function setAvailability(availability) {
               v-model="localFilters.maxPrice"
               @change="applyFilters"
               class="block w-full pl-9 pr-4 py-2.5 border border-stone-300 rounded-full bg-stone-50 placeholder-stone-400 text-stone-900 focus:outline-none focus:ring-2 focus:ring-moss-500 focus:border-moss-500 focus:bg-white transition-all duration-200 shadow-soft hover:border-stone-400"
-              placeholder="Any"
+              :placeholder="t('farmer.demand_filter.any')"
             />
           </div>
         </div>
@@ -164,9 +176,9 @@ function setAvailability(availability) {
 
       <!-- Sort -->
       <div class="md:col-span-4 flex flex-col">
-        <label for="contract-sort" class="block text-sm font-medium text-soil-700 mb-1"
-          >Sort By</label
-        >
+        <label for="contract-sort" class="block text-sm font-medium text-soil-700 mb-1">{{
+          t('farmer.demand_filter.sort_by')
+        }}</label>
         <SortSelect
           id="contract-sort"
           v-model="localFilters.sort"
@@ -176,15 +188,7 @@ function setAvailability(availability) {
               applyFilters()
             }
           "
-          :options="[
-            { value: 'newest', label: 'Newest Listed' },
-            { value: 'nearest', label: 'Nearest First' },
-            { value: 'harvest_available', label: 'Harvest Available First' },
-            { value: 'incoming_harvest', label: 'Incoming Harvest First' },
-            { value: 'price_asc', label: 'Price: Low to High' },
-            { value: 'price_desc', label: 'Price: High to Low' },
-            { value: 'harvest_soonest', label: 'Harvesting Soonest' },
-          ]"
+          :options="sortOptions"
         />
       </div>
     </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useForumStore } from '@/stores/forumStore'
 import { useAuthStore } from '@/stores/auth'
@@ -29,6 +30,7 @@ const forumStore = useForumStore()
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const showComposer = ref(false)
 const composerError = ref('')
 const showReportModal = ref(false)
@@ -56,9 +58,9 @@ const searchQuery = ref(
 )
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const allDiscussions = computed(() => ({
-  name: 'All Discussions',
+  name: t('community.forum.all_name'),
   slug: '',
-  description: 'Everything in one place',
+  description: t('community.forum.all_desc'),
   threads_count: forumStore.categories.reduce(
     (total, category) => total + (category.threads_count || 0),
     0,
@@ -67,7 +69,10 @@ const allDiscussions = computed(() => ({
 const title = computed(
   () =>
     forumStore.categories.find((category) => category.slug === selectedCategory.value)?.name ||
-    'Community Forum',
+    t('community.forum.title'),
+)
+const sortOptions = computed(() =>
+  THREAD_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.labelKey) })),
 )
 let searchTimeout
 onMounted(() => Promise.all([forumStore.fetchCategories(), forumStore.fetchTags(), fetchThreads()]))
@@ -104,9 +109,9 @@ function requestCreate(data) {
   const draft = { ...data, tag_ids: [...data.tag_ids] }
   confirm(
     {
-      title: 'Post this discussion?',
-      message: 'Your discussion will be shared with the community.',
-      confirmText: 'Post discussion',
+      title: t('community.forum.post_title'),
+      message: t('community.forum.post_msg'),
+      confirmText: t('community.forum.post_ok'),
     },
     () => createThread(draft),
   )
@@ -118,16 +123,15 @@ async function createThread(data) {
     showComposer.value = false
     await Promise.all([forumStore.fetchCategories(), fetchThreads()])
   } catch (error) {
-    composerError.value =
-      error.response?.data?.message || 'Failed to post discussion. Please retry.'
+    composerError.value = error.response?.data?.message || t('community.forum.post_failed')
   }
 }
 function handleVote(id, value) {
   confirm(
     {
-      title: 'Update your vote?',
-      message: 'Your vote on this discussion will be updated.',
-      confirmText: 'Vote',
+      title: t('community.forum.vote_title'),
+      message: t('community.forum.vote_msg'),
+      confirmText: t('community.forum.vote_ok'),
     },
     () => forumStore.voteThread(id, value),
   )
@@ -146,9 +150,9 @@ function requestReportSubmit() {
   if (!validateReport()) return
   confirm(
     {
-      title: 'Submit this report?',
-      message: 'Your report will be sent to the moderation team.',
-      confirmText: 'Send report',
+      title: t('market.browse.report_confirm_title'),
+      message: t('market.browse.report_confirm_msg'),
+      confirmText: t('market.browse.report_confirm_ok'),
     },
     submitReport,
   )
@@ -187,32 +191,36 @@ async function changePage(delta) {
 </script>
 <template>
   <div class="space-y-6">
-    <PageHeader :title="title" description="Share practical knowledge with your farming community."
+    <PageHeader :title="title" :description="t('community.forum.description')"
       ><template #actions
-        ><AppButton @click="openComposer">New Discussion</AppButton></template
+        ><AppButton @click="openComposer">{{
+          t('community.forum.new_discussion')
+        }}</AppButton></template
       ></PageHeader
     >
     <div class="grid items-end gap-4 sm:grid-cols-2">
       <SearchInput
         id="forum-search"
-        aria-label="Search discussions"
+        :aria-label="t('community.forum.search_aria')"
         v-model="searchQuery"
         :minlength="FORUM_CONSTANTS.SEARCH_MIN_LENGTH"
         :maxlength="FORUM_CONSTANTS.SEARCH_MAX_LENGTH"
-        placeholder="Search discussions..."
+        :placeholder="t('community.forum.search_ph')"
         @update:model-value="handleSearch"
       />
       <AppSelect
         id="forum-sort"
-        label="Sort discussions"
+        :label="t('community.forum.sort_label')"
         v-model="currentSort"
-        :options="THREAD_SORT_OPTIONS"
+        :options="sortOptions"
       />
     </div>
     <div class="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
       <aside>
         <AppCard padding="p-4"
-          ><h2 class="font-serif text-2xl font-bold text-stone-900 mb-4">Categories</h2>
+          ><h2 class="font-serif text-2xl font-bold text-stone-900 mb-4">
+            {{ t('community.forum.categories') }}
+          </h2>
           <CategoryCard
             :category="allDiscussions"
             :is-selected="selectedCategory === ''"
@@ -224,14 +232,16 @@ async function changePage(delta) {
             @select="selectedCategory = $event"
         /></AppCard>
       </aside>
-      <section aria-label="Discussions" class="min-w-0 space-y-4">
-        <LoadingState v-if="forumStore.isLoading" label="Loading discussions"
+      <section :aria-label="t('community.forum.discussions_aria')" class="min-w-0 space-y-4">
+        <LoadingState v-if="forumStore.isLoading" :label="t('community.forum.loading')"
           ><div class="space-y-4">
             <SkeletonCard v-for="number in THREAD_SKELETON_COUNT" :key="number" with-avatar /></div
         ></LoadingState>
         <AppCard v-else-if="forumStore.fetchError" role="alert"
           ><p class="mb-3">{{ forumStore.fetchError }}</p>
-          <AppButton variant="outline" @click="fetchThreads">Retry discussions</AppButton></AppCard
+          <AppButton variant="outline" @click="fetchThreads">{{
+            t('community.forum.retry')
+          }}</AppButton></AppCard
         >
         <template v-else-if="forumStore.threads.length"
           ><ThreadCard
@@ -243,34 +253,36 @@ async function changePage(delta) {
           />
           <nav
             v-if="forumStore.pagination.lastPage > 1"
-            aria-label="Discussion pages"
+            :aria-label="t('community.forum.pages_aria')"
             class="flex justify-center gap-3"
           >
             <AppButton
               variant="outline"
               :disabled="forumStore.pagination.currentPage === 1"
               @click="changePage(PAGINATION_DIRECTION.PREVIOUS)"
-              >Previous</AppButton
+              >{{ t('community.forum.prev') }}</AppButton
             ><AppButton
               variant="outline"
               :disabled="forumStore.pagination.currentPage === forumStore.pagination.lastPage"
               @click="changePage(PAGINATION_DIRECTION.NEXT)"
-              >Next</AppButton
+              >{{ t('community.forum.next') }}</AppButton
             >
           </nav></template
         >
         <EmptyState
           v-else
-          title="No discussions found"
-          description="Try changing your search or category."
+          :title="t('community.forum.empty_title')"
+          :description="t('community.forum.empty_desc')"
           ><template #action
-            ><AppButton variant="outline" @click="clearFilters">Clear Filters</AppButton></template
+            ><AppButton variant="outline" @click="clearFilters">{{
+              t('community.forum.clear')
+            }}</AppButton></template
           ></EmptyState
         >
       </section>
     </div>
     <AppModal
-      title="New community post"
+      :title="t('community.forum.composer_title')"
       :is-open="showComposer"
       :busy="isExecuting"
       @close="closeComposer"
@@ -283,7 +295,7 @@ async function changePage(delta) {
         @cancel="closeComposer"
     /></AppModal>
     <AppModal
-      title="Report content"
+      :title="t('market.browse.report_title')"
       :is-open="showReportModal"
       :busy="reportBusy || isExecuting"
       @close="closeReportModal"
@@ -303,19 +315,23 @@ async function changePage(delta) {
       />
       <div v-else-if="reportAccess === 'signin'" class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Sign in to report this content to the moderation team.
+          {{ t('market.browse.signin_msg') }}
         </p>
         <div class="flex justify-end gap-3">
-          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
-          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.cancel')
+          }}</AppButton>
+          <AppButton variant="primary" @click="goLogin">{{ t('market.browse.signin') }}</AppButton>
         </div>
       </div>
       <div v-else class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Verify your email address to report content to the moderation team.
+          {{ t('market.browse.verify_msg') }}
         </p>
         <div class="flex justify-end">
-          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.close')
+          }}</AppButton>
         </div>
       </div>
     </AppModal>

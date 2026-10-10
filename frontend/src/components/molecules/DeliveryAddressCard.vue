@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { MapPinIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/vue/24/outline'
+
+const { t } = useI18n()
 
 const props = defineProps({
   address: { type: Object, required: true },
-  title: { type: String, default: 'Delivery address' },
+  title: { type: String, default: '' },
 })
 
 const copied = ref(false)
@@ -36,7 +39,9 @@ async function copyAddress() {
         <MapPinIcon class="h-5 w-5 text-white" aria-hidden="true" />
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-semibold uppercase tracking-wider text-soil-700">{{ title }}</p>
+        <p class="text-xs font-semibold uppercase tracking-wider text-soil-700">
+          {{ title || t('market.delivery_address.title') }}
+        </p>
         <p class="text-sm text-stone-900 font-medium mt-1 leading-relaxed">
           {{ address.formatted_address }}
         </p>
@@ -48,7 +53,7 @@ async function copyAddress() {
           >
             <CheckIcon v-if="copied" class="h-4 w-4" aria-hidden="true" />
             <ClipboardDocumentIcon v-else class="h-4 w-4" aria-hidden="true" />
-            {{ copied ? 'Copied!' : 'Copy address' }}
+            {{ copied ? t('market.delivery_address.copied') : t('market.delivery_address.copy') }}
           </button>
           <a
             v-if="address.maps_url"
@@ -57,7 +62,7 @@ async function copyAddress() {
             rel="noopener"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-br from-moss-500 to-moss-600 text-white hover:from-moss-600 hover:to-moss-700 transition-all duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
           >
-            Open in Maps
+            {{ t('market.delivery_address.open_maps') }}
           </a>
         </div>
       </div>

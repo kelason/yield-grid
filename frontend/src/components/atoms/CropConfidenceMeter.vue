@@ -2,7 +2,7 @@
   <div
     class="confidence-meter w-24 h-24 relative"
     role="img"
-    :aria-label="`Crop confidence: ${score}%`"
+    :aria-label="t('farmer.analysis.confidence_aria', { score })"
   >
     <Doughnut :data="chartData" :options="chartOptions" aria-hidden="true" />
     <div
@@ -15,7 +15,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { DESIGN_COLORS, DESIGN_STATUS_COLORS } from '@/constants/designTokens'
+const { t } = useI18n()
 const CONFIDENCE_LIMITS = { LOW: 50, HIGH: 75, MAX: 100 }
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'

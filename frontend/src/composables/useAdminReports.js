@@ -1,10 +1,13 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
 import { PaginationConstants } from '@/constants/pagination'
 import { SUSPENDED_CODE } from '@/constants/admin'
 import { ADMIN_REPORTS_PATH } from '@/constants/reporting'
+
+const t = (...args) => i18n.global.t(...args)
 
 function isSessionFailure(error) {
   const status = error?.response?.status
@@ -17,7 +20,7 @@ function errorMessage(error, fallback) {
 }
 
 function conflictError(error) {
-  const failure = new Error(errorMessage(error, 'This report changed. Reload and retry.'))
+  const failure = new Error(errorMessage(error, t('admin.reports.err_changed')))
   failure.isVersionConflict = true
   failure.currentVersion = error?.response?.data?.current_version ?? null
   failure.cause = error
@@ -74,7 +77,7 @@ export function useAdminReports() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       list.value = []
-      error.value = errorMessage(err, 'Unable to load reports.')
+      error.value = errorMessage(err, t('admin.reports.err_load'))
     } finally {
       loading.value = false
     }
@@ -94,7 +97,7 @@ export function useAdminReports() {
     } catch (err) {
       if (requestId !== detailRequestId.value) return null
       if (isSessionFailure(err)) authStore.clearSession()
-      detailError.value = errorMessage(err, 'Unable to load this report.')
+      detailError.value = errorMessage(err, t('admin.reports.err_detail'))
       return null
     } finally {
       if (requestId === detailRequestId.value) detailLoading.value = false
@@ -122,7 +125,7 @@ export function useAdminReports() {
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
       if (err?.response?.status === HTTP_STATUS.CONFLICT) throw conflictError(err)
-      throw new Error(errorMessage(err, 'Unable to decide this report.'), { cause: err })
+      throw new Error(errorMessage(err, t('admin.reports.err_decide')), { cause: err })
     } finally {
       mutating.value = false
     }

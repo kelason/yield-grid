@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import AppLabel from './AppLabel.vue'
 import { ChevronDownIcon } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n'
 import { useControlAttrs } from '@/composables/useControlAttrs'
 import { CONTROL_CLASSES, CONTROL_BORDER, CONTROL_ERROR } from '@/constants/forms'
 defineOptions({ inheritAttrs: false })
@@ -15,6 +16,7 @@ const props = defineProps({
   error: { type: String, default: '' },
 })
 defineEmits(['update:modelValue'])
+const { t } = useI18n()
 const { wrapperAttrs, controlAttrs } = useControlAttrs()
 const describedBy = computed(
   () =>
@@ -40,7 +42,7 @@ const describedBy = computed(
       >
         <slot v-if="$slots.default" />
         <template v-else
-          ><option value="" disabled>Select an option</option>
+          ><option value="" disabled>{{ t('shell.select_option') }}</option>
           <option v-for="option in options ?? []" :key="option.value" :value="option.value">
             {{ option.label }}
           </option></template

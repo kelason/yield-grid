@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { DESIGN_COLORS } from '@/constants/designTokens'
+const { t } = useI18n()
 import ScoreTierBadge from '@/components/molecules/ScoreTierBadge.vue'
 
 const GAUGE_RADIUS = 54
@@ -65,7 +67,12 @@ watch(
 
 <template>
   <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6 text-center">
-    <svg viewBox="0 0 130 130" class="w-44 h-44 mx-auto" role="img" aria-label="Trust score gauge">
+    <svg
+      viewBox="0 0 130 130"
+      class="w-44 h-44 mx-auto"
+      role="img"
+      :aria-label="t('farmer.credit.gauge_aria')"
+    >
       <circle
         cx="65"
         cy="65"

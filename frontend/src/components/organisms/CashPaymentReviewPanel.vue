@@ -2,7 +2,9 @@
 import FormField from '../molecules/FormField.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppAlert from '../atoms/AppAlert.vue'
+import { useI18n } from 'vue-i18n'
 import { CASH_PAYMENT_LIMITS, CASH_PAYMENT_TYPE } from '@/constants/payment'
+const { t } = useI18n()
 defineProps({
   amount: { type: [String, Number], default: 0 },
   paymentType: { type: String, required: true },
@@ -13,11 +15,11 @@ defineEmits(['update:amount', 'submit', 'cancel'])
 </script>
 <template>
   <form class="space-y-6" @submit.prevent="$emit('submit')">
-    <p class="text-sm text-stone-600">Enter the exact amount of cash received from the buyer.</p>
+    <p class="text-sm text-stone-600">{{ t('farmer.cash.instruction') }}</p>
     <AppAlert v-if="error" type="error">{{ error }}</AppAlert>
     <FormField
       id="cash-amount"
-      label="Amount Received (₱)"
+      :label="t('farmer.cash.amount_label')"
       type="number"
       :model-value="amount"
       @update:model-value="$emit('update:amount', $event)"
@@ -29,11 +31,13 @@ defineEmits(['update:amount', 'submit', 'cancel'])
       required
     />
     <p v-if="paymentType === CASH_PAYMENT_TYPE.FULL" class="text-sm text-stone-600">
-      The amount is locked for full payments to ensure the contract total is met exactly.
+      {{ t('farmer.cash.locked_hint') }}
     </p>
     <div class="flex flex-wrap justify-end gap-3">
-      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">Cancel</AppButton>
-      <AppButton type="submit" :loading="loading">Review payment</AppButton>
+      <AppButton variant="ghost" :disabled="loading" @click="$emit('cancel')">{{
+        t('shell.cancel')
+      }}</AppButton>
+      <AppButton type="submit" :loading="loading">{{ t('farmer.cash.review_button') }}</AppButton>
     </div>
   </form>
 </template>

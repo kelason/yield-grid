@@ -2,6 +2,7 @@
 import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter, RouterLink } from 'vue-router'
 import { useDemandStore } from '@/stores/demandStore'
 import { useAddressStore } from '@/stores/addressStore'
@@ -20,6 +21,7 @@ const demandStore = useDemandStore()
 const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
+const { t } = useI18n()
 
 const form = ref({
   title: '',
@@ -48,9 +50,13 @@ const DEMAND_DESCRIPTION_MAX_LENGTH = 2000
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   return {
-    title: 'Post this demand?',
-    message: `Post "${pendingConfirm.value.title}" (${pendingConfirm.value.quantity_kg} kg of ${pendingConfirm.value.crop_name})? Farmers will be able to send you offers.`,
-    confirmText: 'Post demand',
+    title: t('buyer.post.confirm_title'),
+    message: t('buyer.post.confirm_msg', {
+      title: pendingConfirm.value.title,
+      qty: pendingConfirm.value.quantity_kg,
+      crop: pendingConfirm.value.crop_name,
+    }),
+    confirmText: t('buyer.post.confirm_ok'),
     type: 'primary',
   }
 })
@@ -58,7 +64,7 @@ const confirmConfig = computed(() => {
 const addressOptions = computed(() =>
   addressStore.addresses.map((a) => ({
     value: a.id,
-    label: `${a.label || 'Address'} — ${a.formatted_address}`,
+    label: `${a.label || t('buyer.post.address_fallback')} — ${a.formatted_address}`,
   })),
 )
 
@@ -75,7 +81,10 @@ onMounted(async () => {
       form.value.address_id = addressStore.defaultAddress.id
     }
   } catch {
-    notificationStore.error('Failed to load your addresses.')
+    notificationStore.addNotification({
+      type: 'error',
+      messageKey: 'buyer.post.load_addresses_error',
+    })
   }
 })
 
@@ -87,23 +96,27 @@ function validateDemandForm() {
   const target = parseFloat(form.value.target_price_per_kg)
   const description = (form.value.description || '').trim()
   if (title.length > DEMAND_TITLE_MAX_LENGTH) {
-    fieldErrors.title = `Title cannot exceed ${DEMAND_TITLE_MAX_LENGTH} characters.`
+    fieldErrors.title = t('buyer.post.err_title', { max: DEMAND_TITLE_MAX_LENGTH })
   }
   if (crop.length > DEMAND_CROP_NAME_MAX_LENGTH) {
-    fieldErrors.crop_name = `Crop name cannot exceed ${DEMAND_CROP_NAME_MAX_LENGTH} characters.`
+    fieldErrors.crop_name = t('buyer.post.err_crop', { max: DEMAND_CROP_NAME_MAX_LENGTH })
   }
   if (!qty || qty < DEMAND_QUANTITY_MIN_KG) {
-    fieldErrors.quantity_kg = 'Please enter a quantity greater than zero.'
+    fieldErrors.quantity_kg = t('buyer.post.err_qty_zero')
   } else if (qty > DEMAND_QUANTITY_MAX_KG) {
-    fieldErrors.quantity_kg = `Quantity cannot exceed ${DEMAND_QUANTITY_MAX_KG.toLocaleString()} kg.`
+    fieldErrors.quantity_kg = t('buyer.post.err_qty_max', {
+      max: DEMAND_QUANTITY_MAX_KG.toLocaleString(),
+    })
   }
   if (!target || target < DEMAND_PRICE_MIN) {
-    fieldErrors.target_price_per_kg = 'Please enter a target price greater than zero.'
+    fieldErrors.target_price_per_kg = t('buyer.post.err_price_zero')
   } else if (target > DEMAND_PRICE_MAX) {
-    fieldErrors.target_price_per_kg = `Target price cannot exceed ₱${DEMAND_PRICE_MAX.toLocaleString()} per kg.`
+    fieldErrors.target_price_per_kg = t('buyer.post.err_price_max', {
+      max: DEMAND_PRICE_MAX.toLocaleString(),
+    })
   }
   if (description.length > DEMAND_DESCRIPTION_MAX_LENGTH) {
-    fieldErrors.description = `Notes cannot exceed ${DEMAND_DESCRIPTION_MAX_LENGTH} characters.`
+    fieldErrors.description = t('buyer.post.err_notes', { max: DEMAND_DESCRIPTION_MAX_LENGTH })
   }
   validateDemandTotal(fieldErrors, qty, target)
   return fieldErrors
@@ -116,8 +129,7 @@ function validateDemandTotal(fieldErrors, qty, target) {
     target > 0 &&
     qty * target > DEMAND_TOTAL_MAX
   ) {
-    fieldErrors.quantity_kg =
-      'The combined quantity and target price exceed the maximum order total.'
+    fieldErrors.quantity_kg = t('buyer.post.err_total')
   }
 }
 
@@ -146,7 +158,7 @@ async function performConfirmedAction() {
       description: form.value.description || null,
       address_id: form.value.address_id,
     })
-    notificationStore.success('Demand posted! Farmers can now send you offers.')
+    notificationStore.addNotification({ type: 'success', messageKey: 'buyer.post.posted' })
     router.push({ name: 'buyer-demands' })
   } catch (err) {
     const apiErrors = err.response?.data?.errors || {}
@@ -154,7 +166,11 @@ async function performConfirmedAction() {
       errors.value[key] = apiErrors[key][0]
     })
     if (Object.keys(errors.value).length === 0) {
-      notificationStore.error(err.response?.data?.message || 'Failed to post demand.')
+      if (err.response?.data?.message) {
+        notificationStore.error(err.response.data.message)
+      } else {
+        notificationStore.addNotification({ type: 'error', messageKey: 'buyer.post.post_failed' })
+      }
     }
   } finally {
     submitting.value = false
@@ -165,29 +181,29 @@ async function performConfirmedAction() {
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="font-serif text-3xl font-bold text-stone-900">Post a Crop Demand</h1>
+      <h1 class="font-serif text-3xl font-bold text-stone-900">{{ t('buyer.post.title') }}</h1>
       <p class="text-base text-stone-600 font-normal mt-1">
-        Tell farmers what you need — they compete with offers and you pick the best.
+        {{ t('buyer.post.description') }}
       </p>
     </div>
 
     <AppAlert v-if="!addressStore.loading && addressStore.addresses.length === 0" type="warning">
-      You need a saved delivery address before posting.
+      {{ t('buyer.post.no_address') }}
       <RouterLink
         :to="{ name: 'user-profile', params: { userId: authStore.user?.id } }"
         class="font-semibold underline hover:text-harvest-700"
       >
-        Add one in your profile
+        {{ t('buyer.post.add_address') }}
       </RouterLink>
-      first.
+      {{ t('buyer.post.no_address_suffix') }}
     </AppAlert>
 
     <AppCard padding="p-6">
       <form class="space-y-5" @submit.prevent="askDemandConfirm">
         <FormField
           id="demand-title"
-          label="Title"
-          placeholder="e.g. 600kg fresh tomatoes for July"
+          :label="t('buyer.post.field_title')"
+          :placeholder="t('buyer.post.title_ph')"
           v-model="form.title"
           :required="true"
           :maxlength="DEMAND_TITLE_MAX_LENGTH"
@@ -196,8 +212,8 @@ async function performConfirmedAction() {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             id="demand-crop"
-            label="Crop"
-            placeholder="e.g. Tomato"
+            :label="t('buyer.post.field_crop')"
+            :placeholder="t('buyer.post.crop_ph')"
             v-model="form.crop_name"
             :required="true"
             :maxlength="DEMAND_CROP_NAME_MAX_LENGTH"
@@ -205,7 +221,7 @@ async function performConfirmedAction() {
           />
           <FormField
             id="demand-qty"
-            label="Quantity needed (kg)"
+            :label="t('buyer.post.field_qty')"
             type="number"
             v-model="form.quantity_kg"
             :required="true"
@@ -217,7 +233,7 @@ async function performConfirmedAction() {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>div>span]:flex [&>div>span]:min-h-11">
           <FormField
             id="demand-price"
-            label="Target price per kg (₱)"
+            :label="t('buyer.post.field_price')"
             type="number"
             v-model="form.target_price_per_kg"
             :required="true"
@@ -234,7 +250,7 @@ async function performConfirmedAction() {
           </FormField>
           <AppSelect
             id="demand-address"
-            label="Delivery address"
+            :label="t('buyer.post.field_address')"
             :required="true"
             :options="addressOptions"
             :model-value="form.address_id"
@@ -245,7 +261,7 @@ async function performConfirmedAction() {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="demand-needed" class="block text-sm font-medium text-soil-700">
-              Needed by <span class="text-red-500">*</span>
+              {{ t('buyer.post.field_needed') }} <span class="text-red-500">*</span>
             </label>
             <input
               id="demand-needed"
@@ -261,7 +277,7 @@ async function performConfirmedAction() {
           </div>
           <div>
             <label for="demand-expiry" class="block text-sm font-medium text-soil-700">
-              Offers close on <span class="text-red-500">*</span>
+              {{ t('buyer.post.field_expiry') }} <span class="text-red-500">*</span>
             </label>
             <input
               id="demand-expiry"
@@ -279,7 +295,7 @@ async function performConfirmedAction() {
         </div>
         <div>
           <label for="demand-desc" class="block text-sm font-medium text-soil-700">
-            Notes for farmers
+            {{ t('buyer.post.field_notes') }}
           </label>
           <AppTextarea
             minlength="0"
@@ -288,7 +304,7 @@ async function performConfirmedAction() {
             v-model="form.description"
             rows="3"
             :maxlength="DEMAND_DESCRIPTION_MAX_LENGTH"
-            placeholder="Quality requirements, delivery notes…"
+            :placeholder="t('buyer.post.notes_ph')"
             class="mt-1"
           ></AppTextarea>
           <p class="text-xs text-stone-500 mt-1 text-right" id="demand-desc-counter">
@@ -300,13 +316,13 @@ async function performConfirmedAction() {
         </div>
 
         <div class="flex justify-end gap-3">
-          <AppButton variant="ghost" @click="router.back()">Cancel</AppButton>
+          <AppButton variant="ghost" @click="router.back()">{{ t('shell.cancel') }}</AppButton>
           <AppButton
             type="submit"
             variant="primary"
             :disabled="addressStore.addresses.length === 0"
           >
-            Post demand
+            {{ t('buyer.post.submit') }}
           </AppButton>
         </div>
       </form>

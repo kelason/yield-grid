@@ -1,7 +1,10 @@
 <script setup>
 import UnreadBadge from '../atoms/UnreadBadge.vue'
 import OnlineIndicator from '../atoms/OnlineIndicator.vue'
+import { useI18n } from 'vue-i18n'
 import { formatDistanceToNow } from 'date-fns'
+
+const { t } = useI18n()
 
 defineProps({
   conversation: {
@@ -52,7 +55,7 @@ defineEmits(['select'])
     <div class="flex-grow min-w-0">
       <div class="flex justify-between items-baseline mb-0.5">
         <div class="font-bold text-stone-900 truncate pr-2 font-sans">
-          {{ conversation.other_participant?.name || 'Unknown' }}
+          {{ conversation.other_participant?.name || t('chat.item.unknown') }}
         </div>
         <div class="text-[10px] text-stone-500 whitespace-nowrap">
           {{
@@ -67,7 +70,7 @@ defineEmits(['select'])
           class="text-sm text-stone-500 truncate"
           :class="{ 'font-semibold text-stone-800': conversation.unread_count > 0 }"
         >
-          {{ conversation.latest_message?.body || 'No messages yet' }}
+          {{ conversation.latest_message?.body || t('chat.item.no_messages') }}
         </div>
         <UnreadBadge :count="conversation.unread_count || 0" />
       </div>

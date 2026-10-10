@@ -27,7 +27,9 @@
       <div class="flex flex-col items-center">
         <span class="text-base leading-none">💧</span>
         <span class="font-semibold text-dew-900 mt-0.5">{{ weather.main?.humidity }}%</span>
-        <span class="text-[10px] text-dew-500 uppercase tracking-wide">Humidity</span>
+        <span class="text-[10px] text-dew-500 uppercase tracking-wide">{{
+          t('shell.weather.humidity')
+        }}</span>
       </div>
       <div v-if="weather.wind?.speed" class="flex flex-col items-center">
         <span class="text-base leading-none">🌬️</span>
@@ -39,6 +41,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 defineProps({
   weather: {
     type: Object,

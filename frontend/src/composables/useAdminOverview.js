@@ -1,8 +1,11 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { useApi } from './useApi'
 import { useAuthStore } from '@/stores/auth'
 import { HTTP_STATUS } from '@/constants/http'
 import { ADMIN_OVERVIEW_PATH, SUSPENDED_CODE } from '@/constants/admin'
+
+const t = (...args) => i18n.global.t(...args)
 
 function isSessionFailure(error) {
   const status = error?.response?.status
@@ -10,8 +13,8 @@ function isSessionFailure(error) {
   return status === HTTP_STATUS.FORBIDDEN && error?.response?.data?.code === SUSPENDED_CODE
 }
 
-function errorMessage(error, fallback) {
-  return error?.response?.data?.message || error?.message || fallback
+function errorMessage(error, fallbackKey) {
+  return error?.response?.data?.message || error?.message || t(fallbackKey)
 }
 
 export function useAdminOverview() {
@@ -35,7 +38,7 @@ export function useAdminOverview() {
       }
     } catch (err) {
       if (isSessionFailure(err)) authStore.clearSession()
-      error.value = errorMessage(err, 'Unable to load the overview.')
+      error.value = errorMessage(err, 'admin.overview.load_failed')
     } finally {
       loading.value = false
     }

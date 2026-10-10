@@ -1,6 +1,9 @@
 import { ref } from 'vue'
+import i18n from '@/i18n'
 import { PAYMENT_OPTION } from '@/constants/payment'
 import { useApi } from './useApi'
+
+const t = (...args) => i18n.global.t(...args)
 
 export function usePayment() {
   const { request } = useApi()
@@ -35,12 +38,11 @@ export function usePayment() {
         // Redirect to PayMongo hosted checkout page
         window.location.href = response.data.checkout_url
       } else {
-        throw new Error('No checkout URL returned from server')
+        throw new Error(t('market.browse.checkout_no_url'))
       }
     } catch (err) {
       console.error('Checkout error:', err)
-      error.value =
-        err.response?.data?.message || err.message || 'Failed to initialize checkout session'
+      error.value = err.response?.data?.message || err.message || t('market.browse.checkout_failed')
       throw err
     } finally {
       loading.value = false
@@ -67,12 +69,11 @@ export function usePayment() {
         checkoutUrl.value = response.data.checkout_url
         window.location.href = response.data.checkout_url
       } else {
-        throw new Error('No checkout URL returned from server')
+        throw new Error(t('market.browse.checkout_no_url'))
       }
     } catch (err) {
       console.error('Offer checkout error:', err)
-      error.value =
-        err.response?.data?.message || err.message || 'Failed to initialize checkout session'
+      error.value = err.response?.data?.message || err.message || t('market.browse.checkout_failed')
       throw err
     } finally {
       loading.value = false

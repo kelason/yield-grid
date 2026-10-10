@@ -3,6 +3,7 @@ import AppTextarea from '@/components/atoms/AppTextarea.vue'
 import PageHeader from '@/components/molecules/PageHeader.vue'
 import { usePendingConfirmation } from '@/composables/useConfirmModal'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi'
 import { useMarketStore } from '@/stores/marketStore'
@@ -17,14 +18,15 @@ const router = useRouter()
 const api = useApi()
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
+const { t } = useI18n()
 
 const cropCatalog = [
-  { name: 'Rice', defaultShelfLife: 180 },
-  { name: 'Corn', defaultShelfLife: 90 },
-  { name: 'Tomato', defaultShelfLife: 14 },
-  { name: 'Potato', defaultShelfLife: 60 },
-  { name: 'Onion', defaultShelfLife: 90 },
-  { name: 'Other', defaultShelfLife: 30 },
+  { name: 'Rice', labelKey: 'farmer.listing.crop_rice', defaultShelfLife: 180 },
+  { name: 'Corn', labelKey: 'farmer.listing.crop_corn', defaultShelfLife: 90 },
+  { name: 'Tomato', labelKey: 'farmer.listing.crop_tomato', defaultShelfLife: 14 },
+  { name: 'Potato', labelKey: 'farmer.listing.crop_potato', defaultShelfLife: 60 },
+  { name: 'Onion', labelKey: 'farmer.listing.crop_onion', defaultShelfLife: 90 },
+  { name: 'Other', labelKey: 'farmer.listing.crop_other', defaultShelfLife: 30 },
 ]
 
 const form = ref({
@@ -118,9 +120,13 @@ const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   return {
-    title: 'Post this listing?',
-    message: `List ${pendingConfirm.value.quantity_kg} kg of ${pendingConfirm.value.crop_name} at ₱${pendingConfirm.value.price_per_kg}/kg on the marketplace?`,
-    confirmText: 'Post listing',
+    title: t('farmer.listing.confirm_title'),
+    message: t('farmer.listing.confirm_message', {
+      qty: pendingConfirm.value.quantity_kg,
+      crop: pendingConfirm.value.crop_name,
+      price: pendingConfirm.value.price_per_kg,
+    }),
+    confirmText: t('farmer.listing.confirm_button'),
     type: 'primary',
   }
 })
@@ -131,34 +137,37 @@ const isDescriptionOverLimit = computed(() => descriptionLength.value > DESCRIPT
 
 const validateListingForm = () => {
   if (form.value.plot_id && !form.value.farm_id) {
-    return 'Please choose the farm this plot belongs to.'
+    return t('farmer.listing.err_farm')
   }
-  if (isTitleOverLimit.value) return `Title must be ${TITLE_MAX_LENGTH} characters or less.`
+  if (isTitleOverLimit.value) return t('farmer.listing.title_too_long', { max: TITLE_MAX_LENGTH })
   if (isDescriptionOverLimit.value) {
-    return `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`
+    return t('farmer.listing.desc_too_long', { max: DESCRIPTION_MAX_LENGTH })
   }
   if ((form.value.custom_crop_name || '').length > CROP_NAME_MAX_LENGTH) {
-    return `Crop name cannot exceed ${CROP_NAME_MAX_LENGTH} characters.`
+    return t('farmer.listing.crop_too_long', { max: CROP_NAME_MAX_LENGTH })
   }
   const qty = parseFloat(form.value.quantity_kg)
   if (!qty || qty < QUANTITY_MIN_KG) {
-    return 'Please enter a quantity greater than zero.'
+    return t('farmer.demands.qty_required')
   }
   if (qty > QUANTITY_MAX_KG) {
-    return `Quantity cannot exceed ${QUANTITY_MAX_KG.toLocaleString()} kg.`
+    return t('farmer.listing.qty_exceeds', { max: QUANTITY_MAX_KG.toLocaleString() })
   }
   const price = parseFloat(form.value.price_per_kg)
   if (!price || price < PRICE_MIN) {
-    return 'Please enter a price greater than zero.'
+    return t('farmer.demands.price_required')
   }
   if (price > PRICE_MAX) {
-    return `Price cannot exceed ${PRICE_MAX_DIGITS} digits (₱${PRICE_MAX.toLocaleString()}).`
+    return t('farmer.demands.price_exceeds', {
+      digits: PRICE_MAX_DIGITS,
+      max: PRICE_MAX.toLocaleString(),
+    })
   }
   const shelfError = validateShelfLife()
   if (shelfError) return shelfError
   const needsDate = !form.value.is_harvest_available
   if (!finalCropName.value || (needsDate && !form.value.estimated_harvest_date)) {
-    return 'Please fill in all required fields.'
+    return t('farmer.listing.required_fields')
   }
   return null
 }
@@ -166,10 +175,10 @@ const validateListingForm = () => {
 function validateShelfLife() {
   const shelf = parseInt(form.value.shelf_life_days)
   if (!shelf || shelf < SHELF_MIN_DAYS) {
-    return 'Please enter a shelf life of at least 1 day.'
+    return t('farmer.listing.shelf_min')
   }
   if (shelf > SHELF_MAX_DAYS) {
-    return `Shelf life cannot exceed ${SHELF_MAX_DAYS.toLocaleString()} days.`
+    return t('farmer.listing.shelf_exceeds', { max: SHELF_MAX_DAYS.toLocaleString() })
   }
   return null
 }
@@ -177,7 +186,7 @@ function validateShelfLife() {
 const askListingConfirm = () => {
   const error = validateListingForm()
   if (error) {
-    notificationStore.error(error)
+    notificationStore.addNotification({ type: 'error', message: error })
     return
   }
   pendingConfirm.value = {
@@ -206,11 +215,13 @@ const performConfirmedAction = async () => {
     }
 
     await marketStore.createManualListing(payload)
-    notificationStore.success('Listing created successfully!')
+    notificationStore.addNotification({ type: 'success', messageKey: 'farmer.listing.created' })
     router.push({ name: 'farmer-contracts' })
   } catch (error) {
-    const msg = error.response?.data?.message || 'Failed to create listing'
-    notificationStore.error(msg)
+    notificationStore.addNotification({
+      type: 'error',
+      message: error.response?.data?.message || t('farmer.listing.create_error'),
+    })
   } finally {
     isSubmitting.value = false
   }
@@ -219,37 +230,34 @@ const performConfirmedAction = async () => {
 
 <template>
   <div class="space-y-6">
-    <PageHeader
-      title="Post Manual Harvest"
-      description="List your harvest directly on the marketplace without AI crop planning."
-    />
+    <PageHeader :title="t('farmer.listing.title')" :description="t('farmer.listing.description')" />
 
     <div class="bg-white rounded-2xl shadow-soft border border-stone-200 p-6">
       <form @submit.prevent="askListingConfirm" class="space-y-6">
         <div class="space-y-4">
           <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
-            Crop Details
+            {{ t('farmer.listing.crop_section') }}
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="crop-type" class="block text-sm font-medium text-soil-700 mb-1"
-                >Crop Type</label
-              >
+              <label for="crop-type" class="block text-sm font-medium text-soil-700 mb-1">{{
+                t('farmer.listing.crop_type')
+              }}</label>
               <AppSelect id="crop-type" v-model="form.crop_name">
                 <option v-for="crop in cropCatalog" :key="crop.name" :value="crop.name">
-                  {{ crop.name }}
+                  {{ t(crop.labelKey) }}
                 </option>
               </AppSelect>
             </div>
             <div v-if="isCustomCrop">
-              <label for="custom_crop_name" class="block text-sm font-medium text-soil-700 mb-1"
-                >Custom Crop Name</label
-              >
+              <label for="custom_crop_name" class="block text-sm font-medium text-soil-700 mb-1">{{
+                t('farmer.listing.custom_crop')
+              }}</label>
               <AppInput
                 id="custom_crop_name"
                 v-model="form.custom_crop_name"
-                placeholder="e.g. Cabbage"
+                :placeholder="t('farmer.listing.custom_placeholder')"
                 :maxlength="CROP_NAME_MAX_LENGTH"
                 required
               />
@@ -258,11 +266,11 @@ const performConfirmedAction = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="shelf_life_days" class="block text-sm font-medium text-soil-700 mb-1"
-                >Shelf Life (Days)</label
-              >
+              <label for="shelf_life_days" class="block text-sm font-medium text-soil-700 mb-1">{{
+                t('farmer.listing.shelf')
+              }}</label>
               <p class="text-xs text-stone-500 mb-2">
-                Pre-populated from catalog, but you can edit it.
+                {{ t('farmer.listing.shelf_hint') }}
               </p>
               <AppInput
                 id="shelf_life_days"
@@ -279,14 +287,14 @@ const performConfirmedAction = async () => {
 
         <div class="space-y-4">
           <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
-            Listing Details
+            {{ t('farmer.listing.listing_section') }}
           </h3>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label for="title" class="block text-sm font-medium text-soil-700"
-                >Title (Optional)</label
-              >
+              <label for="title" class="block text-sm font-medium text-soil-700">{{
+                t('farmer.listing.title_label')
+              }}</label>
               <span
                 class="text-[11px]"
                 :class="isTitleOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
@@ -297,16 +305,16 @@ const performConfirmedAction = async () => {
             <AppInput
               id="title"
               v-model="form.title"
-              placeholder="e.g. Premium Grade Rice Harvest"
+              :placeholder="t('farmer.listing.title_placeholder')"
               :maxlength="TITLE_MAX_LENGTH"
             />
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label for="listing-description" class="block text-sm font-medium text-soil-700"
-                >Description (Optional)</label
-              >
+              <label for="listing-description" class="block text-sm font-medium text-soil-700">{{
+                t('farmer.listing.desc_label')
+              }}</label>
               <span
                 class="text-[11px]"
                 :class="isDescriptionOverLimit ? 'text-red-600 font-semibold' : 'text-stone-500'"
@@ -327,9 +335,9 @@ const performConfirmedAction = async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="quantity_kg" class="block text-sm font-medium text-soil-700 mb-1"
-                >Quantity (kg)</label
-              >
+              <label for="quantity_kg" class="block text-sm font-medium text-soil-700 mb-1">{{
+                t('farmer.listing.qty')
+              }}</label>
               <AppInput
                 id="quantity_kg"
                 type="number"
@@ -343,9 +351,9 @@ const performConfirmedAction = async () => {
             </div>
             <div>
               <div class="mb-1 flex items-center gap-1">
-                <label for="price_per_kg" class="block text-sm font-medium text-soil-700"
-                  >Price per kg (₱)</label
-                >
+                <label for="price_per_kg" class="block text-sm font-medium text-soil-700">{{
+                  t('farmer.listing.price')
+                }}</label>
                 <PriceGuidePopover
                   :crop-name="finalCropName"
                   :current-price="Number(form.price_per_kg) || null"
@@ -367,7 +375,7 @@ const performConfirmedAction = async () => {
 
         <div class="space-y-4">
           <h3 class="font-serif text-xl font-bold text-stone-900 border-b border-stone-300 pb-2">
-            Availability
+            {{ t('farmer.listing.availability_section') }}
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -375,7 +383,7 @@ const performConfirmedAction = async () => {
               <label
                 for="estimated_harvest_date"
                 class="block text-sm font-medium text-soil-700 mb-1"
-                >Estimated Harvest Date</label
+                >{{ t('farmer.listing.harvest_date') }}</label
               >
               <AppInput
                 id="estimated_harvest_date"
@@ -394,7 +402,7 @@ const performConfirmedAction = async () => {
                 class="h-4 w-4 text-moss-600 focus:ring-moss-500 border-stone-300 rounded-xl"
               />
               <label for="harvest_available" class="ml-2 block text-sm font-medium text-soil-700">
-                Harvest is already available for pickup/delivery
+                {{ t('farmer.listing.harvest_available') }}
               </label>
             </div>
           </div>
@@ -436,7 +444,7 @@ const performConfirmedAction = async () => {
             type="submit"
             class="bg-gradient-to-br from-moss-500 to-moss-600 text-white hover:from-moss-600 hover:to-moss-700"
           >
-            Post Listing
+            {{ t('farmer.listing.submit') }}
           </AppButton>
         </div>
       </form>

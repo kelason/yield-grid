@@ -18,12 +18,20 @@ export const REPORT_TARGET_LABELS = {
   demand: 'Buyer demand',
 }
 
+export const REPORT_TARGET_LABEL_KEYS = {
+  thread: 'market.report.target_thread',
+  reply: 'market.report.target_reply',
+  contract: 'market.report.target_contract',
+  listing: 'market.report.target_listing',
+  demand: 'market.report.target_demand',
+}
+
 export const CONTENT_TYPE_OPTIONS = [
-  { value: 'thread', label: 'Discussions' },
-  { value: 'reply', label: 'Replies' },
-  { value: 'contract', label: 'Forward contracts' },
-  { value: 'listing', label: 'Harvest listings' },
-  { value: 'demand', label: 'Buyer demands' },
+  { value: 'thread', label: 'Discussions', labelKey: 'admin.content.type_thread' },
+  { value: 'reply', label: 'Replies', labelKey: 'admin.content.type_reply' },
+  { value: 'contract', label: 'Forward contracts', labelKey: 'admin.content.type_contract' },
+  { value: 'listing', label: 'Harvest listings', labelKey: 'admin.content.type_listing' },
+  { value: 'demand', label: 'Buyer demands', labelKey: 'admin.content.type_demand' },
 ]
 
 export const REPORT_REASON = {
@@ -38,14 +46,30 @@ export const REPORT_REASON = {
 }
 
 export const REPORT_REASON_OPTIONS = [
-  { value: 'spam', label: 'Spam' },
-  { value: 'inappropriate', label: 'Inappropriate content' },
-  { value: 'misinformation', label: 'Misinformation' },
-  { value: 'harassment', label: 'Harassment' },
-  { value: 'off_topic', label: 'Off topic' },
-  { value: 'other', label: 'Other' },
-  { value: 'suspected_fraud', label: 'Suspected fraud' },
-  { value: 'prohibited_item', label: 'Prohibited item' },
+  { value: 'spam', label: 'Spam', labelKey: 'market.report.reason_spam' },
+  {
+    value: 'inappropriate',
+    label: 'Inappropriate content',
+    labelKey: 'market.report.reason_inappropriate',
+  },
+  {
+    value: 'misinformation',
+    label: 'Misinformation',
+    labelKey: 'market.report.reason_misinformation',
+  },
+  { value: 'harassment', label: 'Harassment', labelKey: 'market.report.reason_harassment' },
+  { value: 'off_topic', label: 'Off topic', labelKey: 'market.report.reason_off_topic' },
+  { value: 'other', label: 'Other', labelKey: 'market.report.reason_other' },
+  {
+    value: 'suspected_fraud',
+    label: 'Suspected fraud',
+    labelKey: 'market.report.reason_suspected_fraud',
+  },
+  {
+    value: 'prohibited_item',
+    label: 'Prohibited item',
+    labelKey: 'market.report.reason_prohibited_item',
+  },
 ]
 
 export const REPORT_DESCRIPTION_MAX_LENGTH = 1000
@@ -65,6 +89,13 @@ export const REPORT_STATUS_LABELS = {
   dismissed: 'Dismissed',
 }
 
+export const REPORT_STATUS_LABEL_KEYS = {
+  open: 'admin.reports.status_open',
+  reviewing: 'admin.reports.status_reviewing',
+  resolved: 'admin.reports.status_resolved',
+  dismissed: 'admin.reports.status_dismissed',
+}
+
 export const TERMINAL_REPORT_STATUSES = ['resolved', 'dismissed']
 
 export const REPORT_OUTCOME = {
@@ -77,6 +108,11 @@ export const REPORT_OUTCOME_LABELS = {
   no_action: 'No action',
 }
 
+export const REPORT_OUTCOME_LABEL_KEYS = {
+  hidden: 'admin.reports.outcome_hidden',
+  no_action: 'admin.reports.outcome_no_action',
+}
+
 export const DECISION_NOTE_MAX_LENGTH = 500
 
 export const CONTENT_VISIBILITY = {
@@ -85,29 +121,29 @@ export const CONTENT_VISIBILITY = {
 }
 
 export const CONTENT_TYPE_FILTER_OPTIONS = [
-  { value: '', label: 'All types' },
-  { value: 'thread', label: 'Discussions' },
-  { value: 'reply', label: 'Replies' },
-  { value: 'contract', label: 'Forward contracts' },
-  { value: 'listing', label: 'Harvest listings' },
-  { value: 'demand', label: 'Buyer demands' },
+  { value: '', label: 'All types', labelKey: 'admin.content.type_all' },
+  { value: 'thread', label: 'Discussions', labelKey: 'admin.content.type_thread' },
+  { value: 'reply', label: 'Replies', labelKey: 'admin.content.type_reply' },
+  { value: 'contract', label: 'Forward contracts', labelKey: 'admin.content.type_contract' },
+  { value: 'listing', label: 'Harvest listings', labelKey: 'admin.content.type_listing' },
+  { value: 'demand', label: 'Buyer demands', labelKey: 'admin.content.type_demand' },
 ]
 
 export const REPORT_STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'All statuses' },
-  { value: 'open', label: 'Open' },
-  { value: 'reviewing', label: 'Reviewing' },
-  { value: 'resolved', label: 'Resolved' },
-  { value: 'dismissed', label: 'Dismissed' },
+  { value: '', label: 'All statuses', labelKey: 'admin.reports.filter_all' },
+  { value: 'open', label: 'Open', labelKey: 'admin.reports.status_open' },
+  { value: 'reviewing', label: 'Reviewing', labelKey: 'admin.reports.status_reviewing' },
+  { value: 'resolved', label: 'Resolved', labelKey: 'admin.reports.status_resolved' },
+  { value: 'dismissed', label: 'Dismissed', labelKey: 'admin.reports.status_dismissed' },
 ]
 
 export const REPORT_REASON_FILTER_OPTIONS = [
-  { value: '', label: 'All reasons' },
+  { value: '', label: 'All reasons', labelKey: 'admin.reports.reason_all' },
   ...REPORT_REASON_OPTIONS,
 ]
 
 export const CONTENT_VISIBILITY_FILTER_OPTIONS = [
-  { value: '', label: 'All visibility' },
-  { value: 'visible', label: 'Visible' },
-  { value: 'hidden', label: 'Hidden' },
+  { value: '', label: 'All visibility', labelKey: 'admin.content.vis_all' },
+  { value: 'visible', label: 'Visible', labelKey: 'admin.content.vis_visible' },
+  { value: 'hidden', label: 'Hidden', labelKey: 'admin.content.vis_hidden' },
 ]

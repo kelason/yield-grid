@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMarketStore } from '@/stores/marketStore'
 import { useAuthStore } from '@/stores/auth'
 import FarmerContractsList from '@/components/organisms/FarmerContractsList.vue'
@@ -12,6 +13,7 @@ import { useConfirmModal } from '@/composables/useConfirmModal'
 
 const marketStore = useMarketStore()
 const authStore = useAuthStore()
+const { t } = useI18n()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 
 onMounted(() => {
@@ -33,14 +35,18 @@ onUnmounted(() => {
 })
 
 const handleCancel = (contract) => {
-  const itemTypeLabel = contract.type === 'listing' ? 'Manual Listing' : 'Forward Contract'
+  const itemTypeLabel = t(
+    contract.type === 'listing'
+      ? 'farmer.contracts.type_listing'
+      : 'farmer.contracts.type_contract',
+  )
   confirm(
     {
-      title: `Cancel ${itemTypeLabel}`,
-      message: `Are you sure you want to cancel the listing for '${contract.title}'? This action cannot be undone.`,
+      title: t('farmer.contracts.cancel_title', { type: itemTypeLabel }),
+      message: t('farmer.contracts.cancel_message', { title: contract.title }),
       type: 'danger',
-      confirmText: 'Cancel Listing',
-      cancelText: 'Keep Listing',
+      confirmText: t('farmer.contracts.cancel_listing'),
+      cancelText: t('farmer.contracts.keep_listing'),
     },
     async () => {
       await marketStore.cancelContract(contract.id, contract.type)
@@ -66,27 +72,27 @@ const handlePageChange = (page) => {
 <template>
   <div class="py-6 space-y-6">
     <PageHeader
-      title="My Forward Contracts"
-      description="Manage your published crop listings and track sales."
+      :title="t('farmer.contracts.title')"
+      :description="t('farmer.contracts.description')"
     />
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
-        label="Total Listed"
+        :label="t('farmer.contracts.stat_listed')"
         :value="marketStore.farmerStats.total_listed"
         :icon="DocumentTextIcon"
       />
       <StatCard
-        label="Total Reserved"
+        :label="t('farmer.contracts.stat_reserved')"
         :value="marketStore.farmerStats.total_reserved"
         :icon="ClockIcon"
       />
       <StatCard
-        label="Total Sold"
+        :label="t('farmer.contracts.stat_sold')"
         :value="marketStore.farmerStats.total_sold"
         :icon="ChartBarIcon"
       />
       <StatCard
-        label="Total Revenue"
+        :label="t('farmer.contracts.stat_revenue')"
         :value="`₱${Number(marketStore.farmerStats.total_revenue || 0).toLocaleString('en-PH')}`"
         :icon="BanknotesIcon"
         tone="harvest"
@@ -116,8 +122,8 @@ const handlePageChange = (page) => {
       :is-open="isOpen"
       :title="config.title"
       :message="config.message"
-      :confirm-text="config.confirmText || 'Confirm'"
-      :cancel-text="config.cancelText || 'Cancel'"
+      :confirm-text="config.confirmText || ''"
+      :cancel-text="config.cancelText || ''"
       :type="config.type"
       @confirm="execute"
       @cancel="cancel"

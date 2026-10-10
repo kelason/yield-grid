@@ -1,8 +1,9 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useApi } from '@/composables/useApi'
 import { useAuthStore } from '@/stores/auth'
+import { setLocale } from '@/i18n'
 import AdminOverviewPage from '../AdminOverviewPage.vue'
 
 vi.mock('@/composables/useApi', () => ({
@@ -52,6 +53,11 @@ describe('AdminOverviewPage.vue', () => {
     sessionStorage.clear()
     apiGet = vi.fn()
     useApi.mockReturnValue({ get: apiGet, post: vi.fn() })
+    setLocale('en')
+  })
+
+  afterEach(() => {
+    setLocale('en')
   })
 
   async function mountPage(payload = overviewPayload()) {
@@ -68,6 +74,13 @@ describe('AdminOverviewPage.vue', () => {
     expect(link.exists()).toBe(true)
     return JSON.parse(link.attributes('data-to'))
   }
+
+  it('renders the heading in Tagalog', async () => {
+    setLocale('tl')
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('h1').text()).toBe('Pangkalahatan')
+  })
 
   it('fetches the overview on entry and renders every count', async () => {
     const wrapper = await mountPage()

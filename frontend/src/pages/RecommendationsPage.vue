@@ -1,5 +1,6 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useRecommendationAnalysis } from '@/composables/useRecommendationAnalysis'
 import AppButton from '@/components/atoms/AppButton.vue'
 import AppAlert from '@/components/atoms/AppAlert.vue'
@@ -14,6 +15,7 @@ import ConfirmModal from '@/components/molecules/ConfirmModal.vue'
 import PublishContractForm from '@/components/organisms/PublishContractForm.vue'
 import RecommendationAnalysisPanel from '@/components/organisms/RecommendationAnalysisPanel.vue'
 const RECOMMENDATION_SKELETON_COUNT = 3
+const { t } = useI18n()
 const {
   store,
   farmingStore,
@@ -48,40 +50,49 @@ const {
 <template>
   <div class="space-y-6">
     <PageHeader
-      :title="activePlotId ? `${plotDisplayName} Recommendations` : 'Crop recommendations'"
-      description="Plan your next crop with insights tailored to your land."
+      :title="
+        activePlotId
+          ? t('farmer.recommendations.plot_title', { name: plotDisplayName })
+          : t('farmer.recommendations.title')
+      "
+      :description="t('farmer.recommendations.description')"
     >
       <template #actions
         ><router-link
           :to="{ name: 'farm-manager' }"
           class="inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-medium text-moss-700 transition-colors hover:bg-moss-50"
-          >Back to My Farms</router-link
+          >{{ t('farmer.recommendations.back_farms') }}</router-link
         ></template
       >
     </PageHeader>
     <AppSelect
       v-if="farmingStore.allPlots.length > 1"
       id="plot-selector"
-      label="Plot"
+      :label="t('farmer.recommendations.plot_label')"
       :model-value="activePlotId"
       @update:model-value="handlePlotChange(Number($event))"
     >
       <option v-for="plot in farmingStore.allPlots" :key="plot.id" :value="plot.id">
-        {{ plot.name }} ({{ plot.farm_name || 'Farm' }}) —
-        {{ plot.calculated_area ? Number(plot.calculated_area).toFixed(2) : 0 }} ha
+        {{
+          t('farmer.recommendations.option', {
+            name: plot.name,
+            farm: plot.farm_name || t('farmer.recommendations.farm_fallback'),
+            area: plot.calculated_area ? Number(plot.calculated_area).toFixed(2) : 0,
+          })
+        }}
       </option>
     </AppSelect>
-    <LoadingState v-if="isLoadingPlots" label="Loading plots" class="space-y-5"
+    <LoadingState v-if="isLoadingPlots" :label="t('farmer.plots.loading')" class="space-y-5"
       ><SkeletonCard v-for="n in RECOMMENDATION_SKELETON_COUNT" :key="n" withAvatar withAction
     /></LoadingState>
     <div v-else-if="plotsError" class="space-y-3">
       <AppAlert type="error">{{ plotsError }}</AppAlert
-      ><AppButton @click="retryPlots">Retry</AppButton>
+      ><AppButton @click="retryPlots">{{ t('shell.retry') }}</AppButton>
     </div>
     <EmptyState
       v-else-if="farmingStore.allPlots.length === 0"
-      title="No plots registered yet"
-      description="Create a farm and draw a plot to receive crop recommendations."
+      :title="t('farmer.recommendations.no_plots_title')"
+      :description="t('farmer.recommendations.no_plots_desc')"
     />
     <template v-else>
       <p class="text-sm text-stone-600">
@@ -99,12 +110,17 @@ const {
         @dismiss-error="store.errorMessage = ''"
       />
       <template v-if="!store.isAnalyzing">
-        <LoadingState v-if="store.isLoading" label="Loading recommendations" class="space-y-5"
+        <LoadingState
+          v-if="store.isLoading"
+          :label="t('farmer.recommendations.loading')"
+          class="space-y-5"
           ><SkeletonCard v-for="n in RECOMMENDATION_SKELETON_COUNT" :key="n" withAvatar withAction
         /></LoadingState>
         <div v-else-if="store.fetchError" class="space-y-3">
           <AppAlert type="error">{{ store.fetchError }}</AppAlert
-          ><AppButton @click="retryRecommendations">Retry recommendations</AppButton>
+          ><AppButton @click="retryRecommendations">{{
+            t('farmer.recommendations.retry_button')
+          }}</AppButton>
         </div>
         <div v-else-if="store.recommendations.length > 0" class="space-y-5">
           <div v-if="store.availableTypes.length > 0" class="flex flex-wrap gap-2">
@@ -113,7 +129,7 @@ const {
               :variant="store.typeFilter === '' ? 'primary' : 'outline'"
               :aria-pressed="store.typeFilter === ''"
               @click="store.typeFilter = ''"
-              >All</AppButton
+              >{{ t('farmer.recommendations.all_types') }}</AppButton
             >
             <AppButton
               v-for="type in store.availableTypes"
@@ -130,7 +146,7 @@ const {
             data-test="filter-empty-hint"
             class="text-center text-sm text-stone-600 py-6"
           >
-            No recommendations match this filter. Try a different type.
+            {{ t('farmer.recommendations.filter_empty') }}
           </p>
           <RecommendationCard
             v-for="recommendation in store.filteredRecommendations"
@@ -142,19 +158,19 @@ const {
         </div>
         <EmptyState
           v-else
-          title="No recommendations yet"
-          description="Run the AI advisor to analyse soil conditions and weather patterns for this plot."
+          :title="t('farmer.recommendations.empty_title')"
+          :description="t('farmer.recommendations.empty_desc')"
         >
           <template #action
-            ><AppButton :disabled="!activePlotId" @click="triggerAnalysis()"
-              >Run AI Analysis Now</AppButton
-            ></template
+            ><AppButton :disabled="!activePlotId" @click="triggerAnalysis()">{{
+              t('farmer.recommendations.run_analysis')
+            }}</AppButton></template
           >
         </EmptyState>
       </template>
     </template>
     <AppModal
-      title="Publish Forward Contract"
+      :title="t('farmer.recommendations.publish_title')"
       size="lg"
       :is-open="showPublishModal"
       :busy="isExecuting"

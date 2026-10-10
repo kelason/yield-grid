@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useDemandActions, DEMAND_TABS } from '@/composables/useDemandActions'
 import OfferPaymentPanel from '@/components/organisms/OfferPaymentPanel.vue'
 import { RouterLink } from 'vue-router'
@@ -18,6 +19,7 @@ import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 
 const demandStore = useDemandStore()
 const { prefetchCrops } = usePriceGuide()
+const { t } = useI18n()
 
 watch(
   () => demandStore.myDemands,
@@ -60,13 +62,15 @@ onMounted(() => demandStore.fetchMyDemands())
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <h1 class="font-serif text-3xl font-bold text-stone-900">My Demands</h1>
+        <h1 class="font-serif text-3xl font-bold text-stone-900">
+          {{ t('buyer.demands.title') }}
+        </h1>
         <p class="text-base text-stone-600 font-normal mt-1">
-          Review competing offers and pay for the ones you accept.
+          {{ t('buyer.demands.description') }}
         </p>
       </div>
       <RouterLink :to="{ name: 'buyer-post-demand' }">
-        <AppButton variant="primary">Post a demand</AppButton>
+        <AppButton variant="primary">{{ t('buyer.demands.post') }}</AppButton>
       </RouterLink>
     </div>
 
@@ -74,7 +78,7 @@ onMounted(() => demandStore.fetchMyDemands())
       <div class="border-b border-stone-200">
         <nav
           class="-mb-px flex space-x-8 px-6 overflow-x-auto"
-          aria-label="Filter demands by status"
+          :aria-label="t('buyer.demands.filter_aria')"
         >
           <button
             v-for="tab in DEMAND_TABS"
@@ -88,7 +92,7 @@ onMounted(() => demandStore.fetchMyDemands())
               'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200',
             ]"
           >
-            {{ tab.name }}
+            {{ t(tab.labelKey) }}
           </button>
         </nav>
       </div>
@@ -115,9 +119,14 @@ onMounted(() => demandStore.fetchMyDemands())
                 {{ demand.title }}
               </h2>
               <p class="text-sm text-stone-500 mt-0.5">
-                {{ demand.crop_name }} · {{ demand.remaining_quantity_kg }} of
-                {{ demand.quantity_kg }} kg remaining ·
-                {{ demand.pending_offers_count ?? 0 }} pending offers
+                {{
+                  t('buyer.demands.summary', {
+                    crop: demand.crop_name,
+                    remaining: demand.remaining_quantity_kg,
+                    total: demand.quantity_kg,
+                    pending: demand.pending_offers_count ?? 0,
+                  })
+                }}
               </p>
               <PriceFairnessBadge
                 :listing-price="Number(demand.target_price_per_kg)"
@@ -132,7 +141,11 @@ onMounted(() => demandStore.fetchMyDemands())
                   type="button"
                   @click="toggleOffers(demand)"
                   :aria-expanded="expandedId === demand.id"
-                  :aria-label="expandedId === demand.id ? 'Hide offers' : 'Show offers'"
+                  :aria-label="
+                    expandedId === demand.id
+                      ? t('buyer.demands.hide_offers')
+                      : t('buyer.demands.show_offers')
+                  "
                   class="w-8 h-8 rounded-full bg-stone-100 hover:bg-moss-100 text-stone-500 hover:text-moss-700 flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500"
                 >
                   <ChevronDownIcon
@@ -149,19 +162,22 @@ onMounted(() => demandStore.fetchMyDemands())
                 :loading="actingId === `demand-${demand.id}`"
                 @click="handleCancelDemand(demand)"
               >
-                Cancel demand
+                {{ t('buyer.demands.cancel_demand') }}
               </AppButton>
             </div>
           </div>
 
           <div v-if="demand.delivery_address" class="mt-4">
-            <DeliveryAddressCard :address="demand.delivery_address" title="Your delivery address" />
+            <DeliveryAddressCard
+              :address="demand.delivery_address"
+              :title="t('buyer.demands.delivery_title')"
+            />
           </div>
 
           <div v-if="expandedId === demand.id" class="mt-4 pt-4 border-t border-stone-200">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
               <h3 class="font-serif text-lg font-bold text-stone-900 flex items-center gap-2">
-                Competing offers
+                {{ t('buyer.demands.competing') }}
                 <span
                   v-if="!demandStore.loading.offers"
                   class="rounded-full bg-moss-100 text-moss-800 text-xs font-semibold px-2.5 py-0.5"
@@ -170,7 +186,7 @@ onMounted(() => demandStore.fetchMyDemands())
                 </span>
               </h3>
               <p class="text-xs text-stone-500">
-                Compare prices side by side, then accept the best.
+                {{ t('buyer.demands.compare_hint') }}
               </p>
             </div>
             <div
@@ -181,8 +197,8 @@ onMounted(() => demandStore.fetchMyDemands())
             </div>
             <EmptyState
               v-else-if="offersFor(demand).length === 0"
-              title="No offers yet"
-              description="Farmers have not responded to this demand yet."
+              :title="t('buyer.demands.no_offers')"
+              :description="t('buyer.demands.no_offers_desc')"
             />
             <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               <OfferCard
@@ -205,7 +221,7 @@ onMounted(() => demandStore.fetchMyDemands())
     </div>
 
     <AppModal
-      title="Payment options"
+      :title="t('buyer.demands.pay_title')"
       :is-open="showPayModal"
       :busy="isExecuting"
       @close="showPayModal = false"

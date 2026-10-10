@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import {
   ShoppingBagIcon,
@@ -25,6 +26,7 @@ import LoadingState from '@/components/molecules/LoadingState.vue'
 import PaginationControls from '@/components/molecules/PaginationControls.vue'
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
+const { t } = useI18n()
 const api = useApi()
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 const { openChat } = useChatEntry()
@@ -51,15 +53,17 @@ async function performCancellation(purchase) {
     await api.post(`/checkout/${purchase.id}/cancel`)
     await fetchPurchases(marketStore.buyerPurchasesPagination.currentPage)
   } catch {
-    notificationStore.error('Failed to cancel purchase. Please try again.')
+    notificationStore.addNotification({
+      type: 'error',
+      messageKey: 'buyer.dashboard.cancel_error',
+    })
   }
 }
 function cancelPurchase(purchase) {
   confirm(
     {
-      title: 'Cancel Purchase',
-      message:
-        'Are you sure you want to cancel this pending purchase? The pending payment will be voided.',
+      title: t('buyer.dashboard.cancel_title'),
+      message: t('buyer.dashboard.cancel_message'),
       type: 'danger',
     },
     () => performCancellation(purchase),
@@ -70,9 +74,11 @@ function messageFarmer(purchase) {
   if (!farmer) return
   confirm(
     {
-      title: 'Open conversation?',
-      message: `Open a conversation with ${farmer.name || 'the farmer'}?`,
-      confirmText: 'Open chat',
+      title: t('farmer.offers.msg_title'),
+      message: t('buyer.dashboard.msg_message', {
+        name: farmer.name || t('buyer.dashboard.msg_farmer_fallback'),
+      }),
+      confirmText: t('buyer.dashboard.msg_chat'),
     },
     () => openChat(farmer.id),
   )
@@ -81,31 +87,29 @@ onMounted(() => fetchPurchases())
 </script>
 <template>
   <div class="space-y-8" :aria-busy="loading">
-    <PageHeader
-      title="Buyer overview"
-      description="Keep your crop purchases and upcoming harvests in view."
+    <PageHeader :title="t('buyer.dashboard.title')" :description="t('buyer.dashboard.description')"
       ><template #actions
         ><RouterLink
           :to="{ name: 'buyer-marketplace' }"
           class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-br from-moss-500 to-moss-600 px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:from-moss-600 hover:to-moss-700 motion-reduce:transform-none"
-          >Browse Marketplace
+          >{{ t('buyer.dashboard.browse') }}
           <ArrowUpRightIcon class="h-4 w-4" aria-hidden="true" /></RouterLink></template
     ></PageHeader>
     <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       <StatCard
-        label="Purchases on this page"
+        :label="t('buyer.dashboard.stat_purchases')"
         :value="loading || error ? null : purchases.length"
         :loading="loading"
         ><template #icon><ShoppingBagIcon class="h-5 w-5" /></template
       ></StatCard>
       <StatCard
-        label="Completed payments on this page"
+        :label="t('buyer.dashboard.stat_completed')"
         :value="loading || error ? null : completedPayments"
         :loading="loading"
         ><template #icon><CheckCircleIcon class="h-5 w-5" /></template
       ></StatCard>
       <StatCard
-        label="Amount paid on this page"
+        :label="t('buyer.dashboard.stat_amount')"
         :value="loading || error ? null : currency.format(totalSpent)"
         :loading="loading"
         tone="harvest"
@@ -115,34 +119,36 @@ onMounted(() => fetchPurchases())
     <section aria-labelledby="purchases-heading" class="space-y-5">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 id="purchases-heading" class="font-serif text-2xl font-bold text-stone-900">
-          Your purchases
+          {{ t('buyer.dashboard.your_purchases') }}
         </h2>
         <RouterLink
           :to="{ name: 'buyer-purchases' }"
           class="inline-flex min-h-11 items-center rounded-xl text-sm font-medium text-moss-700 transition-colors hover:text-moss-900"
-          >Purchase history</RouterLink
+          >{{ t('buyer.dashboard.history') }}</RouterLink
         >
       </div>
-      <LoadingState v-if="loading" label="Loading purchases"
+      <LoadingState v-if="loading" :label="t('buyer.dashboard.loading')"
         ><div class="space-y-4">
           <SkeletonCard v-for="index in SKELETON_COUNT" :key="index" with-avatar with-action /></div
       ></LoadingState>
       <AppCard v-else-if="error" role="alert"
-        ><h3 class="font-serif text-xl font-bold text-stone-900">Unable to load your purchases</h3>
-        <p class="mt-2 text-sm text-stone-600">Please try again to see your current purchases.</p>
-        <AppButton variant="secondary" class="mt-4" @click="fetchPurchases()"
-          >Retry</AppButton
-        ></AppCard
+        ><h3 class="font-serif text-xl font-bold text-stone-900">
+          {{ t('buyer.dashboard.load_error') }}
+        </h3>
+        <p class="mt-2 text-sm text-stone-600">{{ t('buyer.dashboard.retry_hint') }}</p>
+        <AppButton variant="secondary" class="mt-4" @click="fetchPurchases()">{{
+          t('shell.retry')
+        }}</AppButton></AppCard
       >
       <EmptyState
         v-else-if="!purchases.length"
-        title="No purchases yet"
-        description="Explore crops from Filipino farmers and secure your next harvest."
+        :title="t('buyer.dashboard.empty_title')"
+        :description="t('buyer.dashboard.empty_desc')"
         ><template #action
           ><RouterLink
             :to="{ name: 'buyer-marketplace' }"
             class="inline-flex min-h-11 items-center rounded-xl bg-moss-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-moss-700"
-            >Explore the marketplace</RouterLink
+            >{{ t('buyer.dashboard.explore') }}</RouterLink
           ></template
         ></EmptyState
       >

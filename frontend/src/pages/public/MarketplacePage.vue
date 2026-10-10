@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { PAYMENT_OPTION } from '@/constants/payment'
 import { useMarketStore } from '@/stores/marketStore'
@@ -26,6 +27,7 @@ const addressStore = useAddressStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const router = useRouter()
+const { t } = useI18n()
 const { startCheckout, loading: checkoutLoading, error: checkoutError } = usePayment()
 
 const showCheckoutPanel = ref(false)
@@ -54,19 +56,18 @@ const confirmConfig = computed(() => {
   if (!pendingConfirm.value) return null
   if (pendingConfirm.value.kind === 'report') {
     return {
-      title: 'Submit this report?',
-      message: 'Your report will be sent to the moderation team.',
-      confirmText: 'Send report',
+      title: t('market.browse.report_confirm_title'),
+      message: t('market.browse.report_confirm_msg'),
+      confirmText: t('market.browse.report_confirm_ok'),
       type: 'primary',
     }
   }
   const cash = pendingConfirm.value.paymentOption === PAYMENT_OPTION.CASH
+  const qty = pendingConfirm.value.quantityKg
   return {
-    title: cash ? 'Request cash payment?' : 'Proceed to payment?',
-    message: cash
-      ? `Request to pay ${pendingConfirm.value.quantityKg} kg in cash? The farmer must approve before the order is confirmed.`
-      : `Pay for ${pendingConfirm.value.quantityKg} kg now via PayMongo? You will be redirected to complete payment.`,
-    confirmText: cash ? 'Request cash payment' : 'Pay now',
+    title: t(cash ? 'market.browse.pay_cash_title' : 'market.browse.pay_online_title'),
+    message: t(cash ? 'market.browse.pay_cash_msg' : 'market.browse.pay_online_msg', { qty }),
+    confirmText: t(cash ? 'market.browse.pay_cash_ok' : 'market.browse.pay_online_ok'),
     type: 'primary',
   }
 })
@@ -105,8 +106,11 @@ const handleViewContract = async (contract) => {
 
 const askCheckoutConfirm = (checkoutData) => {
   if (authStore.isAuthenticated && !authStore.isEmailVerified) {
-    checkoutError.value = 'Please verify your email address to purchase contracts.'
-    notificationStore.warning(checkoutError.value)
+    checkoutError.value = t('market.browse.verify_purchase')
+    notificationStore.addNotification({
+      type: 'warning',
+      messageKey: 'market.browse.verify_purchase',
+    })
     return
   }
   pendingConfirm.value = { kind: 'checkout', ...checkoutData }
@@ -152,14 +156,20 @@ const performCheckout = async (checkoutData) => {
       checkoutData.paymentOption,
     )
     if (checkoutData.paymentOption === PAYMENT_OPTION.CASH) {
-      notificationStore.success('Cash payment request sent! Waiting for farmer approval.')
+      notificationStore.addNotification({ type: 'success', messageKey: 'buyer.demands.cash_sent' })
       showCheckoutPanel.value = false
       marketStore.fetchMarketContracts(marketStore.pagination.currentPage)
     }
   } catch (err) {
-    notificationStore.error(
-      err.response?.data?.message || err.message || 'Failed to initialize checkout session',
-    )
+    const serverMessage = err.response?.data?.message || err.message
+    if (serverMessage) {
+      notificationStore.error(serverMessage)
+    } else {
+      notificationStore.addNotification({
+        type: 'error',
+        messageKey: 'market.browse.checkout_failed',
+      })
+    }
   }
 }
 const handlePendingConfirm = () =>
@@ -168,10 +178,7 @@ const handlePendingConfirm = () =>
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-6">
-    <PageHeader
-      title="The Harvest Exchange"
-      description="Secure your supply directly from Filipino farmers at a fixed price."
-    />
+    <PageHeader :title="t('market.browse.title')" :description="t('market.browse.description')" />
 
     <!-- Filter Bar -->
     <ContractFilter v-model="marketStore.filters" @search="handleSearch" />
@@ -194,14 +201,17 @@ const handlePendingConfirm = () =>
     />
 
     <AppModal
-      title="Contract Details"
+      :title="t('market.browse.details_title')"
       size="lg"
       :is-open="showCheckoutPanel"
       :busy="isExecuting"
       @close="showCheckoutPanel = false"
     >
       <AppAlert v-if="checkoutError" type="error" class="mb-4">{{ checkoutError }}</AppAlert>
-      <LoadingState v-if="marketStore.loading.details" label="Loading contract details" />
+      <LoadingState
+        v-if="marketStore.loading.details"
+        :label="t('market.browse.loading_details')"
+      />
       <CheckoutSummary
         v-else-if="marketStore.activeContract"
         :contract="marketStore.activeContract"
@@ -212,7 +222,7 @@ const handlePendingConfirm = () =>
     </AppModal>
 
     <AppModal
-      title="Report content"
+      :title="t('market.browse.report_title')"
       :is-open="showReportModal"
       :busy="reportBusy || isExecuting"
       @close="closeReportModal"
@@ -232,19 +242,23 @@ const handlePendingConfirm = () =>
       />
       <div v-else-if="reportAccess === 'signin'" class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Sign in to report this content to the moderation team.
+          {{ t('market.browse.signin_msg') }}
         </p>
         <div class="flex justify-end gap-3">
-          <AppButton variant="secondary" @click="closeReportModal">Cancel</AppButton>
-          <AppButton variant="primary" @click="goLogin">Sign in</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.cancel')
+          }}</AppButton>
+          <AppButton variant="primary" @click="goLogin">{{ t('market.browse.signin') }}</AppButton>
         </div>
       </div>
       <div v-else class="space-y-4">
         <p class="text-base leading-relaxed text-stone-600">
-          Verify your email address to report content to the moderation team.
+          {{ t('market.browse.verify_msg') }}
         </p>
         <div class="flex justify-end">
-          <AppButton variant="secondary" @click="closeReportModal">Close</AppButton>
+          <AppButton variant="secondary" @click="closeReportModal">{{
+            t('shell.close')
+          }}</AppButton>
         </div>
       </div>
     </AppModal>

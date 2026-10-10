@@ -30,11 +30,25 @@ export const PRICE_TIER_LABELS = {
   estimate: 'Market avg',
 }
 
+export const PRICE_TIER_LABEL_KEYS = {
+  farmgate: 'farmer.price_guide.tier_farmgate',
+  wholesale: 'farmer.price_guide.tier_wholesale',
+  retail: 'farmer.price_guide.tier_retail',
+  estimate: 'farmer.price_guide.tier_estimate',
+}
+
 export const PRICE_SOURCE_LABELS = {
   da_bantay_presyo: 'DA Bantay Presyo',
   marketplace_average: 'YieldGrid marketplace',
   manual: 'Reference',
   ai_estimate: 'AI estimate',
+}
+
+export const PRICE_SOURCE_LABEL_KEYS = {
+  da_bantay_presyo: 'farmer.price_guide.source_da',
+  marketplace_average: 'farmer.price_guide.source_marketplace',
+  manual: 'farmer.price_guide.source_manual',
+  ai_estimate: 'farmer.price_guide.source_ai',
 }
 
 export const PRICE_MATCH_LABELS = {

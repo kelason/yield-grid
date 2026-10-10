@@ -12,6 +12,15 @@ vi.mock('@/pages/dashboard/farmer/CreditScorePage.vue', () => ({
   default: { template: '<div />' },
 }))
 
+// Guard tests only assert route resolution; stub the heavy shared pages so
+// lazy imports resolve deterministically under full-suite parallel load.
+vi.mock('@/pages/dashboard/shared/ChatPage.vue', () => ({
+  default: { template: '<div />' },
+}))
+vi.mock('@/pages/dashboard/shared/ReportIssuePage.vue', () => ({
+  default: { template: '<div />' },
+}))
+
 describe('router role guard', () => {
   beforeEach(async () => {
     const pinia = createPinia()

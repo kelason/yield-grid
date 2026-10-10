@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMarketStore } from '@/stores/marketStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useChatEntry } from '@/composables/useChatEntry'
@@ -18,6 +19,7 @@ const CASH_AMOUNT_DECIMAL_PLACES = 2
 const marketStore = useMarketStore()
 const notificationStore = useNotificationStore()
 const { openChat } = useChatEntry()
+const { t } = useI18n()
 
 const messageBuyer = (purchase) => {
   pendingConfirm.value = { action: 'message', recipientId: purchase.buyer?.id }
@@ -33,14 +35,16 @@ const { isExecuting, execute, cancel } = usePendingConfirmation(pendingConfirm)
 const confirmConfig = computed(() =>
   pendingConfirm.value?.action === 'message'
     ? {
-        title: 'Open conversation?',
-        message: 'Open a conversation with this buyer?',
-        confirmText: 'Open conversation',
+        title: t('farmer.offers.msg_title'),
+        message: t('farmer.offers.msg_message'),
+        confirmText: t('farmer.offers.msg_confirm'),
       }
     : {
-        title: 'Confirm cash payment?',
-        message: `Confirm receipt of ₱${Number(pendingConfirm.value?.amount || 0).toLocaleString('en-PH')}?`,
-        confirmText: 'Confirm payment',
+        title: t('farmer.cash.confirm_title'),
+        message: t('farmer.cash.confirm_message', {
+          amount: Number(pendingConfirm.value?.amount || 0).toLocaleString('en-PH'),
+        }),
+        confirmText: t('farmer.cash.confirm_payment'),
       },
 )
 
@@ -76,7 +80,11 @@ const openApproveModal = (purchase, type) => {
     purchaseId: purchase.id,
     type,
     amount: suggestedAmount,
-    title: `Approve ${type === CASH_PAYMENT_TYPE.PARTIAL ? 'Partial (10%)' : 'Full'} Payment`,
+    title: t('farmer.cash.approve_title', {
+      kind: t(
+        type === CASH_PAYMENT_TYPE.PARTIAL ? 'farmer.cash.partial_kind' : 'farmer.cash.full_kind',
+      ),
+    }),
   }
 }
 
@@ -91,7 +99,7 @@ const reviewApproval = () => {
     amount < CASH_PAYMENT_LIMITS.MIN ||
     amount > CASH_PAYMENT_LIMITS.MAX
   ) {
-    approvalError.value = 'Enter a received amount between ₱0.01 and ₱99,999,999.'
+    approvalError.value = t('farmer.cash.amount_range')
     return
   }
   pendingConfirm.value = { ...promptModal.value, action: 'approve', amount }
@@ -103,11 +111,19 @@ const performApproval = async ({ action, recipientId, purchaseId, type, amount }
   approvalError.value = ''
   try {
     await marketStore.approveCashPayment(purchaseId, type, amount)
-    notificationStore.success(`Successfully approved ${type} cash payment!`)
+    notificationStore.addNotification({
+      type: 'success',
+      messageKey: 'farmer.cash.approved',
+      messageParams: {
+        type: t(
+          type === CASH_PAYMENT_TYPE.PARTIAL ? 'farmer.cash.type_partial' : 'farmer.cash.type_full',
+        ),
+      },
+    })
     closeApproveModal()
   } catch (err) {
-    approvalError.value = err.response?.data?.message || 'Failed to approve payment'
-    notificationStore.error(approvalError.value)
+    approvalError.value = err.response?.data?.message || t('farmer.cash.approve_error')
+    notificationStore.addNotification({ type: 'error', message: approvalError.value })
   } finally {
     isApproving.value[purchaseId] = false
   }
@@ -117,26 +133,23 @@ const confirmApprove = () => execute(performApproval)
 
 <template>
   <div class="py-6 space-y-6">
-    <PageHeader
-      title="Cash Payment Approvals"
-      description="Review and approve cash/off-site payments from buyers."
-    />
+    <PageHeader :title="t('farmer.cash.title')" :description="t('farmer.cash.description')" />
 
     <div
       v-if="marketStore.loading.purchases"
       class="space-y-4"
       role="status"
-      aria-label="Loading purchases"
+      :aria-label="t('farmer.cash.loading_aria')"
     >
       <SkeletonCard v-for="n in PURCHASE_SKELETON_COUNT" :key="n" withAvatar withAction />
-      <span class="sr-only">Loading purchases...</span>
+      <span class="sr-only">{{ t('farmer.cash.loading') }}</span>
     </div>
 
     <div
       v-else-if="marketStore.farmerPurchases.length === 0"
       class="text-center py-12 bg-white rounded-2xl shadow-soft border border-stone-200"
     >
-      <p class="text-stone-500">No purchases found.</p>
+      <p class="text-stone-500">{{ t('farmer.cash.empty') }}</p>
     </div>
 
     <div v-else class="space-y-4">

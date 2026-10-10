@@ -1,6 +1,8 @@
 <script setup>
 import { watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ContractCard from '../molecules/ContractCard.vue'
+const { t } = useI18n()
 import { usePriceGuide } from '@/composables/usePriceGuide'
 import LoadingState from '../molecules/LoadingState.vue'
 import SkeletonCard from '../atoms/SkeletonCard.vue'
@@ -40,14 +42,14 @@ watch(
   <div>
     <LoadingState
       v-if="loading && !contracts?.length"
-      label="Loading contracts"
+      :label="t('farmer.contract_grid.loading')"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
       ><SkeletonCard v-for="n in CONTRACT_SKELETON_COUNT" :key="n" withAction
     /></LoadingState>
     <EmptyState
       v-else-if="!contracts?.length"
-      title="No contracts found"
-      description="Try adjusting your search or filters to find what you're looking for."
+      :title="t('farmer.contract_grid.empty_title')"
+      :description="t('farmer.contract_grid.empty_desc')"
     />
 
     <!-- Data Grid -->

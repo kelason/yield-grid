@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { setLocale } from '@/i18n'
 import { useApi } from '@/composables/useApi'
 import { useMarketStore } from '@/stores/marketStore'
 import BuyerDashboard from '../BuyerDashboard.vue'
@@ -21,6 +22,9 @@ describe('BuyerDashboard', () => {
     })
     useApi.mockReturnValue({ get, post: vi.fn() })
   })
+  afterEach(() => {
+    setLocale('en')
+  })
   it('labels paginated summaries and leaves purchase-history filters intact', async () => {
     const store = useMarketStore()
     store.buyerPurchasesFilters.search = 'corn'
@@ -32,5 +36,12 @@ describe('BuyerDashboard', () => {
     expect(wrapper.text()).toContain('Amount paid on this page')
     expect(store.buyerPurchasesFilters.search).toBe('corn')
     expect(get.mock.calls[0][0]).not.toContain('search=corn')
+  })
+  it('renders the dashboard heading in Tagalog', async () => {
+    setLocale('tl')
+    const wrapper = mount(BuyerDashboard)
+    await flushPromises()
+    expect(wrapper.get('h1').text()).toBe('Pangkalahatan ng Mamimili')
+    expect(wrapper.text()).toContain('Mag-browse sa Palengke')
   })
 })

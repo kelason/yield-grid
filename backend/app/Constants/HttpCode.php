@@ -24,6 +24,10 @@ class HttpCode
 
     public const TOO_MANY_REQUESTS = 429;
 
+    public const MOVED_PERMANENTLY = 301;
+
+    public const SERVICE_UNAVAILABLE = 503;
+
     public const INTERNAL_SERVER_ERROR = 500;
 
     public const CONFLICT = 409;
