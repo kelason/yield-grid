@@ -92,6 +92,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(CropPriceAliasSeeder::class);
         $this->call(InsuranceOfficeSeeder::class);
+        $this->call(DemoUsersSeeder::class);
 
         // migrate:fresh drops tables, wiping GRANTs — restore the monitor role last.
         $this->call(GrafanaReadGrantSeeder::class);
