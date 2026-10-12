@@ -449,7 +449,6 @@ The work is complete only when all nine tasks' deliverables and acceptance check
 - Final browser execution uses one worker, matching CI, with all cases and original timeouts. A prior two-worker tutorial capture timeout produced no pixel mismatch. An enlarged-text assertion sampled before the resize observer rendered its drawer; immediate-versus-painted diagnostics and three exact Tagalog replays confirmed the transient state. Condition-based layout assertions now use the existing assertion timeout; no timeout was lengthened, test removed or pixel masked.
 - External provider/insurer outcomes and live map tiles are outside this read-only content/frontend change. Synthetic examples certify the illustrated UI only. Translated control names are checked against the actual EN/TL/CEB catalogs; native-speaker editorial certification was not performed. No minor review finding was deferred.
 
-
 ### Final acceptance evidence — 2026-10-12
 
 - Execution base: `develop` at `c8f6e8d`; latest product fix at `99cf1f9`, with subsequent responsive-test readiness corrections. Final acceptance commit records the reviewed baselines, this evidence and condition-based checks.
@@ -466,3 +465,5 @@ The work is complete only when all nine tasks' deliverables and acceptance check
 
 - Firefox/WebKit: separate shared/auth plus documentation, tutorial and reading smoke — **64 passed**, with original timeouts and no pixel updates.
 - Task 9 completion runs the fresh static commands named in its brief; complete unit/build/browser results above are already verified on the accepted product tree. This avoids repeating the identical pre-integration unit suite; integration receives its own full unit/build check.
+
+- Task 9 accepted at `c2aa87b`; fresh completion static checks passed. Integrated into `develop` at `5fe158d`, preserving concurrent seeder commit `e8f87d9`. The integrated frontend exactly matches the browser-tested tree and its full unit suite passed again (**128 files / 745 tests**) with a successful production build. `5fe158d` was pushed to `origin/develop`. The subsequent release/design document commit changes documentation only.
