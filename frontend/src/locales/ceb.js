@@ -1,3 +1,4 @@
+import publicGuides from './public/ceb'
 import guides, { GUIDE_UI as guideUi } from './guides/ceb'
 
 export default {
@@ -1971,6 +1972,7 @@ export default {
     },
   },
   public: {
+    ...publicGuides,
     home: {
       meta_title: 'YieldGrid - Pag-uma, Marketplace ug Komunidad',
       meta_desc:

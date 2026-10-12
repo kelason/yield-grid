@@ -1,3 +1,4 @@
+import publicGuides from './public/tl'
 import guides, { GUIDE_UI as guideUi } from './guides/tl'
 
 export default {
@@ -1975,6 +1976,7 @@ export default {
     },
   },
   public: {
+    ...publicGuides,
     home: {
       meta_title: 'YieldGrid - Pagsasaka, Marketplace at Komunidad',
       meta_desc:

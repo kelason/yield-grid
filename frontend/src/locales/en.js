@@ -1,3 +1,4 @@
+import publicGuides from './public/en'
 import guides, { GUIDE_UI as guideUi } from './guides/en'
 
 export default {
@@ -1937,6 +1938,7 @@ export default {
     },
   },
   public: {
+    ...publicGuides,
     home: {
       meta_title: 'YieldGrid - Farming, Marketplace & Community',
       meta_desc:

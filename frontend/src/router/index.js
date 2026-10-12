@@ -23,6 +23,12 @@ const router = createRouter({
           component: () => import('../pages/public/DocumentationPage.vue'),
           meta: { publicReading: true },
         },
+        {
+          path: 'how-it-works',
+          name: 'how-it-works',
+          component: () => import('../pages/public/HowItWorksPage.vue'),
+          meta: { publicReading: true },
+        },
         { path: 'about', name: 'about', component: () => import('../pages/public/AboutPage.vue') },
         {
           path: 'contact',
