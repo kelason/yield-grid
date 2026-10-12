@@ -43,8 +43,6 @@ async function assertNoOverflow(page) {
     width: innerWidth,
     height: innerHeight,
     fontSize: getComputedStyle(document.documentElement).fontSize,
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
     overflow: Array.from(document.querySelectorAll('body *'))
       .filter((element) => element.scrollWidth > element.clientWidth + 1)
       .slice(-12)
@@ -56,10 +54,17 @@ async function assertNoOverflow(page) {
         text: element.textContent.slice(0, 90),
       })),
   }))
-  expect(
-    layout.scrollWidth,
-    `${layout.path} at ${layout.width}×${layout.height} with ${layout.fontSize} root text: ${JSON.stringify(layout.overflow)}`,
-  ).toBeLessThanOrEqual(layout.clientWidth)
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        ),
+      {
+        message: `${layout.path} at ${layout.width}×${layout.height} with ${layout.fontSize} root text: ${JSON.stringify(layout.overflow)}`,
+      },
+    )
+    .toBeLessThanOrEqual(0)
 }
 
 async function assertHeaderFit(page) {

@@ -14,7 +14,15 @@ async function noOverflow(page) {
       .filter((element) => element.getBoundingClientRect().right > innerWidth)
       .map((element) => ({ tag: element.tagName, class: element.className })),
   }))
-  expect(layout.scrollWidth, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width)
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        ),
+      { message: JSON.stringify(layout) },
+    )
+    .toBeLessThanOrEqual(0)
 }
 test('guest home has usable register and login navigation with one heading', async ({
   page,
