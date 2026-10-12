@@ -42,6 +42,34 @@ function guideReferences([id, groupId, audience, relatedTopics, action]) {
 
 export const USER_GUIDES = [
   [
+    'buying-harvests',
+    'trade',
+    GUIDE_AUDIENCES.BUYER,
+    ['payments-and-purchases', 'demands-and-offers'],
+    { role: USER_ROLES.BUYER, to: { name: 'buyer-marketplace' }, labelKey: 'nav.browse_market' },
+  ],
+  [
+    'payments-and-purchases',
+    'trade',
+    GUIDE_AUDIENCES.BOTH,
+    ['buying-harvests', 'demands-and-offers'],
+    { role: USER_ROLES.BUYER, to: { name: 'buyer-purchases' }, labelKey: 'nav.my_purchases' },
+  ],
+  [
+    'demands-and-offers',
+    'trade',
+    GUIDE_AUDIENCES.BOTH,
+    ['payments-and-purchases', 'profile-addresses-language'],
+    { role: USER_ROLES.BUYER, to: { name: 'buyer-demands' }, labelKey: 'nav.my_demands' },
+  ],
+  ['price-guide', 'trade', GUIDE_AUDIENCES.BOTH, ['selling-harvests', 'demands-and-offers']],
+  [
+    'community-and-messaging',
+    'support',
+    GUIDE_AUDIENCES.BOTH,
+    ['demands-and-offers', 'troubleshooting-and-support'],
+  ],
+  [
     'farms-and-plots',
     'grow',
     GUIDE_AUDIENCES.FARMER,
@@ -59,7 +87,7 @@ export const USER_GUIDES = [
     'selling-harvests',
     'trade',
     GUIDE_AUDIENCES.FARMER,
-    ['crop-advisor', 'troubleshooting-and-support'],
+    ['price-guide', 'payments-and-purchases', 'crop-advisor'],
     {
       role: USER_ROLES.FARMER,
       to: { name: 'farmer-new-listing' },
@@ -96,7 +124,7 @@ export const USER_GUIDES = [
     'troubleshooting-and-support',
     'support',
     GUIDE_AUDIENCES.BOTH,
-    ['getting-started', 'profile-addresses-language'],
+    ['getting-started', 'crop-advisor', 'payments-and-purchases', 'community-and-messaging'],
   ],
 ].map(guideReferences)
 

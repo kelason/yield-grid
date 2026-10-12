@@ -561,4 +561,338 @@ export default {
       },
     },
   },
+  'buying-harvests': {
+    title: 'Buying a harvest',
+    summary:
+      'Find available harvests or future contracts, review quantities and make an informed purchase.',
+    prerequisites: {
+      prepare: 'Guests can browse. Use a Buyer account with verified email for checkout.',
+    },
+    sections: {
+      'browse-and-filter': {
+        title: 'Browse and filter crops',
+        intro: 'Marketplace is public for discovery.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Browse Market and enter a crop or title search. Adjust minimum/maximum price where useful; filters update as you type. Browse more pages to inspect the available results.',
+            result:
+              'You see matching listings and contracts. An empty result can reflect your filters; clear or broaden them before assuming there is no produce.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'inspect-listing': {
+        title: 'Inspect the listing',
+        intro: 'Available harvest and future harvest have different timing.',
+        steps: {
+          follow: {
+            instruction:
+              'Open View Details. Read crop, quantity, price per kg, harvest availability/date, farmer and any source badge. Use displayed price context carefully and consider whether the timing matches your needs.',
+            result:
+              'You can distinguish what is available now from a future contract. A provenance badge is not a guarantee of delivery or crop quality.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'review-checkout': {
+        title: 'Review your checkout',
+        intro: 'The checkout recalculates the amount for your chosen quantity.',
+        steps: {
+          follow: {
+            instruction:
+              'Sign in as a verified Buyer. Enter the purchase quantity within the shown limits, choose an available payment option and review the total and any downpayment. Proceed and confirm only when the terms are correct.',
+            result:
+              'Online checkout can open PayMongo; cash creates a request for farmer confirmation. Do not assume a confirmation click means cash was received.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'track-purchase': {
+        title: 'Follow the purchase',
+        intro: 'My Purchases shows the app-recorded purchase state.',
+        steps: {
+          follow: {
+            instruction:
+              'Open My Purchases after checkout and review the payment status and amount paid. Use eligible transaction messaging to coordinate details with the farmer. Use only the cancellation actions the current record provides.',
+            result:
+              'Payment progress is visible in the app. Physical delivery arrangements are coordinated with the trading partner; the app does not promise a delivery service.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'payments-and-purchases': {
+    title: 'Payments & purchases',
+    summary:
+      'Understand checkout amounts, online payments, cash confirmations and purchase status.',
+    prerequisites: {
+      prepare:
+        'Review the listing and the amount shown in checkout. Payment and delivery are different events.',
+    },
+    sections: {
+      'payment-options': {
+        title: 'Choose a payment option',
+        intro: 'Current checkout offers online PayMongo and cash where supported.',
+        steps: {
+          follow: {
+            instruction:
+              'Review the options in the active checkout. For online payment, confirm before following the hosted checkout; for Cash (Off-Site), follow the displayed cash instructions and coordinate actual payment with the farmer.',
+            result:
+              'The option determines the next steps. Never enter payment credentials into community posts, chat or support messages.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'deposits-and-totals': {
+        title: 'Read deposits and totals',
+        intro: 'The amount depends on quantity and harvest availability.',
+        steps: {
+          follow: {
+            instruction:
+              'Check the chosen quantity multiplied by price per kg and the amount due now. A future harvest currently shows a 10% downpayment; an available harvest uses full payment. Review the remaining amount separately.',
+            result:
+              'A downpayment is not full settlement. The amount displayed in checkout is the reference for your specific order; recheck it whenever you change quantity.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'cash-confirmation': {
+        title: 'Confirm actual cash receipt',
+        intro: 'Choosing cash creates a pending record, not money received.',
+        steps: {
+          follow: {
+            instruction:
+              'Buyers arrange the cash payment with the farmer. Farmers open Cash Approvals, inspect the purchase and record only the amount actually received, choosing partial or full receipt as appropriate and confirming the action.',
+            result:
+              'The record updates after receipt is confirmed. A partial receipt leaves an outstanding amount; do not mark full payment before receiving it.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'statuses-and-cancellation': {
+        title: 'Check status before retrying or cancelling',
+        intro: 'A return page alone is not proof that payment completed.',
+        steps: {
+          follow: {
+            instruction:
+              'Read My Purchases or the offer payment record. If pending, check progress before starting another request. If failed, read the error and use the supported retry. If cancellation is offered, review its consequences and confirm it.',
+            result:
+              'The current record distinguishes pending, failed and completed payment. Completed payment does not itself certify delivery, and cancellation is not a promise of an automatic refund.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'demands-and-offers': {
+    title: 'Buyer demands & farmer offers',
+    summary:
+      'Request a crop or respond to a buyer, then follow allocation, payment, delivery and completion.',
+    prerequisites: {
+      prepare:
+        'Verify your email and save a marketplace address before posting a demand or submitting an offer.',
+    },
+    sections: {
+      'post-demand': {
+        title: 'Buyer: post a crop demand',
+        intro: 'A demand tells farmers what you need and when.',
+        steps: {
+          follow: {
+            instruction:
+              'Save an address in your own profile, then open Post Demand. Enter title, crop, quantity, target price, delivery address, needed-by date, expiry and description. Review the dates and confirm posting.',
+            result:
+              'The demand appears in My Demands and eligible farmers can respond. A target price is a request, not a fixed promise of supply.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'submit-offer': {
+        title: 'Farmer: respond with an offer',
+        intro: 'An offer is tied to a specific open buyer demand.',
+        steps: {
+          follow: {
+            instruction:
+              'Save your marketplace address and open Crop Demands. Inspect the crop, dates and remaining quantity. Enter an offer quantity within that remaining need, price per kg and optional message, then review and confirm.',
+            result:
+              'Track the offer in My Offers. Only one active offer from you per demand is allowed; use the displayed withdrawal action where available before replacing it.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'decide-offers': {
+        title: 'Buyer: review and decide offers',
+        intro: 'A demand can be supplied by several farmers.',
+        steps: {
+          follow: {
+            instruction:
+              'Open My Demands, inspect the farmer offers and compare quantity, price and terms. Review the accept/reject confirmation for each decision. Use the remaining demand quantity to understand what is still needed.',
+            result:
+              'Accepting allocates that offer quantity and can unlock chat, but does not pay it. Fully allocated is different from fulfilled.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'pay-and-deliver': {
+        title: 'Pay the accepted offer and record delivery',
+        intro: 'Acceptance, payment and delivery are separate stages.',
+        steps: {
+          follow: {
+            instruction:
+              'The buyer opens the accepted offer checkout, reviews online/cash terms and confirms payment. For cash, the farmer records actual receipt. When the offer is in a paid or partially paid state and delivery occurs, the farmer reviews and confirms marking it delivered.',
+            result:
+              'The offer reflects the recorded progress. Coordinate delivery with the trading partner; do not mark delivered merely because a payment was made.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'complete-and-settle': {
+        title: 'Confirm completion and record the balance',
+        intro: 'The buyer completes an offer after farmer-recorded delivery.',
+        steps: {
+          follow: {
+            instruction:
+              'After receiving the delivered crop, the buyer reviews and confirms completion. For a delivered/completed offer with an outstanding online-downpayment balance, the farmer uses the supported balance-settlement confirmation only after full payment is actually received.',
+            result:
+              'Completion and amount paid stay distinct. Balance settlement records full receipt; it does not initiate another automatic PayMongo checkout.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'price-guide': {
+    title: 'Using the Price Guide',
+    summary:
+      'Read price references with their source, date and limitations before choosing your trading terms.',
+    prerequisites: {
+      prepare:
+        'Price Guide appears within supported listing, contract, demand and offer forms; it is not a separate dashboard page.',
+    },
+    sections: {
+      'open-price-guide': {
+        title: 'Open the embedded guide',
+        intro: 'Price guidance is available alongside supported price fields.',
+        steps: {
+          follow: {
+            instruction:
+              'Open the Price Guide control in a listing, contract-publishing, demand or offer form. Check the selected crop and location context and read the available price reference.',
+            result:
+              'You have context for choosing your own price. It is not a required selling price, and unavailable guidance does not mean your crop has no value.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'sources-and-freshness': {
+        title: 'Read the source and date',
+        intro: 'Different price sources describe different evidence.',
+        steps: {
+          follow: {
+            instruction:
+              'Read the source, as-of date and any stale indicator. The current guide checks YieldGrid trade data, then DA reference information, then an AI estimate when earlier sources are unavailable. Compare the context rather than treating these as identical local prices.',
+            result:
+              'An AI estimate remains labeled AI; it is not a DA quotation. No source guarantees the newest farm-gate price or what a buyer will pay.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'unavailable-prices': {
+        title: 'When no useful price is available',
+        intro: 'Reference coverage and data freshness vary.',
+        steps: {
+          follow: {
+            instruction:
+              'Read the unavailable/error state and try the displayed retry if offered. Check the crop/location selection and use other reliable local information when deciding a price. Review the price you enter before confirming a trade.',
+            result:
+              'You retain control of your terms. The guide does not replace negotiation, local market checks or the need to understand your costs.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'community-and-messaging': {
+    title: 'Community & messaging',
+    summary:
+      'Discuss practical questions in the community and coordinate qualifying trades through messages.',
+    prerequisites: {
+      prepare:
+        'Verify your email for member community and messaging actions. Chat requires an eligible transaction with the other member.',
+    },
+    sections: {
+      'chat-eligibility': {
+        title: 'Know when chat is available',
+        intro: 'Transaction chat connects the people in a qualifying trade.',
+        steps: {
+          follow: {
+            instruction:
+              'Open messaging from a qualifying purchase or buyer-accepted demand offer. Both members need the relevant account access; a failed payment or an unaccepted offer does not independently unlock a conversation.',
+            result:
+              'An accepted offer can enable chat before payment. Knowing another profile alone does not permit unrestricted messaging.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'use-messages': {
+        title: 'Coordinate through messages',
+        intro: 'Keep trade discussions specific and respectful.',
+        steps: {
+          follow: {
+            instruction:
+              'Open the conversation, read the history and compose a message within the displayed limit. Review and confirm sending; attach only supported files within the shown size limits. Use retry if message history fails to load.',
+            result:
+              'Messages and supported attachments appear in the conversation. Do not share account passwords, verification links or payment credentials.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'forum-participation': {
+        title: 'Join a community discussion',
+        intro: 'The forum is for shared practical knowledge.',
+        steps: {
+          follow: {
+            instruction:
+              'Browse categories and threads, search a topic and read existing replies. When contributing, use the available thread/reply form, respect text/file limits and review its confirmation. Use voting or accepted-answer controls only where available to you.',
+            result:
+              'Your contributions join the discussion. Community experience and AI information should be assessed alongside local expertise, not treated as guaranteed advice.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'report-content': {
+        title: 'Report a concern',
+        intro: 'Use the reporting controls rather than escalating a public dispute.',
+        steps: {
+          follow: {
+            instruction:
+              'Open the report action on supported content, choose a reason and describe the concern within the limit. Review and confirm submission. For technical problems with the app itself, use Report Issue or Contact.',
+            result:
+              'The team receives a report for review. A submitted report is not an immediate decision about the content or the other account.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
 }

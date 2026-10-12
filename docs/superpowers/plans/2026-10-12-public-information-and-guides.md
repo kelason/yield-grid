@@ -391,3 +391,14 @@ The work is complete only when all nine tasks' deliverables and acceptance check
 | 11: review and implementation handoff | This plan and its execution-method gate |
 
 **Planning verification (2026-10-12):** Specification approved; current source/fixtures/interfaces inspected. Self-review covered every spec section, task inputs/outputs, step decisions, the five Review Focus risks, and proportion. Structural checks passed for nine tasks, 64 ordered steps, all 13 matching topic IDs, code fences, local spec link, placeholder markers, and trailing whitespace; `git diff --check` passed. No app tests, build, or browser execution were performed during planning. Application execution results belong here only after implementation runs them.
+
+### Content audit during implementation — 2026-10-12
+
+- Manual listing works independently of farm records and AI analysis; optional-source instructions reflect the current form.
+- Email verification and administrative farm/plot review are distinct; farm name is required and location fields are optional.
+- Cash checkout creates pending receipt; partial/full approval records only money actually received.
+- Accepted demand offers allocate quantity without payment; delivery and buyer completion are separate actions.
+- Online future-harvest deposit follows current payment constants; balance settlement records receipt after delivery rather than starting another checkout.
+- Price Guide reads YieldGrid → DA → AI with source/date context; an AI estimate is not a DA quotation.
+- Insurance instructions cover preparation, external MAO submission and user-entered policy/claim records; trust scores make no lender-acceptance claim.
+- Chat is linked to eligible purchases/accepted offers. No removed flood-risk capability or guaranteed-outcome claim was added.

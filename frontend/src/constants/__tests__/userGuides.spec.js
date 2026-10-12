@@ -17,6 +17,23 @@ function textKeys(value) {
 }
 
 describe('user guide destinations', () => {
+  it('provides the complete buying and offer lifecycle with addressable steps', () => {
+    expect(USER_GUIDES).toHaveLength(13)
+    expect(getGuide('demands-and-offers').sections.map((section) => section.id)).toEqual([
+      'post-demand',
+      'submit-offer',
+      'decide-offers',
+      'pay-and-deliver',
+      'complete-and-settle',
+    ])
+    for (const id of [
+      'buying-harvests',
+      'payments-and-purchases',
+      'price-guide',
+      'community-and-messaging',
+    ])
+      expect(getGuide(id)).toBeDefined()
+  })
   it('provides farm planning and direct selling as separately addressable guides', () => {
     for (const id of [
       'farms-and-plots',

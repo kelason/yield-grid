@@ -560,4 +560,339 @@ export default {
       },
     },
   },
+  'buying-harvests': {
+    title: 'Pagbili ng ani',
+    summary:
+      'Hanapin ang available na ani o future contract, suriin ang dami at bumili nang may sapat na impormasyon.',
+    prerequisites: {
+      prepare:
+        'Maaaring tumingin ang guest. Gumamit ng Mamimili account na beripikado ang email para sa checkout.',
+    },
+    sections: {
+      'browse-and-filter': {
+        title: 'Hanapin at salain ang pananim',
+        intro: 'Pampubliko ang marketplace para sa paghahanap.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang Browse Market at maghanap ng pananim o pamagat. Ayusin ang minimum at maximum na presyo; nag-a-update habang nagta-type. Tingnan ang ibang pahina para sa mga resulta.',
+            result:
+              'Makikita ang mga tumutugmang listing at kontrata. Maaaring dahil sa filter ang walang resulta; alisin o paluwagin muna ito.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'inspect-listing': {
+        title: 'Suriin ang listing',
+        intro: 'Magkaiba ang timing ng available at hinaharap na ani.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang detalye. Basahin ang pananim, dami, presyo kada kg, availability o petsa, magsasaka at source badge. Suriin kung tugma ang panahon ng ani sa pangangailangan.',
+            result:
+              'Malalaman kung available na o future contract. Hindi garantiya ng delivery o kalidad ang provenance badge.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'review-checkout': {
+        title: 'Suriin ang checkout',
+        intro: 'Kinakalkula muli ang halaga ayon sa napiling dami.',
+        steps: {
+          follow: {
+            instruction:
+              'Mag-sign in bilang beripikadong Mamimili. Ilagay ang dami sa ipinakitang limitasyon, piliin ang payment option at suriin ang total at downpayment. Magpatuloy at kumpirmahin kung tama ang termino.',
+            result:
+              'Maaaring buksan ang PayMongo sa online checkout; may farmer confirmation sa cash. Hindi ibig sabihin ng pag-click na natanggap na ang cash.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'track-purchase': {
+        title: 'Subaybayan ang purchase',
+        intro: 'Ipinapakita ng Aking mga Purchase ang naitalang status.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang Aking mga Purchase at tingnan ang payment status at halagang bayad. Gamitin ang karapat-dapat na messaging para mag-coordinate. Gamitin lamang ang cancellation action na magagamit sa record.',
+            result:
+              'Makikita ang pag-usad ng bayad. Sa ka-trade pinag-uusapan ang aktuwal na delivery; walang ipinapangakong delivery service ang app.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'payments-and-purchases': {
+    title: 'Bayad at mga purchase',
+    summary:
+      'Unawain ang halaga sa checkout, online payment, cash confirmation at purchase status.',
+    prerequisites: {
+      prepare:
+        'Suriin ang listing at halagang ipinakita sa checkout. Magkaiba ang bayad at delivery.',
+    },
+    sections: {
+      'payment-options': {
+        title: 'Pumili ng paraan ng bayad',
+        intro: 'May online PayMongo at cash sa mga suportadong checkout.',
+        steps: {
+          follow: {
+            instruction:
+              'Suriin ang mga option. Sa online payment, kumpirmahin bago sundin ang hosted checkout; sa Cash (Off-Site), sundin ang tagubilin at i-coordinate ang aktuwal na bayad sa magsasaka.',
+            result:
+              'Nakabatay sa option ang susunod na hakbang. Huwag ilagay ang payment credentials sa post, chat o support message.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'deposits-and-totals': {
+        title: 'Unawain ang deposit at total',
+        intro: 'Batay sa dami at availability ng ani ang halaga.',
+        steps: {
+          follow: {
+            instruction:
+              'Suriin ang dami na minultiply sa presyo kada kg at halagang kailangan ngayon. Kasalukuyang 10% downpayment ang future harvest; buong bayad ang available na ani. Suriin nang hiwalay ang natitirang halaga.',
+            result:
+              'Hindi full settlement ang downpayment. Ang nasa checkout ang sanggunian para sa order; suriin muli kapag nagbago ang dami.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'cash-confirmation': {
+        title: 'Kumpirmahin ang natanggap na cash',
+        intro: 'Pending record ang pagpili ng cash, hindi natanggap na pera.',
+        steps: {
+          follow: {
+            instruction:
+              'Makipag-ayos ang mamimili sa magsasaka. Buksan ng magsasaka ang Cash Approvals, suriin ang purchase at itala lamang ang natanggap na halaga bilang partial o full receipt, saka kumpirmahin.',
+            result:
+              'Nagbabago ang tala matapos kumpirmahin ang receipt. May natitira sa partial receipt; huwag markahang full payment bago matanggap.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'statuses-and-cancellation': {
+        title: 'Tingnan ang status bago muling subukan',
+        intro: 'Hindi patunay ng natapos na bayad ang return page lamang.',
+        steps: {
+          follow: {
+            instruction:
+              'Basahin ang My Purchases o payment record ng offer. Kung pending, tingnan muna bago gumawa ng bagong request. Kung failed, basahin ang error at gamitin ang retry. Kung may cancellation, suriin at kumpirmahin ito.',
+            result:
+              'Hiwalay ang pending, failed at completed payment. Hindi patunay ng delivery ang completed payment, at hindi garantiya ng automatic refund ang cancellation.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'demands-and-offers': {
+    title: 'Buyer demand at farmer offer',
+    summary:
+      'Humiling ng pananim o tumugon sa mamimili, saka sundin ang allocation, bayad, delivery at completion.',
+    prerequisites: {
+      prepare:
+        'Beripikahin ang email at mag-save ng marketplace address bago mag-post ng demand o magsumite ng offer.',
+    },
+    sections: {
+      'post-demand': {
+        title: 'Mamimili: mag-post ng demand',
+        intro: 'Sinasabi ng demand ang kailangan at kung kailan.',
+        steps: {
+          follow: {
+            instruction:
+              'Mag-save ng address sa profile at buksan ang Post Demand. Ilagay ang pamagat, pananim, dami, target price, delivery address, needed-by date, expiry at paglalarawan. Suriin ang petsa at kumpirmahin.',
+            result:
+              'Lilitaw sa Aking mga Demand at maaaring tumugon ang magsasaka. Hiling ang target price, hindi garantiya ng supply.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'submit-offer': {
+        title: 'Magsasaka: magsumite ng offer',
+        intro: 'Nakaugnay ang offer sa bukas na demand.',
+        steps: {
+          follow: {
+            instruction:
+              'Mag-save ng address at buksan ang Crop Demands. Suriin ang pananim, petsa at natitirang dami. Ilagay ang daming hindi lalampas sa kailangan, presyo kada kg at opsyonal na mensahe, saka kumpirmahin.',
+            result:
+              'Subaybayan sa Aking mga Offer. Isa lang ang aktibong offer mo bawat demand; gamitin ang withdrawal kung magagamit bago palitan.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'decide-offers': {
+        title: 'Mamimili: suriin ang offer',
+        intro: 'Maaaring maraming magsasaka ang magsupply sa demand.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang Aking mga Demand, suriin ang offer at ihambing ang dami, presyo at termino. Suriin ang kumpirmasyon ng pagtanggap o pagtanggi. Tingnan ang natitirang dami para sa kailangan pa.',
+            result:
+              'Nakalaan ang dami kapag tinanggap at maaaring mag-chat, ngunit hindi pa bayad. Magkaiba ang fully allocated at fulfilled.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'pay-and-deliver': {
+        title: 'Bayaran at itala ang delivery',
+        intro: 'Magkahiwalay ang acceptance, bayad at delivery.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ng mamimili ang checkout ng tinanggap na offer at kumpirmahin ang termino. Sa cash, itala ng magsasaka ang aktuwal na receipt. Kapag paid o partially paid at na-deliver na, suriin at kumpirmahin ang delivered action.',
+            result:
+              'Makikita ang naitalang pag-usad. I-coordinate ang delivery; huwag markahang delivered dahil lamang may bayad na.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'complete-and-settle': {
+        title: 'Kumpirmahin ang completion at balance',
+        intro: 'Kinukumpleto ng mamimili matapos ang naitalang delivery.',
+        steps: {
+          follow: {
+            instruction:
+              'Pagkatanggap ng ani, suriin at kumpirmahin ng mamimili ang completion. Kung may natitirang online-downpayment balance sa delivered o completed offer, gamitin ng magsasaka ang settlement confirmation kapag natanggap na ang buong bayad.',
+            result:
+              'Magkaiba ang completion at halagang bayad. Itinatala ng settlement ang full receipt; hindi ito panibagong automatic PayMongo checkout.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'price-guide': {
+    title: 'Paggamit ng Price Guide',
+    summary:
+      'Basahin ang price reference kasama ang source, petsa at limitasyon bago pumili ng termino.',
+    prerequisites: {
+      prepare:
+        'Nasa mga kaukulang listing, contract, demand at offer form ang Price Guide; wala itong hiwalay na dashboard page.',
+    },
+    sections: {
+      'open-price-guide': {
+        title: 'Buksan ang naka-embed na gabay',
+        intro: 'Nasa tabi ng mga suportadong price field ang gabay.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang Price Guide sa listing, contract publishing, demand o offer form. Tingnan ang pananim, lokasyon at available na reference price.',
+            result:
+              'May konteksto sa pagpili ng presyo. Hindi ito obligadong selling price, at hindi nangangahulugang walang halaga ang pananim kung walang gabay.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'sources-and-freshness': {
+        title: 'Basahin ang source at petsa',
+        intro: 'Magkakaiba ang batayan ng mga price source.',
+        steps: {
+          follow: {
+            instruction:
+              'Basahin ang source, as-of date at stale indicator. Sinusuri muna ang YieldGrid trade data, saka DA reference, at AI estimate kung walang naunang source. Ihambing ang konteksto sa halip na ituring na parehong lokal na presyo.',
+            result:
+              'May AI label ang AI estimate at hindi DA quotation. Walang garantiya ng pinakabagong farm-gate price o halagang ibabayad ng mamimili.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'unavailable-prices': {
+        title: 'Kapag walang magamit na presyo',
+        intro: 'Nag-iiba ang coverage at pagiging bago ng reference.',
+        steps: {
+          follow: {
+            instruction:
+              'Basahin ang unavailable o error state at gamitin ang retry kung mayroon. Suriin ang pananim at lokasyon at gumamit ng maaasahang lokal na impormasyon. Suriin ang inilagay na presyo bago kumpirmahin.',
+            result:
+              'Ikaw ang pumipili ng termino. Hindi pinapalitan ng gabay ang negosasyon, lokal na market check o pag-unawa sa gastos.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'community-and-messaging': {
+    title: 'Komunidad at pagmemensahe',
+    summary:
+      'Talakayin ang praktikal na tanong sa komunidad at mag-coordinate ng karapat-dapat na kalakalan sa mensahe.',
+    prerequisites: {
+      prepare:
+        'Beripikahin ang email para sa community at messaging actions. Kailangan ng karapat-dapat na transaction sa kausap para sa chat.',
+    },
+    sections: {
+      'chat-eligibility': {
+        title: 'Alamin kung kailan may chat',
+        intro: 'Ikinokonekta ng chat ang mga kasali sa karapat-dapat na kalakalan.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang messaging mula sa kaukulang purchase o tinanggap na demand offer. Kailangan ang access ng parehong miyembro; hindi sapat ang failed payment o hindi tinanggap na offer.',
+            result:
+              'Maaaring may chat bago bayaran ang tinanggap na offer. Hindi sapat ang pagkakakilala sa profile para sa malayang messaging.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'use-messages': {
+        title: 'Mag-coordinate sa mensahe',
+        intro: 'Panatilihing malinaw at magalang ang pag-uusap.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang conversation, basahin ang history at gumawa ng mensahe sa limitasyon. Suriin at kumpirmahin ang pagpapadala; mag-attach lamang ng suportadong file sa tamang laki. Gamitin ang retry kung hindi ma-load ang history.',
+            result:
+              'Lilitaw ang mensahe at attachment. Huwag ibahagi ang password, verification link o payment credentials.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'forum-participation': {
+        title: 'Sumali sa talakayan',
+        intro: 'Para sa pagbabahagi ng praktikal na kaalaman ang forum.',
+        steps: {
+          follow: {
+            instruction:
+              'Tingnan ang kategorya at thread, hanapin ang paksa at basahin ang mga reply. Sa pag-ambag, gamitin ang form, sundin ang text at file limit at suriin ang kumpirmasyon. Gamitin ang vote o accepted answer kung pinahihintulutan.',
+            result:
+              'Kasama sa usapan ang ambag mo. Suriin ang karanasan at AI information kasama ng lokal na eksperto; hindi ito garantisadong payo.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'report-content': {
+        title: 'Mag-report ng alalahanin',
+        intro: 'Gamitin ang reporting control sa halip na palalain ang pampublikong pagtatalo.',
+        steps: {
+          follow: {
+            instruction:
+              'Buksan ang report action, pumili ng dahilan at ilarawan sa limitasyon. Suriin at kumpirmahin. Sa teknikal na problema ng app, gamitin ang Report Issue o Contact.',
+            result:
+              'Matatanggap ng team ang report para sa pagsusuri. Hindi agad desisyon sa content o account ang naisumiteng report.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
 }

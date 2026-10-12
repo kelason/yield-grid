@@ -561,4 +561,338 @@ export default {
       },
     },
   },
+  'buying-harvests': {
+    title: 'Pagpalit sa ani',
+    summary:
+      'Pangitaa ang available nga ani o future contract, susiha ang gidaghanon ug pagpalit nga adunay igo nga impormasyon.',
+    prerequisites: {
+      prepare:
+        'Makatan-aw ang guest. Gamita ang Mamalitay account nga verified ang email alang sa checkout.',
+    },
+    sections: {
+      'browse-and-filter': {
+        title: 'Pangitaa ug salaa ang tanom',
+        intro: 'Publiko ang marketplace alang sa pagpangita.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang Browse Market ug pangitaa ang tanom o titulo. Usba ang minimum ug maximum nga presyo; mausab samtang nag-type. Tan-awa ang ubang panid sa resulta.',
+            result:
+              'Makita ang nagtugmang listing ug kontrata. Mahimong tungod sa filter ang walay resulta; tangtanga o palapda una kini.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'inspect-listing': {
+        title: 'Susiha ang listing',
+        intro: 'Lahi ang timing sa available ug umaabot nga ani.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang detalye. Basaha ang tanom, gidaghanon, presyo kada kg, availability o petsa, mag-uuma ug source badge. Susiha kon motakdo ang panahon sa ani sa panginahanglan.',
+            result:
+              'Mahibal-an kon available na o future contract. Dili garantiya sa delivery o kalidad ang provenance badge.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'review-checkout': {
+        title: 'Susiha ang checkout',
+        intro: 'Gikuwenta pag-usab ang kantidad sumala sa gipiling gidaghanon.',
+        steps: {
+          follow: {
+            instruction:
+              'Pag-sign in isip verified nga Mamalitay. Isulod ang gidaghanon sulod sa gipakitang limitasyon, pilia ang payment option ug susiha ang total ug downpayment. Padayon ug kumpirmaha kon husto ang termino.',
+            result:
+              'Mahimong moabli ang PayMongo sa online checkout; adunay farmer confirmation sa cash. Dili pasabot sa pag-click nga nadawat na ang cash.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'track-purchase': {
+        title: 'Sunda ang purchase',
+        intro: 'Gipakita sa Akong mga Purchase ang natala nga status.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang Akong mga Purchase ug susiha ang payment status ug nabayran. Gamita ang kwalipikadong messaging aron mag-coordinate. Gamita lang ang cancellation action nga anaa sa rekord.',
+            result:
+              'Makita ang pag-uswag sa bayad. Sa ka-trade hisgutan ang aktuwal nga delivery; walay gisaad nga delivery service ang app.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'payments-and-purchases': {
+    title: 'Bayad ug mga purchase',
+    summary:
+      'Sabta ang kantidad sa checkout, online payment, cash confirmation ug purchase status.',
+    prerequisites: {
+      prepare: 'Susiha ang listing ug kantidad sa checkout. Lahi ang bayad ug delivery.',
+    },
+    sections: {
+      'payment-options': {
+        title: 'Pilia ang paagi sa bayad',
+        intro: 'Adunay online PayMongo ug cash sa suportadong checkout.',
+        steps: {
+          follow: {
+            instruction:
+              'Susiha ang mga option. Sa online payment, kumpirmaha sa dili pa sundon ang hosted checkout; sa Cash (Off-Site), sunda ang instruksyon ug i-coordinate ang aktuwal nga bayad sa mag-uuma.',
+            result:
+              'Ang option nagbuot sa sunod nga lakang. Ayaw ibutang ang payment credentials sa post, chat o support message.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'deposits-and-totals': {
+        title: 'Sabta ang deposit ug total',
+        intro: 'Gibase sa gidaghanon ug availability sa ani ang kantidad.',
+        steps: {
+          follow: {
+            instruction:
+              'Susiha ang gidaghanon nga gipadaghan sa presyo kada kg ug kantidad nga kinahanglan karon. Kasamtangang 10% downpayment ang future harvest; bug-os nga bayad ang available nga ani. Susiha nga lahi ang nahibilin.',
+            result:
+              'Dili full settlement ang downpayment. Ang gipakita sa checkout mao ang basihan sa order; susiha pag-usab kon mausab ang gidaghanon.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'cash-confirmation': {
+        title: 'Kumpirmaha ang nadawat nga cash',
+        intro: 'Pending record ang pagpili sa cash, dili nadawat nga kuwarta.',
+        steps: {
+          follow: {
+            instruction:
+              'Magkasabot ang mamalitay ug mag-uuma sa bayad. Ablihan sa mag-uuma ang Cash Approvals, susihon ang purchase ug itala lang ang nadawat isip partial o full receipt, dayon kumpirmahon.',
+            result:
+              'Mausab ang rekord human makumpirma ang receipt. Adunay nahibilin sa partial receipt; ayaw markahi nga full payment sa dili pa madawat.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'statuses-and-cancellation': {
+        title: 'Susiha ang status sa dili pa mosulay pag-usab',
+        intro: 'Dili pamatuod sa nahuman nga bayad ang return page lamang.',
+        steps: {
+          follow: {
+            instruction:
+              'Basaha ang My Purchases o payment record sa offer. Kon pending, susiha una sa dili pa maghimo og bag-ong request. Kon failed, basaha ang sayop ug gamita ang retry. Kon adunay cancellation, susiha ug kumpirmaha kini.',
+            result:
+              'Lahi ang pending, failed ug completed payment. Dili pamatuod sa delivery ang completed payment, ug dili garantiya sa automatic refund ang cancellation.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'demands-and-offers': {
+    title: 'Buyer demand ug farmer offer',
+    summary:
+      'Pangayo og tanom o tubaga ang mamalitay, dayon sunda ang allocation, bayad, delivery ug completion.',
+    prerequisites: {
+      prepare:
+        'Pamatud-i ang email ug tipigi ang marketplace nga adres sa dili pa mopaskil og demand o mosumite og offer.',
+    },
+    sections: {
+      'post-demand': {
+        title: 'Mamalitay: pagpaskil og demand',
+        intro: 'Ang demand nagpasabot sa kinahanglan ug kanus-a.',
+        steps: {
+          follow: {
+            instruction:
+              'Tipigi ang adres sa profile ug ablihi ang Post Demand. Isulod ang titulo, tanom, gidaghanon, target price, delivery address, needed-by date, expiry ug paghulagway. Susiha ang petsa ug kumpirmaha.',
+            result:
+              'Makita sa Akong mga Demand ug makatubag ang mag-uuma. Hangyo ang target price, dili garantiya sa supply.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'submit-offer': {
+        title: 'Mag-uuma: pagsumite og offer',
+        intro: 'Ang offer nalambigit sa bukas nga demand.',
+        steps: {
+          follow: {
+            instruction:
+              'Tipigi ang adres ug ablihi ang Crop Demands. Susiha ang tanom, petsa ug nahibiling gidaghanon. Isulod ang gidaghanon nga dili molapas sa kinahanglan, presyo kada kg ug opsyonal nga mensahe, dayon kumpirmaha.',
+            result:
+              'Sunda sa Akong mga Offer. Usa lang ang aktibong offer nimo matag demand; gamita ang withdrawal kon anaa sa dili pa ilisan.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'decide-offers': {
+        title: 'Mamalitay: susiha ang offer',
+        intro: 'Mahimong daghang mag-uuma ang mosupply sa demand.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang Akong mga Demand, susiha ang offer ug itandi ang gidaghanon, presyo ug termino. Susiha ang kumpirmasyon sa pagdawat o pagsalikway. Tan-awa ang nahibilin aron masayran ang kinahanglan pa.',
+            result:
+              'Gigahin ang gidaghanon kon gidawat ug mahimong mag-chat, apan dili pa bayad. Lahi ang fully allocated ug fulfilled.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'pay-and-deliver': {
+        title: 'Bayri ug itala ang delivery',
+        intro: 'Lahi ang acceptance, bayad ug delivery.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihan sa mamalitay ang checkout sa gidawat nga offer ug kumpirmahon ang termino. Sa cash, itala sa mag-uuma ang aktuwal nga receipt. Kon paid o partially paid ug na-deliver na, susihon ug kumpirmahon ang delivered action.',
+            result:
+              'Makita ang natala nga pag-uswag. I-coordinate ang delivery; ayaw markahi nga delivered tungod lamang sa bayad.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'complete-and-settle': {
+        title: 'Kumpirmaha ang completion ug balance',
+        intro: 'Kumpletuhon sa mamalitay human sa natala nga delivery.',
+        steps: {
+          follow: {
+            instruction:
+              'Human madawat ang ani, susihon ug kumpirmahon sa mamalitay ang completion. Kon adunay nahibiling online-downpayment balance sa delivered o completed offer, gamiton sa mag-uuma ang settlement confirmation human madawat ang bug-os nga bayad.',
+            result:
+              'Lahi ang completion ug nabayran. Ang settlement nagtala sa full receipt; dili kini bag-ong automatic PayMongo checkout.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'price-guide': {
+    title: 'Paggamit sa Price Guide',
+    summary:
+      'Basaha ang price reference uban sa tinubdan, petsa ug limitasyon sa dili pa mopili sa termino.',
+    prerequisites: {
+      prepare:
+        'Anaa ang Price Guide sa katugbang nga listing, contract, demand ug offer nga mga porma; walay lahi nga dashboard page.',
+    },
+    sections: {
+      'open-price-guide': {
+        title: 'Ablihi ang naka-embed nga giya',
+        intro: 'Anaa sa tupad sa suportadong price field ang giya.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang Price Guide sa listing, contract publishing, demand o offer nga porma. Tan-awa ang tanom, lokasyon ug available nga reference price.',
+            result:
+              'Adunay konteksto sa pagpili sa presyo. Dili kini obligadong selling price, ug dili pasabot nga walay bili ang tanom kon walay giya.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'sources-and-freshness': {
+        title: 'Basaha ang tinubdan ug petsa',
+        intro: 'Lahi ang basehan sa mga price source.',
+        steps: {
+          follow: {
+            instruction:
+              'Basaha ang tinubdan, as-of date ug stale indicator. Susiha una ang YieldGrid trade data, dayon DA reference, ug AI estimate kon walay unang tinubdan. Itandi ang konteksto imbes isipon nga pareho silang lokal nga presyo.',
+            result:
+              'Adunay AI label ang AI estimate ug dili DA quotation. Walay garantiya sa pinakabag-ong farm-gate price o kantidad nga ibayad sa mamalitay.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'unavailable-prices': {
+        title: 'Kon walay mapuslanong presyo',
+        intro: 'Nagkalahi ang coverage ug kabag-o sa reference.',
+        steps: {
+          follow: {
+            instruction:
+              'Basaha ang unavailable o error state ug gamita ang retry kon anaa. Susiha ang tanom ug lokasyon ug gamita ang kasaligan nga lokal nga impormasyon. Susiha ang gisulod nga presyo sa dili pa mokumpirma.',
+            result:
+              'Ikaw ang mopili sa termino. Dili mopuli ang giya sa negosasyon, lokal nga market check o pagsabot sa gasto.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'community-and-messaging': {
+    title: 'Komunidad ug pagmensahi',
+    summary:
+      'Hisguti ang praktikal nga pangutana sa komunidad ug mag-coordinate sa kwalipikadong patigayon sa mensahe.',
+    prerequisites: {
+      prepare:
+        'Pamatud-i ang email alang sa community ug messaging actions. Kinahanglan og kwalipikadong transaction uban sa kaistorya alang sa chat.',
+    },
+    sections: {
+      'chat-eligibility': {
+        title: 'Hibaloa kanus-a adunay chat',
+        intro: 'Ang chat nagkonektar sa mga apil sa kwalipikadong patigayon.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang messaging gikan sa katugbang nga purchase o gidawat nga demand offer. Kinahanglan ang access sa duha ka miyembro; dili igo ang failed payment o wala gidawat nga offer.',
+            result:
+              'Mahimong adunay chat sa gidawat nga offer bisan wala pa mabayri. Dili igo ang pagkahibalo sa profile alang sa gawasnong messaging.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'use-messages': {
+        title: 'Mag-coordinate sa mensahe',
+        intro: 'Hupti nga tin-aw ug matinahuron ang panag-istorya.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang conversation, basaha ang history ug paghimo og mensahe sulod sa limitasyon. Susiha ug kumpirmaha ang pagpadala; i-attach lamang ang suportadong file sulod sa hustong gidak-on. Gamita ang retry kon dili mo-load ang history.',
+            result:
+              'Makita ang mensahe ug attachment. Ayaw ipaambit ang password, verification link o payment credentials.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'forum-participation': {
+        title: 'Apil sa panaghisgot',
+        intro: 'Alang sa pagpaambit sa praktikal nga kahibalo ang forum.',
+        steps: {
+          follow: {
+            instruction:
+              'Tan-awa ang kategorya ug thread, pangitaa ang hilisgutan ug basaha ang mga tubag. Sa pag-amot, gamita ang porma, sunda ang text ug file limit ug susiha ang kumpirmasyon. Gamita ang vote o accepted answer kon gitugotan.',
+            result:
+              'Maapil sa istorya ang imong amot. Susiha ang kasinatian ug AI information uban sa lokal nga eksperto; dili kini garantisadong tambag.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'report-content': {
+        title: 'I-report ang kabalaka',
+        intro: 'Gamita ang reporting control imbes palalahon ang publikong panaglalis.',
+        steps: {
+          follow: {
+            instruction:
+              'Ablihi ang report action, pilia ang hinungdan ug ihulagway sulod sa limitasyon. Susiha ug kumpirmaha. Sa teknikal nga problema sa app, gamita ang Report Issue o Contact.',
+            result:
+              'Madawat sa team ang report alang sa pagsusi. Dili dayong desisyon sa content o account ang gisumite nga report.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
 }
