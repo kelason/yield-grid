@@ -118,3 +118,35 @@ test('leaving public reading preserves dashboard scrolling and browser restorati
     .toBe(100)
   expect(await page.evaluate(() => history.scrollRestoration)).toBe(restoration)
 })
+
+async function navigateApp(page, path) {
+  await page.evaluate(
+    (to) => document.getElementById('app').__vue_app__.config.globalProperties.$router.push(to),
+    path,
+  )
+}
+
+test('fresh guide entries after cross-layout Back do not inherit discarded forward positions', async ({
+  page,
+}) => {
+  await mockSession(page, { authenticated: false })
+  await page.goto('/auth/login')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome Back')
+  await navigateApp(page, '/documentation/farms-and-plots')
+  await expectReadingTarget(page, 'guide-heading')
+  await page.evaluate((top) => window.scrollTo(0, top), FIRST_POSITION_PX)
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(FIRST_POSITION_PX)
+  await page.goBack()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome Back')
+  await expect(page.locator('.page-enter-active')).toHaveCount(0)
+  await navigateApp(page, '/documentation/farms-and-plots')
+  await expectReadingTarget(page, 'guide-heading')
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0)
+  await page.evaluate((top) => window.scrollTo(0, top), SECOND_POSITION_PX)
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(SECOND_POSITION_PX)
+  await navigateApp(page, '/auth/login')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome Back')
+  await page.goBack()
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(SECOND_POSITION_PX)
+  expect(await page.evaluate(() => history.scrollRestoration)).toBe('auto')
+})

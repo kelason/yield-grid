@@ -52,7 +52,7 @@ export default {
       },
       register: {
         title: 'Gumawa ng account',
-        intro: 'Magsimula sa Get Started ng pampublikong site.',
+        intro: 'Magsimula sa Magsimula ng pampublikong site.',
         steps: {
           follow: {
             instruction:
@@ -85,7 +85,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Log in at ilagay ang email at password. Kung nakalimutan ang password, piliin ang pagbawi nito, humiling ng reset email at sundin ang link para sa bagong password.',
+              'Buksan ang Mag-log in at ilagay ang email at password. Kung nakalimutan ang password, piliin ang pagbawi nito, humiling ng reset email at sundin ang link para sa bagong password.',
             result:
               'Ibabalik ka ng matagumpay na pag-sign in sa workspace. Kailangan ang access sa rehistradong email upang mabawi ang account.',
           },
@@ -233,7 +233,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Contact sa site o Report Issue sa dashboard. Ilarawan ang sinubukan, pahina at error. Suriin ang mensahe bago kumpirmahin ang pagsusumite.',
+              'Buksan ang Kontak sa site o Mag-ulat ng Isyu sa dashboard. Ilarawan ang sinubukan, pahina at error. Suriin ang mensahe bago kumpirmahin ang pagsusumite.',
             result:
               'Matatanggap ng team ang inquiry o issue record. Huwag isama ang password, payment credentials at pribadong verification link.',
           },
@@ -256,9 +256,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Aking mga Bukid at piliing gumawa ng bukid. Ilagay ang pangalan at lokasyon o kabuuang lawak kung alam. Suriin ang form at kumpirmahin ang paggawa.',
+              'Buksan ang Mga Bukid Ko at piliing gumawa ng bukid. Ilagay ang pangalan at lokasyon o kabuuang lawak kung alam. Suriin ang form at kumpirmahin ang paggawa.',
             result:
-              'Lilitaw ang bukid sa Aking mga Bukid. Kailangan ang pangalan; opsyonal ang address, lungsod at iba pang lokasyon.',
+              'Lilitaw ang bukid sa Mga Bukid Ko. Kailangan ang pangalan; opsyonal ang address, lungsod at iba pang lokasyon.',
           },
         },
         notes: {},
@@ -270,7 +270,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang pamamahala ng plot ng bukid. Hanapin ang tamang lugar gamit ang search at zoom. Piliin ang polygon tool, ilagay ang mga punto ng hangganan at tapusin ang hugis.',
+              'Piliin ang Pamahalaan ang mga plot para sa bukid. Hanapin ang tamang lugar gamit ang search at zoom. Piliin ang polygon tool, ilagay ang mga punto ng hangganan at tapusin ang hugis.',
             result:
               'Lilitaw ang hindi pa naka-save na hangganan at form ng plot. Suriin ang lugar at hugis bago mag-save.',
           },
@@ -353,7 +353,7 @@ export default {
             instruction:
               'Piliin ang Tanggapin at Ikontrata sa karapat-dapat na rekomendasyon. Suriin ang dami, presyo kada kg, petsa ng ani at iba pang termino, saka kumpirmahin ang paglalathala.',
             result:
-              'Lilitaw sa Aking mga Kontrata ang kontrata. Hindi muling mailalathala ang na-publish o tinanggihang rekomendasyon; hindi awtomatikong listing ang pagsusuri.',
+              'Lilitaw sa Mga Kontrata Ko ang kontrata. Hindi muling mailalathala ang na-publish o tinanggihang rekomendasyon; hindi awtomatikong listing ang pagsusuri.',
           },
         },
         notes: {},
@@ -365,7 +365,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Compatibility, piliin ang dalawang pananim at gamitin ang paghahambing. Basahin ang paliwanag bago pumili ng rotation o intercropping.',
+              'Buksan ang Pagkakatugma, piliin ang dalawang pananim at gamitin ang paghahambing. Basahin ang paliwanag bago pumili ng rotation o intercropping.',
             result:
               'Maaaring ihambing kahit walang listing o natapos na pagsusuri. Sinusuportahan nito ang pagpapasya at hindi pinapalitan ang payo sa bukid.',
           },
@@ -390,7 +390,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Post Harvest mula sa Aking mga Kontrata. Piliin ang pananim, shelf life at pamagat; ilagay ang paglalarawan, dami sa kg at presyo kada kg. Markahang available ngayon o ilagay ang inaasahang petsa ng ani.',
+              'Buksan ang Mag-post ng Ani mula sa Mga Kontrata Ko. Piliin ang pananim, shelf life at pamagat; ilagay ang paglalarawan, dami sa kg at presyo kada kg. Markahang available ngayon o ilagay ang inaasahang petsa ng ani.',
             result:
               'Inilalarawan ng draft ang mabibili ng mamimili. Sundin ang mga limitasyon at ilagay ang dami at petsang maibibigay mo.',
           },
@@ -418,9 +418,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Gamitin ang Price Guide kung kailangan at tingnan ang source at petsa. Suriin ang pananim, dami, presyo, availability at pinagmulan. Isumite at kumpirmahin lamang kapag tama ang detalye.',
+              'Gamitin ang Gabay sa Presyo kung kailangan at tingnan ang source at petsa. Suriin ang pananim, dami, presyo, availability at pinagmulan. Isumite at kumpirmahin lamang kapag tama ang detalye.',
             result:
-              'Ibabalik ka sa Aking mga Kontrata kapag matagumpay. Kung mabigo, basahin ang error at ayusin o subukang muli; hindi garantiya ng benta ang reference price.',
+              'Ibabalik ka sa Mga Kontrata Ko kapag matagumpay. Kung mabigo, basahin ang error at ayusin o subukang muli; hindi garantiya ng benta ang reference price.',
           },
         },
         notes: {},
@@ -428,11 +428,11 @@ export default {
       },
       'manage-listings': {
         title: 'Subaybayan ang benta at resibo',
-        intro: 'Magkasama sa Aking mga Kontrata ang listing at contract records.',
+        intro: 'Magkasama sa Mga Kontrata Ko ang listing at contract records.',
         steps: {
           follow: {
             instruction:
-              'Buksan ang Aking mga Kontrata at suriin ang status at mga control ng listing. Sa karapat-dapat na kalakalan, mag-message para mag-coordinate. Sa cash purchase, buksan ang Cash Approvals at itala lang kapag natanggap na ang bayad.',
+              'Buksan ang Mga Kontrata Ko at suriin ang status at mga control ng listing. Sa karapat-dapat na kalakalan, mag-message para mag-coordinate. Sa cash purchase, buksan ang Mga Pag-apruba sa Cash at itala lang kapag natanggap na ang bayad.',
             result:
               'Hiwalay ang pending cash request sa natanggap na pera. Sundin ang mga control ng pagkansela o kumpirmasyon kung magagamit.',
           },
@@ -470,7 +470,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Farmer Trust Score at tingnan ang breakdown, history at improvement tips. Isaalang-alang ang plot, rekomendasyon, kontrata, offer, transaction at tagal sa platform.',
+              'Buksan ang Farmer Marka ng Tiwala at tingnan ang breakdown, history at improvement tips. Isaalang-alang ang plot, rekomendasyon, kontrata, offer, transaction at tagal sa platform.',
             result:
               'Makikita ang ambag sa internal score. Hindi ito bank credit decision, loan approval o garantiya ng kakayahan sa aktuwal na pagsasaka.',
           },
@@ -508,7 +508,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Crop Insurance at ilagay ang tamang impormasyon at status ng RSBSA. Suriin at kumpirmahin; kontakin ang agriculture office para sa opisyal na registration o pagwawasto.',
+              'Buksan ang Seguro sa Pananim at ilagay ang tamang impormasyon at status ng RSBSA. Suriin at kumpirmahin; kontakin ang agriculture office para sa opisyal na registration o pagwawasto.',
             result:
               'Makatutulong ang tala sa dokumento. Hindi beripikasyon o opisyal na RSBSA registration ang pag-save ng numero sa YieldGrid.',
           },
@@ -575,7 +575,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Browse Market at maghanap ng pananim o pamagat. Ayusin ang minimum at maximum na presyo; nag-a-update habang nagta-type. Tingnan ang ibang pahina para sa mga resulta.',
+              'Buksan ang Tumingin sa Palengke at maghanap ng pananim o pamagat. Ayusin ang minimum at maximum na presyo; nag-a-update habang nagta-type. Tingnan ang ibang pahina para sa mga resulta.',
             result:
               'Makikita ang mga tumutugmang listing at kontrata. Maaaring dahil sa filter ang walang resulta; alisin o paluwagin muna ito.',
           },
@@ -589,7 +589,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang detalye. Basahin ang pananim, dami, presyo kada kg, availability o petsa, magsasaka at source badge. Suriin kung tugma ang panahon ng ani sa pangangailangan.',
+              'Piliin ang Tingnan ang mga Detalye. Basahin ang pananim, dami, presyo kada kg, availability o petsa, magsasaka at source badge. Suriin kung tugma ang panahon ng ani sa pangangailangan.',
             result:
               'Malalaman kung available na o future contract. Hindi garantiya ng delivery o kalidad ang provenance badge.',
           },
@@ -613,11 +613,11 @@ export default {
       },
       'track-purchase': {
         title: 'Subaybayan ang purchase',
-        intro: 'Ipinapakita ng Aking mga Purchase ang naitalang status.',
+        intro: 'Ipinapakita ng Mga Binili Ko ang naitalang status.',
         steps: {
           follow: {
             instruction:
-              'Buksan ang Aking mga Purchase at tingnan ang payment status at halagang bayad. Gamitin ang karapat-dapat na messaging para mag-coordinate. Gamitin lamang ang cancellation action na magagamit sa record.',
+              'Buksan ang Mga Binili Ko at tingnan ang payment status at halagang bayad. Gamitin ang karapat-dapat na messaging para mag-coordinate. Gamitin lamang ang cancellation action na magagamit sa record.',
             result:
               'Makikita ang pag-usad ng bayad. Sa ka-trade pinag-uusapan ang aktuwal na delivery; walang ipinapangakong delivery service ang app.',
           },
@@ -670,7 +670,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Makipag-ayos ang mamimili sa magsasaka. Buksan ng magsasaka ang Cash Approvals, suriin ang purchase at itala lamang ang natanggap na halaga bilang partial o full receipt, saka kumpirmahin.',
+              'Makipag-ayos ang mamimili sa magsasaka. Buksan ng magsasaka ang Mga Pag-apruba sa Cash, suriin ang purchase at itala lamang ang natanggap na halaga bilang partial o full receipt, saka kumpirmahin.',
             result:
               'Nagbabago ang tala matapos kumpirmahin ang receipt. May natitira sa partial receipt; huwag markahang full payment bago matanggap.',
           },
@@ -684,7 +684,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Basahin ang My Purchases o payment record ng offer. Kung pending, tingnan muna bago gumawa ng bagong request. Kung failed, basahin ang error at gamitin ang retry. Kung may cancellation, suriin at kumpirmahin ito.',
+              'Basahin ang Mga Binili Ko o payment record ng offer. Kung pending, tingnan muna bago gumawa ng bagong request. Kung failed, basahin ang error at gamitin ang retry. Kung may cancellation, suriin at kumpirmahin ito.',
             result:
               'Hiwalay ang pending, failed at completed payment. Hindi patunay ng delivery ang completed payment, at hindi garantiya ng automatic refund ang cancellation.',
           },
@@ -709,9 +709,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Mag-save ng address sa profile at buksan ang Post Demand. Ilagay ang pamagat, pananim, dami, target price, delivery address, needed-by date, expiry at paglalarawan. Suriin ang petsa at kumpirmahin.',
+              'Mag-save ng address sa profile at buksan ang Mag-post ng Demand. Ilagay ang pamagat, pananim, dami, target price, delivery address, needed-by date, expiry at paglalarawan. Suriin ang petsa at kumpirmahin.',
             result:
-              'Lilitaw sa Aking mga Demand at maaaring tumugon ang magsasaka. Hiling ang target price, hindi garantiya ng supply.',
+              'Lilitaw sa Mga Demand Ko at maaaring tumugon ang magsasaka. Hiling ang target price, hindi garantiya ng supply.',
           },
         },
         notes: {},
@@ -723,9 +723,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Mag-save ng address at buksan ang Crop Demands. Suriin ang pananim, petsa at natitirang dami. Ilagay ang daming hindi lalampas sa kailangan, presyo kada kg at opsyonal na mensahe, saka kumpirmahin.',
+              'Mag-save ng address at buksan ang Mga Demand ng Pananim. Suriin ang pananim, petsa at natitirang dami. Ilagay ang daming hindi lalampas sa kailangan, presyo kada kg at opsyonal na mensahe, saka kumpirmahin.',
             result:
-              'Subaybayan sa Aking mga Offer. Isa lang ang aktibong offer mo bawat demand; gamitin ang withdrawal kung magagamit bago palitan.',
+              'Subaybayan sa Mga Alok Ko. Isa lang ang aktibong offer mo bawat demand; gamitin ang withdrawal kung magagamit bago palitan.',
           },
         },
         notes: {},
@@ -737,7 +737,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Aking mga Demand, suriin ang offer at ihambing ang dami, presyo at termino. Suriin ang kumpirmasyon ng pagtanggap o pagtanggi. Tingnan ang natitirang dami para sa kailangan pa.',
+              'Buksan ang Mga Demand Ko, suriin ang offer at ihambing ang dami, presyo at termino. Suriin ang kumpirmasyon ng pagtanggap o pagtanggi. Tingnan ang natitirang dami para sa kailangan pa.',
             result:
               'Nakalaan ang dami kapag tinanggap at maaaring mag-chat, ngunit hindi pa bayad. Magkaiba ang fully allocated at fulfilled.',
           },
@@ -776,12 +776,12 @@ export default {
     },
   },
   'price-guide': {
-    title: 'Paggamit ng Price Guide',
+    title: 'Paggamit ng Gabay sa Presyo',
     summary:
       'Basahin ang price reference kasama ang source, petsa at limitasyon bago pumili ng termino.',
     prerequisites: {
       prepare:
-        'Nasa mga kaukulang listing, contract, demand at offer form ang Price Guide; wala itong hiwalay na dashboard page.',
+        'Nasa mga kaukulang listing, contract, demand at offer form ang Gabay sa Presyo; wala itong hiwalay na dashboard page.',
     },
     sections: {
       'open-price-guide': {
@@ -790,7 +790,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang Price Guide sa listing, contract publishing, demand o offer form. Tingnan ang pananim, lokasyon at available na reference price.',
+              'Buksan ang Gabay sa Presyo sa listing, contract publishing, demand o offer form. Tingnan ang pananim, lokasyon at available na reference price.',
             result:
               'May konteksto sa pagpili ng presyo. Hindi ito obligadong selling price, at hindi nangangahulugang walang halaga ang pananim kung walang gabay.',
           },
@@ -885,7 +885,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Buksan ang report action, pumili ng dahilan at ilarawan sa limitasyon. Suriin at kumpirmahin. Sa teknikal na problema ng app, gamitin ang Report Issue o Contact.',
+              'Buksan ang report action, pumili ng dahilan at ilarawan sa limitasyon. Suriin at kumpirmahin. Sa teknikal na problema ng app, gamitin ang Mag-ulat ng Isyu o Kontak.',
             result:
               'Matatanggap ng team ang report para sa pagsusuri. Hindi agad desisyon sa content o account ang naisumiteng report.',
           },

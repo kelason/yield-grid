@@ -21,7 +21,7 @@ export default {
     price_problem:
       'Naglalathala ang Department of Agriculture ng mga sangguniang presyo upang makatulong sa pag-unawa sa kalagayan ng merkado.',
     price_response:
-      'Ipinapakita ng Price Guide ng YieldGrid ang pinagmulan at pagiging bago kapag may datos. Gabay ang retail reference, lokal na presyo at tantiya ng AI; hindi garantisadong presyo ng bentahan.',
+      'Ipinapakita ng Gabay sa Presyo ng YieldGrid ang pinagmulan at pagiging bago kapag may datos. Gabay ang retail reference, lokal na presyo at tantiya ng AI; hindi garantisadong presyo ng bentahan.',
     planning_title: 'Magplano gamit ang kapaki-pakinabang na impormasyon',
     planning_problem:
       'Iniuugnay ng gabay sa panahon para sa agrikultura ng PAGASA ang impormasyon sa panahon at pagpaplano sa bukid.',
@@ -52,7 +52,7 @@ export default {
         'Gabay sa pagpapasya ang rekomendasyon at pagiging tugma ng pananim; hindi garantisadong ani.',
       planning: 'Itala ang tanimang iginuhit sa suportadong hangganan ng lungsod.',
       market:
-        'Maaaring magsimula ng manwal na listing nang walang sakahan. Ipinapakita ng Price Guide ang pinagmulan at pagiging bago kapag may datos.',
+        'Maaaring magsimula ng manwal na listing nang walang sakahan. Ipinapakita ng Gabay sa Presyo ang pinagmulan at pagiging bago kapag may datos.',
       weather:
         'Suporta sa pagpaplano ang datos ng panahon; tingnan din ang opisyal na lokal na abiso.',
       demands:

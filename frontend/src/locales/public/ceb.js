@@ -21,7 +21,7 @@ export default {
     price_problem:
       'Ang Department of Agriculture nagpatik og mga presyo nga reperensiya aron makatabang sa pagsabot sa kahimtang sa merkado.',
     price_response:
-      'Gipakita sa Price Guide sa YieldGrid ang tinubdan ug kabag-o kon adunay datos. Konteksto ang retail reference, lokal nga presyo ug banabana sa AI; dili garantiya sa presyo sa pagbaligya.',
+      'Gipakita sa Giya sa Presyo sa YieldGrid ang tinubdan ug kabag-o kon adunay datos. Konteksto ang retail reference, lokal nga presyo ug banabana sa AI; dili garantiya sa presyo sa pagbaligya.',
     planning_title: 'Pagplano gamit ang mapuslanong impormasyon',
     planning_problem:
       'Ang giya sa panahon alang sa agrikultura sa PAGASA nagkonektar sa impormasyon sa panahon ug pagplano sa uma.',
@@ -52,7 +52,7 @@ export default {
         'Suporta sa desisyon ang rekomendasyon ug pagkaangay sa tanom; dili garantiya sa ani.',
       planning: 'Itala ang tanoman nga imong gidrowing sulod sa suportadong utlanan sa siyudad.',
       market:
-        'Mahimo ang manwal nga listing bisan walay uma. Gipakita sa Price Guide ang tinubdan ug kabag-o kon adunay datos.',
+        'Mahimo ang manwal nga listing bisan walay uma. Gipakita sa Giya sa Presyo ang tinubdan ug kabag-o kon adunay datos.',
       weather:
         'Suporta sa pagplano ang datos sa panahon; tan-awa usab ang opisyal nga lokal nga pahimangno.',
       demands:

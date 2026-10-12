@@ -231,7 +231,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Open Contact on the public site, or Report Issue in the member dashboard. Describe what you tried, the page involved and the error. Review the message before confirming submission.',
+              'Open Contact on the public site, or Report an issue in the member dashboard. Describe what you tried, the page involved and the error. Review the message before confirming submission.',
             result:
               'The team receives your inquiry or issue record. Keep passwords, payment credentials and private verification links out of the message.',
           },
@@ -885,7 +885,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Open the report action on supported content, choose a reason and describe the concern within the limit. Review and confirm submission. For technical problems with the app itself, use Report Issue or Contact.',
+              'Open the report action on supported content, choose a reason and describe the concern within the limit. Review and confirm submission. For technical problems with the app itself, use Report an issue or Contact.',
             result:
               'The team receives a report for review. A submitted report is not an immediate decision about the content or the other account.',
           },

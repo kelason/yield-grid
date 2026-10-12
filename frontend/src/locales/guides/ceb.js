@@ -51,7 +51,7 @@ export default {
       },
       register: {
         title: 'Paghimo og account',
-        intro: 'Sugdi sa Get Started sa publikong site.',
+        intro: 'Sugdi sa Pagsugod sa publikong site.',
         steps: {
           follow: {
             instruction:
@@ -84,7 +84,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Log in ug isulod ang email ug password. Kon nalimtan ang password, pilia ang pagkuha pag-usab niini, pangayo og reset email ug sunda ang link sa bag-ong password.',
+              'Ablihi ang Sulod ug isulod ang email ug password. Kon nalimtan ang password, pilia ang pagkuha pag-usab niini, pangayo og reset email ug sunda ang link sa bag-ong password.',
             result:
               'Ang malampusong pag-sign in mobalik kanimo sa workspace. Kinahanglan ang access sa rehistradong email aron mabawi ang account.',
           },
@@ -233,7 +233,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Contact sa site o Report Issue sa dashboard. Ihulagway ang gisulayan, panid ug sayop. Susiha ang mensahe sa dili pa mokumpirma sa pagsumite.',
+              'Ablihi ang Kontak sa site o Pag-report og Isyu sa dashboard. Ihulagway ang gisulayan, panid ug sayop. Susiha ang mensahe sa dili pa mokumpirma sa pagsumite.',
             result:
               'Madawat sa team ang inquiry o issue record. Ayaw iapil ang password, payment credentials ug pribadong verification link.',
           },
@@ -257,9 +257,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Akong mga Uma ug pilia ang paghimo og uma. Isulod ang ngalan ug lokasyon o kinatibuk-ang gilapdon kon nahibaloan. Susiha ug kumpirmaha ang porma.',
+              'Ablihi ang Mga Uma Nako ug pilia ang paghimo og uma. Isulod ang ngalan ug lokasyon o kinatibuk-ang gilapdon kon nahibaloan. Susiha ug kumpirmaha ang porma.',
             result:
-              'Makita ang uma sa Akong mga Uma. Gikinahanglan ang ngalan; opsyonal ang adres, siyudad ug ubang lokasyon.',
+              'Makita ang uma sa Mga Uma Nako. Gikinahanglan ang ngalan; opsyonal ang adres, siyudad ug ubang lokasyon.',
           },
         },
         notes: {},
@@ -271,7 +271,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang pagdumala sa plot sa uma. Pangitaa ang hustong dapit gamit ang search ug zoom. Pilia ang polygon tool, ibutang ang mga punto sa utlanan ug taposa ang porma.',
+              'Pilia ang Dumalaha ang mga plot alang sa uma. Pangitaa ang hustong dapit gamit ang search ug zoom. Pilia ang polygon tool, ibutang ang mga punto sa utlanan ug taposa ang porma.',
             result:
               'Makita ang wala pa matipig nga utlanan ug ang porma sa plot. Susiha ang dapit ug porma sa dili pa tipigan.',
           },
@@ -354,7 +354,7 @@ export default {
             instruction:
               'Pilia ang Dawata ug Ikontrata sa kwalipikadong rekomendasyon. Susiha ang gidaghanon, presyo kada kg, petsa sa ani ug ubang termino, dayon kumpirmaha ang pagpatik.',
             result:
-              'Makita ang kontrata sa Akong mga Kontrata. Dili mapatik pag-usab ang na-publish o gisalikway nga rekomendasyon; dili awtomatikong listing ang pagsusi.',
+              'Makita ang kontrata sa Mga Kontrata Nako. Dili mapatik pag-usab ang na-publish o gisalikway nga rekomendasyon; dili awtomatikong listing ang pagsusi.',
           },
         },
         notes: {},
@@ -366,7 +366,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Compatibility, pilia ang duha ka tanom ug gamita ang pagtandi. Basaha ang pasabot sa dili pa mopili og rotation o intercropping.',
+              'Ablihi ang Pagka-angay, pilia ang duha ka tanom ug gamita ang pagtandi. Basaha ang pasabot sa dili pa mopili og rotation o intercropping.',
             result:
               'Matandi bisan walay listing o nahuman nga pagsusi. Kini mosuporta sa pagdesisyon ug dili mopuli sa tambag sa uma.',
           },
@@ -391,7 +391,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Post Harvest gikan sa Akong mga Kontrata. Pilia ang tanom, shelf life ug titulo; isulod ang paghulagway, gidaghanon sa kg ug presyo kada kg. Markahi nga available karon o isulod ang gipaabot nga petsa sa ani.',
+              'Ablihi ang Pag-post og Ani gikan sa Mga Kontrata Nako. Pilia ang tanom, shelf life ug titulo; isulod ang paghulagway, gidaghanon sa kg ug presyo kada kg. Markahi nga available karon o isulod ang gipaabot nga petsa sa ani.',
             result:
               'Ang draft naghulagway sa mapalit sa mamalitay. Sunda ang mga limitasyon ug isulod ang gidaghanon ug petsa nga matuman nimo.',
           },
@@ -419,9 +419,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Gamita ang Price Guide kon gikinahanglan ug susiha ang tinubdan ug petsa. Susiha ang tanom, gidaghanon, presyo, availability ug tinubdan. Isumite ug kumpirmaha lamang kon husto ang detalye.',
+              'Gamita ang Giya sa Presyo kon gikinahanglan ug susiha ang tinubdan ug petsa. Susiha ang tanom, gidaghanon, presyo, availability ug tinubdan. Isumite ug kumpirmaha lamang kon husto ang detalye.',
             result:
-              'Mobalik ka sa Akong mga Kontrata kon malampuson. Kon mapakyas, basaha ang sayop ug tul-ira o sulayi pag-usab; dili garantiya sa halin ang reference price.',
+              'Mobalik ka sa Mga Kontrata Nako kon malampuson. Kon mapakyas, basaha ang sayop ug tul-ira o sulayi pag-usab; dili garantiya sa halin ang reference price.',
           },
         },
         notes: {},
@@ -429,11 +429,11 @@ export default {
       },
       'manage-listings': {
         title: 'Sunda ang halin ug resibo',
-        intro: 'Magkauban sa Akong mga Kontrata ang listing ug contract records.',
+        intro: 'Magkauban sa Mga Kontrata Nako ang listing ug contract records.',
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Akong mga Kontrata ug susiha ang status ug mga control sa listing. Sa kwalipikadong patigayon, pag-message aron mag-coordinate. Sa cash purchase, ablihi ang Cash Approvals ug itala lamang human madawat ang bayad.',
+              'Ablihi ang Mga Kontrata Nako ug susiha ang status ug mga control sa listing. Sa kwalipikadong patigayon, pag-message aron mag-coordinate. Sa cash purchase, ablihi ang Mga Pag-apruba sa Cash ug itala lamang human madawat ang bayad.',
             result:
               'Lahi ang pending cash request ug nadawat nga kuwarta. Sunda ang mga control sa pagkansela o kumpirmasyon kon magamit.',
           },
@@ -471,7 +471,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Farmer Trust Score ug tan-awa ang breakdown, history ug improvement tips. Hunahunaa ang plot, rekomendasyon, kontrata, offer, transaction ug kadugayon sa platform.',
+              'Ablihi ang Farmer Marka sa Pagsalig ug tan-awa ang breakdown, history ug improvement tips. Hunahunaa ang plot, rekomendasyon, kontrata, offer, transaction ug kadugayon sa platform.',
             result:
               'Makita ang mga kontribusyon sa internal score. Dili kini bank credit decision, loan approval o garantiya sa abilidad sa aktuwal nga pagpanguma.',
           },
@@ -509,7 +509,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Crop Insurance ug isulod ang hustong impormasyon ug status sa RSBSA. Susiha ug kumpirmaha; kontaka ang agriculture office alang sa opisyal nga registration o pagtul-id.',
+              'Ablihi ang Seguro sa Pananom ug isulod ang hustong impormasyon ug status sa RSBSA. Susiha ug kumpirmaha; kontaka ang agriculture office alang sa opisyal nga registration o pagtul-id.',
             result:
               'Makatabang ang rekord sa dokumento. Dili verification o opisyal nga RSBSA registration ang pagtipig sa numero sa YieldGrid.',
           },
@@ -576,7 +576,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Browse Market ug pangitaa ang tanom o titulo. Usba ang minimum ug maximum nga presyo; mausab samtang nag-type. Tan-awa ang ubang panid sa resulta.',
+              'Ablihi ang Tan-aw sa Merkado ug pangitaa ang tanom o titulo. Usba ang minimum ug maximum nga presyo; mausab samtang nag-type. Tan-awa ang ubang panid sa resulta.',
             result:
               'Makita ang nagtugmang listing ug kontrata. Mahimong tungod sa filter ang walay resulta; tangtanga o palapda una kini.',
           },
@@ -590,7 +590,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang detalye. Basaha ang tanom, gidaghanon, presyo kada kg, availability o petsa, mag-uuma ug source badge. Susiha kon motakdo ang panahon sa ani sa panginahanglan.',
+              'Pilia ang Tan-awa ang mga Detalye. Basaha ang tanom, gidaghanon, presyo kada kg, availability o petsa, mag-uuma ug source badge. Susiha kon motakdo ang panahon sa ani sa panginahanglan.',
             result:
               'Mahibal-an kon available na o future contract. Dili garantiya sa delivery o kalidad ang provenance badge.',
           },
@@ -614,11 +614,11 @@ export default {
       },
       'track-purchase': {
         title: 'Sunda ang purchase',
-        intro: 'Gipakita sa Akong mga Purchase ang natala nga status.',
+        intro: 'Gipakita sa Mga Napalit Nako ang natala nga status.',
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Akong mga Purchase ug susiha ang payment status ug nabayran. Gamita ang kwalipikadong messaging aron mag-coordinate. Gamita lang ang cancellation action nga anaa sa rekord.',
+              'Ablihi ang Mga Napalit Nako ug susiha ang payment status ug nabayran. Gamita ang kwalipikadong messaging aron mag-coordinate. Gamita lang ang cancellation action nga anaa sa rekord.',
             result:
               'Makita ang pag-uswag sa bayad. Sa ka-trade hisgutan ang aktuwal nga delivery; walay gisaad nga delivery service ang app.',
           },
@@ -670,7 +670,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Magkasabot ang mamalitay ug mag-uuma sa bayad. Ablihan sa mag-uuma ang Cash Approvals, susihon ang purchase ug itala lang ang nadawat isip partial o full receipt, dayon kumpirmahon.',
+              'Magkasabot ang mamalitay ug mag-uuma sa bayad. Ablihan sa mag-uuma ang Mga Pag-apruba sa Cash, susihon ang purchase ug itala lang ang nadawat isip partial o full receipt, dayon kumpirmahon.',
             result:
               'Mausab ang rekord human makumpirma ang receipt. Adunay nahibilin sa partial receipt; ayaw markahi nga full payment sa dili pa madawat.',
           },
@@ -684,7 +684,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Basaha ang My Purchases o payment record sa offer. Kon pending, susiha una sa dili pa maghimo og bag-ong request. Kon failed, basaha ang sayop ug gamita ang retry. Kon adunay cancellation, susiha ug kumpirmaha kini.',
+              'Basaha ang Mga Napalit Nako o payment record sa offer. Kon pending, susiha una sa dili pa maghimo og bag-ong request. Kon failed, basaha ang sayop ug gamita ang retry. Kon adunay cancellation, susiha ug kumpirmaha kini.',
             result:
               'Lahi ang pending, failed ug completed payment. Dili pamatuod sa delivery ang completed payment, ug dili garantiya sa automatic refund ang cancellation.',
           },
@@ -709,9 +709,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Tipigi ang adres sa profile ug ablihi ang Post Demand. Isulod ang titulo, tanom, gidaghanon, target price, delivery address, needed-by date, expiry ug paghulagway. Susiha ang petsa ug kumpirmaha.',
+              'Tipigi ang adres sa profile ug ablihi ang Pag-post og Demand. Isulod ang titulo, tanom, gidaghanon, target price, delivery address, needed-by date, expiry ug paghulagway. Susiha ang petsa ug kumpirmaha.',
             result:
-              'Makita sa Akong mga Demand ug makatubag ang mag-uuma. Hangyo ang target price, dili garantiya sa supply.',
+              'Makita sa Mga Demand Nako ug makatubag ang mag-uuma. Hangyo ang target price, dili garantiya sa supply.',
           },
         },
         notes: {},
@@ -723,9 +723,9 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Tipigi ang adres ug ablihi ang Crop Demands. Susiha ang tanom, petsa ug nahibiling gidaghanon. Isulod ang gidaghanon nga dili molapas sa kinahanglan, presyo kada kg ug opsyonal nga mensahe, dayon kumpirmaha.',
+              'Tipigi ang adres ug ablihi ang Mga Demand sa Pananom. Susiha ang tanom, petsa ug nahibiling gidaghanon. Isulod ang gidaghanon nga dili molapas sa kinahanglan, presyo kada kg ug opsyonal nga mensahe, dayon kumpirmaha.',
             result:
-              'Sunda sa Akong mga Offer. Usa lang ang aktibong offer nimo matag demand; gamita ang withdrawal kon anaa sa dili pa ilisan.',
+              'Sunda sa Mga Tanyag Nako. Usa lang ang aktibong offer nimo matag demand; gamita ang withdrawal kon anaa sa dili pa ilisan.',
           },
         },
         notes: {},
@@ -737,7 +737,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Akong mga Demand, susiha ang offer ug itandi ang gidaghanon, presyo ug termino. Susiha ang kumpirmasyon sa pagdawat o pagsalikway. Tan-awa ang nahibilin aron masayran ang kinahanglan pa.',
+              'Ablihi ang Mga Demand Nako, susiha ang offer ug itandi ang gidaghanon, presyo ug termino. Susiha ang kumpirmasyon sa pagdawat o pagsalikway. Tan-awa ang nahibilin aron masayran ang kinahanglan pa.',
             result:
               'Gigahin ang gidaghanon kon gidawat ug mahimong mag-chat, apan dili pa bayad. Lahi ang fully allocated ug fulfilled.',
           },
@@ -776,12 +776,12 @@ export default {
     },
   },
   'price-guide': {
-    title: 'Paggamit sa Price Guide',
+    title: 'Paggamit sa Giya sa Presyo',
     summary:
       'Basaha ang price reference uban sa tinubdan, petsa ug limitasyon sa dili pa mopili sa termino.',
     prerequisites: {
       prepare:
-        'Anaa ang Price Guide sa katugbang nga listing, contract, demand ug offer nga mga porma; walay lahi nga dashboard page.',
+        'Anaa ang Giya sa Presyo sa katugbang nga listing, contract, demand ug offer nga mga porma; walay lahi nga dashboard page.',
     },
     sections: {
       'open-price-guide': {
@@ -790,7 +790,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang Price Guide sa listing, contract publishing, demand o offer nga porma. Tan-awa ang tanom, lokasyon ug available nga reference price.',
+              'Ablihi ang Giya sa Presyo sa listing, contract publishing, demand o offer nga porma. Tan-awa ang tanom, lokasyon ug available nga reference price.',
             result:
               'Adunay konteksto sa pagpili sa presyo. Dili kini obligadong selling price, ug dili pasabot nga walay bili ang tanom kon walay giya.',
           },
@@ -885,7 +885,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Ablihi ang report action, pilia ang hinungdan ug ihulagway sulod sa limitasyon. Susiha ug kumpirmaha. Sa teknikal nga problema sa app, gamita ang Report Issue o Contact.',
+              'Ablihi ang report action, pilia ang hinungdan ug ihulagway sulod sa limitasyon. Susiha ug kumpirmaha. Sa teknikal nga problema sa app, gamita ang Pag-report og Isyu o Kontak.',
             result:
               'Madawat sa team ang report alang sa pagsusi. Dili dayong desisyon sa content o account ang gisumite nga report.',
           },

@@ -77,3 +77,34 @@ describe('user guide destinations', () => {
     }
   })
 })
+
+it.each(['en', 'tl', 'ceb'])('%s procedures use the visible localized controls', (locale) => {
+  const catalog = catalogs[locale]
+  const controls = [
+    ['farms-and-plots', 'create-farm', 'nav.my_farms'],
+    ['crop-advisor', 'request-analysis', 'nav.recommendations'],
+    ['crop-advisor', 'compare-crops', 'nav.compatibility'],
+    ['crop-advisor', 'publish-a-contract', 'farmer.rec_card.accept_contract'],
+    ['selling-harvests', 'manual-listing', 'nav.post_harvest'],
+    ['selling-harvests', 'manual-listing', 'nav.my_contracts'],
+    ['selling-harvests', 'manage-listings', 'nav.cash_approvals'],
+    ['verification-and-trust-score', 'read-your-score', 'nav.trust_score'],
+    ['insurance-and-rsbsa', 'rsbsa-records', 'nav.crop_insurance'],
+    ['buying-harvests', 'browse-and-filter', 'nav.browse_market'],
+    ['buying-harvests', 'inspect-listing', 'farmer.contract_card.view_details'],
+    ['buying-harvests', 'track-purchase', 'nav.my_purchases'],
+    ['payments-and-purchases', 'statuses-and-cancellation', 'nav.my_purchases'],
+    ['demands-and-offers', 'post-demand', 'nav.post_demand'],
+    ['demands-and-offers', 'submit-offer', 'nav.crop_demands'],
+    ['demands-and-offers', 'decide-offers', 'nav.my_demands'],
+    ['troubleshooting-and-support', 'contact-support', 'nav.report_issue'],
+    ['troubleshooting-and-support', 'contact-support', 'common.nav.contact'],
+  ]
+  expect(
+    catalog.guides['demands-and-offers'].sections['submit-offer'].steps.follow.result,
+  ).toContain(catalog.nav.my_offers)
+  for (const [topic, section, label] of controls)
+    expect(catalog.guides[topic].sections[section].steps.follow.instruction).toContain(
+      valueAt(catalog, label),
+    )
+})

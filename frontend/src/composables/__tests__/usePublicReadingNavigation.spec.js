@@ -9,6 +9,7 @@ afterEach(() => {
   wrapper?.unmount()
   vi.restoreAllMocks()
   document.body.innerHTML = ''
+  history.replaceState(null, '')
 })
 
 async function mountReading(mainRef) {
@@ -77,4 +78,35 @@ it('does not steal focus when a user interacts before the page finishes entering
   layout.classList.remove('page-enter-active')
   await reading.onPageReady()
   expect(document.activeElement).toBe(button)
+})
+
+it('starts fresh when a discarded forward position is reused and preserves unrelated history state', async () => {
+  const main = document.createElement('main')
+  main.innerHTML = '<h1 tabindex="-1">Guide</h1>'
+  document.body.append(main)
+  history.replaceState({ position: 41, otherState: 'keep' }, '')
+  const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  await mountReading(ref(main))
+  vi.spyOn(window, 'scrollY', 'get').mockReturnValue(1100)
+  window.dispatchEvent(new Event('scroll'))
+  wrapper.unmount()
+  history.replaceState({ position: 41, otherState: 'keep' }, '')
+  await mountReading(ref(main))
+  expect(scroll).toHaveBeenLastCalledWith({ top: 0, left: 0, behavior: 'instant' })
+  expect(history.state.otherState).toBe('keep')
+  history.replaceState(null, '')
+})
+
+it('leaves a dashboard history entry untouched while its route transition is pending', async () => {
+  const main = document.createElement('main')
+  main.innerHTML = '<h1 tabindex="-1">Guide</h1>'
+  document.body.append(main)
+  history.replaceState({ position: 55, current: '/guide' }, '')
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  await mountReading(ref(main))
+  const dashboardEntry = { position: 54, current: '/dashboard' }
+  history.replaceState(dashboardEntry, '')
+  window.dispatchEvent(new PopStateEvent('popstate'))
+  window.dispatchEvent(new Event('scroll'))
+  expect(history.state).toEqual(dashboardEntry)
 })

@@ -3,11 +3,18 @@ import { useRoute, useRouter } from 'vue-router'
 
 const READING_GAP_PX = 16
 const SCROLL_ORIGIN = 0
+const READING_ENTRY_KEY = 'yieldgridReadingEntry'
 const positions = new Map()
 
 function entryId(route) {
-  // Vue Router assigns a distinct position to each browser history entry.
-  return window.history.state?.position ?? route.fullPath
+  const entry = window.history.state
+  if (!entry || !route.meta.publicReading || (entry.current && entry.current !== route.fullPath))
+    return entry?.position ?? route.fullPath
+  if (!entry[READING_ENTRY_KEY]) {
+    // Numeric positions are reused when a new push discards Forward history.
+    window.history.replaceState({ ...entry, [READING_ENTRY_KEY]: window.crypto.randomUUID() }, '')
+  }
+  return window.history.state[READING_ENTRY_KEY]
 }
 
 function savePosition(state) {
@@ -89,6 +96,7 @@ function installNavigation(state, router) {
   const removeInteraction = installInteraction(state)
   const onPop = () => {
     savePosition(state)
+    state.pending = null
     state.restoring = true
   }
   const onScroll = () => {
