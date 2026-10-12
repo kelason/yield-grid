@@ -85,6 +85,7 @@ describe('insurance locales', () => {
       'common.nav.home',
       'common.nav.about',
       'common.nav.contact',
+      'common.nav.api_docs',
       'common.nav.dashboard',
       'common.auth.login',
       'common.auth.logout',

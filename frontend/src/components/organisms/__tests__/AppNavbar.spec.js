@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { setLocale } from '@/i18n'
+import { API_DOCS_URL } from '@/constants/apiDocs'
 import AppNavbar from '../AppNavbar.vue'
 
 const mounted = []
@@ -62,7 +63,36 @@ async function openMenu(wrapper) {
   return wrapper.find('nav[aria-label="Mobile navigation"]')
 }
 
+describe('AppNavbar public links', () => {
+  it('links API docs after Contact on desktop', async () => {
+    const nav = (await mountNavbar()).find('nav[aria-label="Main navigation"]')
+    const links = nav.findAll('a')
+
+    expect(links.map((link) => link.text())).toEqual(['Home', 'About', 'Contact', 'API Docs'])
+
+    const docs = links[3]
+    expect(docs.attributes('href')).toBe(API_DOCS_URL)
+    expect(docs.attributes('target')).toBe('_blank')
+    expect(docs.attributes('rel')).toBe('noopener')
+  })
+})
+
 describe('AppNavbar mobile menu', () => {
+  it('links API docs after Contact and closes the menu on click', async () => {
+    const wrapper = await mountNavbar()
+    const nav = await openMenu(wrapper)
+    const siteLinks = nav.findAll('a').slice(0, 4)
+
+    expect(siteLinks.map((link) => link.text())).toEqual(['Home', 'About', 'Contact', 'API Docs'])
+
+    const docs = siteLinks[3]
+    expect(docs.attributes('href')).toBe(API_DOCS_URL)
+    expect(docs.attributes('target')).toBe('_blank')
+    await docs.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('nav[aria-label="Mobile navigation"]').exists()).toBe(false)
+  })
+
   it('separates site links from auth actions with dividers', async () => {
     const nav = await openMenu(await mountNavbar())
     expect(nav.exists()).toBe(true)

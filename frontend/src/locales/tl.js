@@ -138,6 +138,7 @@ export default {
       home: 'Home',
       about: 'Tungkol',
       contact: 'Kontak',
+      api_docs: 'API Docs',
       dashboard: 'Dashboard',
       main_label: 'Pangunahing nabigasyon',
       open_menu: 'Buksan ang menu',

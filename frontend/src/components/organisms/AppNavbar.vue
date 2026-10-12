@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { ArrowUpRightIcon, Bars3Icon, UserCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
 import { useConfirmModal } from '@/composables/useConfirmModal'
+import { API_DOCS_URL } from '@/constants/apiDocs'
 import AppLogo from '../atoms/AppLogo.vue'
 import AppButton from '../atoms/AppButton.vue'
 import AppModal from '../molecules/AppModal.vue'
@@ -57,6 +58,13 @@ function requestLogout() {
           :to="link.to"
           :label="t(link.labelKey)"
         />
+        <a
+          :href="API_DOCS_URL"
+          target="_blank"
+          rel="noopener"
+          class="hidden min-[1440px]:inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-stone-600 transition-all duration-200 hover:border-moss-300 hover:text-moss-600 focus:outline-none"
+          >{{ t('common.nav.api_docs') }}</a
+        >
       </nav>
       <div class="hidden items-center gap-3 xl:flex">
         <LanguageDropdown />
@@ -119,6 +127,21 @@ function requestLogout() {
               <ArrowUpRightIcon class="h-4 w-4" />
             </span>
           </RouterLink>
+          <a
+            :href="API_DOCS_URL"
+            target="_blank"
+            rel="noopener"
+            class="group flex min-h-14 items-center justify-between gap-4 rounded-2xl border border-transparent px-4 py-3 font-serif text-2xl text-stone-900 transition-colors duration-200 hover:border-stone-200 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus-visible:ring-offset-2"
+            @click="closeMenu"
+          >
+            {{ t('common.nav.api_docs') }}
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-stone-500 transition-colors duration-200 group-hover:bg-stone-100"
+              aria-hidden="true"
+            >
+              <ArrowUpRightIcon class="h-4 w-4" />
+            </span>
+          </a>
         </div>
         <hr aria-hidden="true" class="border-stone-200" />
         <div v-if="!authStore.isAuthenticated" class="flex flex-col gap-2">

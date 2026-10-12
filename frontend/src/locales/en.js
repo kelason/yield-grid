@@ -138,6 +138,7 @@ export default {
       home: 'Home',
       about: 'About',
       contact: 'Contact',
+      api_docs: 'API Docs',
       dashboard: 'Dashboard',
       main_label: 'Main navigation',
       open_menu: 'Open menu',
