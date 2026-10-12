@@ -1,8 +1,9 @@
 # YieldGrid Public Information and User Guides
 
 **Date:** 2026-10-12
-**Status:** Page structure, homepage vision, and organic direction approved in chat; written specification awaiting review.
+**Status:** Written specification approved by the user on 2026-10-12; detailed implementation plan requested.
 **Requested deliverable:** A detailed implementation plan, not product implementation in this session.
+**Implementation plan:** [Ordered implementation tasks and verification](../plans/2026-10-12-public-information-and-guides.md).
 **Design authority:** `AGENTS.md`, the approved 2026-10-07 Modern Organic specification and plan, and `.agents/skills/yieldgrid-design-system/SKILL.md`.
 
 ## 1. Intent and success
@@ -29,6 +30,8 @@ Planning inspection started on `develop` at `fb6c1a9`. The selected release note
 
 Existing uncommitted work must be preserved: `AppFooter.vue`, `locales/{en,tl,ceb}.js`, `constants/apiDocs.js`, `constants/__tests__/apiDocs.spec.js`, and `organisms/__tests__/AppFooter.spec.js`. The pending footer adds an API Docs link; its exact-order test will need an intentional update when navigation expands.
 
+Planning update after approval: that footer/API-reference work is now committed as `8b57151`. Additional local navbar/tests/locale changes add API Docs to desktop and mobile navigation. Preserve that capability alongside the new user Documentation destination; reassess actual working-tree state before execution.
+
 Public Home/About/Contact/marketplace snapshot modifications also appeared during planning from concurrent workspace activity. They are not outputs of this specification and must be preserved and reassessed at implementation time.
 
 Scope is public content, its presentation, routing, navigation, localization, metadata, and regression coverage. No new backend endpoints, database changes, payment behavior, account roles, CMS, external search service, in-app tour, or new runtime dependency is required.
@@ -51,7 +54,7 @@ The topic URL is a reading affordance within Documentation, not a separate docum
 
 ### Navigation contract
 
-- Desktop: brand link to Home; primary links **Features**, **How It Works**, **Documentation**, **About**; existing language and authentication controls.
+- Desktop: brand link to Home; primary links **Features**, **How It Works**, **Documentation**, **About**; preserve the newer separate external **API Docs** link and existing language/authentication controls.
 - Footer: Home, Features, How It Works, Documentation, About, Contact, and the existing external API Docs link, grouped as product/help information where space permits.
 - Mobile menu: Home and all public destinations, including About and Contact, followed by existing authentication/profile controls and language choice. Keep one header row at 360–390px.
 - Keep Contact easy to find in Documentation's support ending and the mobile menu. Do not remove either existing route.
@@ -120,7 +123,7 @@ Choose Farmer or Buyer when registering, create the account, verify the email ad
 2. Open its plots, draw a boundary, enter the plot name and soil type, review calculated area, and confirm saving.
 3. Open Recommendations for a selected plot; set the available crop preferences and confirm analysis.
 4. Wait for results; explain the visible processing state and actual retry path on failure.
-5. Review crop options and projected information. Publishing is a separate choice: Accept & Create Contract opens terms for review and confirmation.
+5. Review crop options and projected information. Publishing is a separate choice: the current **Accept & Contract** control opens terms for review and confirmation.
 6. Find a published contract in My Contracts; follow purchase/cash handling in the detailed guide.
 
 ### Farmer path B: sell an existing harvest
@@ -274,7 +277,7 @@ Public chrome affects existing Home/About/Contact/marketplace/mobile-menu baseli
 
 ## 11. Review and implementation handoff
 
-The written-spec review should resolve any requested changes to page ownership, navigation, article inventory, or message. After approval, write the detailed implementation plan at `docs/superpowers/plans/2026-10-12-public-information-and-guides.md` using the writing-plans workflow.
+The user approved the written specification on 2026-10-12. The detailed implementation plan is at `docs/superpowers/plans/2026-10-12-public-information-and-guides.md`; product implementation follows a separate plan review and execution-method selection.
 
 The plan must specify exact files, ordered independently verifiable tasks, content/translation work, screenshot fixtures/assets, regression ownership, commands, and acceptance evidence. Shared routes/content IDs/navigation need a single owner before independent page tasks begin. Preserve the pending footer/API Docs changes, and inspect the current revision again before implementation.
 
