@@ -140,6 +140,10 @@ export default {
   },
   common: {
     nav: {
+      features: 'Features',
+      how_it_works: 'How It Works',
+      documentation: 'Documentation',
+
       home: 'Home',
       about: 'About',
       contact: 'Contact',

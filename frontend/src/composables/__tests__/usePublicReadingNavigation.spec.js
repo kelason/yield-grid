@@ -61,3 +61,20 @@ describe('public reading lifecycle', () => {
     expect(history.scrollRestoration).toBe(original)
   })
 })
+
+it('does not steal focus when a user interacts before the page finishes entering', async () => {
+  const layout = document.createElement('div')
+  layout.className = 'page-enter-active'
+  layout.innerHTML = '<button>Open menu</button><main><h1 tabindex="-1">Guide</h1></main>'
+  document.body.append(layout)
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  const { reading, router } = await mountReading(ref(layout.querySelector('main')))
+  await router.push('/other')
+  await flushPromises()
+  const button = layout.querySelector('button')
+  button.focus()
+  button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+  layout.classList.remove('page-enter-active')
+  await reading.onPageReady()
+  expect(document.activeElement).toBe(button)
+})

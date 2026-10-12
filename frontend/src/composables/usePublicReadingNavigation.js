@@ -73,7 +73,20 @@ function requestReading(state, restoring = false) {
   onPageReady(state)
 }
 
+function installInteraction(state) {
+  const cancelPending = () => {
+    state.pending = null
+  }
+  window.addEventListener('pointerdown', cancelPending, true)
+  window.addEventListener('keydown', cancelPending, true)
+  return () => {
+    window.removeEventListener('pointerdown', cancelPending, true)
+    window.removeEventListener('keydown', cancelPending, true)
+  }
+}
+
 function installNavigation(state, router) {
+  const removeInteraction = installInteraction(state)
   const onPop = () => {
     savePosition(state)
     state.restoring = true
@@ -90,13 +103,15 @@ function installNavigation(state, router) {
   })
   window.addEventListener('popstate', onPop)
   window.addEventListener('scroll', onScroll, { passive: true })
-  return () => disposeNavigation(state, removeBefore, removeAfter, onPop, onScroll)
+  return () =>
+    disposeNavigation(state, removeBefore, removeAfter, onPop, onScroll, removeInteraction)
 }
 
-function disposeNavigation(state, removeBefore, removeAfter, onPop, onScroll) {
+function disposeNavigation(state, removeBefore, removeAfter, onPop, onScroll, removeInteraction) {
   savePosition(state)
   state.disposed = true
   state.pending = null
+  removeInteraction()
   removeBefore()
   removeAfter()
   window.removeEventListener('popstate', onPop)

@@ -59,6 +59,7 @@ async function capture(page, testInfo, name) {
 }
 async function preparePublicCapture(page) {
   await page.evaluate(async () => {
+    for (const image of document.images) image.loading = 'eager'
     await Promise.all(Array.from(document.images, (image) => image.decode()))
     document.getElementById('main-content')?.scrollTo(0, 0)
     window.scrollTo(0, 0)

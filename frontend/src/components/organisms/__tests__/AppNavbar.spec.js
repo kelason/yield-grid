@@ -35,7 +35,18 @@ async function mountNavbar({ authenticated = false, role = 'farmer', userId = 7 
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      ...['/', '/about', '/contact', '/auth/login', '/auth/register', '/dashboard'].map((path) => ({
+      ...[
+        '/',
+        '/features',
+        '/how-it-works',
+        '/documentation',
+        '/documentation/:topic',
+        '/about',
+        '/contact',
+        '/auth/login',
+        '/auth/register',
+        '/dashboard',
+      ].map((path) => ({
         path,
         component: { template: '<div />' },
       })),
@@ -64,13 +75,19 @@ async function openMenu(wrapper) {
 }
 
 describe('AppNavbar public links', () => {
-  it('links API docs after Contact on desktop', async () => {
+  it('links learning pages before About and external API docs', async () => {
     const nav = (await mountNavbar()).find('nav[aria-label="Main navigation"]')
     const links = nav.findAll('a')
 
-    expect(links.map((link) => link.text())).toEqual(['Home', 'About', 'Contact', 'API Docs'])
+    expect(links.map((link) => link.text())).toEqual([
+      'Features',
+      'How It Works',
+      'Documentation',
+      'About',
+      'API Docs',
+    ])
 
-    const docs = links[3]
+    const docs = links[4]
     expect(docs.attributes('href')).toBe(API_DOCS_URL)
     expect(docs.attributes('target')).toBe('_blank')
     expect(docs.attributes('rel')).toBe('noopener')
@@ -81,11 +98,19 @@ describe('AppNavbar mobile menu', () => {
   it('links API docs after Contact and closes the menu on click', async () => {
     const wrapper = await mountNavbar()
     const nav = await openMenu(wrapper)
-    const siteLinks = nav.findAll('a').slice(0, 4)
+    const siteLinks = nav.findAll('a').slice(0, 7)
 
-    expect(siteLinks.map((link) => link.text())).toEqual(['Home', 'About', 'Contact', 'API Docs'])
+    expect(siteLinks.map((link) => link.text())).toEqual([
+      'Home',
+      'Features',
+      'How It Works',
+      'Documentation',
+      'About',
+      'Contact',
+      'API Docs',
+    ])
 
-    const docs = siteLinks[3]
+    const docs = siteLinks[6]
     expect(docs.attributes('href')).toBe(API_DOCS_URL)
     expect(docs.attributes('target')).toBe('_blank')
     await docs.trigger('click')
@@ -181,4 +206,53 @@ describe('AppNavbar mobile menu', () => {
     expect(wrapper.findAll('dialog h2').map((title) => title.text())).toEqual(['Log out?'])
     expect(useAuthStore().isAuthenticated).toBe(true)
   })
+})
+
+it('marks Documentation current for a topic without marking other public links', async () => {
+  const wrapper = await mountNavbar()
+  await wrapper.vm.$router.push('/documentation/getting-started')
+  await flushPromises()
+  expect(wrapper.get('nav[aria-label="Main navigation"] a[aria-current="page"]').text()).toBe(
+    'Documentation',
+  )
+})
+
+it('uses the drawer when measured desktop content cannot fit and cleans up its observer', async () => {
+  let measure
+  const disconnect = vi.fn()
+  vi.stubGlobal('matchMedia', () => ({
+    matches: true,
+    addEventListener() {},
+    removeEventListener() {},
+  }))
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback) {
+        measure = callback
+      }
+      observe() {}
+      disconnect = disconnect
+    },
+  )
+  const wrapper = await mountNavbar()
+  const row = wrapper.get('header > div').element
+  Object.defineProperty(row, 'clientWidth', { value: 600, configurable: true })
+  vi.spyOn(row.children[0], 'getBoundingClientRect').mockReturnValue({ width: 200 })
+  vi.spyOn(row.children[1], 'getBoundingClientRect').mockReturnValue({ width: 400 })
+  vi.spyOn(row.children[2], 'getBoundingClientRect').mockReturnValue({ width: 300 })
+  measure?.()
+  await flushPromises()
+  expect(wrapper.get('button[aria-label="Open menu"]').classes()).not.toContain('xl:hidden')
+  expect(wrapper.get('nav[aria-label="Main navigation"]').classes()).toContain('xl:invisible')
+  await openMenu(wrapper)
+  Object.defineProperty(row, 'clientWidth', { value: 1400 })
+  measure?.()
+  await flushPromises()
+  expect(wrapper.find('nav[aria-label="Mobile navigation"]').exists()).toBe(true)
+  expect(wrapper.get('button[aria-label="Open menu"]').classes()).not.toContain('xl:hidden')
+  await wrapper.get('button[aria-label="Close dialog"]').trigger('click')
+  expect(wrapper.get('button[aria-label="Open menu"]').classes()).toContain('xl:hidden')
+  wrapper.unmount()
+  expect(disconnect).toHaveBeenCalledOnce()
 })

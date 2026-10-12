@@ -4,6 +4,14 @@ import { useI18n } from 'vue-i18n'
 import AppLogo from '../atoms/AppLogo.vue'
 import { API_DOCS_URL } from '@/constants/apiDocs'
 const { t } = useI18n()
+const links = [
+  ['/', 'home'],
+  ['/features', 'features'],
+  ['/how-it-works', 'how_it_works'],
+  ['/documentation', 'documentation'],
+  ['/about', 'about'],
+  ['/contact', 'contact'],
+]
 </script>
 <template>
   <footer
@@ -17,16 +25,18 @@ const { t } = useI18n()
             {{ t('shell.footer.tagline') }}
           </p>
         </div>
-        <nav :aria-label="t('shell.footer.nav_label')" class="flex flex-wrap items-start gap-6">
+        <nav
+          :aria-label="t('shell.footer.nav_label')"
+          class="flex max-w-2xl flex-wrap items-start gap-x-6 gap-y-2"
+        >
           <RouterLink
-            to="/about"
+            v-for="[to, key] in links"
+            :key="to"
+            :to="to"
             class="inline-flex min-h-11 items-center rounded-xl text-sm text-stone-100 transition-colors hover:text-white"
-            >{{ t('shell.footer.about') }}</RouterLink
-          ><RouterLink
-            to="/contact"
-            class="inline-flex min-h-11 items-center rounded-xl text-sm text-stone-100 transition-colors hover:text-white"
-            >{{ t('shell.footer.contact') }}</RouterLink
-          ><a
+            >{{ t(`common.nav.${key}`) }}</RouterLink
+          >
+          <a
             :href="API_DOCS_URL"
             target="_blank"
             rel="noopener"

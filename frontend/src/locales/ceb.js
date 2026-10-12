@@ -140,6 +140,10 @@ export default {
   },
   common: {
     nav: {
+      features: 'Mga bahin',
+      how_it_works: 'Unsaon paggamit',
+      documentation: 'Dokumentasyon',
+
       home: 'Home',
       about: 'Mahitungod',
       contact: 'Kontak',

@@ -33,7 +33,7 @@ const { t } = useI18n()
                 : 'text-stone-600 hover:bg-stone-100 hover:text-moss-800'
             "
           >
-            {{ t(guide.titleKey) }}
+            <span class="min-w-0">{{ t(guide.titleKey) }}</span>
           </RouterLink>
         </li>
       </ul>

@@ -140,6 +140,10 @@ export default {
   },
   common: {
     nav: {
+      features: 'Mga tampok',
+      how_it_works: 'Paano gamitin',
+      documentation: 'Dokumentasyon',
+
       home: 'Home',
       about: 'Tungkol',
       contact: 'Kontak',

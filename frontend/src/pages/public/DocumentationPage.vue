@@ -24,7 +24,7 @@ usePublicPageHead({
 </script>
 
 <template>
-  <div class="bg-stone-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+  <div class="break-words bg-stone-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
     <div class="mx-auto max-w-7xl">
       <RouterLink
         v-if="!isIndex"
@@ -77,7 +77,7 @@ usePublicPageHead({
                 <h3 class="font-serif text-xl font-semibold text-stone-900">
                   <RouterLink
                     :to="{ name: 'documentation-topic', params: { topic: item.id } }"
-                    class="inline-flex min-h-11 items-center rounded-xl transition-colors hover:text-moss-700"
+                    class="inline-flex min-h-11 min-w-0 max-w-full items-center rounded-xl transition-colors hover:text-moss-700"
                     >{{ t(item.titleKey) }}</RouterLink
                   >
                 </h3>
