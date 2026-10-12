@@ -105,3 +105,34 @@ build served by the Playwright webServer:
 npx playwright test e2e/Admin e2e/Community e2e/Marketplace e2e/Shared --project=chromium --project=mobile-chromium
 npx playwright test e2e/IdentityAndAccess e2e/Shared e2e/Admin/access.spec.js --project=firefox --project=webkit
 ```
+
+### Public tutorial examples
+
+`public/images/guides/*-en.png` are reviewed synthetic examples of the actual
+English app, not real accounts, farms, yields or transactions. Written steps and
+image captions are localized; captions identify the English interface. Images
+are optional illustrations and all instructions remain usable if an image fails.
+
+Reproduce proposals inside the pinned Linux Playwright environment described
+above, with the production preview and fixed fixtures:
+
+```sh
+npx playwright test e2e/Public/tutorial-assets.spec.js --project=chromium --workers=1
+```
+
+The four files appear under `test-results`, never overwrite shipped assets, and
+must be visually reviewed before copying into `public/images/guides`. The plot
+example crops the unsaved form after drawing an illustrative polygon with mock
+tiles; the listing example crops title, quantity and price fields. No scene saves,
+publishes or pays. Update intrinsic dimensions in `constants/tutorialJourneys.js`
+when accepting a different crop.
+
+Public information pages use `/features`, `/how-it-works`, `/documentation` and
+`/documentation/:topic`. Their copy is checked in for EN/TL/CEB. The guide registry
+owns stable topic/section links; tutorials reuse its translated procedures.
+
+Public visual cases in `e2e/Visual/redesign.spec.js` cover all four destinations,
+the representative payments article, and Home/About/Contact/mobile navigation.
+Review proposed full-page images and diffs in the pinned Linux environment before
+accepting baselines. The article test also produces a scrolled cash-confirmation
+evidence image. Behavior and enlarged-text cases live under `e2e/Public`.

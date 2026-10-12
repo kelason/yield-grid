@@ -1,4 +1,9 @@
+import publicGuides from './public/en'
+import guides, { GUIDE_UI as guideUi } from './guides/en'
+
 export default {
+  guides,
+  guideUi,
   insurance: {
     page: {
       title: 'Crop Insurance',
@@ -135,6 +140,10 @@ export default {
   },
   common: {
     nav: {
+      features: 'Features',
+      how_it_works: 'How It Works',
+      documentation: 'Documentation',
+
       home: 'Home',
       about: 'About',
       contact: 'Contact',
@@ -1933,26 +1942,12 @@ export default {
     },
   },
   public: {
+    ...publicGuides,
     home: {
-      meta_title: 'YieldGrid - Farming, Marketplace & Community',
-      meta_desc:
-        'Plan crops, trade harvests, post buyer demands, track insurance and build your farmer profile with YieldGrid’s connected farming community.',
       eyebrow: 'From soil to sale',
-      heading_a: 'Smarter farming,',
-      heading_b: 'better harvest.',
-      lede: 'Plan crops, trade harvests, explore crop insurance and learn from your community. One connected workspace for farmers and the buyers they supply.',
       cta: 'Get started',
-      learn: 'Learn more',
-      platform_title: 'A little clarity for every growing season.',
-      platform_desc:
-        'From your first planting decision to buyer offers, payment confirmations and farm support, keep the work of every season connected.',
       community_note: 'For Filipino farmers and buyers',
-      visual_eyebrow: 'Rooted in possibility',
-      visual_note: 'Plan with care. Grow with confidence. Connect with your community.',
-      community_eyebrow: 'Better, together',
-      community_title: 'Meet your next harvest.',
-      community_desc:
-        'Good harvests begin with connection. Discover what farmers are growing and find your place in the YieldGrid community.',
+      ...publicGuides.home,
     },
     about: {
       eyebrow: 'Our purpose',

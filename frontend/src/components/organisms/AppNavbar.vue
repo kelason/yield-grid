@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ArrowUpRightIcon, Bars3Icon, UserCircleIcon } from '@heroicons/vue/24/outline'
@@ -14,13 +14,26 @@ import LanguageDropdown from '../molecules/LanguageDropdown.vue'
 import NavLink from '../molecules/NavLink.vue'
 const authStore = useAuthStore()
 const route = useRoute()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const DESKTOP_QUERY = '(min-width: 1280px)'
 const publicLinks = [
-  { to: '/', labelKey: 'common.nav.home' },
+  { to: '/features', labelKey: 'common.nav.features' },
+  { to: '/how-it-works', labelKey: 'common.nav.how_it_works' },
+  { to: '/documentation', labelKey: 'common.nav.documentation' },
   { to: '/about', labelKey: 'common.nav.about' },
+]
+const mobileLinks = [
+  { to: '/', labelKey: 'common.nav.home' },
+  ...publicLinks,
   { to: '/contact', labelKey: 'common.nav.contact' },
 ]
+const rowRef = ref(null)
+const logoRef = ref(null)
+const navRef = ref(null)
+const actionsRef = ref(null)
+const measuredFits = ref(true)
+const fits = computed(() => measuredFits.value && !menuOpen.value)
+let observer
 const menuOpen = ref(false)
 const { isOpen, isExecuting, config, confirm, execute, cancel } = useConfirmModal()
 let breakpoint
@@ -29,14 +42,43 @@ function closeMenu() {
   menuOpen.value = false
 }
 function onBreakpoint(event) {
-  if (event.matches) closeMenu()
+  measureFit()
+  if (event.matches && measuredFits.value) closeMenu()
 }
 watch(() => route.fullPath, closeMenu)
+watch(locale, () => nextTick(measureFit))
+function linkActive(link) {
+  return (
+    route.path === link.to ||
+    (link.to === '/documentation' && route.path.startsWith('/documentation/'))
+  )
+}
+function measureFit() {
+  if (!breakpoint?.matches || !rowRef.value?.clientWidth) return
+  const style = getComputedStyle(rowRef.value)
+  const spacing =
+    (parseFloat(style.paddingLeft) || 0) +
+    (parseFloat(style.paddingRight) || 0) +
+    2 * (parseFloat(style.columnGap) || 0)
+  const needed = [logoRef, navRef, actionsRef].reduce(
+    (width, element) => width + element.value.getBoundingClientRect().width,
+    0,
+  )
+  measuredFits.value = needed <= rowRef.value.clientWidth - spacing
+}
 onMounted(() => {
   breakpoint = window.matchMedia?.(DESKTOP_QUERY)
   breakpoint?.addEventListener('change', onBreakpoint)
+  if (window.ResizeObserver) {
+    observer = new ResizeObserver(measureFit)
+    for (const element of [rowRef, logoRef, navRef, actionsRef]) observer.observe(element.value)
+  }
+  nextTick(measureFit)
 })
-onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
+onBeforeUnmount(() => {
+  breakpoint?.removeEventListener('change', onBreakpoint)
+  observer?.disconnect()
+})
 function requestLogout() {
   closeMenu()
   confirm(
@@ -48,25 +90,36 @@ function requestLogout() {
 <template>
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white shadow-soft">
     <div
-      class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 xl:min-h-20 xl:px-8 xl:py-0"
+      ref="rowRef"
+      class="public-nav-row mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 xl:min-h-20 xl:px-8 xl:py-0"
     >
-      <AppLogo />
-      <nav :aria-label="t('common.nav.main_label')" class="hidden items-center gap-7 xl:flex">
+      <div ref="logoRef" class="min-w-0 xl:shrink-0"><AppLogo class="max-w-full" /></div>
+      <nav
+        :aria-label="t('common.nav.main_label')"
+        ref="navRef"
+        class="hidden w-max shrink-0 items-center gap-5 whitespace-nowrap xl:flex"
+        :class="fits ? '' : 'xl:invisible xl:absolute xl:right-full xl:pointer-events-none'"
+      >
         <NavLink
           v-for="link in publicLinks"
           :key="link.to"
           :to="link.to"
           :label="t(link.labelKey)"
+          :active="link.to === '/documentation' ? linkActive(link) : null"
         />
         <a
           :href="API_DOCS_URL"
           target="_blank"
           rel="noopener"
-          class="hidden min-[1440px]:inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-stone-600 transition-all duration-200 hover:border-moss-300 hover:text-moss-600 focus:outline-none"
+          class="inline-flex min-h-11 items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-stone-600 transition-all duration-200 hover:border-moss-300 hover:text-moss-600 rounded-xl"
           >{{ t('common.nav.api_docs') }}</a
         >
       </nav>
-      <div class="hidden items-center gap-3 xl:flex">
+      <div
+        ref="actionsRef"
+        class="hidden w-max shrink-0 items-center gap-3 whitespace-nowrap xl:flex"
+        :class="fits ? '' : 'xl:invisible xl:absolute xl:right-full xl:pointer-events-none'"
+      >
         <LanguageDropdown />
         <template v-if="!authStore.isAuthenticated"
           ><RouterLink
@@ -91,7 +144,8 @@ function requestLogout() {
       <AppButton
         variant="ghost"
         size="sm"
-        class="shrink-0 border border-stone-200 bg-stone-50 xl:hidden"
+        class="shrink-0 border border-stone-200 bg-stone-50"
+        :class="fits ? 'xl:hidden' : ''"
         :aria-label="t('common.nav.open_menu')"
         aria-haspopup="dialog"
         :aria-expanded="menuOpen"
@@ -103,12 +157,13 @@ function requestLogout() {
       <nav :aria-label="t('common.nav.mobile_label')" class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
           <RouterLink
-            v-for="link in publicLinks"
+            v-for="link in mobileLinks"
             :key="link.to"
             :to="link.to"
+            :aria-current="linkActive(link) ? 'page' : undefined"
             class="group flex min-h-14 items-center justify-between gap-4 rounded-2xl border px-4 py-3 font-serif text-2xl transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 focus-visible:ring-offset-2"
             :class="
-              route.path === link.to
+              linkActive(link)
                 ? 'border-moss-200 bg-moss-50 text-moss-800'
                 : 'border-transparent text-stone-900 hover:border-stone-200 hover:bg-stone-50'
             "
@@ -118,7 +173,7 @@ function requestLogout() {
             <span
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors duration-200"
               :class="
-                route.path === link.to
+                linkActive(link)
                   ? 'bg-moss-100 text-moss-700'
                   : 'text-stone-500 group-hover:bg-stone-100'
               "
@@ -204,3 +259,11 @@ function requestLogout() {
     />
   </header>
 </template>
+
+<style scoped>
+/* Text resizing must not animate the intrinsic widths used by the fit check. */
+.public-nav-row :deep(a),
+.public-nav-row :deep(button) {
+  transition-property: color, background-color, border-color, box-shadow, transform;
+}
+</style>

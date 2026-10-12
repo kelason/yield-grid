@@ -10,7 +10,36 @@ const router = createRouter({
       path: '/',
       component: () => import('../components/templates/PublicLayout.vue'),
       children: [
-        { path: '', name: 'home', component: () => import('../pages/public/HomePage.vue') },
+        {
+          path: '',
+          name: 'home',
+          component: () => import('../pages/public/HomePage.vue'),
+          meta: { publicReading: true },
+        },
+        {
+          path: 'documentation',
+          name: 'documentation',
+          component: () => import('../pages/public/DocumentationPage.vue'),
+          meta: { publicReading: true },
+        },
+        {
+          path: 'documentation/:topic',
+          name: 'documentation-topic',
+          component: () => import('../pages/public/DocumentationPage.vue'),
+          meta: { publicReading: true },
+        },
+        {
+          path: 'how-it-works',
+          name: 'how-it-works',
+          component: () => import('../pages/public/HowItWorksPage.vue'),
+          meta: { publicReading: true },
+        },
+        {
+          path: 'features',
+          name: 'features',
+          component: () => import('../pages/public/FeaturesPage.vue'),
+          meta: { publicReading: true },
+        },
         { path: 'about', name: 'about', component: () => import('../pages/public/AboutPage.vue') },
         {
           path: 'contact',

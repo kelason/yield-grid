@@ -1,4 +1,9 @@
+import publicGuides from './public/tl'
+import guides, { GUIDE_UI as guideUi } from './guides/tl'
+
 export default {
+  guides,
+  guideUi,
   insurance: {
     page: {
       title: 'Seguro sa Pananim',
@@ -135,6 +140,10 @@ export default {
   },
   common: {
     nav: {
+      features: 'Mga tampok',
+      how_it_works: 'Paano gamitin',
+      documentation: 'Dokumentasyon',
+
       home: 'Home',
       about: 'Tungkol',
       contact: 'Kontak',
@@ -1971,27 +1980,12 @@ export default {
     },
   },
   public: {
+    ...publicGuides,
     home: {
-      meta_title: 'YieldGrid - Pagsasaka, Marketplace at Komunidad',
-      meta_desc:
-        'Magplano ng mga pananim, mag-trade ng ani, mag-post ng mga demand ng buyer, subaybayan ang insurance at buuin ang iyong profile ng magsasaka sa konektadong komunidad ng pagsasaka ng YieldGrid.',
       eyebrow: 'Mula lupa hanggang benta',
-      heading_a: 'Mas matalinong pagsasaka,',
-      heading_b: 'mas magandang ani.',
-      lede: 'Magplano ng mga pananim, mag-trade ng ani, tuklasin ang crop insurance at matuto mula sa iyong komunidad. Isang konektadong workspace para sa mga magsasaka at sa mga buyer na kanilang sinususuplayan.',
       cta: 'Magsimula',
-      learn: 'Matuto pa',
-      platform_title: 'Kaunting kalinawan para sa bawat panahon ng pagtatanim.',
-      platform_desc:
-        'Mula sa iyong unang desisyon sa pagtatanim hanggang sa mga alok ng buyer, mga kumpirmasyon ng bayad at suporta sa bukid, panatilihing konektado ang gawain ng bawat panahon.',
       community_note: 'Para sa mga Pilipinong magsasaka at buyer',
-      visual_eyebrow: 'May pag-asang nakaugat',
-      visual_note:
-        'Magplano nang maingat. Magtanim nang may tiwala. Makipag-ugnayan sa iyong komunidad.',
-      community_eyebrow: 'Mas mabuti kapag magkakasama',
-      community_title: 'Tuklasin ang susunod mong ani.',
-      community_desc:
-        'Nagsisimula ang magandang ani sa ugnayan. Tuklasin ang mga pananim ng mga magsasaka at makibahagi sa komunidad ng YieldGrid.',
+      ...publicGuides.home,
     },
     about: {
       eyebrow: 'Ang aming layunin',

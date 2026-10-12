@@ -2,15 +2,38 @@ import { test, expect, mockSession } from '../fixtures/session'
 import { FARMS } from '../fixtures/data'
 import { E2E } from '../constants'
 async function noOverflow(page) {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  // Allow the measured navbar fallback to render after viewport/text resizing.
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
+  const layout = await page.evaluate(() => ({
+    width: innerWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+    fontSize: getComputedStyle(document.documentElement).fontSize,
+    overflow: Array.from(document.querySelectorAll('body *'))
+      .filter((element) => element.getBoundingClientRect().right > innerWidth)
+      .map((element) => ({ tag: element.tagName, class: element.className })),
+  }))
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        ),
+      { message: JSON.stringify(layout) },
+    )
+    .toBeLessThanOrEqual(0)
 }
 test('guest home has usable register and login navigation with one heading', async ({
   page,
 }, testInfo) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Smarter farming,better harvest.',
+    'Practical tools. Stronger farming futures.',
   )
+  await expect(page.locator('a[href="/how-it-works#farmers"]')).toBeVisible()
+  await expect(page.locator('a[href="/how-it-works#buyers"]')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'AI Crop Advisor', exact: true })).toHaveCount(0)
   await page.evaluate(() => document.fonts.ready)
   await noOverflow(page)
   await page.screenshot({
@@ -18,7 +41,7 @@ test('guest home has usable register and login navigation with one heading', asy
     fullPage: true,
     animations: 'disabled',
   })
-  await page.getByRole('button', { name: 'Get started', exact: true }).click()
+  await page.getByRole('link', { name: 'Get started', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Create your account')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('link', { name: 'Sign in here', exact: true }).click()

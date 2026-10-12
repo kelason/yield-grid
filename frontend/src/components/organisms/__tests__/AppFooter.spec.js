@@ -34,13 +34,22 @@ describe('AppFooter', () => {
     expect(nav.exists()).toBe(true)
 
     const links = nav.findAll('a')
-    expect(links.map((link) => link.text())).toEqual(['About Us', 'Contact', 'API Docs'])
-    expect(links[0].attributes('href')).toBe('/about')
-    expect(links[1].attributes('href')).toBe('/contact')
+    expect(links.map((link) => link.text())).toEqual([
+      'Home',
+      'Features',
+      'How It Works',
+      'Documentation',
+      'About',
+      'Contact',
+      'API Docs',
+    ])
+    expect(links[4].attributes('href')).toBe('/about')
+    expect(links[5].attributes('href')).toBe('/contact')
   })
 
   it('opens the API docs on the API host in a new tab', async () => {
     const nav = (await mountFooter()).find('nav[aria-label="Footer navigation"]')
+    expect(nav.get('a[href="/documentation"]').attributes('target')).toBeUndefined()
     const docs = nav.findAll('a').find((link) => link.text() === 'API Docs')
 
     expect(docs.attributes('href')).toBe(API_DOCS_URL)

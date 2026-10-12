@@ -155,6 +155,17 @@ describe('router role guard', () => {
     expect(router.currentRoute.value.name).toBe('home')
   })
 
+  it.each([null, 'farmer', 'buyer', 'admin'])(
+    'allows %s to read documentation without verification',
+    async (role) => {
+      if (role) loginAs(role, { verified: false })
+      for (const path of ['/documentation', '/documentation/getting-started']) {
+        await router.push(path)
+        expect(router.currentRoute.value.path).toBe(path)
+      }
+    },
+  )
+
   it('sends an authenticated admin on the login page to the admin overview page', async () => {
     loginAs('admin')
 

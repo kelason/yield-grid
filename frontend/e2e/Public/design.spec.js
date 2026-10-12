@@ -32,6 +32,7 @@ const CONTACT_SUCCESS = 'Your message has been sent.'
 async function readyPublicPage(page) {
   await page.evaluate(async () => {
     await document.fonts.ready
+    for (const image of document.images) image.loading = 'eager'
     await Promise.all(Array.from(document.images, (image) => image.decode()))
   })
 }
@@ -42,13 +43,50 @@ async function assertNoOverflow(page) {
     width: innerWidth,
     height: innerHeight,
     fontSize: getComputedStyle(document.documentElement).fontSize,
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
+    overflow: Array.from(document.querySelectorAll('body *'))
+      .filter((element) => element.scrollWidth > element.clientWidth + 1)
+      .slice(-12)
+      .map((element) => ({
+        tag: element.tagName,
+        class: element.className,
+        width: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        text: element.textContent.slice(0, 90),
+      })),
   }))
-  expect(
-    layout.scrollWidth,
-    `${layout.path} at ${layout.width}×${layout.height} with ${layout.fontSize} root text`,
-  ).toBeLessThanOrEqual(layout.clientWidth)
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        ),
+      {
+        message: `${layout.path} at ${layout.width}×${layout.height} with ${layout.fontSize} root text: ${JSON.stringify(layout.overflow)}`,
+      },
+    )
+    .toBeLessThanOrEqual(0)
+}
+
+async function assertHeaderFit(page) {
+  const fit = await page
+    .locator('body > #app header')
+    .first()
+    .evaluate((header) => {
+      const row = header.firstElementChild
+      const children = Array.from(row.children).filter(
+        (element) =>
+          getComputedStyle(element).display !== 'none' &&
+          getComputedStyle(element).visibility !== 'hidden',
+      )
+      const boxes = children.map((element) => element.getBoundingClientRect())
+      return boxes.every(
+        (box, index) =>
+          box.left >= 0 &&
+          box.right <= innerWidth &&
+          (!index || box.left >= boxes[index - 1].right),
+      )
+    })
+  expect(fit).toBe(true)
 }
 
 async function assertContactControls(page) {
@@ -61,6 +99,7 @@ async function assertContactControls(page) {
 async function assertResponsiveLayout(page, path) {
   for (const viewport of [
     E2E.NARROW,
+    E2E.MOBILE,
     E2E.TABLET,
     DESKTOP_BREAKPOINT,
     NAVBAR_DESKTOP_BREAKPOINT,
@@ -71,7 +110,11 @@ async function assertResponsiveLayout(page, path) {
       await page.evaluate((fontSize) => {
         document.documentElement.style.fontSize = fontSize
       }, size)
+      await page.evaluate(
+        () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+      )
       await assertNoOverflow(page)
+      await assertHeaderFit(page)
       if (path === '/contact') await assertContactControls(page)
     }
   }
@@ -93,7 +136,11 @@ for (const [locale, messages] of Object.entries(LOCALES)) {
     await mockSession(page, { authenticated: false })
     await page.addInitScript((code) => localStorage.setItem('yieldgrid-locale', code), locale)
     const pages = [
-      ['/', messages.public.home.heading_a + messages.public.home.heading_b],
+      ['/', messages.public.home.title],
+      ['/features', messages.public.features.title],
+      ['/how-it-works', messages.public.how_it_works.title],
+      ['/documentation', messages.guideUi.title],
+      ['/documentation/payments-and-purchases', messages.guides['payments-and-purchases'].title],
       ['/about', messages.public.about.title],
       ['/contact', messages.public.contact.title],
     ]
@@ -102,7 +149,7 @@ for (const [locale, messages] of Object.entries(LOCALES)) {
       await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
       await readyPublicPage(page)
-      if (path !== '/contact') await assertFeatureContent(page, messages.public)
+      if (['/features', '/about'].includes(path)) await assertFeatureContent(page, messages.public)
       await assertResponsiveLayout(page, path)
     }
   })
@@ -237,4 +284,63 @@ test('contact failure retains an accessible error and draft for a confirmed retr
   await expect(page.getByRole('alert').filter({ hasText: CONTACT_SUCCESS })).toBeVisible()
   await assertContactDraft(page, { name: '', email: '', subject: '', message: '' })
   expect(requests).toHaveLength(2)
+})
+
+test('short public menu keeps all learning and support links reachable', async ({ page }) => {
+  await mockSession(page, { authenticated: false })
+  await page.setViewportSize({ width: 390, height: 500 })
+  await page.goto('/documentation')
+  const { dialog } = await openPublicMenu(page)
+  for (const destination of [
+    '/features',
+    '/how-it-works',
+    '/documentation',
+    '/about',
+    '/contact',
+  ]) {
+    await expect(dialog.locator(`a[href="${destination}"]`)).toBeVisible()
+  }
+  await dialog.getByRole('link', { name: 'Contact', exact: true }).press('Enter')
+  await expect(page).toHaveURL(/\/contact$/)
+  await expect(dialog).not.toBeVisible()
+})
+
+test('public header text resizing keeps measured widths stable', async ({ page }) => {
+  await mockSession(page, { authenticated: false })
+  await page.goto('/contact')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Contact Us')
+  await expect(page.locator('.page-enter-active')).toHaveCount(0)
+  await page.evaluate(() => document.fonts.ready)
+  await page.setViewportSize(NAVBAR_DESKTOP_BREAKPOINT)
+  await page
+    .locator('body header')
+    .first()
+    .evaluate((header) => getComputedStyle(header.querySelector('nav a')).fontSize)
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = '200%'
+  })
+  const animatedDimensions = await page
+    .locator('body header')
+    .first()
+    .evaluate((header) =>
+      header
+        .getAnimations({ subtree: true })
+        .flatMap((animation) =>
+          animation.effect
+            .getKeyframes()
+            .flatMap((frame) =>
+              Object.keys(frame).filter((property) =>
+                ['fontSize', 'paddingLeft', 'paddingRight', 'width', 'height', 'gap'].includes(
+                  property,
+                ),
+              ),
+            ),
+        ),
+    )
+  expect(animatedDimensions).toEqual([])
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
+  await assertNoOverflow(page)
+  await assertHeaderFit(page)
 })
