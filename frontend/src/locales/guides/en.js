@@ -432,7 +432,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Review the available controls and current state on your listing. For qualifying trades, open messaging to coordinate. For cash purchases, open Cash Approvals and record receipt only after the payment reaches you.',
+              'Open My Contracts and review the available controls and current state on your listing. For qualifying trades, open messaging to coordinate. For cash purchases, open Cash Approvals and record receipt only after the payment reaches you.',
             result:
               'A pending cash request remains distinct from money received. Follow the displayed cancellation or other confirmation controls where available.',
           },

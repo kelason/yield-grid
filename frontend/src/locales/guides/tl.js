@@ -432,7 +432,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Suriin ang status at mga control ng listing. Sa karapat-dapat na kalakalan, mag-message para mag-coordinate. Sa cash purchase, buksan ang Cash Approvals at itala lang kapag natanggap na ang bayad.',
+              'Buksan ang Aking mga Kontrata at suriin ang status at mga control ng listing. Sa karapat-dapat na kalakalan, mag-message para mag-coordinate. Sa cash purchase, buksan ang Cash Approvals at itala lang kapag natanggap na ang bayad.',
             result:
               'Hiwalay ang pending cash request sa natanggap na pera. Sundin ang mga control ng pagkansela o kumpirmasyon kung magagamit.',
           },

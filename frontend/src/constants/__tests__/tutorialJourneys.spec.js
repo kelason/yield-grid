@@ -10,6 +10,7 @@ describe('tutorial destinations', () => {
       'buy-a-harvest',
       'request-a-crop',
     ])
+    expect(TUTORIAL_JOURNEYS[0].steps.map((step) => step.guide.sectionId)).toContain('draw-a-plot')
     for (const journey of TUTORIAL_JOURNEYS) {
       expect(journey.steps.length).toBeGreaterThan(0)
       for (const step of journey.steps) {

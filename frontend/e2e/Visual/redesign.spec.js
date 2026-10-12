@@ -41,9 +41,14 @@ const MARKET_CONTRACT = {
   status: 'available',
   farmer: { id: 1, name: 'Juan' },
 }
-async function capture(page, testInfo, name) {
-  await page.evaluate(() => document.fonts.ready)
+async function capture(page, testInfo, name, target = null) {
+  await page.evaluate(async () => {
+    await document.fonts.ready
+    document.getElementById('main-content')?.scrollTo(0, 0)
+    window.scrollTo(0, 0)
+  })
   if (name.startsWith('public-')) await preparePublicCapture(page)
+  if (target) await target.scrollIntoViewIfNeeded()
   expect(
     await page.evaluate(
       () => document.fonts.check('400 16px Inter') && document.fonts.check('700 32px Lora'),
@@ -100,8 +105,7 @@ test('farmer empty dashboard visual', async ({ page }, testInfo) => {
   const empty = page.getByRole('heading', { name: 'No farms yet', exact: true })
   await expect(empty).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
-  await empty.scrollIntoViewIfNeeded()
-  await capture(page, testInfo, 'farmer-dashboard-empty')
+  await capture(page, testInfo, 'farmer-dashboard-empty', empty)
 })
 test('farmer loading dashboard visual', async ({ page }, testInfo) => {
   await mockSession(page)
@@ -194,6 +198,28 @@ for (const [path, heading] of [
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
     await noOverflow(page)
     await capture(page, testInfo, `public-${path.slice(1)}`)
+  })
+}
+
+for (const [path, heading, name] of [
+  ['/features', 'Useful tools for every part of the season.', 'public-features'],
+  ['/how-it-works', 'A clear path from soil to sale.', 'public-how-it-works'],
+  ['/documentation', 'YieldGrid documentation', 'public-documentation-index'],
+  ['/documentation/payments-and-purchases', 'Payments & purchases', 'public-documentation-article'],
+]) {
+  test(`${name} visual`, async ({ page }, testInfo) => {
+    await mockSession(page, { authenticated: false })
+    await page.goto(path)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
+    await noOverflow(page)
+    await capture(page, testInfo, name)
+    if (name === 'public-documentation-article') {
+      await page.locator('#cash-confirmation').scrollIntoViewIfNeeded()
+      await page.screenshot({
+        path: testInfo.outputPath('article-cash-confirmation-evidence.png'),
+        animations: 'disabled',
+      })
+    }
   })
 }
 test('public mobile menu visual', async ({ page, isMobile }, testInfo) => {

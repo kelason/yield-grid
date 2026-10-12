@@ -126,3 +126,13 @@ example crops the unsaved form after drawing an illustrative polygon with mock
 tiles; the listing example crops title, quantity and price fields. No scene saves,
 publishes or pays. Update intrinsic dimensions in `constants/tutorialJourneys.js`
 when accepting a different crop.
+
+Public information pages use `/features`, `/how-it-works`, `/documentation` and
+`/documentation/:topic`. Their copy is checked in for EN/TL/CEB. The guide registry
+owns stable topic/section links; tutorials reuse its translated procedures.
+
+Public visual cases in `e2e/Visual/redesign.spec.js` cover all four destinations,
+the representative payments article, and Home/About/Contact/mobile navigation.
+Review proposed full-page images and diffs in the pinned Linux environment before
+accepting baselines. The article test also produces a scrolled cash-confirmation
+evidence image. Behavior and enlarged-text cases live under `e2e/Public`.

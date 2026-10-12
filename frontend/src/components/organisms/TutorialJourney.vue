@@ -8,7 +8,11 @@ import { TUTORIAL_SCREENSHOTS } from '@/constants/tutorialJourneys'
 import TutorialExample from '@/components/molecules/TutorialExample.vue'
 const props = defineProps({ journey: { type: Object, required: true } })
 const auth = useAuthStore()
-const action = computed(() => getGuide(props.journey.steps[0].guide.topic)?.action)
+const action = computed(() =>
+  props.journey.steps
+    .map((step) => getGuide(step.guide.topic)?.action)
+    .find((item) => item?.role === props.journey.role),
+)
 const { t } = useI18n()
 </script>
 <template>

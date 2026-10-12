@@ -48,6 +48,7 @@ export const TUTORIAL_JOURNEYS = [
     'plan',
     [
       ['farms-and-plots', 'create-farm'],
+      ['farms-and-plots', 'draw-a-plot'],
       ['farms-and-plots', 'save-a-plot', 'plot-setup'],
       ['crop-advisor', 'request-analysis'],
       ['crop-advisor', 'read-results', 'recommendations'],

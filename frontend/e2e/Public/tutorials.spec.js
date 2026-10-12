@@ -37,6 +37,10 @@ for (const role of ['farmer', 'buyer']) {
     await page.goto('/how-it-works')
     const destination = role === 'farmer' ? '/dashboard/farms' : '/dashboard/buyer/marketplace'
     await expect(page.locator(`main a[href="${destination}"]`)).toBeVisible()
+    if (role === 'buyer')
+      await expect(
+        page.locator('#request-a-crop').locator('..').locator('a[href="/dashboard/buyer/demands"]'),
+      ).toBeVisible()
     await expect(
       page.locator(
         `main a[href="${role === 'farmer' ? '/dashboard/buyer/marketplace' : '/dashboard/farms'}"]`,

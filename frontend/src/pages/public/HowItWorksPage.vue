@@ -52,6 +52,14 @@ const audiences = [
           class="mt-3 inline-flex min-h-11 items-center rounded-xl font-medium text-moss-700 underline underline-offset-4 transition-colors hover:text-moss-900"
           >{{ t('public.how_it_works.full_guide') }}</RouterLink
         >
+        <p class="mt-4 text-base leading-relaxed text-stone-600">
+          {{ t('guides.profile-addresses-language.summary') }}
+        </p>
+        <RouterLink
+          to="/documentation/profile-addresses-language"
+          class="mt-2 inline-flex min-h-11 items-center rounded-xl font-medium text-moss-700 underline underline-offset-4 transition-colors hover:text-moss-900"
+          >{{ t('guides.profile-addresses-language.title') }}</RouterLink
+        >
       </section>
       <section
         v-for="audience in audiences"

@@ -433,7 +433,7 @@ export default {
         steps: {
           follow: {
             instruction:
-              'Susiha ang status ug mga control sa listing. Sa kwalipikadong patigayon, pag-message aron mag-coordinate. Sa cash purchase, ablihi ang Cash Approvals ug itala lamang human madawat ang bayad.',
+              'Ablihi ang Akong mga Kontrata ug susiha ang status ug mga control sa listing. Sa kwalipikadong patigayon, pag-message aron mag-coordinate. Sa cash purchase, ablihi ang Cash Approvals ug itala lamang human madawat ang bayad.',
             result:
               'Lahi ang pending cash request ug nadawat nga kuwarta. Sunda ang mga control sa pagkansela o kumpirmasyon kon magamit.',
           },
