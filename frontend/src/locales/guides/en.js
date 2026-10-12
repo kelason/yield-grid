@@ -241,4 +241,324 @@ export default {
       },
     },
   },
+  'farms-and-plots': {
+    title: 'Farms & plots',
+    summary: 'Organize your growing areas and save a plot boundary with its soil information.',
+    prerequisites: {
+      prepare: 'Use a Farmer account with a verified email to save farming records.',
+    },
+    sections: {
+      'create-farm': {
+        title: 'Create a farm',
+        intro: 'A farm groups your plots under one name.',
+        steps: {
+          follow: {
+            instruction:
+              'Open My Farms, choose the create-farm action and enter a farm name. Add location details and total area if known, review the form and confirm creation.',
+            result:
+              'The farm appears in My Farms. Name is required; address, city and other location fields are optional.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'draw-a-plot': {
+        title: 'Draw a plot boundary',
+        intro: 'The plot planner uses a map to record a growing area.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Manage plots for your farm. Locate the correct area using the search and zoom controls. Select the polygon drawing tool, place the boundary points and finish the shape.',
+            result:
+              'An unsaved boundary appears and the plot form opens. Check its location and shape before saving.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'save-a-plot': {
+        title: 'Review and save a plot',
+        intro: 'Area is calculated from the boundary you draw.',
+        steps: {
+          follow: {
+            instruction:
+              'Enter a plot name and choose the soil type that best matches the area. Review the calculated area, then save and confirm. If the drawing is wrong, cancel the unsaved form and draw again.',
+            result:
+              'The saved plot belongs to this farm and is available for analysis. The current planner does not offer editing or deleting a saved boundary.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'map-problems': {
+        title: 'Resolve map or boundary problems',
+        intro:
+          'The app can reject drawings in mapped restricted areas or outside the resolved city boundary.',
+        steps: {
+          follow: {
+            instruction:
+              'Read the displayed reason, check the farm location and move or redraw the unsaved polygon where appropriate. If you cannot resolve the location, contact support with the farm name and error message.',
+            result:
+              'A corrected drawing can be reviewed again. A map or calculated area is an app planning aid, not a legal land survey.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'crop-advisor': {
+    title: 'AI Crop Advisor',
+    summary:
+      'Request plot-informed crop suggestions, compare options and choose whether to publish a future harvest.',
+    prerequisites: {
+      prepare:
+        'Create a plot first. Record the soil and location carefully; recommendations depend on these inputs.',
+    },
+    sections: {
+      'request-analysis': {
+        title: 'Request crop analysis',
+        intro: 'Analysis is tied to a saved plot.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Recommendations, select a plot and review its soil and location. Set the available produce types, subtypes, irrigation level and goal as needed. Choose the analysis action and confirm the request.',
+            result:
+              'A processing state appears. The analysis runs in the background; you can wait for the updated results rather than repeatedly submitting it.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'read-results': {
+        title: 'Read results and projections',
+        intro:
+          'Recommendations explain crop suitability using the recorded inputs and available information.',
+        steps: {
+          follow: {
+            instruction:
+              'Open a crop card and read its reasoning, confidence and projected yield or financial information. Consider the displayed weather context and your own field conditions. Use the shown retry if analysis fails.',
+            result:
+              'You have options to compare. Projections and AI confidence do not guarantee yields, profit or weather outcomes; consult local agricultural guidance for field decisions.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'publish-a-contract': {
+        title: 'Publish a future harvest contract',
+        intro: 'Analysis and publication are separate decisions.',
+        steps: {
+          follow: {
+            instruction:
+              'Choose Accept & Contract on an eligible recommendation. Review the quantity, price per kg, harvest date and other terms in the publishing form, then confirm publication.',
+            result:
+              'The contract appears in My Contracts. A recommendation already published or rejected cannot be published again; requesting analysis alone never lists your produce.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'compare-crops': {
+        title: 'Compare crops',
+        intro: 'Compatibility is a separate comparison tool.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Compatibility, select the two crops and use the available comparison action. Read the explanation before choosing rotation or intercropping arrangements.',
+            result:
+              'You can review compatibility without publishing a listing or completing an analysis. The result supports your judgment rather than replacing field advice.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'selling-harvests': {
+    title: 'Selling an existing harvest',
+    summary:
+      'Post a manual harvest listing directly, with or without a linked farm or AI recommendation.',
+    prerequisites: {
+      prepare:
+        'Verify your Farmer account email. Prepare crop, quantity, price and availability details you can stand behind.',
+    },
+    sections: {
+      'manual-listing': {
+        title: 'Enter the harvest details',
+        intro: 'Post Manual Harvest is a direct selling path.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Post Harvest from My Contracts. Choose the crop, shelf life and listing title; enter description, quantity in kg and price per kg. Mark the harvest available now or set its estimated harvest date.',
+            result:
+              'The draft describes what a buyer can purchase. Observe the form limits and enter quantities and dates you can reasonably supply.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'optional-source': {
+        title: 'Link a source only if useful',
+        intro: 'Harvest Source is optional.',
+        steps: {
+          follow: {
+            instruction:
+              'Leave the source empty if you do not have a farm record, or select one of your own farms and a plot belonging to it. Changing the farm clears the previous plot choice.',
+            result:
+              'You can post a manual harvest without a farm, drawn plot or AI recommendation. Source linking supplies context; it does not create a verification badge.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'review-and-publish': {
+        title: 'Review and publish',
+        intro: 'Price context can help you assess a draft.',
+        steps: {
+          follow: {
+            instruction:
+              'Use the embedded Price Guide if needed and check its source/date. Review the crop, quantity, unit price, availability and source. Submit the form and confirm the listing only when the details are correct.',
+            result:
+              'A successful listing takes you to My Contracts. If the request fails, read the form error and correct or retry the draft; reference prices do not guarantee a sale.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'manage-listings': {
+        title: 'Follow sales and receipt',
+        intro: 'My Contracts keeps your listing and contract records together.',
+        steps: {
+          follow: {
+            instruction:
+              'Review the available controls and current state on your listing. For qualifying trades, open messaging to coordinate. For cash purchases, open Cash Approvals and record receipt only after the payment reaches you.',
+            result:
+              'A pending cash request remains distinct from money received. Follow the displayed cancellation or other confirmation controls where available.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'verification-and-trust-score': {
+    title: 'Verification & farmer trust score',
+    summary:
+      'Understand provenance badges and the activity-based score shown in your farmer workspace.',
+    prerequisites: {
+      prepare:
+        'Farm badges and email verification describe different checks. Neither a badge nor a score guarantees a trade or loan.',
+    },
+    sections: {
+      'email-and-farm-verification': {
+        title: 'Read verification badges correctly',
+        intro: 'Email and farm verification describe different things.',
+        steps: {
+          follow: {
+            instruction:
+              'Verify your email through its email link for protected actions. Read farm and plot review statuses as administrative provenance checks; a plot badge requires both its farm and plot to be verified.',
+            result:
+              'Pending farm review does not block the independent creation, analysis and manual listing paths. Do not treat a badge as an assurance of yield, delivery or payment.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'read-your-score': {
+        title: 'Understand the farmer trust score',
+        intro: 'The score summarizes activity recorded within YieldGrid.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Farmer Trust Score and inspect the breakdown, history and improvement tips. Consider plot activity, recommendations, contracts, offers, transactions and platform tenure together.',
+            result:
+              'You can see what contributes to the internal score. It is not a bank credit decision, loan approval or guaranteed measure of real-world farming ability.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'download-report': {
+        title: 'Generate a shareable report',
+        intro: 'A report is generated from the score information.',
+        steps: {
+          follow: {
+            instruction:
+              'Choose the report-generation action, review and confirm it, then wait for the ready state and download the PDF. If a limit or expiry is shown, follow that message before generating another report.',
+            result:
+              'You can share the report where useful. YieldGrid does not establish that a lender accepts it or will grant a loan.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
+  'insurance-and-rsbsa': {
+    title: 'Crop insurance & RSBSA',
+    summary: 'Prepare enrollment documents and keep policy, claim and reminder records organized.',
+    prerequisites: {
+      prepare:
+        'Use a Farmer account and a plot for the current enrollment form. Confirm eligibility and deadlines with your local agriculture office or PCIC.',
+    },
+    sections: {
+      'rsbsa-records': {
+        title: 'Keep RSBSA details',
+        intro: 'The app stores the registration details you provide.',
+        steps: {
+          follow: {
+            instruction:
+              'Open Crop Insurance and enter your RSBSA information/status accurately. Review and confirm saving; contact your agriculture office if you need to establish or correct the official registration.',
+            result:
+              'Your recorded information can help prepare documents. Saving a number in YieldGrid does not verify or create official RSBSA registration.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'prepare-enrollment': {
+        title: 'Prepare an enrollment record',
+        intro: 'The current guide supports rice/corn programs and wet/dry seasons.',
+        steps: {
+          follow: {
+            instruction:
+              'Select a plot, program, season and year in the enrollment guide. Review the details and confirm creating the record. Check the document requirements with your local office before treating the record as an application.',
+            result:
+              'An enrollment preparation record appears. It does not purchase coverage or automatically establish eligibility.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'download-and-submit': {
+        title: 'Print and submit outside the app',
+        intro: 'Official submission happens outside YieldGrid.',
+        steps: {
+          follow: {
+            instruction:
+              'Generate the enrollment pack through the confirmation, wait until ready and download it. Print/review the forms and required attachments, then submit to the Municipal Agriculture Office as instructed by the local office. Record the submitted status only after doing so.',
+            result:
+              'The pack helps you prepare. YieldGrid does not electronically enroll you with PCIC or confirm acceptance of the external application.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+      'policy-and-claims': {
+        title: 'Track policy and claim records',
+        intro: 'The records reflect information you enter after external steps.',
+        steps: {
+          follow: {
+            instruction:
+              'When issued externally, record the CIC/policy details accurately. Add and update claim records only to match actual submissions and decisions; review reminders and confirm changes before saving.',
+            result:
+              'You have an organized record of your documents and dates. The insurer/local office decides coverage, claim approval and payment; in-app status changes do not make those decisions.',
+          },
+        },
+        notes: {},
+        recovery: {},
+      },
+    },
+  },
 }

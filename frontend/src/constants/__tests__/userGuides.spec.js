@@ -17,6 +17,20 @@ function textKeys(value) {
 }
 
 describe('user guide destinations', () => {
+  it('provides farm planning and direct selling as separately addressable guides', () => {
+    for (const id of [
+      'farms-and-plots',
+      'crop-advisor',
+      'selling-harvests',
+      'verification-and-trust-score',
+      'insurance-and-rsbsa',
+    ]) {
+      expect(getGuide(id)).toBeDefined()
+    }
+    expect(getGuide('selling-harvests').sections.map((section) => section.id)).toContain(
+      'optional-source',
+    )
+  })
   it('resolves known topics and rejects unknown topic input', () => {
     expect(getGuide('getting-started').sections.map((section) => section.id)).toContain(
       'verify-email',

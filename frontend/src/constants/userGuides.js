@@ -1,4 +1,5 @@
 import guideText from '@/locales/guides/en'
+import { USER_ROLES } from './roles'
 
 export const GUIDE_AUDIENCES = { BOTH: 'both', FARMER: 'farmer', BUYER: 'buyer' }
 export const GUIDE_GROUPS = ['start', 'grow', 'trade', 'support'].map((id) => ({
@@ -23,7 +24,7 @@ function sectionReferences(topic, id) {
   }
 }
 
-function guideReferences([id, groupId, audience, relatedTopics]) {
+function guideReferences([id, groupId, audience, relatedTopics, action]) {
   return {
     id,
     groupId,
@@ -35,10 +36,50 @@ function guideReferences([id, groupId, audience, relatedTopics]) {
     ),
     sections: Object.keys(guideText[id].sections).map((section) => sectionReferences(id, section)),
     relatedTopics,
+    ...(action ? { action } : {}),
   }
 }
 
 export const USER_GUIDES = [
+  [
+    'farms-and-plots',
+    'grow',
+    GUIDE_AUDIENCES.FARMER,
+    ['crop-advisor', 'selling-harvests'],
+    { role: USER_ROLES.FARMER, to: { name: 'farm-manager' }, labelKey: 'nav.my_farms' },
+  ],
+  [
+    'crop-advisor',
+    'grow',
+    GUIDE_AUDIENCES.FARMER,
+    ['farms-and-plots', 'selling-harvests'],
+    { role: USER_ROLES.FARMER, to: { name: 'recommendations' }, labelKey: 'nav.recommendations' },
+  ],
+  [
+    'selling-harvests',
+    'trade',
+    GUIDE_AUDIENCES.FARMER,
+    ['crop-advisor', 'troubleshooting-and-support'],
+    {
+      role: USER_ROLES.FARMER,
+      to: { name: 'farmer-new-listing' },
+      labelKey: 'farmer.listing.title',
+    },
+  ],
+  [
+    'verification-and-trust-score',
+    'support',
+    GUIDE_AUDIENCES.FARMER,
+    ['getting-started', 'farms-and-plots'],
+    { role: USER_ROLES.FARMER, to: { name: 'credit-score' }, labelKey: 'farmer.credit.title' },
+  ],
+  [
+    'insurance-and-rsbsa',
+    'support',
+    GUIDE_AUDIENCES.FARMER,
+    ['farms-and-plots', 'troubleshooting-and-support'],
+    { role: USER_ROLES.FARMER, to: { name: 'insurance' }, labelKey: 'nav.crop_insurance' },
+  ],
   [
     'getting-started',
     'start',
