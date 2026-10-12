@@ -1,4 +1,8 @@
 <script setup>
+import { computed } from 'vue'
+import { usePublicPageHead } from '@/composables/usePublicPageHead'
+import HomePurposeSection from '@/components/organisms/HomePurposeSection.vue'
+import HomeVisionSection from '@/components/organisms/HomeVisionSection.vue'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import HeroSection from '../../components/organisms/HeroSection.vue'
@@ -6,7 +10,6 @@ import HeroSection from '../../components/organisms/HeroSection.vue'
 const { t } = useI18n()
 
 useHead({
-  title: t('public.home.meta_title'),
   link: [
     {
       rel: 'preload',
@@ -23,25 +26,17 @@ useHead({
       fetchpriority: 'high',
     },
   ],
-  meta: [
-    {
-      name: 'description',
-      content: t('public.home.meta_desc'),
-    },
-    {
-      property: 'og:title',
-      content: t('public.home.meta_title'),
-    },
-    {
-      property: 'og:description',
-      content: t('public.home.meta_desc'),
-    },
-  ],
+})
+usePublicPageHead({
+  title: computed(() => t('public.home.meta_title')),
+  description: computed(() => t('public.home.meta_desc')),
 })
 </script>
 
 <template>
-  <div class="bg-stone-100">
+  <div class="break-words bg-stone-100">
     <HeroSection />
+    <HomePurposeSection />
+    <HomeVisionSection />
   </div>
 </template>

@@ -1,4 +1,43 @@
 export default {
+  home: {
+    title: 'Practical tools. Stronger farming futures.',
+    lede: 'YieldGrid brings crop planning, harvest trading, and farming knowledge into one place for Filipino farmers and buyers.',
+    meta_title: 'YieldGrid | Practical tools for Filipino farmers and buyers',
+    meta_desc:
+      'Plan growing areas, connect harvests with buyers and find practical farming guidance in YieldGrid.',
+    learn: 'How it works',
+    purpose_eyebrow: 'What is YieldGrid?',
+    purpose_title: 'Keep the work of a growing season connected.',
+    purpose_desc:
+      'From understanding your growing area to offering a harvest and talking with buyers, YieldGrid brings everyday tasks into a shared workspace. Start with the tools you need and learn at your own pace.',
+    features_link: 'Explore all features',
+    needs_title: 'Built around real farming needs.',
+    market_title: 'Make buyers easier to reach',
+    market_problem:
+      'Limited market access is one challenge facing rural communities in the Philippines.',
+    market_response:
+      'Harvest listings and buyer demands give farmers and buyers a place to find each other and discuss eligible trades.',
+    price_title: 'Bring context to your price',
+    price_problem:
+      'The Department of Agriculture publishes price references to support understanding of market conditions.',
+    price_response:
+      'YieldGrid’s Price Guide labels sources and freshness when available. Retail references, local prices and AI estimates provide context rather than a guaranteed selling price.',
+    planning_title: 'Plan with useful information',
+    planning_problem:
+      'PAGASA’s agricultural weather guidance helps connect weather information with field planning.',
+    planning_response:
+      'Plot boundaries, soil details, crop advice and weather context help organize decisions. Pair them with local knowledge and official advisories.',
+    source_label: 'Context source:',
+    vision_eyebrow: 'Our vision',
+    vision_title: 'A better everyday life for farmers.',
+    vision:
+      'YieldGrid began with a simple vision: to help make life better for Filipino farmers—by making useful information easier to understand, buyers easier to reach, and everyday farming decisions easier to manage.',
+    next_title: 'Find your place in the next harvest.',
+    farmer_link: 'I’m a farmer',
+    farmer_desc: 'Plan a crop or list a harvest you already have.',
+    buyer_link: 'I’m a buyer',
+    buyer_desc: 'Browse a harvest or tell farmers what you need.',
+  },
   features: {
     title: 'Useful tools for every part of the season.',
     intro:

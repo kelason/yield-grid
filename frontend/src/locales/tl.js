@@ -1998,6 +1998,7 @@ export default {
       community_title: 'Tuklasin ang susunod mong ani.',
       community_desc:
         'Nagsisimula ang magandang ani sa ugnayan. Tuklasin ang mga pananim ng mga magsasaka at makibahagi sa komunidad ng YieldGrid.',
+      ...publicGuides.home,
     },
     about: {
       eyebrow: 'Ang aming layunin',

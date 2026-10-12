@@ -178,7 +178,9 @@ test('marketplace visual', async ({ page }, testInfo) => {
 })
 test('public home visual', async ({ page }, testInfo) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Smarter farming')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Practical tools. Stronger farming futures.',
+  )
   await capture(page, testInfo, 'public-home')
 })
 for (const [path, heading] of [

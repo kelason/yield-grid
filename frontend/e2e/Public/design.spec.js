@@ -44,10 +44,20 @@ async function assertNoOverflow(page) {
     fontSize: getComputedStyle(document.documentElement).fontSize,
     scrollWidth: document.documentElement.scrollWidth,
     clientWidth: document.documentElement.clientWidth,
+    overflow: Array.from(document.querySelectorAll('body *'))
+      .filter((element) => element.scrollWidth > element.clientWidth + 1)
+      .slice(-12)
+      .map((element) => ({
+        tag: element.tagName,
+        class: element.className,
+        width: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        text: element.textContent.slice(0, 90),
+      })),
   }))
   expect(
     layout.scrollWidth,
-    `${layout.path} at ${layout.width}×${layout.height} with ${layout.fontSize} root text`,
+    `${layout.path} at ${layout.width}×${layout.height} with ${layout.fontSize} root text: ${JSON.stringify(layout.overflow)}`,
   ).toBeLessThanOrEqual(layout.clientWidth)
 }
 
@@ -93,7 +103,8 @@ for (const [locale, messages] of Object.entries(LOCALES)) {
     await mockSession(page, { authenticated: false })
     await page.addInitScript((code) => localStorage.setItem('yieldgrid-locale', code), locale)
     const pages = [
-      ['/', messages.public.home.heading_a + messages.public.home.heading_b],
+      ['/', messages.public.home.title],
+      ['/features', messages.public.features.title],
       ['/about', messages.public.about.title],
       ['/contact', messages.public.contact.title],
     ]
@@ -102,7 +113,7 @@ for (const [locale, messages] of Object.entries(LOCALES)) {
       await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
       await readyPublicPage(page)
-      if (path !== '/contact') await assertFeatureContent(page, messages.public)
+      if (['/features', '/about'].includes(path)) await assertFeatureContent(page, messages.public)
       await assertResponsiveLayout(page, path)
     }
   })

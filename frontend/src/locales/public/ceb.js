@@ -1,4 +1,43 @@
 export default {
+  home: {
+    title: 'Praktikal nga mga tool. Mas maayong kaugmaon sa pagpanguma.',
+    lede: 'Gihiusa sa YieldGrid ang pagplano sa tanom, pagbaligya sa ani ug kahibalo sa pagpanguma alang sa mga Pilipinong mag-uuma ug mamalitay.',
+    meta_title: 'YieldGrid | Praktikal nga tool alang sa mag-uuma ug mamalitay',
+    meta_desc:
+      'Pagplano sa tanoman, ikonektar ang ani sa mamalitay ug pangita og praktikal nga giya sa pagpanguma sa YieldGrid.',
+    learn: 'Unsaon paggamit',
+    purpose_eyebrow: 'Unsa ang YieldGrid?',
+    purpose_title: 'Ikonektar ang mga buluhaton sa matag panahon sa pagtanom.',
+    purpose_desc:
+      'Gikan sa pagsabot sa tanoman ngadto sa pagtanyag sa ani ug pag-istorya sa mamalitay, gihiusa sa YieldGrid ang adlaw-adlaw nga mga buluhaton. Sugdi sa tool nga imong kinahanglan ug pagkat-on sa imong kaugalingong dagan.',
+    features_link: 'Tan-awa ang tanang bahin',
+    needs_title: 'Gibase sa tinuod nga panginahanglan sa pagpanguma.',
+    market_title: 'Mas sayon nga maabot ang mamalitay',
+    market_problem:
+      'Usa sa mga hagit sa rural nga komunidad sa Pilipinas ang limitadong access sa merkado.',
+    market_response:
+      'Ang listing sa ani ug demand sa mamalitay naghatag og lugar aron magkaila ang mag-uuma ug mamalitay ug maghisgot sa gitugot nga trading.',
+    price_title: 'Sabta ang basihan sa presyo',
+    price_problem:
+      'Ang Department of Agriculture nagpatik og mga presyo nga reperensiya aron makatabang sa pagsabot sa kahimtang sa merkado.',
+    price_response:
+      'Gipakita sa Price Guide sa YieldGrid ang tinubdan ug kabag-o kon adunay datos. Konteksto ang retail reference, lokal nga presyo ug banabana sa AI; dili garantiya sa presyo sa pagbaligya.',
+    planning_title: 'Pagplano gamit ang mapuslanong impormasyon',
+    planning_problem:
+      'Ang giya sa panahon alang sa agrikultura sa PAGASA nagkonektar sa impormasyon sa panahon ug pagplano sa uma.',
+    planning_response:
+      'Ang utlanan sa plot, detalye sa yuta, tambag sa tanom ug datos sa panahon makatabang sa pag-organisar sa desisyon. Iuban ang lokal nga kahibalo ug opisyal nga pahimangno.',
+    source_label: 'Tinubdan sa konteksto:',
+    vision_eyebrow: 'Among panan-awon',
+    vision_title: 'Mas maayong adlaw-adlaw nga kinabuhi sa mag-uuma.',
+    vision:
+      'Nagsugod ang YieldGrid sa yanong panan-awon: mapaayo ang kinabuhi sa Pilipinong mag-uuma pinaagi sa impormasyon nga mas sayon sabton, mamalitay nga mas sayon maabot ug mga desisyon sa pagpanguma nga mas sayon dumalahon.',
+    next_title: 'Pangitaa ang imong lugar sa sunod nga ani.',
+    farmer_link: 'Mag-uuma ko',
+    farmer_desc: 'Pagplano og tanom o ilista ang ani nga naa na nimo.',
+    buyer_link: 'Mamalitay ko',
+    buyer_desc: 'Tan-awa ang ani o ipahibalo sa mag-uuma ang imong kinahanglan.',
+  },
   features: {
     title: 'Mapuslanong mga tool sa matag bahin sa panahon.',
     intro:

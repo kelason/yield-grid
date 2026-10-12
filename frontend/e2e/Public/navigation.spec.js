@@ -9,8 +9,11 @@ test('guest home has usable register and login navigation with one heading', asy
 }, testInfo) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Smarter farming,better harvest.',
+    'Practical tools. Stronger farming futures.',
   )
+  await expect(page.locator('a[href="/how-it-works#farmers"]')).toBeVisible()
+  await expect(page.locator('a[href="/how-it-works#buyers"]')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'AI Crop Advisor', exact: true })).toHaveCount(0)
   await page.evaluate(() => document.fonts.ready)
   await noOverflow(page)
   await page.screenshot({
@@ -18,7 +21,7 @@ test('guest home has usable register and login navigation with one heading', asy
     fullPage: true,
     animations: 'disabled',
   })
-  await page.getByRole('button', { name: 'Get started', exact: true }).click()
+  await page.getByRole('link', { name: 'Get started', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Create your account')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('link', { name: 'Sign in here', exact: true }).click()

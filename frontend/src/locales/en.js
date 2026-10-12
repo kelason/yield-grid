@@ -1959,6 +1959,7 @@ export default {
       community_title: 'Meet your next harvest.',
       community_desc:
         'Good harvests begin with connection. Discover what farmers are growing and find your place in the YieldGrid community.',
+      ...publicGuides.home,
     },
     about: {
       eyebrow: 'Our purpose',

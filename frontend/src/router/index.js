@@ -10,7 +10,12 @@ const router = createRouter({
       path: '/',
       component: () => import('../components/templates/PublicLayout.vue'),
       children: [
-        { path: '', name: 'home', component: () => import('../pages/public/HomePage.vue') },
+        {
+          path: '',
+          name: 'home',
+          component: () => import('../pages/public/HomePage.vue'),
+          meta: { publicReading: true },
+        },
         {
           path: 'documentation',
           name: 'documentation',

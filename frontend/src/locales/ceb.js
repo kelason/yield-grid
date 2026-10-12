@@ -1994,6 +1994,7 @@ export default {
       community_title: 'Susiha ang imong sunod nga abot.',
       community_desc:
         'Ang maayong abot nagsugod sa koneksyon. Susiha ang mga pananom sa mga mag-uuma ug pakig-uban sa komunidad sa YieldGrid.',
+      ...publicGuides.home,
     },
     about: {
       eyebrow: 'Among katuyoan',

@@ -1,4 +1,43 @@
 export default {
+  home: {
+    title: 'Praktikal na mga tool. Mas magandang kinabukasan sa pagsasaka.',
+    lede: 'Pinagsasama ng YieldGrid ang pagpaplano ng pananim, kalakalan ng ani at kaalaman sa pagsasaka para sa mga Pilipinong magsasaka at mamimili.',
+    meta_title: 'YieldGrid | Praktikal na tool para sa magsasaka at mamimili',
+    meta_desc:
+      'Magplano ng taniman, iugnay ang ani sa mamimili at humanap ng praktikal na gabay sa pagsasaka sa YieldGrid.',
+    learn: 'Paano gamitin',
+    purpose_eyebrow: 'Ano ang YieldGrid?',
+    purpose_title: 'Pag-ugnayin ang mga gawain sa bawat panahon ng pagtatanim.',
+    purpose_desc:
+      'Mula sa pag-unawa sa taniman hanggang sa pag-aalok ng ani at pakikipag-usap sa mamimili, pinagsasama ng YieldGrid ang araw-araw na gawain. Magsimula sa kailangan mong tool at matuto sa sarili mong bilis.',
+    features_link: 'Tingnan ang lahat ng tampok',
+    needs_title: 'Nakatuon sa tunay na pangangailangan sa pagsasaka.',
+    market_title: 'Mas madaling maabot ang mamimili',
+    market_problem:
+      'Isa sa mga hamon ng mga pamayanan sa kanayunan ng Pilipinas ang limitadong access sa merkado.',
+    market_response:
+      'Sa mga listing ng ani at demand ng mamimili, may lugar ang magsasaka at mamimili upang magkakilala at pag-usapan ang pinapayagang kalakalan.',
+    price_title: 'Unawain ang batayan ng presyo',
+    price_problem:
+      'Naglalathala ang Department of Agriculture ng mga sangguniang presyo upang makatulong sa pag-unawa sa kalagayan ng merkado.',
+    price_response:
+      'Ipinapakita ng Price Guide ng YieldGrid ang pinagmulan at pagiging bago kapag may datos. Gabay ang retail reference, lokal na presyo at tantiya ng AI; hindi garantisadong presyo ng bentahan.',
+    planning_title: 'Magplano gamit ang kapaki-pakinabang na impormasyon',
+    planning_problem:
+      'Iniuugnay ng gabay sa panahon para sa agrikultura ng PAGASA ang impormasyon sa panahon at pagpaplano sa bukid.',
+    planning_response:
+      'Tumutulong ang hangganan ng plot, detalye ng lupa, payo sa pananim at datos ng panahon sa pag-aayos ng desisyon. Isama ang lokal na kaalaman at opisyal na abiso.',
+    source_label: 'Sanggunian sa konteksto:',
+    vision_eyebrow: 'Aming mithiin',
+    vision_title: 'Mas magandang araw-araw na buhay para sa magsasaka.',
+    vision:
+      'Nagsimula ang YieldGrid sa simpleng mithiin: mapabuti ang buhay ng Pilipinong magsasaka sa pamamagitan ng impormasyong mas madaling unawain, mamimiling mas madaling maabot at mga desisyon sa pagsasakang mas madaling pamahalaan.',
+    next_title: 'Hanapin ang iyong lugar sa susunod na ani.',
+    farmer_link: 'Magsasaka ako',
+    farmer_desc: 'Magplano ng pananim o ilista ang ani na mayroon ka na.',
+    buyer_link: 'Mamimili ako',
+    buyer_desc: 'Tumingin ng ani o ipaalam sa magsasaka ang kailangan mo.',
+  },
   features: {
     title: 'Kapaki-pakinabang na tool sa bawat bahagi ng panahon.',
     intro:
