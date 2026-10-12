@@ -1,4 +1,29 @@
 export default {
+  features: {
+    title: 'Kapaki-pakinabang na tool sa bawat bahagi ng panahon.',
+    intro:
+      'Alamin kung paano tinutulungan ng YieldGrid ang magsasaka at mamimili, at buksan ang praktikal na gabay kapag handa ka na.',
+    groups: {
+      'plan-grow': 'Magplano at magtanim',
+      'trade-connect': 'Magkalakalan at makipag-ugnayan',
+      'farm-support': 'Suporta sa pagsasaka',
+    },
+    limits: {
+      advisor:
+        'Gabay sa pagpapasya ang rekomendasyon at pagiging tugma ng pananim; hindi garantisadong ani.',
+      planning: 'Itala ang tanimang iginuhit sa suportadong hangganan ng lungsod.',
+      market:
+        'Maaaring magsimula ng manwal na listing nang walang sakahan. Ipinapakita ng Price Guide ang pinagmulan at pagiging bago kapag may datos.',
+      weather:
+        'Suporta sa pagpaplano ang datos ng panahon; tingnan din ang opisyal na lokal na abiso.',
+      demands:
+        'Nakabatay sa kasalukuyang status ng order ang alok, pagtanggap, pagbabayad at paghahatid.',
+      insurance:
+        'Ihanda ang tala sa enrollment; PCIC at lokal na tanggapan ang nagpapasya sa pagiging kwalipikado at saklaw.',
+      score: 'Panloob na YieldGrid score, hindi pag-apruba ng pautang o pagsusuri ng nagpapautang.',
+      community: 'Nauugnay sa account ang forum at usapang pinapayagan para sa kalakalan.',
+    },
+  },
   how_it_works: {
     title: 'Malinaw na hakbang mula lupa hanggang bentahan.',
     intro:

@@ -29,6 +29,12 @@ const router = createRouter({
           component: () => import('../pages/public/HowItWorksPage.vue'),
           meta: { publicReading: true },
         },
+        {
+          path: 'features',
+          name: 'features',
+          component: () => import('../pages/public/FeaturesPage.vue'),
+          meta: { publicReading: true },
+        },
         { path: 'about', name: 'about', component: () => import('../pages/public/AboutPage.vue') },
         {
           path: 'contact',

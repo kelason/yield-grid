@@ -1,4 +1,27 @@
 export default {
+  features: {
+    title: 'Useful tools for every part of the season.',
+    intro:
+      'Explore what YieldGrid helps farmers and buyers do, then open a practical guide when you are ready to begin.',
+    groups: {
+      'plan-grow': 'Plan & grow',
+      'trade-connect': 'Trade & connect',
+      'farm-support': 'Farm support',
+    },
+    limits: {
+      advisor:
+        'Recommendations and crop compatibility support decisions; they do not guarantee yields.',
+      planning: 'Record the growing areas you draw within the supported city boundary.',
+      market:
+        'Manual listings can start without a farm source. Price Guide shows source and freshness when available.',
+      weather: 'Weather context supports planning; also check official local advisories.',
+      demands: 'Offers, acceptance, payment and delivery follow the order’s current status.',
+      insurance:
+        'Prepare enrollment records; PCIC and your local office decide eligibility and coverage.',
+      score: 'An internal YieldGrid score, not loan approval or a lender’s assessment.',
+      community: 'Forum participation and eligible trade conversations connect to your account.',
+    },
+  },
   how_it_works: {
     title: 'A clear path from soil to sale.',
     intro:

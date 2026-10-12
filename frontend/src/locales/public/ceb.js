@@ -1,4 +1,29 @@
 export default {
+  features: {
+    title: 'Mapuslanong mga tool sa matag bahin sa panahon.',
+    intro:
+      'Hibaloi kon unsaon pagtabang sa YieldGrid sa mag-uuma ug mamalitay, ug ablihi ang praktikal nga giya kon andam ka na.',
+    groups: {
+      'plan-grow': 'Pagplano ug pagtanom',
+      'trade-connect': 'Pagbaligya ug pagkonektar',
+      'farm-support': 'Suporta sa pagpanguma',
+    },
+    limits: {
+      advisor:
+        'Suporta sa desisyon ang rekomendasyon ug pagkaangay sa tanom; dili garantiya sa ani.',
+      planning: 'Itala ang tanoman nga imong gidrowing sulod sa suportadong utlanan sa siyudad.',
+      market:
+        'Mahimo ang manwal nga listing bisan walay uma. Gipakita sa Price Guide ang tinubdan ug kabag-o kon adunay datos.',
+      weather:
+        'Suporta sa pagplano ang datos sa panahon; tan-awa usab ang opisyal nga lokal nga pahimangno.',
+      demands:
+        'Ang tanyag, pagdawat, pagbayad ug paghatod nagsunod sa kasamtangang status sa order.',
+      insurance:
+        'Andama ang tala sa enrollment; PCIC ug lokal nga opisina ang motino sa eligibility ug coverage.',
+      score: 'Internal nga YieldGrid score, dili pag-apruba sa utang o pagsusi sa nagpautang.',
+      community: 'Ang forum ug gitugot nga panag-istorya sa trading konektado sa imong account.',
+    },
+  },
   how_it_works: {
     title: 'Klarong mga lakang gikan sa yuta ngadto sa pagbaligya.',
     intro:
