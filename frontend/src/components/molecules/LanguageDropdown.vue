@@ -44,6 +44,7 @@ function close() {
 function choose(code) {
   authStore.switchLocale(code)
   close()
+  toggleRef.value?.focus()
 }
 
 async function onToggleKeydown(event) {

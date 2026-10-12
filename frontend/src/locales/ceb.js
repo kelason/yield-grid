@@ -1,4 +1,9 @@
+import publicGuides from './public/ceb'
+import guides, { GUIDE_UI as guideUi } from './guides/ceb'
+
 export default {
+  guides,
+  guideUi,
   insurance: {
     page: {
       title: 'Seguro sa Pananom',
@@ -135,9 +140,14 @@ export default {
   },
   common: {
     nav: {
+      features: 'Mga bahin',
+      how_it_works: 'Unsaon paggamit',
+      documentation: 'Dokumentasyon',
+
       home: 'Home',
       about: 'Mahitungod',
       contact: 'Kontak',
+      api_docs: 'API Docs',
       dashboard: 'Dashboard',
       main_label: 'Panguna nga nabigasyon',
       open_menu: 'Ablihi ang menu',
@@ -220,6 +230,7 @@ export default {
         'Kaalam sa pananom ug direktang merkado para sa mga mag-uumang Pilipino ug mamalit. Gikan sa yuta hangtod sa pagbaligya.',
       about: 'Mahitungod Kanamo',
       contact: 'Kontak',
+      api_docs: 'API Docs',
       nav_label: 'Nabigasyon sa footer',
       rights: '© {year} YieldGrid. Ang tanang katungod gigahin.',
     },
@@ -1965,27 +1976,12 @@ export default {
     },
   },
   public: {
+    ...publicGuides,
     home: {
-      meta_title: 'YieldGrid - Pag-uma, Marketplace ug Komunidad',
-      meta_desc:
-        'Pagplano og mga pananom, pag-trade og abot, pag-post og mga demand sa buyer, pagsubay sa insurance ug pagtukod sa imong profile sa mag-uuma sa konektadong komunidad sa pag-uma sa YieldGrid.',
       eyebrow: 'Gikan sa yuta hangtod sa baligya',
-      heading_a: 'Mas maalamon nga pag-uma,',
-      heading_b: 'mas maayong abot.',
-      lede: 'Pagplano og mga pananom, pag-trade og abot, susiha ang crop insurance ug pagkat-on gikan sa imong komunidad. Usa ka konektadong workspace para sa mga mag-uuma ug sa mga buyer nga ilang gisusuplayan.',
       cta: 'Pagsugod',
-      learn: 'Pagkat-on pa',
-      platform_title: 'Gamayng katin-awan para sa matag panahon sa pagpananom.',
-      platform_desc:
-        'Gikan sa imong unang desisyon sa pagpananom hangtod sa mga tanyag sa buyer, mga kumpirmasyon sa bayad ug suporta sa uma, padayona nga konektado ang trabaho sa matag panahon.',
       community_note: 'Para sa mga Pilipinong mag-uuma ug buyer',
-      visual_eyebrow: 'Nakagamot sa paglaom',
-      visual_note:
-        'Pagplano nga maampingon. Pagtanom nga masaligon. Pakig-uban sa imong komunidad.',
-      community_eyebrow: 'Mas maayo kung magkauban',
-      community_title: 'Susiha ang imong sunod nga abot.',
-      community_desc:
-        'Ang maayong abot nagsugod sa koneksyon. Susiha ang mga pananom sa mga mag-uuma ug pakig-uban sa komunidad sa YieldGrid.',
+      ...publicGuides.home,
     },
     about: {
       eyebrow: 'Among katuyoan',

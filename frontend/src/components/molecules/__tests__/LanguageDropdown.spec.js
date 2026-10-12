@@ -69,6 +69,16 @@ describe('LanguageDropdown', () => {
     expect(toggle.attributes('aria-expanded')).toBe('false')
   })
 
+  it('returns focus to the language control after selecting an option', async () => {
+    const wrapper = mountDropdown({ variant: 'inline' })
+    const toggle = wrapper.get('[data-testid="language-menu"]')
+    await toggle.trigger('click')
+    const option = wrapper.get('[data-testid="locale-ceb"]')
+    option.element.focus()
+    await option.trigger('click')
+    expect(document.activeElement).toBe(toggle.element)
+  })
+
   it('renders the inline variant as a static full-width list', async () => {
     const wrapper = mountDropdown({ variant: 'inline' })
     const toggle = wrapper.get('[data-testid="language-menu"]')

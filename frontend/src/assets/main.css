@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.public-reading-heading:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 @layer base {
   body {
     @apply antialiased font-sans font-normal text-stone-900 bg-stone-100 m-0 p-0;

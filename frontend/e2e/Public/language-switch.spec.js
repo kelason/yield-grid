@@ -53,3 +53,15 @@ test('insurance page has no inline language pill', async ({ page }) => {
   await expect(page.getByTestId('locale-tl')).toHaveCount(0)
   await expect(page.getByTestId('locale-ceb')).toHaveCount(0)
 })
+
+test('documentation language change preserves its article and section', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/documentation/payments-and-purchases#payment-options')
+  await expect(page.locator('#payment-options')).toBeFocused()
+  await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Menu', exact: true })
+  await dialog.getByTestId('language-menu').click()
+  await dialog.getByTestId('locale-tl').click()
+  await expect(page).toHaveURL(/\/documentation\/payments-and-purchases#payment-options$/)
+  await expect(page.getByRole('dialog').locator(':focus')).toHaveCount(1)
+})
