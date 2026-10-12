@@ -8,6 +8,7 @@ let wrapper
 afterEach(() => {
   wrapper?.unmount()
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   document.body.innerHTML = ''
   history.replaceState(null, '')
 })
@@ -109,4 +110,16 @@ it('leaves a dashboard history entry untouched while its route transition is pen
   window.dispatchEvent(new PopStateEvent('popstate'))
   window.dispatchEvent(new Event('scroll'))
   expect(history.state).toEqual(dashboardEntry)
+})
+
+it('keeps public pages readable when secure-context UUID support is unavailable', async () => {
+  vi.stubGlobal('crypto', {})
+  const main = document.createElement('main')
+  main.innerHTML = '<h1 tabindex="-1">Guide</h1>'
+  document.body.append(main)
+  history.replaceState({ position: 60, current: '/guide' }, '')
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  await mountReading(ref(main))
+  expect(document.activeElement).toBe(main.querySelector('h1'))
+  expect(history.state.yieldgridReadingEntry).toEqual(expect.any(String))
 })

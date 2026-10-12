@@ -91,18 +91,14 @@ function requestLogout() {
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white shadow-soft">
     <div
       ref="rowRef"
-      class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 xl:min-h-20 xl:px-8 xl:py-0"
+      class="public-nav-row mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 xl:min-h-20 xl:px-8 xl:py-0"
     >
       <div ref="logoRef" class="min-w-0 xl:shrink-0"><AppLogo class="max-w-full" /></div>
       <nav
         :aria-label="t('common.nav.main_label')"
         ref="navRef"
         class="hidden w-max shrink-0 items-center gap-5 whitespace-nowrap xl:flex"
-        :class="
-          fits
-            ? ''
-            : 'xl:invisible xl:absolute xl:left-0 xl:-translate-x-full xl:pointer-events-none'
-        "
+        :class="fits ? '' : 'xl:invisible xl:absolute xl:right-full xl:pointer-events-none'"
       >
         <NavLink
           v-for="link in publicLinks"
@@ -122,11 +118,7 @@ function requestLogout() {
       <div
         ref="actionsRef"
         class="hidden w-max shrink-0 items-center gap-3 whitespace-nowrap xl:flex"
-        :class="
-          fits
-            ? ''
-            : 'xl:invisible xl:absolute xl:left-0 xl:-translate-x-full xl:pointer-events-none'
-        "
+        :class="fits ? '' : 'xl:invisible xl:absolute xl:right-full xl:pointer-events-none'"
       >
         <LanguageDropdown />
         <template v-if="!authStore.isAuthenticated"
@@ -267,3 +259,11 @@ function requestLogout() {
     />
   </header>
 </template>
+
+<style scoped>
+/* Text resizing must not animate the intrinsic widths used by the fit check. */
+.public-nav-row :deep(a),
+.public-nav-row :deep(button) {
+  transition-property: color, background-color, border-color, box-shadow, transform;
+}
+</style>

@@ -299,3 +299,43 @@ test('short public menu keeps all learning and support links reachable', async (
   await expect(page).toHaveURL(/\/contact$/)
   await expect(dialog).not.toBeVisible()
 })
+
+test('public header text resizing keeps measured widths stable', async ({ page }) => {
+  await mockSession(page, { authenticated: false })
+  await page.goto('/contact')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Contact Us')
+  await expect(page.locator('.page-enter-active')).toHaveCount(0)
+  await page.evaluate(() => document.fonts.ready)
+  await page.setViewportSize(NAVBAR_DESKTOP_BREAKPOINT)
+  await page
+    .locator('body header')
+    .first()
+    .evaluate((header) => getComputedStyle(header.querySelector('nav a')).fontSize)
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = '200%'
+  })
+  const animatedDimensions = await page
+    .locator('body header')
+    .first()
+    .evaluate((header) =>
+      header
+        .getAnimations({ subtree: true })
+        .flatMap((animation) =>
+          animation.effect
+            .getKeyframes()
+            .flatMap((frame) =>
+              Object.keys(frame).filter((property) =>
+                ['fontSize', 'paddingLeft', 'paddingRight', 'width', 'height', 'gap'].includes(
+                  property,
+                ),
+              ),
+            ),
+        ),
+    )
+  expect(animatedDimensions).toEqual([])
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
+  await assertNoOverflow(page)
+  await assertHeaderFit(page)
+})

@@ -1,5 +1,6 @@
 import { nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { newClientRequestId } from '@/constants/issues'
 
 const READING_GAP_PX = 16
 const SCROLL_ORIGIN = 0
@@ -12,7 +13,7 @@ function entryId(route) {
     return entry?.position ?? route.fullPath
   if (!entry[READING_ENTRY_KEY]) {
     // Numeric positions are reused when a new push discards Forward history.
-    window.history.replaceState({ ...entry, [READING_ENTRY_KEY]: window.crypto.randomUUID() }, '')
+    window.history.replaceState({ ...entry, [READING_ENTRY_KEY]: newClientRequestId() }, '')
   }
   return window.history.state[READING_ENTRY_KEY]
 }
