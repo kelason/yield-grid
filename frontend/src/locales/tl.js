@@ -220,6 +220,7 @@ export default {
         'Ang talino sa pananim at direktang palengke para sa mga magsasakang Pilipino at mamimili. Mula sa lupa hanggang sa pagbebenta.',
       about: 'Tungkol sa Amin',
       contact: 'Kontak',
+      api_docs: 'API Docs',
       nav_label: 'Nabigasyon sa footer',
       rights: '© {year} YieldGrid. Lahat ng karapatan ay nakalaan.',
     },

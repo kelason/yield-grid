@@ -220,6 +220,7 @@ export default {
         'Crop intelligence and a direct marketplace for Filipino farmers and buyers. From soil to sale.',
       about: 'About Us',
       contact: 'Contact',
+      api_docs: 'API Docs',
       nav_label: 'Footer navigation',
       rights: '© {year} YieldGrid. All rights reserved.',
     },

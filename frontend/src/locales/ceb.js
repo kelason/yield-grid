@@ -220,6 +220,7 @@ export default {
         'Kaalam sa pananom ug direktang merkado para sa mga mag-uumang Pilipino ug mamalit. Gikan sa yuta hangtod sa pagbaligya.',
       about: 'Mahitungod Kanamo',
       contact: 'Kontak',
+      api_docs: 'API Docs',
       nav_label: 'Nabigasyon sa footer',
       rights: '© {year} YieldGrid. Ang tanang katungod gigahin.',
     },

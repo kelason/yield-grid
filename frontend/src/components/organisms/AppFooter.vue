@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppLogo from '../atoms/AppLogo.vue'
+import { API_DOCS_URL } from '@/constants/apiDocs'
 const { t } = useI18n()
 </script>
 <template>
@@ -25,6 +26,12 @@ const { t } = useI18n()
             to="/contact"
             class="inline-flex min-h-11 items-center rounded-xl text-sm text-stone-100 transition-colors hover:text-white"
             >{{ t('shell.footer.contact') }}</RouterLink
+          ><a
+            :href="API_DOCS_URL"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-11 items-center rounded-xl text-sm text-stone-100 transition-colors hover:text-white"
+            >{{ t('shell.footer.api_docs') }}</a
           >
         </nav>
       </div>
