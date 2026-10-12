@@ -1,4 +1,8 @@
+import guides, { GUIDE_UI as guideUi } from './guides/en'
+
 export default {
+  guides,
+  guideUi,
   insurance: {
     page: {
       title: 'Crop Insurance',

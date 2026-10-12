@@ -1,4 +1,8 @@
+import guides, { GUIDE_UI as guideUi } from './guides/tl'
+
 export default {
+  guides,
+  guideUi,
   insurance: {
     page: {
       title: 'Seguro sa Pananim',

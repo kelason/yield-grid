@@ -1,4 +1,8 @@
+import guides, { GUIDE_UI as guideUi } from './guides/ceb'
+
 export default {
+  guides,
+  guideUi,
   insurance: {
     page: {
       title: 'Seguro sa Pananom',

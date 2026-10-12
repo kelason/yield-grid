@@ -1,6 +1,12 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useHead } from '@unhead/vue'
 import ToastContainer from '@/components/organisms/ToastContainer.vue'
+
+const { locale } = useI18n()
+useHead(computed(() => ({ htmlAttrs: { lang: locale.value } })))
 </script>
 
 <template>
