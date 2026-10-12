@@ -2,7 +2,19 @@ import { test, expect, mockSession } from '../fixtures/session'
 import { FARMS } from '../fixtures/data'
 import { E2E } from '../constants'
 async function noOverflow(page) {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  // Allow the measured navbar fallback to render after viewport/text resizing.
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
+  const layout = await page.evaluate(() => ({
+    width: innerWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+    fontSize: getComputedStyle(document.documentElement).fontSize,
+    overflow: Array.from(document.querySelectorAll('body *'))
+      .filter((element) => element.getBoundingClientRect().right > innerWidth)
+      .map((element) => ({ tag: element.tagName, class: element.className })),
+  }))
+  expect(layout.scrollWidth, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width)
 }
 test('guest home has usable register and login navigation with one heading', async ({
   page,
