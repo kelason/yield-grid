@@ -151,8 +151,8 @@ INSERT INTO public.forum_categories VALUES (14, 'Farm Finance & Grants', 'financ
 -- Data for Name: forum_threads; Type: TABLE DATA; Schema: public; Owner: yieldgrid
 --
 
-INSERT INTO public.forum_threads VALUES (4, 8, 4, NULL, 'hello world', 'dsad asdasd sad sadasd sad sad asd d asdasd ada s', 0, 0, false, false, true, '2026-09-29 04:12:29', '2026-09-29 04:12:29', '2026-09-29 04:12:29', NULL);
-INSERT INTO public.forum_threads VALUES (5, 8, 3, NULL, 'Goodbye RareJob', 'Paalam sa lahat mga kaibigan', 1, 0, false, false, false, '2026-10-01 03:04:54', '2026-10-01 03:04:54', '2026-10-01 03:08:53', NULL);
+INSERT INTO public.forum_threads VALUES (4, 8, 4, NULL, 'Yellow leaves on rice seedlings — nitrogen deficiency?', 'My two-week-old rice seedlings in Nueva Ecija are turning yellow from the tip down. There are no standing water issues and I applied complete fertilizer at transplanting. Could this be nitrogen deficiency or tungro? Any advice before I spray anything?', 0, 0, false, false, true, '2026-09-29 04:12:29', '2026-09-29 04:12:29', '2026-09-29 04:12:29', NULL);
+INSERT INTO public.forum_threads VALUES (5, 8, 3, NULL, 'Magandang ani! First successful dry-season harvest', 'Just finished my first dry-season harvest and the yield beat my target by a wide margin. Drip lines plus the new seed variety made the difference. Thank you to everyone who answered my irrigation questions last season.', 1, 0, false, false, false, '2026-10-01 03:04:54', '2026-10-01 03:04:54', '2026-10-01 03:08:53', NULL);
 
 
 --
@@ -208,14 +208,11 @@ INSERT INTO public.forum_tags VALUES (31, 'Insurance', 'insurance', '2026-09-29 
 -- Data for Name: forum_thread_tag; Type: TABLE DATA; Schema: public; Owner: yieldgrid
 --
 
-INSERT INTO public.forum_thread_tag VALUES (4, 24);
-INSERT INTO public.forum_thread_tag VALUES (4, 29);
-INSERT INTO public.forum_thread_tag VALUES (4, 10);
-INSERT INTO public.forum_thread_tag VALUES (4, 13);
+INSERT INTO public.forum_thread_tag VALUES (4, 1);
+INSERT INTO public.forum_thread_tag VALUES (4, 7);
+INSERT INTO public.forum_thread_tag VALUES (4, 17);
 INSERT INTO public.forum_thread_tag VALUES (5, 9);
-INSERT INTO public.forum_thread_tag VALUES (5, 21);
-INSERT INTO public.forum_thread_tag VALUES (5, 18);
-INSERT INTO public.forum_thread_tag VALUES (5, 13);
+INSERT INTO public.forum_thread_tag VALUES (5, 1);
 
 
 --
