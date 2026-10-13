@@ -95,9 +95,13 @@ onBeforeUnmount(() => breakpoint?.removeEventListener('change', onBreakpoint))
         <span class="block break-words">{{ auth.user.name }}</span>
         <span class="mt-1 block text-stone-300">{{ t('shell.profile') }}</span>
       </RouterLink>
-      <div class="mt-3">
-        <LanguageDropdown />
-      </div>
+    </div>
+    <hr v-if="mobileOpen" aria-hidden="true" class="my-4 border-stone-200" />
+    <div v-if="mobileOpen" class="space-y-2">
+      <p class="text-xs font-medium uppercase tracking-widest text-soil-700">
+        {{ t('common.language.label') }}
+      </p>
+      <LanguageDropdown variant="inline" />
     </div>
   </AppModal>
 </template>
