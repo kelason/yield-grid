@@ -13,6 +13,8 @@ jobs:
       contents: write
     steps:
       - name: PR Agent action step
+        # Advisory bot: external LLM outages (e.g. Gemini 503s) must not fail the run or block merges.
+        continue-on-error: true
         uses: the-pr-agent/pr-agent@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
