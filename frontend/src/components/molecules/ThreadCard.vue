@@ -80,7 +80,7 @@ function profileLink(author) {
             <ForumTag v-for="tag in thread.tags" :key="tag.id" :tag="tag" />
           </div>
 
-          <div class="flex items-center gap-4 text-sm text-stone-500">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-stone-500">
             <div class="flex items-center gap-1.5" :title="t('community.card.category_title')">
               <span class="font-medium">{{ thread.category?.name }}</span>
             </div>
@@ -125,7 +125,7 @@ function profileLink(author) {
               v-if="!isOwner"
               type="button"
               :aria-label="t('community.card.report_aria')"
-              class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+              class="min-h-11 px-2 inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
               @click.stop="emitReport"
             >
               <FlagIcon class="w-4 h-4" aria-hidden="true" />

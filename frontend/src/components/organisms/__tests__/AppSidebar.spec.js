@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import i18n, { setLocale } from '@/i18n'
 import AppSidebar from '../AppSidebar.vue'
+import LanguageDropdown from '../../molecules/LanguageDropdown.vue'
 
 afterEach(() => {
   setLocale('en')
@@ -178,6 +179,39 @@ describe('AppSidebar admin navigation', () => {
 
     expect(profileLinks(wrapper).length).toBeGreaterThanOrEqual(2)
   })
+})
+
+describe('AppSidebar mobile language selector', () => {
+  const mounted = []
+
+  beforeEach(() => {
+    mockRoute.name = 'farmer-dashboard'
+    mockRoute.path = '/dashboard'
+  })
+
+  afterEach(() => {
+    mounted.splice(0).forEach((wrapper) => wrapper.unmount())
+  })
+
+  it.each(['farmer', 'buyer'])(
+    'renders the %s language selector as a full-width list on a light background',
+    (role) => {
+      const wrapper = mountSidebar({ role, mobileOpen: true })
+      mounted.push(wrapper)
+
+      // The drawer teleports to document.body, so locate this mount's toggle
+      // (the last one) in the real DOM instead of the wrapper subtree.
+      const dropdown = wrapper.findComponent(LanguageDropdown)
+      expect(dropdown.exists()).toBe(true)
+      expect(dropdown.props('variant')).toBe('inline')
+
+      const toggles = document.body.querySelectorAll('[data-testid="language-menu"]')
+      const toggle = toggles[toggles.length - 1]
+      expect(toggle.classList.contains('w-full')).toBe(true)
+      expect(toggle.closest('.bg-soil-900')).toBeNull()
+      expect(toggle.closest('div').parentElement.textContent).toContain('Language')
+    },
+  )
 })
 
 describe('AppSidebar mobile profile links', () => {

@@ -141,10 +141,10 @@ function profileLink(author) {
           />
         </div>
 
-        <div class="flex gap-4 border-t border-stone-100 pt-3">
+        <div class="flex flex-wrap gap-x-4 gap-y-2 border-t border-stone-100 pt-3">
           <button
             @click="emit('replyTo', reply.id)"
-            class="min-h-11 px-2 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+            class="min-h-11 px-2 shrink-0 whitespace-nowrap text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
           >
             {{ t('community.reply.reply') }}
           </button>
@@ -152,7 +152,7 @@ function profileLink(author) {
             v-if="!isOwner"
             type="button"
             :aria-label="t('community.reply.report_aria')"
-            class="min-h-11 px-2 inline-flex items-center gap-1 text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
+            class="min-h-11 px-2 inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-sm font-medium text-soil-600 hover:text-soil-800 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moss-500 rounded-xl"
             @click.stop="emitReport"
           >
             <FlagIcon class="w-4 h-4" aria-hidden="true" />
