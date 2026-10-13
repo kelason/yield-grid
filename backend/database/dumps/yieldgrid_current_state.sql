@@ -1648,14 +1648,11 @@ COPY public.forum_tags (id, name, slug, created_at, updated_at) FROM stdin;
 --
 
 COPY public.forum_thread_tag (thread_id, tag_id) FROM stdin;
-4	24
-4	29
-4	10
-4	13
+4	1
+4	7
+4	17
 5	9
-5	21
-5	18
-5	13
+5	1
 \.
 
 
@@ -1664,8 +1661,8 @@ COPY public.forum_thread_tag (thread_id, tag_id) FROM stdin;
 --
 
 COPY public.forum_threads (id, user_id, category_id, accepted_reply_id, title, body, vote_score, reply_count, is_pinned, is_locked, is_anonymous, last_activity_at, created_at, updated_at, deleted_at) FROM stdin;
-4	8	4	\N	hello world	dsad asdasd sad sadasd sad sad asd d asdasd ada s	0	0	f	f	t	2026-09-29 04:12:29	2026-09-29 04:12:29	2026-09-29 04:12:29	\N
-5	8	3	\N	Goodbye RareJob	Paalam sa lahat mga kaibigan	1	0	f	f	f	2026-10-01 03:04:54	2026-10-01 03:04:54	2026-10-01 03:08:53	\N
+4	8	4	\N	Yellow leaves on rice seedlings — nitrogen deficiency?	My two-week-old rice seedlings in Nueva Ecija are turning yellow from the tip down. There are no standing water issues and I applied complete fertilizer at transplanting. Could this be nitrogen deficiency or tungro? Any advice before I spray anything?	0	0	f	f	t	2026-09-29 04:12:29	2026-09-29 04:12:29	2026-09-29 04:12:29	\N
+5	8	3	\N	Magandang ani! First successful dry-season harvest	Just finished my first dry-season harvest and the yield beat my target by a wide margin. Drip lines plus the new seed variety made the difference. Thank you to everyone who answered my irrigation questions last season.	1	0	f	f	f	2026-10-01 03:04:54	2026-10-01 03:04:54	2026-10-01 03:08:53	\N
 \.
 
 
