@@ -51,6 +51,19 @@ npm run lint
 
 ## Redesign checks and visual baselines
 
+### Brand assets
+
+`BrandLogo` renders the YieldGrid field-and-leaf mark with the Lora wordmark;
+`AppLogo` adds the translated home link. The mark geometry lives in
+`src/constants/brand.js`, and colors come from `src/constants/designTokens.js`.
+Run `npm run brand:generate` in the pinned Playwright container below after
+changing either source, mounting the full repository so backend exports persist.
+It exports the standalone SVG/PNG logo, browser and
+touch icons, and the self-contained PNG used by both backend PDF headers.
+Review the exports and affected visual baselines before committing them.
+
+### Browser verification
+
 YieldGrid uses the Field & Linen version of Modern Minimalist Organic Web Design.
 See `../AGENTS.md` and `../docs/superpowers/specs/2026-10-07-modern-organic-redesign.md`
 for component contracts, color tokens and accessibility rules.

@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import BrandLogo from './BrandLogo.vue'
 defineProps({ dark: Boolean, collapsed: Boolean })
 const { t } = useI18n()
 </script>
@@ -8,27 +9,8 @@ const { t } = useI18n()
   <RouterLink
     to="/"
     :aria-label="t('shell.logo_home')"
-    :class="[
-      'inline-flex min-w-0 min-h-11 items-center gap-3 rounded-xl transition-colors duration-200',
-      dark ? 'text-stone-100' : 'text-moss-700',
-    ]"
+    class="inline-flex min-w-0 min-h-11 items-center rounded-xl transition-colors duration-200"
   >
-    <svg
-      class="h-8 w-8 shrink-0"
-      viewBox="0 0 32 32"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.8"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path
-        d="M16 28V8M16 18C8 18 5 13 5 7c7 0 11 5 11 11ZM16 23c8 0 11-5 11-11-7 0-11 5-11 11ZM16 10c-4-3-4-6 0-8 4 2 4 5 0 8Z"
-      />
-    </svg>
-    <span v-if="!collapsed" class="truncate font-serif text-2xl font-bold tracking-tight"
-      >YieldGrid</span
-    >
+    <BrandLogo :dark="dark" :collapsed="collapsed" aria-hidden="true" />
   </RouterLink>
 </template>

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { PLATFORM_FEATURES, FEATURE_GROUPS } from '@/constants/platformFeatures'
 import { usePublicPageHead } from '@/composables/usePublicPageHead'
 import AppCard from '@/components/atoms/AppCard.vue'
+import BrandLogo from '@/components/atoms/BrandLogo.vue'
 const { t } = useI18n()
 usePublicPageHead({
   title: computed(() => `${t('public.features.title')} | YieldGrid`),
@@ -15,7 +16,7 @@ usePublicPageHead({
   <div class="break-words bg-stone-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
     <div class="mx-auto max-w-7xl">
       <header class="max-w-3xl">
-        <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-moss-700">YieldGrid</p>
+        <BrandLogo class="mb-3" />
         <h1
           id="features-heading"
           tabindex="-1"

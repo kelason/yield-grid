@@ -1,0 +1,6 @@
+// Four cultivated plots, with the upper-right plot opening into a growing leaf.
+export const BRAND_MARK_PATH =
+  'M4 3h7a3 3 0 0 1 3 3v8H6a3 3 0 0 1-3-3V4a1 1 0 0 1 1-1Z ' +
+  'M18 14v-3a9 9 0 0 1 9-9h3v3a9 9 0 0 1-9 9h-3Z ' +
+  'M3 18h11v11H6a3 3 0 0 1-3-3v-8Z ' +
+  'M18 18h11v8a3 3 0 0 1-3 3h-8V18Z'

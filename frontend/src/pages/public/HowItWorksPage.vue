@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { usePublicPageHead } from '@/composables/usePublicPageHead'
 import { TUTORIAL_JOURNEYS } from '@/constants/tutorialJourneys'
 import TutorialJourney from '@/components/organisms/TutorialJourney.vue'
+import BrandLogo from '@/components/atoms/BrandLogo.vue'
 const { t } = useI18n()
 usePublicPageHead({
   title: computed(() => `${t('public.how_it_works.title')} | YieldGrid`),
@@ -19,7 +20,7 @@ const audiences = [
   <div class="bg-stone-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
     <div class="mx-auto max-w-5xl break-words">
       <header class="max-w-3xl">
-        <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-moss-700">YieldGrid</p>
+        <BrandLogo class="mb-3" />
         <h1
           id="tutorial-heading"
           tabindex="-1"

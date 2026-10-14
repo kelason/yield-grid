@@ -34,6 +34,7 @@ declare(strict_types=1);
  * } $report
  */
 $e = fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+$brandLogoData = base64_encode((string) file_get_contents(__DIR__.'/../brand/yieldgrid-logo.png'));
 
 // SVG gauge geometry: r=54 → C ≈ 339.29
 $gaugeCircumference = 2 * M_PI * 54;
@@ -50,6 +51,7 @@ $gaugeOffset = $gaugeCircumference * (1 - min(100, max(0, $report['score'])) / 1
         .header { text-align: center; border-bottom: 3px solid #4a8c42; padding-bottom: 16px; margin-bottom: 20px; }
         .header h1 { color: #2d5829; font-size: 26px; letter-spacing: 0.5px; }
         .header .brand { font-size: 13px; color: #78716c; margin-top: 4px; }
+        .brand-logo { vertical-align: middle; margin-right: 8px; }
         .header .confidential { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: bold; color: #92400e; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 999px; padding: 2px 12px; }
         .meta { width: 100%; margin-bottom: 18px; }
         .meta td { padding: 3px 8px 3px 0; vertical-align: top; }
@@ -83,7 +85,7 @@ $gaugeOffset = $gaugeCircumference * (1 - min(100, max(0, $report['score'])) / 1
 <body>
     <div class="header">
         <h1>FARMER TRUST SCORE REPORT</h1>
-        <div class="brand">YieldGrid &bull; Buhay na Ani, Buhay na Kita</div>
+        <div class="brand"><img class="brand-logo" src="data:image/png;base64,<?= $brandLogoData ?>" width="80" height="16" alt="YieldGrid"> &bull; Buhay na Ani, Buhay na Kita</div>
         <div class="confidential">CONFIDENTIAL</div>
     </div>
 

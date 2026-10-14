@@ -1,7 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 /** @var array<string, mixed> $pack */
 $e = fn (mixed $v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 $money = fn (float $v): string => 'PHP '.number_format($v, 2);
+$brandLogoData = base64_encode((string) file_get_contents(__DIR__.'/../brand/yieldgrid-logo.png'));
 ?>
 <!DOCTYPE html>
 <html>
@@ -10,6 +14,7 @@ $money = fn (float $v): string => 'PHP '.number_format($v, 2);
 <style>
   body { font-family: DejaVu Sans, Helvetica, Arial, sans-serif; color: #1c1917; font-size: 12px; }
   h1 { font-size: 20px; margin: 0 0 4px; }
+  .brand-logo { vertical-align: middle; margin-right: 8px; }
   h2 { font-size: 14px; border-bottom: 2px solid #4a8c42; padding-bottom: 4px; margin-top: 22px; }
   .subtitle { color: #57534e; margin: 0 0 12px; }
   table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -23,7 +28,7 @@ $money = fn (float $v): string => 'PHP '.number_format($v, 2);
 </style>
 </head>
 <body>
-<h1>YieldGrid PCIC Enrollment Pack</h1>
+<h1><img class="brand-logo" src="data:image/png;base64,<?= $brandLogoData ?>" width="160" height="32" alt="YieldGrid"> PCIC Enrollment Pack</h1>
 <p class="subtitle">Pre-filled summary for Philippine Crop Insurance Corporation enrollment &mdash; generated <?= $e($pack['generated_at']) ?></p>
 
 <h2>Farmer</h2>
