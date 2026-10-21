@@ -1,6 +1,7 @@
-# YieldGrid backend — local dev image (PHP 8.3 to match CI).
+# YieldGrid backend — local dev image (PHP 8.3.36 to match CI).
+# Pinned patch for CVE-2026-109618 / CVE-2026-109619 (unauthenticated RCE in PHP <8.3.36).
 # One image, four commands: serve (api), reverb:start, queue:work, schedule:work.
-FROM php:8.3-cli-bookworm
+FROM php:8.3.36-cli-bookworm
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_NO_INTERACTION=1 \

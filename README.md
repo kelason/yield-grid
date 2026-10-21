@@ -77,7 +77,7 @@ Versions below describe the current repository; lockfiles record the exact insta
 
 | Area                      | Technologies                                                                     |
 | ------------------------- | -------------------------------------------------------------------------------- |
-| Backend                   | PHP 8.2+; Laravel 12; PHP 8.3 in Docker and CI                                   |
+| Backend                   | PHP 8.2+; Laravel 12; PHP 8.3.36 in Docker and CI                                   |
 | API and authentication    | Laravel REST API, Sanctum, Scramble API documentation                            |
 | Frontend                  | Vue 3 Composition API, Vite 8, Pinia 4, Vue Router 5                             |
 | Styling and localization  | Tailwind CSS 3.4, Heroicons, Vue I18n 11, self-hosted Inter and Lora             |
@@ -264,7 +264,7 @@ assume a macOS/Linux shell or WSL2 and a clone with both `.env` files created as
 
 ### 1. Install prerequisites and start supporting services
 
-- PHP 8.3 is recommended to match Docker and CI; the project requires PHP 8.2 or newer.
+- PHP 8.3.36 is recommended to match Docker and CI (pinned for CVE-2026-109618 / CVE-2026-109619); the project requires PHP 8.2 or newer, patched to 8.2.35 / 8.3.36 / 8.4.27 / 8.5.12 or later.
 - Composer 2.
 - Node.js `^22.18.0` or `>=24.12.0`, with npm.
 - PostgreSQL 16 with PostGIS 3.4, Redis 7, and an SMTP development inbox.

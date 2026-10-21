@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  PHP_VERSION: '8.3'
+  PHP_VERSION: '8.3.36'
   NODE_VERSION: '22.18.0'
 
 jobs:
@@ -227,6 +227,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            # CVE-2026-109618 / CVE-2026-109619: unauthenticated RCE in PHP <8.3.36
+            # (CERT-EU 2026-018). Upgrade PHP packages before app code runs.
+            # Distro builds may keep an older version string with the fix
+            # backported, so report the version rather than gating on it.
+            sudo apt-get update
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --only-upgrade 'php8.3*'
+            php -v
             cd /var/www/yieldgrid
             git pull origin main
             cd backend
@@ -251,5 +258,7 @@ jobs:
             sudo chown -R $USER:www-data storage bootstrap/cache
             sudo chmod -R 775 storage bootstrap/cache
             sudo supervisorctl restart yieldgrid-scheduler yieldgrid-reverb
-            sudo systemctl reload php8.3-fpm
+            # Restart (not reload) so FPM workers spawn on the upgraded binary.
+            sudo systemctl restart php8.3-fpm
+            php -v
             # Ensure proper restart of services if needed, e.g., sudo systemctl reload nginx
