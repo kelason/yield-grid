@@ -42,6 +42,16 @@ it('rejects unauthenticated requests to protected endpoints', function () {
     $this->getJson('/api/v1/user')->assertUnauthorized();
 });
 
+it('rejects unauthenticated non-JSON requests with 401 instead of a login redirect', function () {
+    // No Accept: application/json header — API-only app has no login route to redirect to.
+    $this->get('/api/v1/farms')
+        ->assertUnauthorized()
+        ->assertJson(['message' => 'Unauthenticated.']);
+    $this->get('/api/v1/user')
+        ->assertUnauthorized()
+        ->assertJson(['message' => 'Unauthenticated.']);
+});
+
 it('prevents one farmer from viewing another farmer contract (IDOR)', function () {
     [, , $contract] = createAccessControlFarmerWithContract();
     $otherFarmer = User::factory()->farmer()->create();
