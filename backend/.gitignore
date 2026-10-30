@@ -1,4 +1,6 @@
 *.log
+/database/dumps/*.sql
+/database/seeders/backup.sql
 .DS_Store
 .env
 .env.*

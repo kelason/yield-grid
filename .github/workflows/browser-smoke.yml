@@ -1,6 +1,8 @@
 name: Frontend browser smoke
 on:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   browser-smoke:
     runs-on: ubuntu-latest
