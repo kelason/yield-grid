@@ -8,6 +8,7 @@
 !/README.md
 !/AGENTS.md
 !/.gitignore
+!/.gitleaksignore
 !/.pr_agent.toml
 !/.github/
 !/docs/
