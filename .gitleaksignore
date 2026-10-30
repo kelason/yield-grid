@@ -1,7 +1,0 @@
-# Accepted: Sanctum personal_access_tokens.token stores a SHA-256 hash, not the
-# plaintext bearer token, so these hashes alone cannot authenticate.
-# Follow-up required: backend/database/seeders/backup.sql is a committed DB dump
-# (includes users) — remove it, revoke the tokens for user ids 20/21, and purge history.
-94398b9f5f043993e8bf1a045189dc98c6a23331:backend/database/seeders/backup.sql:generic-api-key:152
-94398b9f5f043993e8bf1a045189dc98c6a23331:backend/database/seeders/backup.sql:generic-api-key:153
-94398b9f5f043993e8bf1a045189dc98c6a23331:backend/database/seeders/backup.sql:generic-api-key:154
