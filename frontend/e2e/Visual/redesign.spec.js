@@ -70,7 +70,9 @@ async function preparePublicCapture(page) {
     await Promise.all(
       Array.from(document.querySelectorAll('video'), async (video) => {
         if (video.readyState < 2)
-          await new Promise((resolve) => video.addEventListener('loadeddata', resolve, { once: true }))
+          await new Promise((resolve) =>
+            video.addEventListener('loadeddata', resolve, { once: true }),
+          )
         video.pause()
         video.currentTime = 0
       }),
