@@ -55,6 +55,7 @@ async function capture(page, testInfo, name, target = null) {
     ),
   ).toBe(true)
   const options = { animations: 'disabled', fullPage: name !== 'public-mobile-menu' }
+  if ((await page.locator('video').count()) > 0) options.mask = [page.locator('video').first()]
   if (
     process.platform === 'linux' &&
     ['chromium', 'mobile-chromium'].includes(testInfo.project.name)
@@ -66,6 +67,14 @@ async function preparePublicCapture(page) {
   await page.evaluate(async () => {
     for (const image of document.images) image.loading = 'eager'
     await Promise.all(Array.from(document.images, (image) => image.decode()))
+    await Promise.all(
+      Array.from(document.querySelectorAll('video'), async (video) => {
+        if (video.readyState < 2)
+          await new Promise((resolve) => video.addEventListener('loadeddata', resolve, { once: true }))
+        video.pause()
+        video.currentTime = 0
+      }),
+    )
     document.getElementById('main-content')?.scrollTo(0, 0)
     window.scrollTo(0, 0)
   })
