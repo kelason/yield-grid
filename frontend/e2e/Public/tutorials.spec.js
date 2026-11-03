@@ -31,6 +31,31 @@ test('missing tutorial images keep all text steps and accessible recovery', asyn
   ).toBeVisible()
 })
 
+test('platform walkthrough plays above the written guides', async ({ page }) => {
+  await mockSession(page, { authenticated: false })
+  await page.goto('/how-it-works')
+  const video = page
+    .locator('video')
+    .and(page.getByLabel('YieldGrid Platform Walkthrough', { exact: true }))
+  await expect(video).toBeVisible()
+  await expect.poll(() => video.evaluate((element) => element.readyState)).toBeGreaterThan(0)
+  expect(await video.evaluate((element) => element.paused)).toBe(true)
+  await video.focus()
+  await expect(video).toBeFocused()
+  await video.evaluate(async (element) => {
+    element.muted = true
+    await element.play()
+  })
+  await expect.poll(() => video.evaluate((element) => element.currentTime)).toBeGreaterThan(0)
+  await video.evaluate((element) => element.pause())
+  const videoBox = await video.boundingBox()
+  const guideBox = await page.getByRole('heading', { name: 'Start with an account' }).boundingBox()
+  expect(videoBox.y + videoBox.height).toBeLessThan(guideBox.y)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  )
+})
+
 for (const role of ['farmer', 'buyer']) {
   test(`${role} tutorial start links respect the signed-in role`, async ({ page }) => {
     await mockSession(page, { role })

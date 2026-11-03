@@ -55,6 +55,7 @@ async function capture(page, testInfo, name, target = null) {
     ),
   ).toBe(true)
   const options = { animations: 'disabled', fullPage: name !== 'public-mobile-menu' }
+  if ((await page.locator('video').count()) > 0) options.mask = [page.locator('video').first()]
   if (
     process.platform === 'linux' &&
     ['chromium', 'mobile-chromium'].includes(testInfo.project.name)
