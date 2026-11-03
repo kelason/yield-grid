@@ -64,6 +64,12 @@ export default {
     },
   },
   how_it_works: {
+    video_title: 'Giya sa Paggamit sa YieldGrid',
+    video_intro:
+      'Tan-awa ang video tutorial nga nagpakita sa matag lakang, dayon basaha ang detalyadong mga giya sa ubos.',
+    video_fallback:
+      'Dili suportado sa imong browser ang naka-embed nga video. Gamita ang link sa ubos aron motan-aw sa tutorial.',
+    video_open: 'Ablihi ang video tutorial',
     title: 'Klarong mga lakang gikan sa yuta ngadto sa pagbaligya.',
     intro:
       'Pilia ang giya nga angay sa imong sunod nga buluhaton. Ang matag lakang nagpakita asa moadto, unsay buhaton ug unsay mosunod.',

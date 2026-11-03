@@ -62,6 +62,11 @@ export default {
     },
   },
   how_it_works: {
+    video_title: 'YieldGrid Platform Walkthrough',
+    video_intro: 'Watch this step-by-step video tutorial, then explore the detailed guides below.',
+    video_fallback:
+      'Your browser does not support embedded video. Use the link below to watch the tutorial.',
+    video_open: 'Open the video tutorial',
     title: 'A clear path from soil to sale.',
     intro:
       'Choose the journey that matches your next task. Each step shows where to go, what to do and what happens next.',

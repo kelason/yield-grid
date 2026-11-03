@@ -64,6 +64,12 @@ export default {
     },
   },
   how_it_works: {
+    video_title: 'Gabay sa Paggamit ng YieldGrid',
+    video_intro:
+      'Panoorin ang sunod-sunod na video tutorial, pagkatapos ay basahin ang mga detalyadong gabay sa ibaba.',
+    video_fallback:
+      'Hindi sinusuportahan ng iyong browser ang naka-embed na video. Gamitin ang link sa ibaba upang panoorin ang tutorial.',
+    video_open: 'Buksan ang video tutorial',
     title: 'Malinaw na hakbang mula lupa hanggang bentahan.',
     intro:
       'Piliin ang gabay na tugma sa susunod mong gawain. Makikita sa bawat hakbang kung saan pupunta, ano ang gagawin at ano ang kasunod.',
