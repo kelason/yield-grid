@@ -41,9 +41,7 @@ it('embeds the platform walkthrough at the top in every locale', async () => {
     expect(video.attributes('preload')).toBe('metadata')
     expect(video.attributes('controls')).toBeDefined()
     expect(video.attributes('autoplay')).toBeUndefined()
-    expect(video.find('source').attributes('src')).toBe(
-      '/videos/yieldgridph-complete-tutorial.mp4',
-    )
+    expect(video.find('source').attributes('src')).toBe('/videos/yieldgridph-complete-tutorial.mp4')
     expect(wrapper.find('#walkthrough-heading').text()).toBe(
       i18n.global.t('public.how_it_works.video_title'),
     )
