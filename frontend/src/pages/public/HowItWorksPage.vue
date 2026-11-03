@@ -41,6 +41,35 @@ const audiences = [
           >
         </nav>
       </header>
+      <section
+        aria-labelledby="walkthrough-heading"
+        class="mt-10 rounded-2xl border border-stone-200 bg-white p-6 shadow-soft sm:p-8"
+      >
+        <h2 id="walkthrough-heading" class="font-serif text-2xl font-bold text-stone-900">
+          {{ t('public.how_it_works.video_title') }}
+        </h2>
+        <p class="mt-3 max-w-2xl text-base leading-relaxed text-stone-600">
+          {{ t('public.how_it_works.video_intro') }}
+        </p>
+        <video
+          controls
+          playsinline
+          preload="metadata"
+          poster="/videos/yieldgridph-tutorial-poster.jpg"
+          width="1920"
+          height="1080"
+          :aria-label="t('public.how_it_works.video_title')"
+          class="mt-6 aspect-video w-full rounded-xl bg-stone-900"
+        >
+          <source src="/videos/yieldgridph-complete-tutorial.mp4" type="video/mp4" />
+          {{ t('public.how_it_works.video_fallback') }}
+        </video>
+        <a
+          href="/videos/yieldgridph-complete-tutorial.mp4"
+          class="mt-3 inline-flex min-h-11 items-center rounded-xl font-medium text-moss-700 underline underline-offset-4 transition-colors hover:text-moss-900"
+          >{{ t('public.how_it_works.video_open') }}</a
+        >
+      </section>
       <section class="mt-10 rounded-2xl border border-stone-200 bg-white p-6 shadow-soft sm:p-8">
         <h2 class="font-serif text-2xl font-bold text-stone-900">
           {{ t('public.how_it_works.start_title') }}
